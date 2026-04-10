@@ -1,0 +1,232 @@
+@page "/hub/maturity-assessment"
+@layout HubLayout
+@inject SessionService SessionService
+@inject WorkspaceRepositoryService WorkspaceRepository
+@inject BehaviourCatalogueService BehaviourCatalogue
+@inject ChartDefinitionService ChartDefinitions
+@inject SignalPipelineService SignalPipeline
+@inject SignalRegistryService SignalRegistry
+@inject ChartService ChartService
+@inject RuleRepositoryService RuleRepository
+@inject SignalValidationService SignalValidator
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Components
+@using OperationalIntelligenceHub.Services
+
+<div class="container">
+    <div class="stack-horizontal">
+        <h1>Maturity Assessment</h1>
+    </div>
+
+    <div class="section stack">
+        <SquadInput
+            Label="Select Squad"
+            @bind-SelectedSquad="SelectedSquadId" />
+    </div>
+
+    <div class="section stack">
+        <h3>Select Session</h3>
+        <select value="@SelectedSessionId" @onchange="async e => await LoadSession(e)">
+            <option value="">-- Select Session --</option>
+            @foreach (var s in Sessions)
+            {
+                <option value="@s.AssessmentId">@GetSessionLabel(s)</option>
+            }
+        </select>
+        <div class="button button-primary" @onclick="async () => await CreateNewSession()"
+        disabled="@(string.IsNullOrEmpty(SelectedSquadId))">
+            New Session
+        </div>
+    </div>
+
+        @if (CurrentSession != null)
+        {
+            <div class="section">
+            <h2>Lens Assessments</h2>
+            </div> 
+            <div class="stack-horizontal">
+        
+            </div>
+            <ProgressNavigator
+            Items="LensProgress"
+            SelectedId="SelectedLens"
+            OnSelected="SelectLens" />
+            <div class="stack" @key="SelectedLens">
+            @foreach (var lensAssessment in CurrentSession.LensAssessments.Where(l => l.Lens == SelectedLens))
+            {
+                <div class="card stack">
+                <h3>@lensAssessment.Lens</h3>
+                <div class="table-container">
+                    <div class="stack">
+                        @foreach (var theme in lensAssessment.Themes)
+                        {
+                        <div class="card stack">
+                            <h3>@theme.Theme</h3>
+                            <BehaviourSelector 
+                            Theme="theme" 
+                            Lens="@lensAssessment.Lens"
+                            OnBehaviourSelected="async level => await UpdateScore(lensAssessment.Lens, theme.Theme, level, theme.BehaviouralNote)" />
+                        </div>   
+                        }
+                    </div>
+                </div>
+                </div>
+            }
+            </div>
+        <div class="section">
+            <div class="chart-container">
+            <canvas id="maturity-radar"></canvas>
+            </div>
+        </div>
+        
+        <div class="section">
+        <DiagnosticsConsole Signals="@Signals" DerivedSignals="@DerivedSignals" Insights="@Insights" RuleEvaluations="@Evaluations" /> 
+        </div>
+        }
+</div>
+
+@code {
+    private List<AssessmentSession> Sessions = new();
+    private AssessmentSession? CurrentSession;
+    private bool RenderRadarChart;
+    private string SelectedSquadId = "";
+    private string? SelectedSessionId;
+    private string SelectedLens = "Squad";
+    private string[] AvailableLenses = new[] { "Squad", "ScrumMaster", "ProductOwner", "Leader" };
+    private List<Signal> Signals = new();
+    private List<DerivedSignal> DerivedSignals = new();
+    private List<RuleEvaluation> Evaluations = new();
+    private List<OperationalInsight> Insights = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await BehaviourCatalogue.InitializeAsync();
+        await SignalRegistry.InitializeAsync();
+        await RuleRepository.InitializeAsync();
+        await SignalValidator.ValidateAsync();
+        Sessions = await SessionService.ListSessions(null, null);
+    }
+
+    private async Task LoadSession(ChangeEventArgs e)
+    {
+        SelectedSessionId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(SelectedSessionId))
+        {
+            CurrentSession = await SessionService.GetSession(SelectedSessionId);
+            
+            var (signals, behaviour, system, insights, evaluations) = await SignalPipeline.BuildSignalsAndDerived(CurrentSession);
+            Signals = signals;
+            DerivedSignals = behaviour.Concat(system).ToList();
+            Insights = insights;
+            Evaluations = evaluations; 
+            
+            RenderRadarChart = true;
+            StateHasChanged();
+        }          
+    }
+
+    private string GetSessionLabel(AssessmentSession session)
+    {
+        if (WorkspaceRepository.ActiveWorkspaceId == null)
+            return $"{session.SquadId} ({session.DateCreated:d})";
+
+        var squadName = WorkspaceRepository.GetSquadName(
+            WorkspaceRepository.ActiveWorkspaceId.Value,
+            Guid.TryParse(session.SquadId, out var squadId) ? squadId : null
+        );
+
+        return $"{squadName} — {session.DateCreated:dd MMM yyyy}";
+    }
+
+    private async Task CreateNewSession()
+    {
+        if (string.IsNullOrEmpty(SelectedSquadId))
+            return;
+        var workspace = WorkspaceRepository.ActiveWorkspace;
+        CurrentSession = await SessionService.CreateSessionAsync(
+            workspace.Id.ToString(),
+            SelectedSquadId,
+            DateTime.Now
+        );
+        Sessions.Add(CurrentSession);
+        SelectedSessionId = CurrentSession.AssessmentId;
+    }
+
+    private async Task UpdateScore(string lens, string theme, int level, string note = null)
+    {
+        await SessionService.UpdateThemeScoreAsync(CurrentSession.AssessmentId, lens, theme, level, note);
+        var chart = ChartDefinitions.BuildMaturityRadarChart(CurrentSession);
+        await ChartService.CreateRadarChart(
+            chart.CanvasId,
+            chart.Labels,
+            chart.Datasets ?? Array.Empty<object>()
+        );
+
+        // Build signals and derived signals
+        var (signals, behaviour, system, insights, evaluations) = await SignalPipeline.BuildSignalsAndDerived(CurrentSession);
+        Signals = signals;
+        DerivedSignals = behaviour.Concat(system).ToList();
+        Insights = insights;
+        Evaluations = evaluations;
+
+        StateHasChanged();
+    }
+
+    private List<ProgressItem> LensProgress =>
+        AvailableLenses.Select(lens =>
+        {
+            var lensAssessment = CurrentSession?.LensAssessments
+                .FirstOrDefault(l => l.Lens == lens);
+
+            if (lensAssessment == null)
+                return new ProgressItem
+                {
+                    Id = lens,
+                    Title = FormatLens(lens),
+                    PercentComplete = 0,
+                    IsComplete = false
+                };
+
+            var completed = lensAssessment.Themes.Count(t => t.Level > 0);
+            var total = lensAssessment.Themes.Count;
+
+            var percent = total == 0 ? 0 : (completed * 100 / total);
+
+            return new ProgressItem
+            {
+                Id = lens,
+                Title = FormatLens(lens),
+                PercentComplete = percent,
+                IsComplete = lensAssessment.IsComplete
+            };
+        }).ToList();
+    private string FormatLens(string lens)
+    {
+        return lens switch
+        {
+            "ScrumMaster" => "Scrum Master",
+            "ProductOwner" => "Product Owner",
+            _ => lens
+        };
+    }
+    private Task SelectLens(string lens)
+    {
+        SelectedLens = lens;
+        return Task.CompletedTask;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!RenderRadarChart || CurrentSession == null)
+            return;
+
+        RenderRadarChart = false;
+        
+        var chart = ChartDefinitions.BuildMaturityRadarChart(CurrentSession);
+
+        await ChartService.CreateRadarChart(
+            chart.CanvasId,
+            chart.Labels,
+            chart.Datasets ?? Array.Empty<object>()
+        );
+    }
+}

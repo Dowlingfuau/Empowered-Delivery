@@ -1,0 +1,44 @@
+﻿@using OperationalIntelligenceHub.Shared
+@using OperationalIntelligenceHub.Components
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+<div class="app">
+    <Header />
+    
+    <div class="page">
+
+        <div class="sidebar @(SidebarCollapsed ? "collapsed" : "")">
+            <HubSidebar ToggleSidebar="ToggleSidebar" SidebarCollapsed="SidebarCollapsed" />
+        </div>
+
+        <main>
+            <div class="content px-4">
+                @Body
+            </div>
+        </main>
+    </div>
+     <TooltipOverlay /> 
+   
+</div>
+@code {
+    private bool SidebarCollapsed = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var width = await JS.InvokeAsync<int>("getViewportWidth");
+
+                if (width < 900)
+                {
+                    SidebarCollapsed = true;
+                    StateHasChanged();
+                }
+        }
+    }
+
+    void ToggleSidebar()
+    {
+        SidebarCollapsed = !SidebarCollapsed;
+    }
+}

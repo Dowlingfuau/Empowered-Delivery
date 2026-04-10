@@ -1,0 +1,698 @@
+@page "/hub/coach-hub"
+@layout HubLayout
+@inject WorkspaceRepositoryService Repository
+@inject AssessmentRepositoryService Assessments
+@inject CoachHubStateService CoachHubState
+@inject DeepDiveService DeepDive
+@inject ChartService ChartService
+@inject ChartDefinitionService ChartDefinitionService
+@inject IJSRuntime JS
+
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Services
+@using OperationalIntelligenceHub.Shared
+@using OperationalIntelligenceHub.Components
+
+<div class="container">
+<Hero>
+<h1>Intelligence Hub</h1>
+<p>
+    View and explore assessment data across teams,
+    identify delivery patterns, and investigate system signals.
+</p>
+</Hero>
+
+<section class="section">
+    <div class="card">
+    <label>Quick Filter</label>
+    <select @onchange="OnSquadChanged">
+        <option value="">All Squads</option>
+
+        @foreach (var squad in ActiveSquads)
+        {
+            <option value="@squad.Id">@squad.Name</option>
+        }
+    </select>
+    </div>
+</section>
+
+<section class="section">
+<FeatureGrid Columns="2">
+    <!-- TEAM HEALTH -->
+    <div class="card">
+        <!-- Row 1: Title + Button -->
+        <div class="stack">
+            <div class="stack-horizontal">
+            <h3>Team Health</h3>
+
+            <div class="button btn-secondary"
+                    @onclick="() => ToggleDeepDive(DeepDiveType.Team)">
+                @(DeepDive.IsActive(DeepDiveType.Team) 
+                    ? "Hide Deep Dive ▲" 
+                    : "Deep Dive ▼")
+            </div>
+            </div>
+
+        <div class="grid grid-2 text-center">
+        
+        <!-- Row 2: Latest Score -->
+        <div>
+            <div class="text-muted small">LatestScore</div>
+            <div class="metric-value">
+            @(FilteredTeam.LastOrDefault()?.TeamHealthScore ?? 0)
+            </div>
+        </div>
+
+        <!-- Row 3: Total Entries -->
+        <div>
+            <div class="text-muted small">Total Entries</div>
+            <div class="metric-value">
+            @(FilteredTeam.Count())
+            </div>
+        </div>
+        
+        </div>
+
+            <!-- Row 4: Chart -->
+        <div style="chart-container">
+            <canvas id="teamHealthChart"></canvas>
+        </div>
+        </div>
+    </div>
+
+    <!-- BACKLOG HEALTH -->
+    <div class="card">
+        <div class="stack">
+        <!-- Row 1: Title + Button -->
+        <div class="stack-horizontal">
+        <h5 class="mb-0">Backlog Health</h5>
+
+        <div class="button btn-secondary"
+                @onclick="() => ToggleDeepDive(DeepDiveType.Backlog)">
+            @(DeepDive.IsActive(DeepDiveType.Backlog) 
+                ? "Hide Deep Dive ▲" 
+                : "Deep Dive ▼")
+        </div>
+        </div>
+
+        <!-- Row 2: Latest Score -->
+        <div class="grid grid-2 text-center">
+            <div>
+                <div class="text-muted small">Latest Score</div>
+                <div class="metric-value">
+                    @(FilteredBacklog.LastOrDefault()?.BacklogHealthScore ?? 0)
+                </div>
+            </div>
+
+        <!-- Row 3: Total Entries -->
+            <div>
+                <div class="text-muted small">Total Entries</div>
+                <div class="metric-value">
+                    @(FilteredBacklog.Count())
+                </div>
+            </div>
+        </div>
+
+            <!-- Row 4: Chart -->
+        <div style="chart-container">
+            <canvas id="backlogChart"></canvas>
+        </div>
+        </div>
+    </div>
+</FeatureGrid>
+</section>
+
+    <!-- DEEP DIVES -->
+@foreach (var type in DeepDive.ActiveDeepDives)
+        {
+            <section class="section">
+                @RenderDeepDive(type)
+            </section>
+}
+
+<!-- SAVED ASSESSMENTS PANEL -->
+<section class="section">
+<h2>Saved Assessments</h2>
+
+<div class="card">
+<div class="button btn-secondary" @onclick="TogglePanel">
+    @(ShowPanel ? "Hide" : "Show")
+</div>
+
+@if (ShowPanel)
+{
+    <div class="border rounded p-3">
+
+        <!-- BACKLOG TABLE -->
+        <h5>Backlog Health</h5>
+        <div class="button btn btn-sm btn-danger mb-2"
+                @onclick="DeleteAllBacklog"
+                disabled="@(!BacklogInCurrentWorkspace)">
+            Delete All (Current Workspace)
+        </div>
+
+        @RenderTable(BacklogView, "Backlog")
+
+        <hr />
+
+        <!-- TEAM TABLE -->
+        <h5>Team Health</h5>
+        <div class="button btn btn-sm btn-danger mb-2"
+                @onclick="DeleteAllTeam"
+                disabled="@(!TeamInCurrentWorkspace)">
+            Delete All (Current Workspace)
+        </div>
+
+        @RenderTable(TeamView, "Team")
+
+    </div>
+}
+</div>
+</section>
+</div>
+@code {
+    private bool ShowPanel = true;
+    private List<AssessmentResult> AllBacklog = new();
+    private List<AssessmentResult> AllTeam = new();
+    private HashSet<Guid> IncludedBacklog = new();
+    private HashSet<Guid> IncludedTeam = new();
+    private List<Squad> ActiveSquads = new();
+    private Guid? SelectedSquadId;
+    private List<AssessmentResult> BacklogView => AllBacklog;
+    private List<AssessmentResult> TeamView => AllTeam;
+    // Deep Dive Registry
+    private void ToggleDeepDive(DeepDiveType type)
+    {
+        DeepDive.Toggle(type);
+        StateHasChanged();
+    }
+    // Deterministic Colour Generator
+    private readonly Dictionary<string, string> SquadColors = new();
+    private string GetColorForSquad(string squadName)
+    {
+        if (!SquadColors.ContainsKey(squadName))
+        {
+            var hash = squadName.GetHashCode();
+            var hue = Math.Abs(hash % 360);   // 0–359 degrees
+            var saturation = 65;              // %
+            var lightness = 50;               // %
+
+            var color = $"hsl({hue}, {saturation}%, {lightness}%)";
+            SquadColors[squadName] = color;
+        }
+
+        return SquadColors[squadName];
+    }
+    //Dataset builder
+    private object[] BuildBacklogDatasets(
+    List<AssessmentResult> backlog,
+    Func<AssessmentResult, int?> selector)
+    {
+        var squadGroups = backlog
+            .GroupBy(r => r.SquadName)
+            .OrderBy(g => g.Key);
+
+        return squadGroups.Select(g =>
+        {
+            var ordered = g.OrderBy(r => r.Date).ToList();
+
+            return new
+            {
+                label = g.Key,
+                data = ordered.Select(r => selector(r) ?? 0).ToArray(),
+                borderColor = GetColorForSquad(g.Key)
+            };
+        }).ToArray();
+    }
+    // Backlog Chart Renderer
+    private async Task RenderMultiLineAssessmentChart(
+    string canvasId,
+    List<AssessmentResult> backlog,
+    Func<AssessmentResult, int?> selector)
+    {
+        if (!backlog.Any())
+            return;
+        // Step 1: Get all unique dates
+        var uniqueDates = backlog
+            .Select(r => r.Date.Date)
+            .Distinct()
+            .OrderBy(d => d)
+            .ToList();
+        // Step 2: Build datasets aligned with dates
+        var squadGroups = backlog
+            .GroupBy(r => r.SquadName)
+            .OrderBy(g => g.Key);
+        var datasets = squadGroups.Select(g =>
+        {
+            var data = uniqueDates
+                .Select(d => {
+                    var result = g.FirstOrDefault(r => r.Date.Date == d);
+                    return result != null ? selector(result) ?? 0 : 0;
+                })
+                .ToArray();
+            return new
+            {
+                label = g.Key,
+                data,
+                borderColor = GetColorForSquad(g.Key)
+            };
+        }).ToArray();
+        // Step 3: Labels for chart
+
+        var labels = uniqueDates.Select(d => d.ToString("dd MMM")).ToArray();
+
+        await JS.InvokeVoidAsync("createMultiLineChart", canvasId, labels, datasets);
+    }
+
+    // Deep Dive RenderFragment Method
+    private RenderFragment RenderDeepDive(DeepDiveType type) => builder =>
+    {
+        int seq = 0;
+
+        switch (type)
+        {
+            case DeepDiveType.Backlog:
+
+                var backlogData = FilteredBacklog.ToList();
+
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "grid grid-3");
+
+                builder.OpenElement(seq++, "h3");
+                builder.AddContent(seq++, "Backlog Deep Dive");
+                builder.CloseElement();
+
+                if (!backlogData.Any())
+                {
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "text-muted");
+                    builder.AddContent(seq++, "No data available.");
+                    builder.CloseElement();
+
+                    builder.CloseElement();
+                    break;
+                }
+
+                var charts = ChartDefinitionService.BuildBacklogLensCharts(
+                    backlogData,
+                    GetColorForSquad);
+
+                foreach (var chart in charts)
+                {
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "grid grid-3"); // responsive columns
+
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "card p-3 h-100");
+
+                    builder.OpenElement(seq++, "h6");
+                    builder.AddContent(seq++, chart.Title);
+                    builder.CloseElement();
+
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "style", "height:250px");
+
+                    builder.OpenElement(seq++, "canvas");
+                    builder.AddAttribute(seq++, "id", chart.CanvasId);
+                    builder.CloseElement();
+
+                    builder.CloseElement(); // div height
+                    builder.CloseElement(); // card
+
+                    builder.CloseElement(); // col
+                }
+
+                builder.CloseElement();
+                break;
+
+            case DeepDiveType.Team:
+
+                var teamData = FilteredTeam.ToList();
+
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "class", "grid grid-3");
+
+                builder.OpenElement(seq++, "h6");
+                builder.AddContent(seq++, "Team Health Deep Dive");
+                builder.CloseElement();
+
+                if (!teamData.Any())
+                {
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "text-muted");
+                    builder.AddContent(seq++, "No data available.");
+                    builder.CloseElement();
+
+                    builder.CloseElement();
+                    break;
+                }
+
+                var teamCharts = ChartDefinitionService.BuildTeamHealthLensCharts(
+                    teamData, GetColorForSquad);
+                
+                foreach (var chart in teamCharts)
+                {
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "grid grid-3"); // responsive columns
+
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "class", "card p-3 h-100");
+
+                    builder.OpenElement(seq++, "h6");
+                    builder.AddContent(seq++, chart.Title);
+                    builder.CloseElement();
+
+                    builder.OpenElement(seq++, "div");
+                    builder.AddAttribute(seq++, "style", "height:250px");
+
+                    builder.OpenElement(seq++, "canvas");
+                    builder.AddAttribute(seq++, "id", chart.CanvasId);
+                    builder.CloseElement();
+
+                    builder.CloseElement(); // div height
+                    builder.CloseElement(); // card
+
+                    builder.CloseElement(); // col
+                }
+
+                builder.CloseElement();
+                break;
+        }
+    };
+    // ================================
+    // Render Deep Dive Charts Method
+    private async Task RenderDeepDiveCharts()
+    {
+        foreach (var type in DeepDive.ActiveDeepDives)
+        {
+            switch (type)
+            {
+                case DeepDiveType.Backlog:
+                    var backlogData = FilteredBacklog.ToList();
+                    if (!backlogData.Any())
+                        break;
+                    var charts = ChartDefinitionService.BuildBacklogLensCharts(
+                        backlogData,
+                        GetColorForSquad);
+                    foreach (var chart in charts)
+                    {
+                        await ChartService.CreateMultiLineChart(
+                            chart.CanvasId,
+                            chart.Labels,
+                            chart.Datasets ?? Array.Empty<object>());
+                    }
+                    break;
+
+                case DeepDiveType.Team:
+                    var teamData = FilteredTeam.ToList();
+                    if (!teamData.Any())
+                        break;
+                    
+                    var teamCharts = ChartDefinitionService.BuildTeamHealthLensCharts(
+                        teamData, GetColorForSquad);
+                    
+                    foreach (var chart in teamCharts)
+                    {
+                    await ChartService.CreateMultiLineChart(
+                        chart.CanvasId,
+                        chart.Labels,
+                        chart.Datasets ?? Array.Empty<object>());
+                    }
+                    break;
+
+                // Maturity: skip for now
+            }
+        }
+    }
+    // ================================
+    private IEnumerable<AssessmentResult> FilteredTeam =>
+        AllTeam.Where(r =>
+            IncludedTeam.Contains(r.Id) &&
+            (SelectedSquadId == null || r.SquadId == SelectedSquadId) &&
+            (Repository.ActiveWorkspace == null || r.WorkspaceId == Repository.ActiveWorkspace.Id))
+        .OrderBy(r => r.Date);
+
+    private IEnumerable<AssessmentResult> FilteredBacklog =>
+        AllBacklog.Where(r =>
+            IncludedBacklog.Contains(r.Id) &&
+            (SelectedSquadId == null || r.SquadId == SelectedSquadId) &&
+            (Repository.ActiveWorkspace == null || r.WorkspaceId == Repository.ActiveWorkspace.Id))
+        .OrderBy(r => r.Date);
+
+    private bool BacklogInCurrentWorkspace =>
+        Repository.ActiveWorkspace == null
+            ? AllBacklog.Any()
+            : AllBacklog.Any(r => r.WorkspaceId == Repository.ActiveWorkspace.Id);
+
+    private bool TeamInCurrentWorkspace =>
+        Repository.ActiveWorkspace == null
+            ? AllTeam.Any()
+            :AllTeam.Any(r => r.WorkspaceId == Repository.ActiveWorkspace?.Id);
+    private Func<Task>? _workspaceChangedHandler;
+    private Func<Task>? _assessmentChangedHandler;
+    protected override async Task OnInitializedAsync()
+    {
+        _workspaceChangedHandler = WorkspaceChanged;
+        Repository.OnWorkspaceChanged += _workspaceChangedHandler;
+
+        _assessmentChangedHandler = LoadData;
+        Assessments.OnAssessmentChanged += _assessmentChangedHandler;
+
+        await CoachHubState.InitializeAsync();
+        await LoadData();
+    }
+
+    private async Task WorkspaceChanged()
+    {
+        await LoadData();
+    } 
+
+    private async Task LoadData()
+    {
+        var ws = Repository.ActiveWorkspace;
+        // Step 1: Fetch & hydrate all assessments
+            AllBacklog = await Assessments.GetBacklogHealthAsync();
+            AllTeam = await Assessments.GetTeamHealthAsync();
+        // Step 2: Determine squad list
+        if (ws == null)
+        {
+            // All Workspaces mode
+            ActiveSquads = AllBacklog
+                .Select(r => new Squad{Id = r.SquadId, Name = r.SquadName})
+                .DistinctBy(s => s.Id)
+                .ToList();
+        
+            IncludedBacklog = AllBacklog.Select(r => r.Id).ToHashSet();
+            IncludedTeam = AllTeam.Select(r => r.Id).ToHashSet();
+        }
+        else
+        {
+            ActiveSquads = ws.Structure?.GetAllSquads() ?? new();
+            SyncIncludedAssessments(ws.Id);
+        }
+        StateHasChanged();
+        await UpdateCharts();
+    }
+
+        private void SyncIncludedAssessments(Guid workspaceId)
+        {
+            // For Backlog
+            foreach (var r in AllBacklog)
+            {
+                if (r.WorkspaceId == workspaceId && !IncludedBacklog.Contains(r.Id))
+                    IncludedBacklog.Add(r.Id);
+                else if (r.WorkspaceId != workspaceId && IncludedBacklog.Contains(r.Id))
+                    IncludedBacklog.Remove(r.Id);
+            }
+
+            // For Team Health
+            foreach (var r in AllTeam)
+            {
+                if (r.WorkspaceId == workspaceId && !IncludedTeam.Contains(r.Id))
+                    IncludedTeam.Add(r.Id);
+                else if (r.WorkspaceId != workspaceId && IncludedTeam.Contains(r.Id))
+                    IncludedTeam.Remove(r.Id);
+            }
+        }
+
+    private async Task OnSquadChanged(ChangeEventArgs e)
+    {
+        SelectedSquadId = Guid.TryParse(e.Value?.ToString(), out var id)
+            ? id
+            : null;
+
+        await UpdateCharts();
+    }
+
+    private void TogglePanel() => ShowPanel = !ShowPanel;
+
+    private async Task ToggleInclude(Guid id, string type)
+    {
+        var workspaceId = Repository.ActiveWorkspace!.Id;
+
+        if (type == "Backlog")
+        {
+            await CoachHubState.ToggleBacklogAsync(workspaceId, id);
+            IncludedBacklog = await CoachHubState
+                .GetBacklogIncludedAsync(workspaceId, AllBacklog);
+        }
+        else
+        {
+            await CoachHubState.ToggleTeamAsync(workspaceId, id);
+            IncludedTeam = await CoachHubState
+                .GetTeamIncludedAsync(workspaceId, AllTeam);
+        }
+
+        await UpdateCharts();
+    }
+
+    private async Task Delete(Guid id, string type)
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "Delete this assessment?"))
+            return;
+
+        if (type == "Backlog")
+            { 
+            await Assessments.DeleteBacklogHealthAsync(id);
+            }
+        else
+            {
+            await Assessments.DeleteTeamHealthAsync(id);
+            }
+
+            await CoachHubState.RemoveAssessmentAsync(
+            Repository.ActiveWorkspace!.Id,
+            id);
+    }
+
+    private async Task DeleteAllBacklog()
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "Delete ALL backlog assessments for this workspace?"))
+            return;
+
+        await Assessments.DeleteAllBacklogHealthAsync(Repository.ActiveWorkspace!.Id);
+    }
+
+    private async Task DeleteAllTeam()
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "Delete ALL team health assessments for this workspace?"))
+            return;
+
+        await Assessments.DeleteAllTeamHealthAsync(Repository.ActiveWorkspace!.Id);
+    }
+
+    private Task UpdateCharts()
+    {
+       StateHasChanged();
+       return Task.CompletedTask;
+    }
+
+    private RenderFragment RenderTable(List<AssessmentResult> list, string type) => builder =>
+    {
+        int seq = 0;
+
+        builder.OpenElement(seq++, "table");
+        builder.AddAttribute(seq++, "class", "table");
+
+        builder.OpenElement(seq++, "thead");
+        builder.AddMarkupContent(seq++, "<tr><th>Include</th><th>Workspace</th><th>Squad</th><th>Date</th><th>Score</th><th>Delete</th></tr>");
+        builder.CloseElement();
+
+        builder.OpenElement(seq++, "tbody");
+
+        foreach (var r in list.OrderByDescending(x => x.Date))
+        {
+            bool current = Repository.ActiveWorkspace == null || r.WorkspaceId == Repository.ActiveWorkspace.Id;
+
+            builder.OpenElement(seq++, "tr");
+            if (Repository.ActiveWorkspace != null && !current)
+                builder.AddAttribute(seq++, "class", "text-muted");
+
+            // Include
+            builder.OpenElement(seq++, "td");
+            builder.OpenElement(seq++, "input");
+            builder.AddAttribute(seq++, "type", "checkbox");
+            // Uncheck if greyed out
+            bool isChecked = type == "Backlog"
+                ? IncludedBacklog.Contains(r.Id)
+                : IncludedTeam.Contains(r.Id);
+
+            builder.AddAttribute(seq++, "checked", isChecked);
+
+            // Still disabled if greyed out
+            builder.AddAttribute(seq++, "disabled", !current);
+            builder.AddAttribute(seq++, "onchange",
+            
+            EventCallback.Factory.Create(this, () => ToggleInclude(r.Id, type)));
+            builder.CloseElement();
+            builder.CloseElement();
+
+            // Workspace
+            builder.OpenElement(seq++, "td");
+            builder.AddContent(seq++, r.WorkspaceName);
+            builder.CloseElement();
+
+            // Squad
+            builder.OpenElement(seq++, "td");
+            builder.AddContent(seq++, r.SquadName);
+            builder.CloseElement();
+
+            // Date
+            builder.OpenElement(seq++, "td");
+            builder.AddContent(seq++, r.Date.ToString("dd MMM yyyy"));
+            builder.CloseElement();
+
+            // Score
+            builder.OpenElement(seq++, "td");
+            builder.AddContent(seq++, 
+                type == "Backlog" 
+                    ? r.BacklogHealthScore?.ToString() 
+                    : r.TeamHealthScore?.ToString());
+            builder.CloseElement();
+
+            // Delete button
+            builder.OpenElement(seq++, "td");
+            builder.OpenElement(seq++, "button");
+            builder.AddAttribute(seq++, "class", "btn btn-sm btn-danger");
+            builder.AddAttribute(seq++, "disabled", false); // always enabled
+            builder.AddAttribute(seq++, "onclick",
+                EventCallback.Factory.Create(this, () => Delete(r.Id, type)));
+            builder.AddContent(seq++, "Delete");
+            builder.CloseElement();
+            builder.CloseElement();
+
+            builder.CloseElement();
+        }
+
+        builder.CloseElement();
+        builder.CloseElement();
+    };
+
+    public void Dispose()
+    {
+       if (_workspaceChangedHandler != null)
+            Repository.OnWorkspaceChanged -= _workspaceChangedHandler;
+        if (_assessmentChangedHandler != null)
+            Assessments.OnAssessmentChanged -= _assessmentChangedHandler;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var team = FilteredTeam.ToList();
+        if (team.Any())
+        {
+            await RenderMultiLineAssessmentChart(
+                "teamHealthChart",
+                team,
+                r => r.TeamHealthScore);
+        }
+        var backlog = FilteredBacklog.ToList();
+        if (backlog.Any())
+        {
+            await RenderMultiLineAssessmentChart(
+                "backlogChart",
+                backlog,
+                r => r.BacklogHealthScore);
+        }
+        await RenderDeepDiveCharts();
+    }
+}

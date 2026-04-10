@@ -1,0 +1,36 @@
+<div class="surface-focus stack-md">
+
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <h2>@Title</h2>
+    }
+        
+    @if (!string.IsNullOrEmpty(Observation))
+    {
+        <div class="stack-sm">
+            <p>@Observation</p>
+
+            @if (!string.IsNullOrEmpty(WhyItMatters))
+            {
+                <p>@WhyItMatters</p>
+            }
+
+            @if (!string.IsNullOrEmpty(Direction))
+            {
+                <p>@Direction</p>
+            }
+        </div>
+    }
+    else
+    {
+        <p>@EmptyMessage</p>
+    }
+
+</div>
+@code {
+    [Parameter] public string Title { get; set; } = "What the system is showing";
+    [Parameter] public string Observation { get; set; }
+    [Parameter] public string WhyItMatters { get; set; }
+    [Parameter] public string Direction { get; set; }
+    [Parameter] public string EmptyMessage { get; set; } = "Enter data to see system behaviour.";
+}

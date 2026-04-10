@@ -1,0 +1,13 @@
+<!-- TODO: Is this required? -->
+
+<div class="card panel">
+
+    <p class="accent-text">Observation</p>
+    @ChildContent
+
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

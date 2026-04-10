@@ -1,0 +1,81 @@
+<div class="input-chip @(IsEditing ? "editing" : "")" @onclick="EnterEditMode">
+    
+    @if (!IsEditing)
+    {
+        <div class="chip-display">
+            @if (!IsEmpty)
+            {
+                <span>@FormattedValue</span>
+            }
+            else
+            {
+                <span class="chip-placeholder">@Placeholder</span>
+            }
+        </div>
+    }
+    else
+    {
+        <input type="text"
+               class="chip-input"
+               value="@InternalValue"
+               @oninput="HandleInput"
+               @onblur="ExitEditMode"
+               @onkeydown="HandleKeyDown"
+               @ref="inputRef" />
+    }
+
+</div>
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public Func<int?, string>? Formatter { get; set; }
+
+    private bool IsEditing = false;
+    private int InternalValue;
+    private ElementReference inputRef;
+
+    protected override void OnParametersSet()
+    {
+        InternalValue = Value;
+    }
+
+    private bool IsEmpty => Value == 0;
+
+    private string FormattedValue =>
+        Formatter != null ? Formatter(Value) : Value.ToString();
+
+    private async Task EnterEditMode()
+    {
+        IsEditing = true;
+        await Task.Yield();
+        await inputRef.FocusAsync();
+    }
+
+    private async Task ExitEditMode()
+    {
+        IsEditing = false;
+        await ValueChanged.InvokeAsync(InternalValue);
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        var text = e.Value?.ToString() ?? "";
+
+        if (int.TryParse(text, out var parsed))
+        {
+            InternalValue = parsed;
+            await ValueChanged.InvokeAsync(InternalValue);
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ExitEditMode();
+        }
+    }
+}

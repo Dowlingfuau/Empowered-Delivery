@@ -1,0 +1,75 @@
+@startuml Canonical Architecture
+title Operational MRI Insight Engine Architecture
+
+package "Assessments" as A {
+  component MaturityAssessment
+  component BacklogHealthAssessment
+  component TeamHealthAssessment
+}
+
+package "Signal Layer" as SLayer {
+  component SignalBuilder
+  component SignalRegistry
+  component SignalNormaliser
+}
+
+package "Signal Store" as SStore {
+  component Signals
+}
+
+package "Derived Signal Engines" as DSE {
+  component BehaviourRuleEngine
+  component FlowRuleEngine
+  component TeamRuleEngine
+  component SystemRuleEngine
+}
+
+package "Derived Signals" as DS {
+  component DerivedSignals
+}
+
+package "Domain Profiles" as DP {
+  component CapabilityProfile
+  component FlowHealthProfile
+  component TeamEnvironmentProfile
+  component SystemHealthProfile
+}
+
+package "Insight Engine" as IE {
+  component InsightTemplates
+  component InsightGenerator
+  component InsightPrioritiser
+}
+
+package "Output" as O {
+  component Insights
+}
+
+A --> SignalBuilder
+SignalBuilder --> Signals
+
+Signals --> BehaviourRuleEngine
+Signals --> FlowRuleEngine
+Signals --> TeamRuleEngine
+
+BehaviourRuleEngine --> SystemRuleEngine
+FlowRuleEngine --> SystemRuleEngine
+TeamRuleEngine --> SystemRuleEngine
+
+BehaviourRuleEngine --> DerivedSignals
+FlowRuleEngine --> DerivedSignals
+TeamRuleEngine --> DerivedSignals
+SystemRuleEngine --> DerivedSignals
+
+DerivedSignals --> CapabilityProfile
+DerivedSignals --> FlowHealthProfile
+DerivedSignals --> TeamEnvironmentProfile
+DerivedSignals --> SystemHealthProfile
+
+DerivedSignals --> InsightGenerator
+InsightTemplates --> InsightGenerator
+
+InsightGenerator --> InsightPrioritiser
+InsightPrioritiser --> Insights
+
+@enduml

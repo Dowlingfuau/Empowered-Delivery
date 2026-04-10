@@ -1,0 +1,293 @@
+@page "/plays"
+@using OperationalIntelligenceHub.Services
+<div class="container">
+
+<!-- HERO -->
+<Hero>
+
+<h1>Improvement Plays</h1>
+
+<p class="accent-text">
+Practical experiments and facilitation techniques for improving delivery systems.
+</p>
+
+<p>
+These plays help teams explore new ways of working, address systemic constraints,
+and test improvement ideas.
+</p>
+
+</Hero>
+
+<!-- POPULAR STARTING PLAYS -->
+<section class="section">
+
+<h2>
+Popular Starting Plays
+</h2>
+
+<FeatureGrid Columns="3">
+                    <!--- Dynamic Plays Library --->
+                    @foreach (var play in PlayLibraryService.Plays)
+                    {
+                        <div class="card">
+
+                            <div class="card-body">
+
+                                <h3>@play.Title</h3>
+
+                                <p>@play.Description</p>
+
+                                <p class="accent-text">
+                                    Difficulty: @play.Difficulty · Duration: @play.Duration
+                                </p>
+
+                            </div>
+
+                            <div class="card-footer">
+
+                                <a class="button button-secondary" href="@play.Route">
+                                    View Play
+                                </a>
+
+                            </div>
+
+                        </div>
+                    }
+<!--- Placeholders --->
+<div class="card">
+<div class="card-body">
+
+<h3>Backlog Pruning Workshop</h3>
+
+<p>
+Helps teams reduce backlog clutter and refocus priorities.
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">
+View Play
+</a>
+</div>
+</div>
+
+<div class="card">
+<div class="card-body">
+
+<h3>Reduce Work in Progress</h3>
+
+<p>
+A simple experiment to improve flow and reduce delivery delays.
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">
+View Play
+</a>
+</div>
+</div>
+
+<div class="card">
+<div class="card-body">
+
+<h3>Flow Mapping Session</h3>
+
+<p>
+Visualise how work actually moves through the delivery system.
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">
+View Play
+</a>
+</div>
+</div>
+
+<div class="card">
+<div class="card-body">
+
+<h3>Sprint Focus Experiment</h3>
+
+<p>
+Improve delivery predictability by tightening work selection.
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">
+View Play
+</a>
+</div>
+</div>
+
+</FeatureGrid>
+
+</section>
+
+<!-- PLAY CATEGORIES -->
+<section class="section">
+
+<h2>
+Explore Plays by Category
+</h2>
+
+<FeatureGrid Columns="3">
+
+<div class="card"><div class="card-body"><h3>Flow Experiments</h3></div></div>
+
+<div class="card"><div class="card-body"><h3>Backlog Practices</h3></div></div>
+
+<div class="card"><div class="card-body"><h3>Planning Techniques</h3></div></div>
+
+<div class="card"><div class="card-body"><h3>Team Health</h3></div></div>
+
+<div class="card"><div class="card-body"><h3>Leadership Interventions</h3></div></div>
+
+<div class="card"><div class="card-body"><h3>Organisational Design</h3></div></div>
+
+</FeatureGrid>
+
+</section>
+
+<!-- PLAY LIBRARY -->
+<section class="section">
+
+<h2>
+Play Library
+</h2>
+
+<FeatureGrid Columns="3">
+
+<div class="card">
+<div class="card-body">
+
+<h3>Backlog Pruning Workshop</h3>
+
+<p>
+Review and simplify backlog items to restore prioritisation clarity.
+</p>
+
+<p class="accent-text">
+Difficulty: Easy · Duration: 60–90 minutes
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">View Play</a>
+</div>
+
+</div>
+
+<div class="card">
+<div class="card-body">
+
+<h3>Flow Mapping Session</h3>
+
+<p>
+Visualise how work moves through the delivery system and identify delays.
+</p>
+
+<p class="accent-text">
+Difficulty: Medium · Duration: 90 minutes
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">View Play</a>
+</div>
+
+</div>
+
+<div class="card">
+<div class="card-body">
+
+<h3>Sprint Focus Experiment</h3>
+
+<p>
+Limit work intake to improve delivery predictability and completion rates.
+</p>
+
+<p class="accent-text">
+Difficulty: Easy · Duration: 2 sprints
+</p>
+
+</div>
+
+<div class="card-footer">
+<a class="button button-secondary">View Play</a>
+</div>
+
+</div>
+
+</FeatureGrid>
+
+</section>
+
+<!-- HUB CONNECTION -->
+<section class="section">
+
+<h2>
+Suggested Plays from the Operational Intelligence Hub
+</h2>
+
+<div class="card">
+
+<div class="card-body">
+
+<h3>Your backlog may be overloaded</h3>
+
+<p>
+Backlog Health Monitor often reveals queues that are growing faster
+than teams can deliver work.
+</p>
+
+<p>
+A useful experiment to try is the <strong>Backlog Pruning Workshop</strong>.
+</p>
+
+</div>
+
+<div class="card-footer">
+
+<a class="button button-primary" href="/hub">
+Explore the Hub
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- PHILOSOPHY -->
+<section class="section">
+
+<h2>
+Why Plays Instead of Prescriptions
+</h2>
+
+<p>
+Complex systems rarely improve through rigid processes.
+</p>
+
+<p>
+Instead, improvement happens through structured experiments.
+</p>
+
+<p>
+Plays provide facilitation formats and practical techniques
+that teams can use to explore new ways of working and learn
+what works in their own context.
+</p>
+
+</section>
+
+</div>

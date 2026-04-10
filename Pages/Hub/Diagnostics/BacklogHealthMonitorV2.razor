@@ -1,0 +1,953 @@
+﻿@page "/hub/backlog-health-v2"
+@layout HubLayout
+@using OperationalIntelligenceHub.Shared
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Services
+@using OperationalIntelligenceHub.Components
+@inject AssessmentRepositoryService AssessmentRepository
+@inject WorkspaceRepositoryService WorkspaceRepository
+@inject BacklogHealthSignalBuilderService SignalBuilder
+@inject SignalPipelineService SignalPipeline
+
+<div class="container stack"style="
+        background:
+            radial-gradient(circle at 20% 20%, rgba(124,58,237,0.15), transparent 40%),
+            radial-gradient(circle at 80% 0%, rgba(236,72,153,0.12), transparent 40%),
+            radial-gradient(circle at 50% 100%, rgba(56,189,248,0.12), transparent 60%),
+            #0B0F1A;
+        color:#E2E8F0;
+        padding:32px;
+        border-radius:16px;
+     ">
+
+    <!-- HEADER -->
+    <div class="stack-horizontal" style="
+                                position:relative;
+                                padding:32px;
+                                border-radius:18px;
+                                overflow:hidden;
+
+                                background:
+                                    radial-gradient(circle at 20% 30%, rgba(124,58,237,0.25), transparent 40%),
+                                    radial-gradient(circle at 80% 20%, rgba(236,72,153,0.2), transparent 40%),
+                                    radial-gradient(circle at 50% 100%, rgba(56,189,248,0.15), transparent 60%),
+                                    linear-gradient(160deg,#0B0F1A,#1E1B4B);
+
+                                border:1px solid rgba(139,92,246,0.25);
+
+                                box-shadow:
+                                    0 30px 80px rgba(0,0,0,0.8),
+                                    inset 0 0 40px rgba(124,58,237,0.15);
+                            ">
+        <div class="hero" >
+        <h1 style="
+            color:#F8FAFC;
+            font-size:34px;
+            font-weight:600;
+            letter-spacing:-0.02em;
+            margin-bottom:4px;">
+            Backlog Health
+        </h1>
+
+        <p style="
+            color:#94a3b8;
+            font-size:14px;">
+            Understand what your backlog is telling you
+        </p>
+        </div>
+
+        <div class="stack-horizontal">
+            
+        </div>
+    </div>
+
+    <!-- INPUT PANEL -->
+    <div class="stack">
+        <h3 style="color:#F8FAFC;">What is the state of your backlog?</h3>
+        <p class="input-guidance">
+            Enter your backlog data — signals will update instantly
+        </p>
+
+        <ControlSurface>
+            <div class="control-row"style="
+                    position: sticky;
+                    top: 16px;
+                    z-index: 10;
+                    backdrop-filter: blur(12px);
+                    background:linear-gradient(160deg,#0F172A,#1E1B4B);
+                    border:1px solid rgba(139,92,246,0.35);
+                    border-radius:14px;
+                    padding:18px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.6),
+                                inset 0 0 20px rgba(139,92,246,0.08);">
+            <SquadInput SelectedSquad="@SelectedSquad" SelectedSquadChanged="OnSquadSelected" Compact="true"/>
+
+                <!-- Single Inputs -->
+                <InputChip  Value="@TotalItems"
+                            ValueChanged="@(v => { TotalItems = v; _ = Recalculate(); })"
+                            Placeholder="Backlog"
+                            Formatter="@(v => $"{v} backlog items")" />
+                
+                <!-- Grouped Inputs -->
+                <GroupedInputChip  Label="Added"
+                            Value1="@Added1"
+                            Value1Changed="@(v => { Added1 = v; _ = Recalculate(); })"
+                            Value2="@Added2"
+                            Value2Changed="@(v => { Added2 = v; _ = Recalculate(); })"
+                            Value3="@Added3"
+                            Value3Changed="@(v => { Added3 = v; _ = Recalculate(); })" />
+
+                <GroupedInputChip   Label="Throughput"
+                            Value1="@Velocity1"
+                            Value1Changed="@(v => { Velocity1 = v; _ = Recalculate(); })"
+                            Value2="@Velocity2"
+                            Value2Changed="@(v => { Velocity2 = v; _ = Recalculate(); })"
+                            Value3="@Velocity3"
+                            Value3Changed="@(v => { Velocity3 = v; _ = Recalculate(); })" />
+                
+                <GroupedInputChip   Label="Age"
+                                    Value1="@FreshItems"
+                                    Value1Changed="@(v => { FreshItems = v; _ = Recalculate(); })"
+                                    Value2="@MidAgeItems"
+                                    Value2Changed="@(v => { MidAgeItems = v; _ = Recalculate(); })"
+                                    Value3="@OldItems"
+                                    Value3Changed="@(v => { OldItems = v; _ = Recalculate(); })" />
+
+                <GroupedInputChip   Label="Priority"
+                                    Value1="@HighPriority"
+                                    Value1Changed="@(v => { HighPriority = v; _ = Recalculate(); })"
+                                    Value2="@MediumPriority"
+                                    Value2Changed="@(v => { MediumPriority = v; _ = Recalculate(); })"
+                                    Value3="@LowPriority"
+                                    Value3Changed="@(v => { LowPriority = v; _ = Recalculate(); })" />
+            
+            <div class="button button-primary"
+                style="
+                    background: linear-gradient(135deg, #7C3AED, #EC4899);
+                    border:none;
+                    color:white;
+                    padding:10px 16px;
+                    border-radius:10px;
+                    box-shadow:0 8px 20px rgba(236,72,153,0.25);
+                "
+                @onclick="SaveBacklogHealth">
+                Save
+            </div>
+            </div>
+        </ControlSurface>
+    </div>
+
+    <div class="insight-block"
+     style="
+        position:relative;
+        padding:16px;
+        border-radius:16px;
+        background:radial-gradient(circle at 0% 0%, rgba(124,58,237,0.18), transparent 40%),
+                    radial-gradient(circle at 100% 100%, rgba(236,72,153,0.15), transparent 40%),
+                    rgba(255,255,255,0.02);
+        box-shadow: 
+            0 25px 60px rgba(0,0,0,0.8),
+            inset 0 0 30px rgba(139,92,246,0.12);
+        border:1px solid rgba(139,92,246,0.25)
+     ">
+            
+        <!-- RIGHT: INSIGHTS -->
+        <div class="stack">
+            <h3 style="color:#F8FAFC">What story is our backlog telling people?</h3>
+            <div class="card panel"
+                style="
+                    position:relative;
+                    background:
+                        radial-gradient(circle at 0% 0%, rgba(124,58,237,0.25), transparent 45%),
+                        radial-gradient(circle at 100% 100%, rgba(236,72,153,0.2), transparent 45%),
+                        linear-gradient(160deg,#0b1120,#1E1B4B);
+                    border:1px solid rgba(139,92,246,0.4);
+                    border-radius:18px;
+                    padding:32px;
+                    box-shadow:
+                        0 30px 80px rgba(0,0,0,0.9),
+                        inset 0 0 60px rgba(139,92,246,0.25);
+                ">
+                <div style="
+                    position:absolute;
+                    top:0;
+                    left:0;
+                    right:0;
+                    height:3px;
+                    background: linear-gradient(90deg,#EC4899,#7C3AED,#38BDF8);
+                    box-shadow:0 0 20px rgba(236,72,156,0.6);
+                "></div>
+                <div class="grid grid-2">
+                <!-- OVERALL -->
+                    <div>
+                    <ContinuumBar 
+                        Title="Overall System State"
+                        Value="@Health.Position"
+                        Label="@Health.State"
+                        Zones="@(new List<string> { "Unhealthy", "Needs Attention", "Healthy" })" />
+                    </div>
+
+                    @if (!HasAnyData)
+                    {
+                        <div class="observation"style="
+                        font-family:'Roboto Slab', serif;
+                        font-size:22px;
+                        line-height:1.35;
+                        font-weight:500;
+                        color:#FFFFFF;
+                        margin-bottom:10px;
+                        ">Start by entering backlog data</div>
+                        <div class="why"
+                        style="
+                        font-size:15px;
+                        color:#cbd5f5;
+                        margin-bottom:10px;
+                        ">As you add information, the system will show how your backlog is behaving</div>
+                    }
+                    else if (Insights == null || !Insights.Any())
+                    {
+                        <div class="observation"
+                        style="
+                        font-family:'Roboto Slab', serif;
+                        font-size:22px;
+                        line-height:1.35;
+                        font-weight:500;
+                        color:#FFFFFF;
+                        margin-bottom:10px;
+                        ">
+                        No insights detected yet</div>
+                        <div class="why"
+                        style="
+                        font-size:15px;
+                        color:#cbd5f5;
+                        margin-bottom:10px;
+                        ">
+                        Try adjusting your inputs to explore system behaviour</div>
+                    }
+                    else
+                    {
+                        var flowInsights = Insights
+                            .Where(i => i.Source == "FlowRuleEngine")
+                            .OrderByDescending(i => i.Score)
+                            .ToList();
+                        var risks = flowInsights
+                            .Where(i => i.Source == "FlowRuleEngine")
+                            .ToList();
+                        var positives = flowInsights
+                            .Where(i => i.Category == "Positive")
+                            .OrderByDescending(i => i.Score)
+                            .ToList();
+                        var orderedInsights = new List<OperationalInsight>();
+
+                        // Primary Risk
+                        if (risks.Any())
+                            orderedInsights.Add(risks[0]);
+                        // Secondary risk
+                        if (risks.Count > 1)
+                            orderedInsights.Add(risks[1]);
+                        // Positive (if exists)
+                        if (positives.Any())
+                        {
+                            // Only include if it doesn't dominate everything
+                            if (!risks.Any() || positives[0].Score < risks[0].Score * 1.5)
+                                orderedInsights.Add(positives[0]);
+                        }
+                        // Fallback if no positive
+                        while (orderedInsights.Count < 3 && risks.Count > orderedInsights.Count)
+                        {
+                            orderedInsights.Add(risks[orderedInsights.Count]);
+                        }
+                        var topInsights = orderedInsights.Take(3).ToList();
+                        @foreach (var insight in topInsights)
+                        {
+                            <span style="
+                                font-size:11px;
+                                letter-spacing:0.08em;
+                                text-transform:uppercase;
+                                color:#EC4899;
+                                font-weight:700;
+                                display:inline-block;
+                                margin-top:12px;
+                            ">
+                                What?
+                            </span>
+                            <div class="observation"
+                                style="
+                                    font-family:'Roboto Slab', serif;
+                                    font-size:22px;
+                                    line-height:1.35;
+                                    font-weight:500;
+                                    color:#FFFFFF;
+                                    margin-bottom:10px;
+                                ">
+                                @FormatHeadline(insight)
+                            </div>
+
+                                    <span class="accent-text">So What?</span>
+                                    <div class="why"
+                                        style="
+                                            font-size:11px;
+                                            letter-spacing:0.08em;
+                                            text-transform:uppercase;
+                                            color:#EC4899;
+                                            margin-bottom:10px;
+                                            ">
+                                        @insight.Interpretation
+                                    </div>
+
+                            <span class="accent-text">Now What?</span>
+                            <div class="direction"
+                                style="
+                                    font-size:11px;
+                                    letter-spacing:0.08em;
+                                    text-transform:uppercase;
+                                    font-weight:600;
+                                    color:#ec4899;">
+                                @FormatAction(insight)
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- BOTTOM: Signals -->
+        <div class="stack">
+            <h3 style="
+                font-size:18px;
+                font-weight:600;
+                color:#e2e8f0;">
+                System Signals
+            </h3>
+
+            <div class="grid grid-4" style="
+            gap:16px;">
+                <!-- SIZE -->
+                <div style="
+                    background: linear-gradient(160deg,#0F172A,#1E293B);
+                    border:1px solid rgba(148,163,184,0.08);
+                    border-radius:14px;
+                    padding:14px;
+                    box-shadow:0 6px 16px rgba(0,0,0,0.4);
+                    transition: all 0.2s ease;
+                    ">
+                    <!-- TODO: update label for weeks worth of work (currently only sprints) -->
+                    <ContinuumBar 
+                        Title="Backlog Size"
+                        TooltipText="Backlog Size reflects how much work exists relative to delivery capacity.
+                                    Too little work can interrupt flow.
+                                    Too much work creates drag and delays feedback."
+                        Value="@(HasAnyData ? BacklogSizeSignal?.ContinuumValue ?? 0.5 : 0.5)"
+                        Label="@SizeLabel"
+                        Direction="@(HasAnyData ? BacklogSizeSignal?.Direction ?? 0: 0)"
+                        Zones="@(new List<string> { "Starvation", "", "Overload" })" />
+                        @if (Predictability < 0.4)
+                        {
+                            <div style="font-size:12px; color:#f59e0b; margin-top:6px;">
+                                ⚠ Low predictability may affect this signal
+                            </div>
+                        }
+                </div>
+                <!-- AGE -->
+                <div style="
+                    background: linear-gradient(160deg,#0F172A,#1E293B);
+                    border:1px solid rgba(148,163,184,0.08);
+                    border-radius:14px;
+                    padding:14px;
+                    box-shadow:0 6px 16px rgba(0,0,0,0.4);
+                    ">
+                    <!-- TODO: Add to label Average age: X days | % items > 30 days | % not updated in 30 days -->
+                    <!-- TODO: Age could change to distribution spread graph / histogram -->
+                    <ContinuumBar 
+                        Title="Backlog Age"
+                        TooltipText="Backlog Age reflects how mature and maintained backlog items are over time.
+                                    Very new work may lack sufficient understanding, 
+                                    while older work may lose relevance if not actively maintained."
+                        Value="@(AgeSignal?.ContinuumValue ?? AgeSignal?.NormalisedValue ?? 0.5)"
+                        Label="@AgeLabel" 
+                        Direction=@AgeSignal.Direction
+                        Zones="@(new List<string> { "Under-ripe", "", "Over-ripe" })" />
+                        @if (Predictability < 0.4)
+                        {
+                            <div style="font-size:12px; color:#f59e0b; margin-top:6px;">
+                                ⚠ Low predictability may affect this signal
+                            </div>
+                        }
+                </div>
+                <!-- VOLATILITY -->
+                <div style="
+                    background: linear-gradient(160deg,#0F172A,#1E293B);
+                    border:1px solid rgba(148,163,184,0.08);
+                    border-radius:14px;
+                    padding:14px;
+                    box-shadow:0 6px 16px rgba(0,0,0,0.4);
+                    ">
+                    <!-- TODO: Update label Net +/-xx items (+/-xx% change) -->
+                    <ContinuumBar 
+                        Title="Backlog Volatility"
+                        TooltipText="Backlog Volatility reflects how the size of the backlog changes over time.
+                                    A growing backlog means work is entering faster than it is being completed.
+                                    A shrinking backlog means work is being completed faster than it is entering."
+                        Value="@(VolatilitySignal?.ContinuumValue ?? VolatilitySignal?.NormalisedValue ?? 0.5)"
+                        Label="@VolatilityLabel"
+                        Direction="@(VolatilitySignal?.Direction ?? 0)"
+                        Zones="@(new List<string> { "Shrinking", "", "Growing" })" />
+                        @if (Predictability < 0.4)
+                        {
+                            <div style="font-size:12px; color:#f59e0b; margin-top:6px;">
+                                ⚠ Low predictability may affect this signal
+                            </div>
+                        }
+                </div>
+                <!-- PRIORITY -->
+                <div style="
+                    background: linear-gradient(160deg,#0F172A,#1E293B);
+                    border:1px solid rgba(148,163,184,0.08);
+                    border-radius:14px;
+                    padding:14px;
+                    box-shadow:0 6px 16px rgba(0,0,0,0.4);
+                    ">
+                    <!-- TODO: Update label xx% prioritised | Priority distribution High: xx%| Medium: xx%| Low: xx% -->
+                    <ContinuumBar 
+                        Title="Prioritisation Clarity"
+                        TooltipText="Prioritisation reflects how clearly work is ordered and differentiated within the backlog.
+                                    When work is not prioritised, it may be unclear what should be worked on next.
+                                    When everything is prioritised similarly, prioritisation loses meaning and does not guide decisions."
+                        Value="@(PrioritisationSignal?.ContinuumValue ?? 0.5)"
+                        Label="@PriorityLabel"
+                        Direction="@(PrioritisationSignal?.Direction ?? 0)"
+                        Zones="@(new List<string> { "No Priorities", "", "No Distinction" })" />
+                        @if (Predictability < 0.4)
+                        {
+                            <div style="font-size:12px; color:#f59e0b; margin-top:6px;">
+                                ⚠ Low predictability may affect this signal
+                            </div>
+                        }
+                </div>
+                
+            </div>
+            <div class="card"
+                style="
+                    margin-top:16px;
+                    padding:16px;
+                    border-radius:14px;
+                    background:linear-gradient(160deg,#0F172A,#1E293B);
+                    border:1px solid rgba(148,163,184,0.12);
+                ">
+
+                <div style="font-weight:600; color:#F8FAFC; margin-bottom:8px;">
+                    How predictable delivery shapes this system
+                </div>
+
+                <div style="color:#CBD5F5; font-size:14px;">
+                    @GetPredictabilityImpact()
+                </div>
+
+            </div>
+
+            <!-- Header -->
+            <div class="card-header"
+            style="
+                color:#AAB2C5;
+                font-size:14px;
+                font-weight:600;">
+                Predictability
+                <Tooltip Text="Predictability reflects how stable delivery is over time.
+                                The position shows whether output is increasing or decreasing.
+                                Distance from the centre shows how much delivery varies between periods." />
+            </div>
+
+            <div class="card-body"
+                style="
+                    background:linear-gradient(160deg,#0F172A,#1E293B);
+                    border:1px solid rgba(148,163,184,0.15);
+                    border-radius:14px;
+                    padding:18px;
+                    box-shadow:0 12px 30px rgba(0,0,0,0.6);
+                ">
+
+                <!-- ROW 1: Headline -->
+                <div class="mb-2">
+                    <strong>@GetPredictabilityHeadline()</strong>
+                </div>
+                <div class="grid grid-2">
+                <!-- ROW 2: Pattern + Evidence (horizontal) -->
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <div class="label">Pattern</div>
+                        <div>@GetPattern()</div>
+                    </div>
+
+                    <div>
+                        <div class="label">@PredictabilityLabel</div>
+                    </div>
+
+                </div>
+
+                <!-- ROW 3: Impact -->
+                <div class="mt-2">
+                    <div class="label">Impact</div>
+                    <div>@GetPredictabilityImpact()</div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<DerivedSignal> BehaviourSignals = new();
+    private List<DerivedSignal> SystemSignals = new();
+    private List<OperationalInsight> Insights = new();
+    private SystemHealth Health = new();
+    private async Task RunPipeline()
+    {
+        var rawSignals = Signals;
+
+        var (behaviour, system, insights, evaluations, health) =
+            await SignalPipeline.ProcessSignals(rawSignals);
+
+        BehaviourSignals = behaviour;
+        SystemSignals = system;
+        Insights = insights;
+        Health = health;
+
+        Console.WriteLine($">>> Backlog Pipeline Complete: {Insights.Count} insights");
+
+    }
+    List<Signal> Signals => SignalBuilder.BuildSignals(
+        WorkspaceRepository.ActiveWorkspaceId ?? Guid.Empty,
+        string.IsNullOrEmpty(SelectedSquad) ? Guid.Empty : Guid.Parse(SelectedSquad),
+        TotalItems,
+        Added1 + Added2 + Added3,
+        ThroughputHistory.Sum(),
+        ThroughputHistory,
+        FreshItems,
+        MidAgeItems,
+        OldItems,
+        HighPriority,
+        MediumPriority,
+        LowPriority,
+        0 // TODO: Unprioritised (not yet in UI)
+    );
+    void DebugSignals()
+    {
+        Console.WriteLine($">>> Backlog Signals Built: {Signals.Count}");
+
+        foreach (var signal in Signals)
+        {
+            Console.WriteLine($">>> {signal.Name} = {signal.NormalisedValue:F2}");
+        }
+    }
+
+    // ================================
+    // Inputs
+    // ================================
+
+    int TotalItems;
+    int Added1, Added2, Added3;
+    int Velocity1, Velocity2, Velocity3;
+    int FreshItems, MidAgeItems, OldItems;
+    int HighPriority, MediumPriority, LowPriority;
+    List<int> ThroughputHistory => new()
+        {
+            Velocity1,
+            Velocity2,
+            Velocity3
+        };
+    bool HasAnyData => TotalItems > 0 || Added1 > 0 || Added2 > 0 || Added3 > 0 || FreshItems > 0 || MidAgeItems > 0 ||
+    OldItems > 0 || HighPriority > 0 || MediumPriority > 0 || LowPriority > 0 || Velocity1 > 0 || Velocity2 > 0 || Velocity3 > 0;
+    Signal BacklogSizeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogSize");
+    Signal PredictabilitySignal => Signals.FirstOrDefault(s => s.Name == "DeliveryPredictability");
+    Signal VolatilitySignal => Signals.FirstOrDefault(s => s.Name == "BacklogVolatility");
+    Signal AgeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogAge");
+    Signal PrioritisationSignal => Signals.FirstOrDefault(s => s.Name == "BacklogPrioritisation");
+
+    private string SelectedSquad { get; set; } = string.Empty;
+
+    private void OnSquadSelected(string squadId)
+    {
+        SelectedSquad = squadId;
+    }
+   
+    // ================================
+    // Calculations
+    // ================================
+
+    // Backlog Size
+    int SizeScore => BacklogSizeSignal == null ? 0 : (int)(BacklogSizeSignal.NormalisedValue * 100);
+    
+    //Backlog Age
+    int AgeScore => AgeSignal == null ? 0 : (int)(AgeSignal.NormalisedValue * 100);
+    
+    // Backlog Volatility
+    int VolatilityHealth => VolatilitySignal == null ? 0 : (int)(VolatilitySignal.NormalisedValue * 100);
+    
+    // Backlog Priority
+    int PriorityScore => PrioritisationSignal == null ? 0 : (int)(PrioritisationSignal.NormalisedValue * 100);
+
+    // ================================
+    // Labels
+    // ================================
+
+    // Backlog Size
+    string SizeLabel
+    {
+        get
+        {
+            if (BacklogSizeSignal == null)
+                return "-";
+
+            double weeks = BacklogSizeSignal.RawValue;
+            double avgThroughput = ThroughputHistory.Any() ? ThroughputHistory.Average() : 0;
+
+            //Line 1: SO WHAT
+            string workHorizon = $"{weeks:F1} weeks of work";
+            // Line 2: WHAT
+            string context = avgThroughput > 0
+                ? $"{TotalItems} items | {avgThroughput:F1}/2 weeks"
+                : $"{TotalItems} items";
+
+            return $"{workHorizon}\n{context}";
+        }
+    }
+
+    // Backlog Age
+    string AgeLabel 
+    {
+        get
+        {
+            if (AgeSignal == null)
+                return "-";
+            
+            var fresh = FreshItems;
+            var mid = MidAgeItems;
+            var old = OldItems;
+
+            int total = fresh + mid + old;
+
+            if (total == 0)
+                return "No age data";
+
+            double freshPct = (double)fresh / total;
+            double midPct = (double)mid / total;
+            double oldPct = (double)old / total;
+
+            string interpretation = AgeSignal.Shape switch
+            {
+                "SkewLeft" => "Work is being created too early",
+                "SkewRight" => "Work is aging before delivery",
+                "Bimodal" => "Work is split between very new and very old",
+                "BimodalLeft" => "Work is clustered early with aging spillover",
+                "BimodalRight" => "Work is aging with some new inflow",
+                _ => "Work is flowing evenly"
+            };
+            return $"{interpretation}\n({freshPct:P0} fresh | {midPct:P0} mid | {oldPct:P0} old)";
+        }
+    }
+
+    //Backlog Volatility
+    string VolatilityLabel 
+    {
+        get
+        {
+            if (VolatilitySignal == null)
+                return "-";
+
+            int totalAdded = Added1 + Added2 + Added3;
+            int totalCompleted = ThroughputHistory.Sum();
+
+            int net = totalAdded - totalCompleted;
+
+            if (TotalItems == 0)
+                return $"{net:+#;-#;0} items";
+
+            double pct = (double)net / TotalItems;
+            // SO WHAT
+            string interpretation;
+            if (Math.Abs(pct) < 0.05)
+            {
+                interpretation = "Backlog is stable";
+            }
+            else if (pct > 0)
+            {
+                interpretation = pct > 0.3
+                    ? "Backlog is growing rapidly"
+                    : "Backlog is growing steadily";
+            }
+            else
+            {
+                interpretation = pct < -0.3
+                    ? "Backlog is shrinking rapidly"
+                    : "Backlog is shrinking";
+            }
+            // WHAT (Raw Data)
+            string raw = $"Net {net:+#;-#;0} items ({pct:+0%;-0%;0%} change) over time";
+
+            return $"{interpretation}\n{raw}";
+        }
+    }
+
+    //Backlog Prioritisation
+    string PriorityLabel {
+        get
+        {
+            if (PrioritisationSignal == null || TotalItems == 0)
+                return "-";
+
+            int prioritisedTotal = HighPriority + MediumPriority + LowPriority;
+            int unprioritised = Math.Max(0, TotalItems - prioritisedTotal);
+
+            double coverage = (double)prioritisedTotal / TotalItems;
+
+            double highPct = (double)HighPriority / TotalItems;
+            double mediumPct = (double)MediumPriority / TotalItems;
+            double lowPct = (double)LowPriority / TotalItems;
+            // SO WHAT
+            string interpretation;
+            if (coverage < 0.7)
+             {
+            interpretation = "A significant portion of work is not prioritised, making sequencing unclear";
+            }
+            else if (highPct > 0.6)
+            {
+                interpretation = "Everything is high priority, which implies nothing is priority";
+            }
+            else if (mediumPct > 0.6)
+            {
+                interpretation = "Most work sits in the middle, which weakens decision clarity";
+            }
+            else if (lowPct > 0.6)
+            {
+                interpretation = "Work is weighted toward low priority, which may delay value delivery";
+            }
+            else
+            {
+                interpretation = "Prioritisation is spread, work can be clearly differentiated";
+            }
+            // WHAT
+            string raw = $"{coverage:P0} prioritised | High {highPct:P0} | Med {mediumPct:P0} | Low {lowPct:P0}";
+            return $"{interpretation}\n{raw}";
+        }
+    }
+
+    // ================================
+    // Predictability
+    // ================================
+    
+    // Helpers
+    double CV => PredictabilitySignal?.RawValue ?? 0;
+    double Predictability => PredictabilitySignal?.NormalisedValue ?? 0;
+    double AverageThroughput => ThroughputHistory.Any() ? ThroughputHistory.Average() : 0;
+    double StandardDeviation =>
+        ThroughputHistory.Count < 2
+            ? 0
+            : Math.Sqrt(ThroughputHistory.Sum(x => Math.Pow(x - AverageThroughput, 2)) / ThroughputHistory.Count);
+
+    // Calculation
+    int PredictabilityScore => PredictabilitySignal == null ? 0 : (int)(PredictabilitySignal.NormalisedValue * 100);
+
+    // Headline
+    string GetPredictabilityHeadline()
+    {
+        if (CV < 0.2)
+            return "Delivery output is predictable";
+
+        if (CV < 0.6)
+            return "Delivery output shows variation";
+
+        return "Delivery output is unpredictable";
+    }
+
+    // Pattern
+    string GetPattern()
+    {
+        if (ThroughputHistory == null || ThroughputHistory.Count < 3)
+            return "Insufficient data";
+
+        var diffs = ThroughputHistory
+            .Zip(ThroughputHistory.Skip(1), (a, b) => b - a)
+            .ToList();
+
+        if (diffs.Count < 2)
+            return "Insufficient data";
+
+        // --- Step 1: detect alternating pattern
+        bool alternating = diffs.Zip(diffs.Skip(1), (a, b) => a * b < 0).All(x => x);
+
+        // --- Step 2: measure magnitude
+        double avg = ThroughputHistory.Average();
+        double avgDiff = diffs.Average(d => Math.Abs(d));
+
+        // magnitude threshold relative to system size
+        bool significantSwing = avg > 0 && (avgDiff / avg) > 0.4;
+
+        if (alternating && significantSwing)
+            return "Cyclical";
+
+        // fallback to CV-based classification
+        double std = Math.Sqrt(ThroughputHistory.Sum(x => Math.Pow(x - avg, 2)) / ThroughputHistory.Count);
+        double cv = avg == 0 ? 0 : std / avg;
+
+        if (cv < 0.2)
+            return "Stable";
+
+        return "Chaotic";
+    }
+
+    // Predictability Impact
+    string GetPredictabilityImpact()
+    {
+        if (CV < 0.2)
+            return "Stable delivery increases confidence in backlog projections and planning.";
+
+        if (CV < 0.6)
+            return "Variation in delivery may affect backlog forecasts and timing confidence.";
+
+        return "Low predictability reduces confidence in delivery timelines, backlog age expectations, and prioritisation effectiveness.";
+    }
+
+    // Label
+    string PredictabilityLabel => PredictabilitySignal == null 
+    ? "-" 
+    : $"{AverageThroughput:F0} avg | ±{StandardDeviation:F1} variation | CV {CV:F2}";
+
+    // Continua Direction
+    int GetPredictabilityDirection()
+    {
+        if (PredictabilitySignal == null)
+            return 0;
+
+        var cv = PredictabilitySignal.RawValue;
+
+        if (cv < 0.5) return -1;   // controlled
+        if (cv > 1.0) return 1;    // chaotic
+
+        return 0;
+    }
+
+    // ================================
+    // INSIGHT PANEL HELPERS
+    // ================================
+    string FormatHeadline(OperationalInsight insight)
+    {
+        // Clean user-facing phrasing - These need to be updated to json interpretations
+        return insight.Name switch
+        {
+            "BacklogAgingRisk" => "Work is aging in the backlog",
+            "IntakePressure" => "Work is entering faster than it is delivered",
+            "BacklogVolatility" => "Backlog is changing rapidly",
+            "BacklogPressure" => "Backlog is overloaded",
+            "StrongPrioritisation" => "Work is clearly prioritised",
+            "PrioritisationClarity" => "Priorities are well defined",
+            _ => insight.Name
+        };
+    }
+
+    string FormatAction(OperationalInsight insight)
+    {
+        return insight.Name switch
+        {
+            "BacklogAgingRisk" =>
+                "Review and refresh older backlog items to ensure relevance → Open Plays",
+
+            "IntakePressure" =>
+                "Align intake with delivery capacity and reduce incoming work → Open Plays",
+
+            "BacklogVolatility" =>
+                "Stabilise intake and planning cadence to reduce disruption → Open Plays",
+
+            "BacklogPressure" =>
+                "Reduce backlog size and focus on near-term work → Open Plays",
+
+            "StrongPrioritisation" =>
+                "Maintain prioritisation discipline and reinforce decision clarity → Explore MRI",
+
+            "PrioritisationClarity" =>
+                "Keep priorities visible and ensure clear differentiation → Explore MRI",
+
+            _ =>
+                "Investigate contributing signals → Explore MRI"
+        };
+    }
+    (string action, string link) GetActionAndLink(OperationalInsight insight)
+    {
+        return insight.Name switch
+        {
+            "BacklogAgingRisk" =>
+                ("Review and refresh older backlog items", "Plays"),
+
+            "IntakePressure" =>
+                ("Align intake with delivery capacity", "Plays"),
+
+            "BacklogVolatility" =>
+                ("Stabilise intake and planning cadence", "Plays"),
+
+            "BacklogPressure" =>
+                ("Reduce backlog size", "Plays"),
+
+            "StrongPrioritisation" =>
+                ("Maintain prioritisation discipline", "MRI"),
+
+            "PrioritisationClarity" =>
+                ("Ensure priorities are clear and visible", "MRI"),
+
+            _ =>
+                ("Investigate contributing signals", "MRI")
+        };
+    }
+
+    // ================================
+    // SAVE (Clean Version)
+    // ================================
+
+    private async Task SaveBacklogHealth()
+    {
+        var workspaceID = WorkspaceRepository.ActiveWorkspaceId;
+        if (workspaceID == null || string.IsNullOrEmpty(SelectedSquad))
+            return;
+        var result = new AssessmentResult
+        {
+            Id = Guid.NewGuid(),
+            ToolName = "Backlog Health",
+            Date = DateTime.Now,
+            WorkspaceId = workspaceID.Value,
+            SquadId = Guid.Parse(SelectedSquad),
+
+            BacklogSize = SizeScore,
+            BacklogAge = AgeScore,
+            BacklogVolatility = VolatilityHealth,
+            BacklogPriority = PriorityScore,
+            BacklogPredictability = PredictabilityScore,
+            BacklogHealthScore = 0,
+
+            Notes = $"Backlog Health snapshot"
+        };
+
+        await AssessmentRepository.SaveBacklogHealthAsync(result);
+    }
+    private async Task WorkspaceChanged()
+    {
+        // Reset selected squad when workspace changes
+        SelectedSquad = string.Empty;
+        await InvokeAsync(StateHasChanged);
+    }
+    private Func<Task>? _workspaceChangedHandler;
+    protected override Task OnInitializedAsync()
+    {
+        _workspaceChangedHandler = WorkspaceChanged;
+        WorkspaceRepository.OnWorkspaceChanged += _workspaceChangedHandler;
+
+        return Task.CompletedTask;
+    }
+    private async Task Recalculate()
+    {
+        DebugSignals();
+        await RunPipeline();
+    }
+    public void Dispose()
+    {
+        if (_workspaceChangedHandler != null)
+            WorkspaceRepository.OnWorkspaceChanged -= _workspaceChangedHandler;
+    }
+}

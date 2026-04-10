@@ -1,0 +1,18 @@
+@inject TooltipService TooltipService
+
+@if (TooltipService.Text != null)
+{
+    <div class="nav-tooltip"
+         style="
+         top:@(TooltipService.Top)px; 
+         left: @(TooltipService.Left)px;">
+        @TooltipService.Text
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        TooltipService.OnChange += StateHasChanged;
+    }
+}

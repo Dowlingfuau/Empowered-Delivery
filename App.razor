@@ -1,0 +1,30 @@
+﻿@using OperationalIntelligenceHub.Services
+@inject WorkspaceRepositoryService WorkspaceRepository
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(PlatformLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(HubLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await WorkspaceRepository.InitializeAsync();
+            Console.WriteLine("Workspace initialized");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Initialization failed: {ex.Message}");
+        }
+    }
+}

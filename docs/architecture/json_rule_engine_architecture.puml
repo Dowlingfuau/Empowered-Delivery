@@ -1,0 +1,45 @@
+@startuml JSON Rule Engine Architecture
+left to right direction
+title Operational MRI Rule Engine Architecture
+
+package "JSON Configuration" {
+  component behaviour_rules.json
+  component flow_rules.json
+  component team_rules.json
+  component system_rules.json
+  component insight_templates.json
+}
+
+package "Rule Engine" {
+  component RuleLoader
+  component DerivedSignalEngine
+}
+
+package "Insight Engine" {
+  component InsightGenerator
+  component InsightPrioritiser
+}
+
+package "Runtime Data" {
+  component Signals
+  component DerivedSignals
+  component Insights
+}
+
+behaviour_rules.json --> RuleLoader
+flow_rules.json --> RuleLoader
+team_rules.json --> RuleLoader
+system_rules.json --> RuleLoader
+
+RuleLoader --> DerivedSignalEngine
+
+Signals --> DerivedSignalEngine
+DerivedSignalEngine --> DerivedSignals
+
+DerivedSignals --> InsightGenerator
+insight_templates.json --> InsightGenerator
+
+InsightGenerator --> InsightPrioritiser
+InsightPrioritiser --> Insights
+
+@enduml

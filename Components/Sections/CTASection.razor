@@ -1,0 +1,12 @@
+<section class="section">
+
+    <div class="card panel">
+        @ChildContent
+    </div>
+
+</section>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

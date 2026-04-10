@@ -1,0 +1,83 @@
+/* Button Component */
+.button {
+    font-family: var(--font-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--surface-raised-shadow);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(var(--color-core-base-rgb), 0.2);
+}
+.button.selected {
+    background: var(--color-accent);
+    color: var(--color-core-base);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 6px rgba(var(--color-accent),0.4);
+}
+/* Primary Button */
+.button-primary {
+    background: linear-gradient(135deg, var(--color-secondary-purple), var(--color-secondary-pink));
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    border: 1px solid var(--surface-focus-border);
+    box-shadow: var(--surface-focus-shadow), var(--surface-focus-glow);
+}
+.button-primary:hover {
+    box-shadow: 0 4px 14px var(--surface-focus-glow);
+}
+/* Secondary Button */
+.button-secondary {
+    background: var(--color-raised-bg);
+    border: 1px solid var(--border-default);
+}
+.button-secondary:hover {
+    background-color: rgba(var(--color-core-surface-rgb), 0.08);
+    border-color: var(--color-primary);
+    box-shadow: var(--surface-raised-shadow);
+}
+/* Tertiary / Ghost Button */
+.button-tertiary {
+    background: transparent;
+    color: var(--text-secondary);
+}
+.button-tertiary:hover {
+    color: var(--text-primary);
+    background-color: rgba(var(--color-core-surface-rgb), 0.059);
+}
+/* Destructive Button */
+.button-destructive {
+    background-color: var(--color-error);
+    color: var(--color-core-base);
+    font-weight: var(--font-weight-medium);
+}
+.button-destructive:hover {
+    box-shadow: 0 4px 14px rgba(var(--color-core-surface-rgb), 0.059);
+}
+/* Button Sizes */
+.button-sm {
+    padding: calc(var(--spacing-unit) * 0.75) calc(var(--spacing-unit) * 1.5);
+    font-size: var(--font-label-size);
+}
+.button-lg {
+    padding: calc(var(--spacing-unit) * 1.5) var(--space-lg);
+    font-size: var(--font-size-lg);
+}
+/* Disabled Button */
+.button:disabled {
+    background-color: var(--border-default);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+/* Focus Accessibility */
+.button:focus {
+    outline: 2px solid rgba(var(--color-accent-blue-rgb), 0.6);
+    outline-offset: 2px;
+}

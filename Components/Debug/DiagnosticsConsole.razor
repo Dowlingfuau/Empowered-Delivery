@@ -1,0 +1,184 @@
+@using OperationalIntelligenceHub.Models
+@inject SignalPipelineService SignalService
+
+<div class="card stack">
+
+    <h3>Diagnostics Console</h3>
+
+    <h4>Quick Trace</h4>
+
+    <div class="card text-muted small">
+        @if (Signals != null)
+        {
+            var age = Signals.FirstOrDefault(s => s.Name == "BacklogAge");
+
+            if (age != null)
+            {
+                <div>
+                    AGE → Score: @age.NormalisedValue.ToString("0.00") |
+                    Continuum: @FormatNullable(age.ContinuumValue) |
+                    Direction: @age.Direction |
+                    Shape: @age.Shape
+                </div>
+            }
+        }
+    </div>
+
+    <div class="stack">
+
+        <h4>Signals</h4>
+
+        @if (Signals == null || !Signals.Any())
+        {
+            <p>No signals</p>
+        }
+        else
+        {
+            @foreach (var group in Signals.GroupBy(GetLens))
+            {
+                <div class="stack card">
+                    <h3>@group.Key</h3>
+                    @foreach (var signal in group.OrderBy (s => s.Name))
+                    {
+                        <div class="stack card">
+                            <div class="stack-horizontal">
+                                <span style="width: 30%">@FormatSignalName(signal.Name)</span>
+                                <span style="width: 15%">@signal.NormalisedValue.ToString("0.00")</span>
+                                <span style="width: 15%">@signal.RawValue.ToString("0.00")</span>
+                                <span style="width: 15%">Dir: @(signal.Direction)</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+        <h4>Derived Signals</h4>
+
+        @if (DerivedSignals == null || !DerivedSignals.Any())
+        {
+            <p>No derived signals</p>
+        }
+        else
+        {
+            @foreach (var group in DerivedSignals.GroupBy(s => s.Source))
+            {
+                <div class="stack card">
+                    <h5>@group.Key</h5>
+                    @foreach (var signal in group)
+                    {
+                            <div class="stack-horizontal">
+                                <span style="width: 70%">@signal.Name</span>
+                                <span style="width: 15%">@FormatScore(signal.Score)</span>
+                                <span class="text-muted" style="width: 15%">(@signal.Source)</span>
+                            </div>
+                            @if (signal.ContributingSignals?.Any() == true)
+                            {
+                                <div class="text-muted small">
+                                    Based on:
+                                    @string.Join(", ", signal.ContributingSignals)
+                                </div>
+                            }
+                    }
+                </div>
+            }
+        }
+
+        <h4>Insights</h4>
+        <div class="card">
+        @if (Insights == null || !Insights.Any())
+        {
+            <p>No insights</p>
+        }
+        else
+        {
+            @foreach (var insight in Insights)
+            {
+                    <div class="stack-horizontal">
+                        <span style="width 60%">@insight.Name</span>
+                        <span style="width: 20%">@insight.Intensity</span>
+                        <span class="text-muted" style="width: 20%">(@insight.Source)</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(insight.Interpretation))
+                    {
+                        <div class="text-muted small">
+                            @insight.Interpretation
+                        </div>
+                    }
+                    @if (insight.ContributingSignals?.Any() == true)
+                    {
+                        <div class="text-muted small">
+                            Based on:@string.Join(", ", insight.ContributingSignals)
+                        </div>
+                    }
+            }
+        }
+        </div>
+
+        @if (RuleEvaluations?.Any() == true)
+        {
+            
+                <h4>Rule Evaluations</h4>
+            <div class="card">
+                <div class="table-header stack-horizontal">
+                    <strong style="width: 30%">Rule</strong>
+                    <strong style="width: 45%">Condition</strong>
+                    <strong style="width: 15%">Result</strong>
+                    <strong style="width: 10%">Match</strong>
+                </div>
+
+                @foreach (var eval in RuleEvaluations)
+                {
+                    <div class="stack-horizontal">
+                        <span style="width: 30%">@eval.RuleName</span>
+                        <span style="width: 45%">@eval.Condition</span>
+                        <span style="width: 15%">@eval.Output</span>
+                        <span style="width: 10%">@(eval.Result ? "✔" : "✖")</span>
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter] public List<Signal>? Signals { get; set; }
+    [Parameter] public List<DerivedSignal>? DerivedSignals { get; set; }
+    [Parameter] public List<OperationalInsight>? Insights { get; set; }
+    [Parameter] public List<RuleEvaluation>? RuleEvaluations { get; set; }
+    
+    private string FormatScore(double score)
+    {
+        if (score >= 0.8) return "HIGH";
+        if (score >= 0.5) return "MODERATE";
+        return "LOW";
+    }
+    private string FormatNullable(double? value)
+    {
+        return value.HasValue ? value.Value.ToString("0.00") : "-";
+    }
+    private string GetLens(Signal s)
+    {
+        if (s.Name.StartsWith("Leader")) return "Leader";
+        if (s.Name.StartsWith("SM")) return "Scrum Master";
+        if (s.Name.StartsWith("PO")) return "Product Owner";
+        if (s.Name.StartsWith("Team")) return "Squad";
+        if (s.Domain == "Flow") return "Flow";
+        if (s.Domain == "Delivery") return "Delivery";
+        return "Other";
+    }
+
+    private string FormatSignalName(string name)
+    {
+        return name
+            .Replace("Leader", "")
+            .Replace("SM", "")
+            .Replace("PO", "")
+            .Replace("Team", "")
+            .Replace("Level", "");
+    }
+
+}

@@ -1,0 +1,27 @@
+@startuml rule engine
+
+title Derived Signal Engines
+
+class Signal
+
+class BehaviourRuleEngine
+class FlowRuleEngine
+class TeamRuleEngine
+class SystemRuleEngine
+
+class DerivedSignals
+
+Signal --> BehaviourRuleEngine
+Signal --> FlowRuleEngine
+Signal --> TeamRuleEngine
+
+BehaviourRuleEngine --> SystemRuleEngine
+FlowRuleEngine --> SystemRuleEngine
+TeamRuleEngine --> SystemRuleEngine
+
+BehaviourRuleEngine --> DerivedSignals
+FlowRuleEngine --> DerivedSignals
+TeamRuleEngine --> DerivedSignals
+SystemRuleEngine --> DerivedSignals
+
+@enduml

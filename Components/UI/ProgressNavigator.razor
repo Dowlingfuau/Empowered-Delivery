@@ -1,0 +1,52 @@
+@using OperationalIntelligenceHub.Models
+
+<div class="stack-horizontal">
+    @foreach (var item in Items)
+    {
+        var selected = item.Id == SelectedId ? "card-selected" : "";
+
+        <div class="card @selected"
+             style="cursor:pointer; min-width:180px;"
+             @onclick="() => Select(item.Id)">
+
+            <div class="stack-horizontal">
+
+                <strong>@item.Title</strong>
+
+                <div>
+
+                    @if (item.IsComplete)
+                    {
+                        <span style="color:var(--color-success)">● Complete</span>
+                    }
+                    else if (item.PercentComplete > 0)
+                    {
+                        <span style="color:var(--color-warning)">● @item.PercentComplete%</span>
+                    }
+                    else
+                    {
+                        <span style="color:var(--text-primary)">● Not started</span>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+</div>
+
+@code {
+
+    [Parameter] public List<ProgressItem> Items { get; set; } = new();
+
+    [Parameter] public string SelectedId { get; set; } = "";
+
+    [Parameter] public EventCallback<string> OnSelected { get; set; }
+
+    private async Task Select(string id)
+    {
+        await OnSelected.InvokeAsync(id);
+    }
+
+}

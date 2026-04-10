@@ -1,0 +1,294 @@
+@page "/hub/structure-studio"
+@layout HubLayout
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Services
+@using OperationalIntelligenceHub.Components
+@inject WorkspaceRepositoryService Repository
+
+<div class="container">
+<h1>Structure Studio</h1>
+
+<!-- WORKSPACE SELECTION & EDIT -->
+<div class="section stack">
+    <h3>Workspaces</h3>
+
+    <div class="grid grid-3">
+    @foreach (var ws in Workspaces)
+    {
+        <div class="card stack-horizontal">
+            @if (EditingWorkspaces.Contains(ws))
+            {
+                <input class="input" @bind="ws.Name" />
+
+                <div class="stack-horizontal">
+                    <div class="button button-primary" @onclick="() => SaveWorkspace(ws)">Save</div>
+                    <div class="button button-secondary" @onclick="() => CancelEditWorkspace(ws)">Cancel</div>
+                </div>
+            }
+            else
+            {
+                <span>@ws.Name</span>
+                <div class="stack-horizontal">
+                    <div class="button button-secondary" @onclick="() => EditWorkspace(ws)">Edit</div>
+                    <div class="button button-primary" @onclick="() => AddCompany(ws)">+ Company</div>
+                    <div class="button button-danger" @onclick="() => DeleteWorkspace(ws)">Delete</div>
+                </div>
+            }
+        </div>
+    }
+    </div>
+
+    <button class="button button-primary" @onclick="AddWorkspace">+ Add Workspace</button>
+</div>
+
+<!-- HIERARCHY DISPLAY -->
+@if (ActiveWorkspace != null)
+{
+    <div class="hierarchy-section">
+        <h4>@ActiveWorkspace.Name Hierarchy</h4>
+        @foreach (var company in ActiveWorkspace.Structure.Companies)
+        {
+            <div class="card hierarchy-card company-card mb-2 p-2">
+                @if (EditingHierarchy.Contains(company))
+                {
+                    <input class="input" @bind="company.Name" />
+                    <div>
+                        <button class="button button-secondary" @onclick="() => SaveCompany(company)">Save</button>
+                        <button class="button button-secondary" @onclick="() => CancelEditCompany(company)">Cancel</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="stack-horizontal">
+                        <span>@company.Name</span>
+                        <div>
+                            <button class="button button-primary" @onclick="() => EditCompany(company)">Edit</button>
+                            <button class="button button-secondary" @onclick="() => AddBusinessUnit(company)">+ BU</button>
+                            <button class="button button-danger" @onclick="() => DeleteCompany(company)">Delete</button>
+                        </div>
+                    </div>
+                }
+
+                @foreach (var bu in company.BusinessUnits)
+                {
+                    <div class="card indent">
+                        @if (EditingHierarchy.Contains(bu))
+                        {
+                            <input class="input" @bind="bu.Name" />
+                            <div>
+                                <button class="button button primary" @onclick="() => SaveBusinessUnit(bu)">Save</button>
+                                <button class="button button-secondary" @onclick="() => CancelEditBusinessUnit(bu)">Cancel</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="stack-horizontal">
+                                <span>@bu.Name</span>
+                                <div>
+                                    <button class="button button-primary" @onclick="() => EditBusinessUnit(bu)">Edit</button>
+                                    <button class="button button-secondary" @onclick="() => AddTribe(bu)">+ Tribe</button>
+                                    <button class="button button-danger" @onclick="() => DeleteBusinessUnit(bu)">Delete</button>
+                                </div>
+                            </div>
+                        }
+
+                        @foreach (var tribe in bu.Tribes)
+                        {
+                            <div class="card indent">
+                                @if (EditingHierarchy.Contains(tribe))
+                                {
+                                    <input class="input" @bind="tribe.Name" />
+                                    <div>
+                                        <button class="button button-primary" @onclick="() => SaveTribe(tribe)">Save</button>
+                                        <button class="button button-secondary" @onclick="() => CancelEditTribe(tribe)">Cancel</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="stack-horizontal">
+                                        <span>@tribe.Name</span>
+                                        <div>
+                                            <button class="button button-primary" @onclick="() => EditTribe(tribe)">Edit</button>
+                                            <button class="button button-secondary" @onclick="() => AddSquad(tribe)">+ Squad</button>
+                                            <button class="button button-danger" @onclick="() => DeleteTribe(tribe)">Delete</button>
+                                        </div>
+                                    </div>
+
+                                    @foreach (var squad in tribe.Squads)
+                                    {
+                                        <div class="card indent">
+                                            @if (EditingHierarchy.Contains(squad))
+                                            {
+                                                <input class="input" @bind="squad.Name" />
+                                                <div>
+                                                    <button class="button button-primary" @onclick="() => SaveSquad(squad)">Save</button>
+                                                    <button class="button button-secondary" @onclick="() => CancelEditSquad(squad)">Cancel</button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span>@squad.Name</span>
+                                                <button class="button button-primary" @onclick="() => EditSquad(squad)">Edit</button>
+                                                <button class="button button-danger" @onclick="() => DeleteSquad(squad)">Delete</button>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+</div>
+
+@code {
+    private List<OrgWorkspace> Workspaces = new();
+    private OrgWorkspace? ActiveWorkspace;
+
+    // Track items in edit mode
+    private HashSet<object> EditingWorkspaces = new();
+    private HashSet<object> EditingHierarchy = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Repository.OnWorkspaceChanged += async () =>
+        {
+            Workspaces = await Repository.GetWorkspacesAsync();
+            ActiveWorkspace = Workspaces.FirstOrDefault(ws => ws.Id == Repository.ActiveWorkspaceId) ?? Workspaces.FirstOrDefault();
+            await InvokeAsync(StateHasChanged);
+        };
+
+        Workspaces = await Repository.GetWorkspacesAsync();
+        ActiveWorkspace = Workspaces.FirstOrDefault(ws => ws.Id == Repository.ActiveWorkspaceId) ?? Workspaces.FirstOrDefault();
+    }
+
+    // ----------------------
+    // Workspace Methods
+    // ----------------------
+    private void EditWorkspace(OrgWorkspace ws) => EditingWorkspaces.Add(ws);
+    private async Task SaveWorkspace(OrgWorkspace ws)
+    {
+        EditingWorkspaces.Remove(ws);
+        await Repository.SaveWorkspacesAsync();
+    }
+    private void CancelEditWorkspace(OrgWorkspace ws) => EditingWorkspaces.Remove(ws);
+
+    private async Task AddWorkspace()
+    {
+        var ws = new OrgWorkspace { Name = "New Workspace" };
+        Workspaces.Add(ws);
+        ActiveWorkspace = ws;
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    private async Task DeleteWorkspace(OrgWorkspace ws)
+    {
+        Workspaces.Remove(ws);
+        if (ActiveWorkspace == ws)
+            ActiveWorkspace = Workspaces.FirstOrDefault();
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    // ----------------------
+    // Company Methods
+    // ----------------------
+    private void EditCompany(Company c) => EditingHierarchy.Add(c);
+    private async Task SaveCompany(Company c)
+    {
+        EditingHierarchy.Remove(c);
+        await Repository.SaveWorkspacesAsync();
+    }
+    private void CancelEditCompany(Company c) => EditingHierarchy.Remove(c);
+
+    private async Task AddCompany(OrgWorkspace ws)
+    {
+        ws.Structure.Companies.Add(new Company { Name = "New Company" });
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    private async Task DeleteCompany(Company c)
+    {
+        ActiveWorkspace?.Structure.Companies.Remove(c);
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    // ----------------------
+    // BU Methods
+    // ----------------------
+    private void EditBusinessUnit(BusinessUnit bu) => EditingHierarchy.Add(bu);
+    private async Task SaveBusinessUnit(BusinessUnit bu)
+    {
+        EditingHierarchy.Remove(bu);
+        await Repository.SaveWorkspacesAsync();
+    }
+    private void CancelEditBusinessUnit(BusinessUnit bu) => EditingHierarchy.Remove(bu);
+
+    private async Task AddBusinessUnit(Company c)
+    {
+        c.BusinessUnits.Add(new BusinessUnit { Name = "New BU" });
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    private async Task DeleteBusinessUnit(BusinessUnit bu)
+    {
+        var company = ActiveWorkspace?.Structure.Companies.FirstOrDefault(c => c.BusinessUnits.Contains(bu));
+        company?.BusinessUnits.Remove(bu);
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    // ----------------------
+    // Tribe Methods
+    // ----------------------
+    private void EditTribe(Tribe t) => EditingHierarchy.Add(t);
+    private async Task SaveTribe(Tribe t)
+    {
+        EditingHierarchy.Remove(t);
+        await Repository.SaveWorkspacesAsync();
+    }
+    private void CancelEditTribe(Tribe t) => EditingHierarchy.Remove(t);
+
+    private async Task AddTribe(BusinessUnit bu)
+    {
+        bu.Tribes.Add(new Tribe { Name = "New Tribe" });
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    private async Task DeleteTribe(Tribe t)
+    {
+        var bu = ActiveWorkspace?.Structure.Companies
+            .SelectMany(c => c.BusinessUnits)
+            .FirstOrDefault(b => b.Tribes.Contains(t));
+        bu?.Tribes.Remove(t);
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    // ----------------------
+    // Squad Methods
+    // ----------------------
+    private void EditSquad(Squad s) => EditingHierarchy.Add(s);
+    private async Task SaveSquad(Squad s)
+    {
+        EditingHierarchy.Remove(s);
+        await Repository.SaveWorkspacesAsync();
+    }
+    private void CancelEditSquad(Squad s) => EditingHierarchy.Remove(s);
+
+    private async Task AddSquad(Tribe t)
+    {
+        t.Squads.Add(new Squad { Name = "New Squad" });
+        await Repository.SaveWorkspacesAsync();
+    }
+
+    private async Task DeleteSquad(Squad s)
+    {
+        var tribe = ActiveWorkspace?.Structure.Companies
+            .SelectMany(c => c.BusinessUnits)
+            .SelectMany(b => b.Tribes)
+            .FirstOrDefault(t => t.Squads.Contains(s));
+        tribe?.Squads.Remove(s);
+        await Repository.SaveWorkspacesAsync();
+    }
+}

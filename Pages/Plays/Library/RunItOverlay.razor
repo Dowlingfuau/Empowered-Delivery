@@ -1,0 +1,322 @@
+@if (currentStepIndex == -1)
+{
+    <div class="run-overlay">
+
+        <div class="run-panel">
+
+            <div class="card">
+                <p class="accent-text">
+                    Step @(currentStepIndex + 1) of @Steps.Count
+                </p>
+                
+                <h2>Disruptive Brainstorming</h2>
+
+                <p class="accent-text">
+                    A fast-paced session to generate and pressure-test ideas.
+                </p>
+
+                <h3>Target outcome</h3>
+
+                <p class="accent-text">
+                    Come away with a small set of strong ideas worth exploring.
+                </p>
+
+                <p>You will guide participants through:</p>
+
+                <ul>
+                    <li>Structured brainstorming rounds</li>
+                    <li>Introduce constraints to challenge thinking</li>
+                    <li>Refine ideas through elimination</li>
+                </ul>
+
+            </div>
+
+            <div class="grid grid-2">
+
+                <!-- FLOW -->
+                <div class="card">
+                    <h3>Session Flow</h3>
+
+                    <ol>
+                        <li @onclick="() => StartFromStep(0)" class="run-link">Set the scene</li>
+                        <li @onclick="() => StartFromStep(1)" class="run-link">Initial brainstorm</li>
+                        <li @onclick="() => StartFromStep(2)" class="run-link">Rotate and cut</li>
+                        <li @onclick="() => StartFromStep(3)" class="run-link">Disruption round</li>
+                        <li @onclick="() => StartFromStep(4)" class="run-link">Rotate and cut again</li>
+                        <li @onclick="() => StartFromStep(5)" class="run-link">Final disruption round</li>
+                        <li @onclick="() => StartFromStep(6)" class="run-link">Final cut</li>
+                        <li @onclick="() => StartFromStep(7)" class="run-link">Wrap and next steps</li>
+                    </ol>
+                </div>
+
+                <!-- PREP -->
+                <div class="card">
+                    <h3>Prep</h3>
+
+                    <ul>
+                        <li>Book room or set up virtual space</li>
+                        <li>Prepare whiteboards or collaboration tools</li>
+                        <li>Create disruption cards</li>
+                        <li>Plan group rotations</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="run-controls">
+
+                <button class="button button-secondary" @onclick="OnClose">
+                    Exit
+                </button>
+
+                <button class="button button-primary" @onclick="Start">
+                    Start session
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+else
+{
+    var step = Steps[currentStepIndex];
+    var nextStep = currentStepIndex < Steps.Count - 1
+        ? Steps[currentStepIndex + 1]
+        : null;
+
+    <div class="run-overlay">
+
+        <div class="run-panel">
+
+            <div class="run-top-bar">
+
+            <button class="button" @onclick="Reset">
+                    Start over
+                </button>
+
+                <button class="button" @onclick="OnClose">
+                    Exit
+                </button>
+            </div>
+
+            <div class="grid run-grid">
+
+                <!-- CURRENT STEP -->
+                <div class="card run-current">
+
+                    <p class="accent-text">
+                        Step @(currentStepIndex + 1) of @Steps.Count
+                    </p>
+
+                    <h2>@step.Title</h2>
+
+                    <ul>
+                        @foreach (var line in step.Instruction.Split(". "))
+                        {
+                            <li>@line</li>
+                        }
+                    </ul>
+
+                    @if (!string.IsNullOrEmpty(step.Timebox))
+                    {
+                        <p class="accent-text">⏱ @step.Timebox</p>
+                    }
+
+                </div>
+
+                <!-- NEXT STEP -->
+                <div class="card run-next">
+
+                    <p class="accent-text">Next</p>
+
+                    @if (nextStep != null)
+                    {
+                        <h3>@nextStep.Title</h3>
+                        <p>@nextStep.Instruction</p>
+                    }
+                    else
+                    {
+                        <h3>Final step</h3>
+                        <p>
+                            Thank your participants for their energy and ideas,
+                            and take a moment to recognise the progress you've made.
+                        </p>
+                    }
+
+                </div>
+
+            </div>
+            
+             @if (step.Notes?.Any() == true)
+                    {
+                        <div class="card">
+                            
+                            <h3>Facilitator tips</h3>
+
+                            <div class="grid grid-3">
+                            
+                                @foreach (var note in step.Notes)
+                                {
+                                    <li>@note</li>
+                                }
+                            </div>
+                        </div>
+                    }
+
+            <div class="run-controls">
+
+                <button class="button button-primary" @onclick="Back">
+                    ←
+                </button>
+
+                <button class="button button-primary" @onclick="Next">
+                    →
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private int currentStepIndex = -1;
+
+    private void StartFromStep(int index)
+    {
+        currentStepIndex = index;
+    }
+
+    private List<PlayStep> Steps = new()
+    {
+        new PlayStep
+        {
+            Title = "Set the scene",
+            Instruction = "Explain the goal of the session and how it will work. Split participants into small groups (3–5 people per group) and assign each group a space (whiteboard, wall, or virtual board).",
+            Timebox = "5 minutes",
+            Notes = new List<string>
+            {
+                "Set energy early — this drives the whole session",
+                "Make it safe to share anything",
+                "Be clear on the problem you're solving"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Round 1 — Initial brainstorm",
+            Instruction = "In their groups, participants write down ideas on sticky notes (or virtual notes), one idea per note. Place all ideas on their group’s board.",
+            Timebox = "10 minutes",
+            Notes = new List<string>
+            {
+                "Encourage quantity over quality",
+                "No judging ideas yet",
+                "Keep energy high"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Rotate and cut",
+            Instruction = "Groups rotate to a different board. Review the ideas and remove any that are unclear, weak, or not valuable.",
+            Timebox = "5 minutes",
+            Notes = new List<string>
+            {
+                "Encourage quick decisions",
+                "It’s okay to challenge ideas",
+                "Keep only what stands out"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Round 2 — Disruption",
+            Instruction = "Introduce a constraint (e.g. no budget, no tech) and have groups adapt or create ideas under that constraint.",
+            Timebox = "10 minutes",
+            Notes = new List<string>
+            {
+                "Push thinking into new directions",
+                "Remind them constraints drive creativity",
+                "Keep energy up"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Rotate and cut again",
+            Instruction = "Groups rotate again and remove weaker ideas, refining the set further.",
+            Timebox = "5 minutes",
+            Notes = new List<string>
+            {
+                "Be more critical this round",
+                "Focus on viability and impact"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Final round — New disruption",
+            Instruction = "Introduce a final disruption (e.g. people-first thinking, extreme constraints) and refine ideas again.",
+            Timebox = "10 minutes",
+            Notes = new List<string>
+            {
+                "Change perspective completely",
+                "Encourage bold thinking"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Final cut",
+            Instruction = "Teams select only the strongest ideas worth taking forward.",
+            Timebox = "5 minutes",
+            Notes = new List<string>
+            {
+                "This should feel difficult",
+                "Focus on value and feasibility",
+                "Push for clarity"
+            }
+        },
+        new PlayStep
+        {
+            Title = "Wrap and next steps",
+            Instruction = "Capture final ideas, assign owners, and agree on next steps.",
+            Timebox = "10 minutes",
+            Notes = new List<string>
+            {
+                "Ensure ideas don’t get lost",
+                "Assign clear ownership",
+                "Define immediate next actions"
+            }
+        }
+    };
+
+    private void Start()
+    {
+        currentStepIndex = 0;
+    }
+
+    private void Next()
+    {
+        if (currentStepIndex < Steps.Count - 1)
+            currentStepIndex++;
+    }
+
+    private void Back()
+    {
+        if (currentStepIndex > 0)
+            currentStepIndex--;
+    }
+
+    private void Reset()
+    {
+        currentStepIndex = -1;
+    }
+
+    public class PlayStep
+    {
+        public string Title { get; set; }
+        public string Instruction { get; set; }
+        public string Timebox { get; set; }
+        public List<string> Notes { get; set; }
+    }
+}

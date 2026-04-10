@@ -1,0 +1,113 @@
+@using OperationalIntelligenceHub.Services
+@using OperationalIntelligenceHub.Models
+@inject WorkspaceRepositoryService Repository
+@inject LocalStorageService LocalStorage
+
+<div class="stack-sm">
+    <!-- Label -->
+    <p class="label">@Label</p>
+
+    <!-- Selection -->
+    <select class="select" value="@SelectedSquad" @onchange="OnDropdownChanged">
+        <option value="">Select Squad</option>
+
+         @foreach (var squad in SquadOptions)
+        {
+            <option value="@squad.Id">
+                @squad.Name
+            </option>
+        }
+        <option value="__create_new">+ CREATE NEW</option>
+    </select>
+
+    <!-- Create Action -->
+    
+
+</div>
+
+
+@if (ShowCreateModal)
+{
+    <div class="overlay">
+
+        <div class="surface-elevated stack-md">
+
+            <h3>Create New Squad</h3>
+
+            <input class="input" @bind="NewSquadName" placeholder="Enter squad name" />
+
+            <div class="stack-sm">
+                <button class="button button-primary" @onclick="ConfirmCreateNew">Save</button>
+                <button class="button button-secondary" @onclick="CancelCreateNew">Cancel</button>
+            </div>
+
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter] public string Label { get; set; } = "Select Squad";
+    [Parameter] public string SelectedSquad { get; set; } = "";
+    [Parameter] public EventCallback<string> SelectedSquadChanged { get; set; }
+    [Parameter] public bool Compact { get; set; } = false;
+
+    private List<Squad> SquadOptions = new();
+    private bool ShowCreateModal = false;
+    private string NewSquadName = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Repository.ActiveWorkspaceId != null)
+        {
+            var ws = (await Repository.GetWorkspacesAsync())
+                     .FirstOrDefault(w => w.Id == Repository.ActiveWorkspaceId);
+            SquadOptions = ws?.Structure?.GetAllSquads().ToList() ?? new List<Squad>();
+        }
+    }
+
+    private async Task OnDropdownChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "";
+        if (value == "__create_new")
+        {
+            ShowCreateModal = true;
+        }
+        else
+        {
+            SelectedSquad = value;
+            await SelectedSquadChanged.InvokeAsync(SelectedSquad);
+        }
+    }
+
+    private async Task ConfirmCreateNew()
+    {
+        if (string.IsNullOrWhiteSpace(NewSquadName))
+            return;
+
+        var workspace = Repository.ActiveWorkspace;
+        if (workspace == null)
+            return;
+
+        var tribe = workspace.Structure.Companies
+            .SelectMany(c => c.BusinessUnits)
+            .SelectMany(bu => bu.Tribes)
+            .FirstOrDefault();
+
+        if (tribe == null)
+            return;
+
+        await Repository.AddSquadAsync(tribe, NewSquadName);
+
+        ShowCreateModal = false;
+        NewSquadName = "";
+
+        await OnParametersSetAsync();
+        StateHasChanged();
+    }
+    private void CancelCreateNew()
+    {
+        ShowCreateModal = false;
+        NewSquadName = "";
+    }
+}

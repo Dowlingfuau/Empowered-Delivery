@@ -1,0 +1,94 @@
+@using System.Text.RegularExpressions
+
+<div class="grouped-wrapper">
+    <div class="input-chip" @onclick="Toggle" @onclick:stopPropagation="true">
+        <div class="chip-display">
+            @if (!IsEmpty)
+            {
+                <span>@DisplayText</span>
+            }
+            else
+            {
+                <span class="chip-placeholder">@Label</span>
+            }
+        </div>
+    </div>
+
+    @if (IsOpen)
+    {
+        <div class="group-dropdown">
+            <div class="group-field">
+                <span class="group-label">@Label1</span>
+                <InputChip Value="@Value1" ValueChanged="Value1Changed" Placeholder="0" />
+            </div>
+
+            <div class="group-field">
+                <span class="group-label">@Label2</span>
+                <InputChip Value="@Value2" ValueChanged="Value2Changed" Placeholder="0" />
+            </div>
+
+            <div class="group-field">
+                <span class="group-label">@Label3</span>
+                <InputChip Value="@Value3" ValueChanged="Value3Changed" Placeholder="0" />
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+
+    [Parameter] public int Value1 { get; set; }
+    [Parameter] public EventCallback<int> Value1Changed { get; set; }
+
+    [Parameter] public int Value2 { get; set; }
+    [Parameter] public EventCallback<int> Value2Changed { get; set; }
+
+    [Parameter] public int Value3 { get; set; }
+    [Parameter] public EventCallback<int> Value3Changed { get; set; }
+
+    private bool IsOpen = false;
+    private static GroupedInputChip? ActiveInstance;
+
+    private void Toggle()
+    {
+        if (ActiveInstance != null && ActiveInstance != this)
+        {
+            ActiveInstance.CloseDropdown();
+        }
+
+        IsOpen = !IsOpen;
+        ActiveInstance = IsOpen ? this : null;
+    }
+
+    public void CloseDropdown()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    private bool IsEmpty => Value1 == 0 && Value2 == 0 && Value3 == 0;
+
+    private string DisplayText =>
+    Label switch
+    {
+        "Age" => $"{Value1} <2w, {Value2} 2–4w, {Value3} >4w",
+        "Priority" => $"{Value1} high, {Value2} med, {Value3} low",
+        "Throughput" => $"{Value1}/{Value2}/{Value3} per sprint",
+        "Added" => $"{Value1} <2w, {Value2} 2-4w, {Value3} >4w",
+        _ => Label
+    };
+    private (string, string, string) Labels =>
+        Label switch
+        {
+            "Age" => ("<2w", "2–4w", ">4w"),
+            "Priority" => ("High", "Medium", "Low"),
+            "Throughput" => ("Sprint -1", "Sprint -2", "Sprint -3"),
+            "Added" => ("<2w", "2–4w", ">4w"),
+            _ => ("1", "2", "3")
+        };
+
+    private string Label1 => Labels.Item1;
+    private string Label2 => Labels.Item2;
+    private string Label3 => Labels.Item3;
+}

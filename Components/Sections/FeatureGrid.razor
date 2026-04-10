@@ -1,0 +1,16 @@
+<div class="grid @GridClass">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public int Columns { get; set; } = 3;
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    private string GridClass => Columns switch
+    {
+        2 => "grid-2",
+        3 => "grid-3",
+        _ => "grid-2"
+    };
+}

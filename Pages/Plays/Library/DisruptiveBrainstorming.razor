@@ -1,0 +1,338 @@
+@page "/plays/disruptive-brainstorming"
+
+<div class="container">
+
+    <Hero>
+        <h1>Disruptive Brainstorming</h1>
+
+        <h2>Generate and stress-test ideas through structured disruption.</h2>
+
+        <p>
+            A high-energy facilitation technique designed to push teams beyond obvious solutions
+            and uncover stronger, more resilient ideas.
+        </p>
+
+        <button class="button button-primary" @onclick="StartRunMode">
+            Run it!
+        </button>
+    </Hero>
+
+    <div class="grid grid-2">
+
+    <section class="section">
+        <h2>
+            When to use this play
+        </h2>
+
+        <ul>
+            <li>Ideas feel repetitive, safe, or stuck</li>
+            <li>You need fresh thinking or new perspectives</li>
+            <li>You want to challenge assumptions before committing</li>
+            <li>You have too many ideas and need to refine them</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>
+            Keys to success
+        </h2>
+
+        <ul>
+            <li>Create a safe, high-energy environment — this drives creativity</li>
+            <li>Facilitate tightly — without control, this becomes chaotic</li>
+            <li>Keep strict timeboxes to maintain momentum</li>
+            <li>Push participants beyond obvious ideas</li>
+        </ul>
+    </section>
+    </div>
+
+    <section class="section">
+        <h2>
+            What’s involved
+        </h2>
+
+        <FeatureGrid Columns="3">
+
+            <div class="card">
+                <h4>Prep time</h4>
+                <p>10–15 minutes</p>
+            </div>
+
+            <div class="card">
+                <h4>Run time</h4>
+                <p>45–60 minutes</p>
+            </div>
+
+            <div class="card">
+                <h4>Participants</h4>
+                <p>6–20 people (in groups)</p>
+            </div>
+
+        </FeatureGrid>
+
+    </section>
+
+    <section class="section">
+        <h2>
+            What you need
+        </h2>
+
+        <ul>
+            <li>Whiteboard, sticky notes, or virtual collaboration tool</li>
+            <li>A clear problem or topic to explore</li>
+            <li>Disruption constraints (prepared or improvised)</li>
+            <li>Timer</li>
+        </ul>
+    </section>
+
+    <section class="section">
+
+        <h2>
+            Step-by-step breakdown
+        </h2>
+
+        <div class="learn-steps">
+
+            @foreach (var step in Steps)
+            {
+                <div class="learn-step">
+
+                    <!-- LEFT (Primary) -->
+                    <div class="learn-step-main">
+
+                        <h3>@step.Title</h3>
+
+                        @foreach (var line in step.Instruction.Split("\n\n"))
+                        {
+                            <p>@line</p>
+                        }
+
+                        @if (!string.IsNullOrEmpty(GetWhy(step.Title)))
+                        {
+                            <p class="accent-text">
+                                @GetWhy(step.Title)
+                            </p>
+                        }
+
+                    </div>
+
+                    <!-- RIGHT (Support) -->
+                    <div class="learn-step-side">
+
+                            <div class="card">
+                                <h4>Facilitator tips</h4>
+
+                                <ul>
+                                    @foreach (var tip in GetTips(step.Title, step.Notes))
+                                    {
+                                        <li>@tip</li>
+                                    }
+                                </ul>
+                            </div>
+                        
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+    </section>
+
+</div>
+@if (isRunning)
+{
+    <RunItOverlay OnClose="StopRunMode" />
+}
+
+@code {
+    private bool isRunning = false;
+
+    private void StartRunMode()
+    {
+        isRunning = true;
+        Console.WriteLine("Run mode triggered");
+    }
+
+    private void StopRunMode()
+    {
+        isRunning = false;
+    }
+
+    // 👇 ADD THIS
+    private List<PlayStep> Steps = new()
+    {
+        new PlayStep
+        {
+            Title = "Set the scene",
+            Instruction = "Introduce the session by explaining the goal and how the activity will work.\n\nClearly define the problem or topic you are solving. Split participants into small groups (3–5 people) and assign each group a space (physical or virtual).\n\nSet expectations for pace, participation, and energy — this will be a fast-moving, interactive session.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Round 1 — Initial brainstorm",
+            Instruction = "Split participants into their groups and give each group access to a whiteboard, template, or sticky notes.\n\nSet a timer for 10 minutes and ask participants to generate as many ideas as possible. Emphasise that quantity is more important than quality.\n\nParticipants should add one idea at a time to the board. As ideas are added, encourage quick discussion to refine or build on them, but avoid deep debate.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Rotate and cut",
+            Instruction = "Ask each group to move to a different board so they are reviewing another group's ideas.\n\nGive groups a short timebox (around 5 minutes) to review all ideas and remove any that are unclear, duplicated, or low value.\n\nEncourage quick decision-making — ideas should either stay or go. Discarded ideas can be removed or grouped separately to keep the board clean.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Round 2 — Disruption",
+            Instruction = "Introduce a disruption constraint (e.g. no budget, no technology, or people-first only).\n\nAsk groups to run another round of brainstorming using the ideas remaining on their board, now working within the constraint.\n\nSet a timer and encourage participants to adapt, expand, or create new ideas that fit the constraint. Keep the pace high and avoid overthinking.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Rotate and cut again",
+            Instruction = "Have groups rotate again to a new board.\n\nThis time, ask them to review ideas more critically and remove weaker or less viable options.\n\nEncourage groups to justify why ideas should remain. The goal is to reduce the set to only the strongest candidates.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Final round — New disruption",
+            Instruction = "Introduce a new disruption constraint or perspective that differs from the previous round.\n\nAsk groups to refine, combine, or evolve the remaining ideas based on this new constraint.\n\nEncourage participants to strengthen ideas rather than create entirely new ones, focusing on making them more robust and well thought through.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Final cut",
+            Instruction = "Ask each group to select a small number of ideas to take forward (e.g. top 3).\n\nForce prioritisation by limiting how many ideas can be selected. Groups should discuss and agree on which ideas provide the most value.\n\nEnsure selected ideas are clear, specific, and ready to be acted on.",
+            Notes = new List<string>()
+        },
+        new PlayStep
+        {
+            Title = "Wrap and next steps",
+            Instruction = "Bring everyone back together and review the final ideas.\n\nCapture the selected ideas clearly and assign an owner to each one. Define the immediate next step for progressing each idea.\n\nClose the session by reinforcing the outcome and recognising the team’s contribution.",
+            Notes = new List<string>()
+        }
+    };
+
+    private string GetWhy(string title)
+    {
+        return title switch
+        {
+            "Set the scene" =>
+                "The energy and clarity set here determine the quality of the session. If participants don’t feel safe or don’t understand the goal, they will default to safe, low-quality ideas.",
+
+            "Round 1 — Initial brainstorm" =>
+                "This step is about volume. Generating a wide range of ideas increases creative thinking and the chances of uncovering strong or unexpected solutions.",
+
+            "Rotate and cut" =>
+                "Fresh perspective reduces attachment to ideas and improves objectivity, helping stronger ideas emerge early.",
+
+            "Round 2 — Disruption" =>
+                "Constraints force new ways of thinking, breaking teams out of default patterns and encouraging creativity.",
+
+            "Rotate and cut again" =>
+                "Repeated filtering strengthens the remaining ideas. Each round increases quality and clarity, making the final selection more meaningful.",
+
+            "Final round — New disruption" =>
+                "Applying multiple perspectives ensures ideas are resilient and well thought through. Strong ideas should hold up under different conditions.",
+
+            "Final cut" =>
+                "Limiting choices forces prioritisation and ensures focus on what truly matters.",
+
+            "Wrap and next steps" =>
+                "Ideas only create value when they are owned and acted on.",
+
+            _ => ""
+        };
+    }
+
+    private string GetKeyInsight(string title)
+    {
+        return title switch
+        {
+            "Round 1 — Initial brainstorm" =>
+                "Early filtering kills creativity — this step deliberately avoids it.",
+
+            "Rotate and cut" =>
+                "Fresh eyes help separate signal from noise.",
+
+            "Round 2 — Disruption" =>
+                "Creativity thrives under constraint, not freedom.",
+
+            "Final cut" =>
+                "If everything is important, nothing is.",
+
+            _ => null
+        };
+    }
+
+    private List<string> GetTips(string title, List<string> defaultNotes)
+    {
+        return title switch
+        {
+            "Set the scene" => new List<string>
+            {
+                "Be explicit about the goal — don’t assume alignment",
+                "Set expectations for pace and participation",
+                "If energy is low, inject it early"
+            },
+
+            "Round 1 — Initial brainstorm" => new List<string>
+            {
+                "Push for speed — thinking too long reduces output",
+                "Encourage rough, incomplete ideas",
+                "If groups stall, prompt: “What else could we try?”"
+            },
+
+            "Rotate and cut" => new List<string>
+            {
+                "Keep this step fast — hesitation reduces effectiveness",
+                "Remind participants they are improving ideas, not criticising people",
+                "If groups struggle, prompt: “Would you invest in this idea?”"
+            },
+
+            "Round 2 — Disruption" => new List<string>
+            {
+                "Let groups pick random constraints for this round",
+                "Encourage bold or unconventional thinking",
+                "Keep energy high — this should feel different"
+            },
+
+            "Rotate and cut again" => new List<string>
+            {
+                "Be more critical than the first cut",
+                "Push groups to justify why ideas should stay",
+                "Watch for groups keeping too many ideas"
+            },
+
+            "Final round — New disruption" => new List<string>
+            {
+                "Use a different type of constraint than before",
+                "Encourage refinement, not just new ideas",
+                "Look for opportunities to combine ideas"
+            },
+
+            "Final cut" => new List<string>
+            {
+                "Make this feel difficult — that’s the point",
+                "Push for clarity and specificity",
+                "Enforce a limit if needed (e.g. top 3 ideas)"
+            },
+
+            "Wrap and next steps" => new List<string>
+            {
+                "Ensure each idea has a clear owner",
+                "Define immediate next actions",
+                "Close with energy and recognition"
+            },
+
+            _ => defaultNotes
+        };
+    }
+
+    private class PlayStep
+    {
+        public string Title { get; set; }
+        public string Instruction { get; set; }
+        public List<string> Notes { get; set; }
+    }
+}

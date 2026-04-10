@@ -1,0 +1,108 @@
+<div class="continuum-container">
+    <div class="continuum-title">@Title
+        <Tooltip Text="@TooltipText" />
+    </div>
+
+    <div class="continuum-bar">
+        <div class="continuum-track">
+            @for (int i = 0; i < Zones.Count; i++)
+            {
+                <div class="continuum-segment @(GetSegmentClass(i))"></div>
+            }
+            <div class="continuum-centre-line"></div>
+        </div>
+
+        <div class="continuum-marker" style="left:@Position%"></div>
+    </div>
+
+    <div class="continuum-labels">
+        @foreach (var zone in Zones)
+        {
+            <span>@zone</span>
+        }
+    </div>
+
+    <div class="continuum-label">
+        @((MarkupString)Label.Replace("\n", "<br/>"))
+    </div>
+
+    @if (!string.IsNullOrEmpty(Observation) || !string.IsNullOrEmpty(WhyItMatters))
+    {
+        <div class="signal-context">
+            @if (!string.IsNullOrEmpty(Observation))
+            {
+                <div class="observation">@Observation</div>
+            }
+            @if (!string.IsNullOrEmpty(WhyItMatters))
+            {
+                <div class="why">@WhyItMatters</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = null!;
+    [Parameter] public string TooltipText { get; set; } = "";
+    [Parameter] public string Label { get; set; } = "";
+
+    [Parameter] public double Value { get; set; } // 0 → 1
+    [Parameter] public List<string> Zones { get; set; } = new();
+
+    [Parameter] public string Observation { get; set; }
+    [Parameter] public string WhyItMatters { get; set; }
+    [Parameter] public int Direction { get; set; } = 0;
+    // -1 = left
+    //  0 = centre
+    // +1 = right
+
+    int ZoneCount => Zones.Count;
+
+    int ActiveZoneIndex
+    {
+        get
+        {
+            if (Direction == 0)
+                return ZoneCount / 2;
+
+            return Direction < 0 ? 0 : ZoneCount - 1;
+        }
+    }
+    
+    double Position
+    {
+        get
+        {
+            // Distance from balance (centre)
+            var deviation = 1 - Value; // 0 when balanced, 1 when extreme
+
+            // Convert to % offset from centre
+            var offset = deviation * 50;
+
+            // Apply direction
+            var pos = 50 + (offset * Direction);
+
+            return Math.Clamp(pos, 0, 100);
+        }
+    }
+
+    string GetSegmentClass(int index)
+    {
+        var mid = Zones.Count / 2;
+
+        double segmentWidth = 1.0 / ZoneCount;
+        double segmentStart = index * segmentWidth;
+        double segmentEnd = segmentStart + segmentWidth;
+
+        if (Value >= segmentStart && Value < segmentEnd)
+        return "active";
+
+        if (index == mid)
+            return "optimal";
+
+        if (index < mid)
+            return "left";
+
+        return "right";
+    }
+}

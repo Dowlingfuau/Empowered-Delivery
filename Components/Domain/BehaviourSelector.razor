@@ -1,0 +1,55 @@
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Services
+@inject BehaviourCatalogueService BehaviourCatalogue
+
+<div class="grid grid-5">
+
+@foreach (var option in BehaviourOptions)
+{
+    var selected = Theme.Level == option.Level ? "card-selected" : "";
+    <div class="card @selected"
+        style="cursor:pointer"
+        @onclick="() => Select(option.Level)">
+        <h3>@option.Headline</h3>
+        @if (option.Signals?.Any() == true)
+        {
+            <ul>
+                @foreach (var signal in option.Signals)
+                {
+                    <li>@signal</li>
+                }
+            </ul>
+        }
+        @if (option.Examples?.Any() == true)
+        {
+            <details>
+                <summary>Examples</summary>
+                <ul>
+                    @foreach (var example in option.Examples)
+                    {
+                        <li>@example</li>
+                    }
+                </ul>
+            </details>
+        }
+    </div>
+}
+
+</div>
+
+@code {
+
+    [Parameter] public MaturityTheme Theme { get; set; } = default!;
+    [Parameter] public string Lens { get; set; } = "";
+    [Parameter] public EventCallback<int> OnBehaviourSelected { get; set; }
+    private List<BehaviourOption> BehaviourOptions = new();
+    protected override void OnParametersSet()
+    {
+        BehaviourOptions = BehaviourCatalogue.GetBehaviours(Lens, Theme.Theme);
+    }
+    private async Task Select(int level)
+    {
+        Theme.Level = level;        
+        await OnBehaviourSelected.InvokeAsync(level);
+    }
+}

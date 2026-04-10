@@ -1,0 +1,214 @@
+﻿@page "/hub/team-health-check"
+@layout HubLayout
+@using OperationalIntelligenceHub.Shared
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Services
+@using OperationalIntelligenceHub.Components
+@inject AssessmentRepositoryService AssessmentRepository
+@inject WorkspaceRepositoryService WorkspaceRepository
+
+<div class="container">
+
+<div class="stack-horizontal">
+    <h1>Team Health Check</h1>
+    <div class="button button-primary" @onclick="SaveTeamHealth">Save Assessment</div>
+</div>
+
+<div class="section">
+<SquadInput Label="Squad"
+            SelectedSquad="@SelectedSquad"
+            SelectedSquadChanged="OnSquadSelected"/>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+    @ThemeBlock("Clarity of Purpose",
+        "Can the team clearly explain what they are trying to achieve and why?",
+        ClarityScore, v => ClarityScore = v,
+        ClarityNotes, v => ClarityNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Psychological Safety",
+        "Do people feel safe to speak honestly and challenge ideas?",
+        SafetyScore, v => SafetyScore = v,
+        SafetyNotes, v => SafetyNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Flow of Work",
+        "Does work move smoothly or frequently stall?",
+        FlowScore, v => FlowScore = v,
+        FlowNotes, v => FlowNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Collaboration vs Silos",
+        "Do people work together or operate in individual lanes?",
+        CollaborationScore, v => CollaborationScore = v,
+        CollaborationNotes, v => CollaborationNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Focus & Discipline",
+        "Do they finish what they start and protect sprint focus?",
+        FocusScore, v => FocusScore = v,
+        FocusNotes, v => FocusNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Stakeholder Engagement",
+        "Are stakeholders active partners or largely absent?",
+        StakeholderScore, v => StakeholderScore = v,
+        StakeholderNotes, v => StakeholderNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Continuous Improvement",
+        "Do retrospectives lead to visible change?",
+        ImprovementScore, v => ImprovementScore = v,
+        ImprovementNotes, v => ImprovementNotes = v)
+    </div>
+    <div class="card">
+    @ThemeBlock("Energy & Morale",
+        "Does the team feel energised or drained?",
+        MoraleScore, v => MoraleScore = v,
+        MoraleNotes, v => MoraleNotes = v)
+    </div>
+</div>
+</div>
+@code {
+    private Func<Task>? _workspaceChangedHandler;
+    private async Task WorkspaceChanged()
+    {
+        SelectedSquad = string.Empty;
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override Task OnInitializedAsync()
+    {
+        _workspaceChangedHandler = WorkspaceChanged;
+        WorkspaceRepository.OnWorkspaceChanged += _workspaceChangedHandler;
+        return Task.CompletedTask;
+    }
+    public void Dispose()
+    {
+        if (_workspaceChangedHandler != null)
+            WorkspaceRepository.OnWorkspaceChanged -= _workspaceChangedHandler;
+    }
+    private void OnSquadSelected(string squadId)
+    {
+        SelectedSquad = squadId;
+    }
+
+    // ===============================
+    // Theme Scores
+    // ===============================
+
+    int ClarityScore, SafetyScore, FlowScore, CollaborationScore,
+        FocusScore, StakeholderScore, ImprovementScore, MoraleScore;
+
+    string ClarityNotes = "", SafetyNotes = "", FlowNotes = "", CollaborationNotes = "",
+           FocusNotes = "", StakeholderNotes = "", ImprovementNotes = "", MoraleNotes = "";
+
+    private string SelectedSquad = string.Empty;
+
+    // ===============================
+    // Theme UI Builders
+    // ===============================
+
+    RenderFragment ThemeBlock(string title, string description,
+        int score, Action<int> setScore,
+        string notes, Action<string> setNotes) => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "stack");
+
+        builder.OpenElement(2, "h3");
+        builder.AddContent(3, title);
+        builder.CloseElement();
+
+        builder.OpenElement(4, "p");
+        builder.AddAttribute(5, "class", "body");
+        builder.AddContent(6, description);
+        builder.CloseElement();
+
+        builder.OpenElement(7, "div");
+        builder.AddAttribute(8, "class", "thumbs");
+
+        builder.AddContent(9, ThumbButton("👍 Healthy", 100, score, setScore));
+        builder.AddContent(10, ThumbButton("➖ Mixed", 60, score, setScore));
+        builder.AddContent(11, ThumbButton("👎 Unhealthy", 20, score, setScore));
+
+        builder.CloseElement();
+
+        builder.OpenElement(12, "textarea");
+        builder.AddAttribute(13, "placeholder", "Observation notes...");
+        builder.AddAttribute(14, "value", notes);
+        builder.AddAttribute(15, "oninput",
+            EventCallback.Factory.Create<ChangeEventArgs>(this, e => setNotes(e.Value?.ToString() ?? "")));
+        builder.CloseElement();
+
+        builder.CloseElement();
+    };
+
+    RenderFragment ThumbButton(string text, int value, int current, Action<int> set) => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "button button-secondary" + (current == value ? " selected" : ""));
+        builder.AddAttribute(2, "onclick",
+            EventCallback.Factory.Create(this, () => set(value)));
+        builder.AddContent(3, text);
+        builder.CloseElement();
+    };
+
+    // ===============================
+    // Calculations
+    // ===============================
+
+    private int CalculateOverallTeamHealthScore()
+    {
+        int total = ClarityScore + SafetyScore + FlowScore + CollaborationScore +
+                    FocusScore + StakeholderScore + ImprovementScore + MoraleScore;
+
+        return total / 8;
+    }
+
+    // ===============================
+    // SAVE (Clean Architecture)
+    // ===============================
+
+    private async Task SaveTeamHealth()
+    {
+        var workspaceID = WorkspaceRepository.ActiveWorkspaceId;
+        if (workspaceID == null || string.IsNullOrEmpty(SelectedSquad))
+            return;
+        workspaceID = workspaceID.Value;
+
+        var result = new AssessmentResult
+        {
+            Id = Guid.NewGuid(),
+            ToolName = "Team Health",
+            Date = DateTime.Now,
+
+            WorkspaceId = workspaceID.Value,
+            SquadId = Guid.Parse(SelectedSquad),
+            // Overall score for summary
+            TeamHealthScore = CalculateOverallTeamHealthScore(),
+            // Individual dimension scores for deep dive
+            ClarityScore = ClarityScore,
+            SafetyScore = SafetyScore,
+            FlowScore = FlowScore,
+            CollaborationScore = CollaborationScore,
+            FocusScore = FocusScore,
+            StakeholderScore = StakeholderScore,
+            ImprovementScore = ImprovementScore,
+            MoraleScore = MoraleScore,
+            // Notes
+            Notes =
+            "Clarity: " + ClarityNotes + Environment.NewLine +
+            "Safety: " + SafetyNotes + Environment.NewLine +
+            "Flow: " + FlowNotes + Environment.NewLine +
+            "Collaboration: " + CollaborationNotes + Environment.NewLine +
+            "Focus: " + FocusNotes + Environment.NewLine +
+            "Stakeholder: " + StakeholderNotes + Environment.NewLine +
+            "Improvement: " + ImprovementNotes + Environment.NewLine +
+            "Morale: " + MoraleNotes
+        };
+
+        await AssessmentRepository.SaveTeamHealthAsync(result);
+    }
+}

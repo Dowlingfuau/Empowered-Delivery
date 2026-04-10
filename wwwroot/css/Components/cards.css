@@ -1,0 +1,99 @@
+/* Card Component - Content Container */
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 2);
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-light);
+    padding: calc(var(--spacing-unit) * 3);
+    
+            /* .stack will do this, maybe change to .card stack*/
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--spacing-unit) * 1.5);
+
+    transition: transform 0.15s ease, box-shadow 0.2s ease;    
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px var(--shadow-hover);
+    z-index: var(--z-sidebar);
+}
+.card-selected {
+    border: 2px solid var(--color-primary);
+}
+.card button {
+    margin-top: auto;
+}
+            /* TODO: Move to icons.css */
+            .card-icon {
+                font-size: 28px;
+                margin-bottom: calc(var(--spacing-unit) * 1);
+            }
+.card-header {
+    font-weight: var(--font-weight-bold);
+}
+.card h3 {
+    margin-top: 0;
+}
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--spacing-unit);
+}
+.card textarea{
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+.card-footer {
+    margin-top: auto;
+}
+/* Panel - Feature surface with accent bar */
+.panel {
+    padding: calc(var(--spacing-unit) * 4);
+    position: relative;
+}
+.panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: var(--color-accent);
+    opacity: 0.6;
+}
+
+/* =========================================
+   LEGACY (TO BE REMOVED OR UPDATED)
+   DO NOT USE
+========================================= */
+
+/* Insights Panel */
+.insight-panel {
+    background: var(--surface-focus-bg);
+    border: 1px solid var(--surface-focus-border);
+}
+.insight-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.insight-block .observation {
+    font-weight: 600;
+}
+.insight-block .why {
+    opacity: 0.85;
+}
+.insight-block .direction {
+    margin-top: 6px;
+    font-style: italic;
+}
+.insight-hero {
+    background: var(--color-nav-bg);
+    color: var(--color-bg-panel);
+    padding: 20px;
+    border-radius: 12px;
+}

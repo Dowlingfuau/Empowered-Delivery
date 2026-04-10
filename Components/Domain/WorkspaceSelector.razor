@@ -1,0 +1,53 @@
+@using OperationalIntelligenceHub.Models
+@using OperationalIntelligenceHub.Services
+@inject WorkspaceRepositoryService Repository
+
+<div class="nav-section">Select Workspace</div>
+<select class="form-select" value="@SelectedWorkspaceId" @onchange="OnWorkspaceChanged">
+    <option value="">-- ALL WORKSPACES --</option>
+    @foreach (var ws in Workspaces)
+    {
+        <option value="@ws.Id">
+            @(string.IsNullOrWhiteSpace(ws.Name)
+                ? $"Workspace {Workspaces.IndexOf(ws) + 1}"
+                : ws.Name)
+        </option>
+    }
+</select>
+
+@code {
+    private List<OrgWorkspace> Workspaces = new();
+    private Guid? SelectedWorkspaceId => Repository.ActiveWorkspaceId;
+    private async Task OnWorkspaceChanged(ChangeEventArgs e)
+    {
+        if (Guid.TryParse(e.Value?.ToString(), out var id))
+        {
+            await Repository.SetActiveWorkspaceAsync(id);
+        }
+        else
+        {
+            await Repository.SetActiveWorkspaceAsync(null); // All Workspaces mode
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Subscribe to repository changes
+        _workspaceChangedHandler = async () =>
+        {
+            Workspaces = await Repository.GetWorkspacesAsync();
+            await InvokeAsync(StateHasChanged);
+        };
+        Repository.OnWorkspaceChanged += _workspaceChangedHandler;
+        Workspaces = await Repository.GetWorkspacesAsync();
+    }
+
+    public void Dispose()
+    {
+        if (_workspaceChangedHandler != null)
+        {
+            Repository.OnWorkspaceChanged -= _workspaceChangedHandler;
+        }
+    }
+    private Func<Task>? _workspaceChangedHandler;
+}
