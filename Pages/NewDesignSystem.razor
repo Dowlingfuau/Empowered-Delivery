@@ -152,14 +152,18 @@
               <!-- Continuum Placeholder -->
               <div class="surface-raised stack-sm">
                 <ContinuumBar 
-                  Title="Team Morale"
+                  Title="Team Morale Factors"
                   TooltipText="Testing the tooltip text"
                   ></ContinuumBar>
               </div>
 
               <!-- Gauge Placeholder -->
               <div class="surface-raised stack-sm">
-                <p class="micro">[Gauge]</p>
+                <Gauge
+                  Title="Team Morale Intensity"
+                  Label="How is the team doing out of 10?"
+                  Value="80"
+                  ></Gauge>
               </div>
 
             </div>
@@ -188,13 +192,16 @@
           <div class="stack-md">
 
             <!-- Chart Placeholder -->
-            <dv class="surface-raised stack-sm">
-              <p class="micro">[Chart / Signal Visualisation]</p>
-            </dv>
-
-            <!-- Optional supporting visual -->
             <div class="surface-raised stack-sm">
-              <p class="micro">[Trend / Pattern Indicator]</p>
+
+              <!-- Title -->
+              <p class="Label">Team Morale Trend</p>
+
+              <!-- Chart -->
+              <div class="chart-container">
+                <canvas id="moraleChart"></canvas>
+              </div>
+
             </div>
 
           </div>

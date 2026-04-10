@@ -1,0 +1,37 @@
+/* Table Component */
+.table {
+    background: var(--color-bg-panel);
+    color: var(--text-primary);
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-primary);
+}
+/* Table Cells */
+.table th, 
+.table td {
+    padding: calc(var(--spacing-unit) * 1);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+/* Table Header */
+.table thead {
+    border-bottom: 2px solid var(--color-border-strong);
+}
+.table th { 
+    text-align: left; 
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary); 
+    background-color: var(--color-bg-panel);
+}
+/* Row Striping */ 
+.table tr:nth-child(even) { 
+    background-color: var(--color-hover); 
+}
+/* Hover */
+.table tbody tr:hover { 
+    background-color: var(--color-hover); 
+}
+/* Responsive Container */
+.table-container {
+    overflow-y: auto;
+}
