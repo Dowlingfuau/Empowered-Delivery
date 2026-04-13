@@ -15,12 +15,12 @@
     <div class="grid grid-3">
     @foreach (var ws in Workspaces)
     {
-        <div class="card stack-horizontal">
+        <div class="card container">
             @if (EditingWorkspaces.Contains(ws))
             {
                 <input class="input" @bind="ws.Name" />
 
-                <div class="stack-horizontal">
+                <div class="container">
                     <div class="button button-primary" @onclick="() => SaveWorkspace(ws)">Save</div>
                     <div class="button button-secondary" @onclick="() => CancelEditWorkspace(ws)">Cancel</div>
                 </div>
@@ -28,7 +28,7 @@
             else
             {
                 <span>@ws.Name</span>
-                <div class="stack-horizontal">
+                <div class="container">
                     <div class="button button-secondary" @onclick="() => EditWorkspace(ws)">Edit</div>
                     <div class="button button-primary" @onclick="() => AddCompany(ws)">+ Company</div>
                     <div class="button button-danger" @onclick="() => DeleteWorkspace(ws)">Delete</div>
@@ -59,7 +59,7 @@
                 }
                 else
                 {
-                    <div class="stack-horizontal">
+                    <div class="grid grid-auto">
                         <span>@company.Name</span>
                         <div>
                             <button class="button button-primary" @onclick="() => EditCompany(company)">Edit</button>
@@ -71,7 +71,7 @@
 
                 @foreach (var bu in company.BusinessUnits)
                 {
-                    <div class="card indent">
+                    <div class="card stack-sm">
                         @if (EditingHierarchy.Contains(bu))
                         {
                             <input class="input" @bind="bu.Name" />
@@ -82,7 +82,7 @@
                         }
                         else
                         {
-                            <div class="stack-horizontal">
+                            <div class="grid grid-auto">
                                 <span>@bu.Name</span>
                                 <div>
                                     <button class="button button-primary" @onclick="() => EditBusinessUnit(bu)">Edit</button>
@@ -94,7 +94,7 @@
 
                         @foreach (var tribe in bu.Tribes)
                         {
-                            <div class="card indent">
+                            <div class="card stack-sm">
                                 @if (EditingHierarchy.Contains(tribe))
                                 {
                                     <input class="input" @bind="tribe.Name" />
@@ -105,7 +105,7 @@
                                 }
                                 else
                                 {
-                                    <div class="stack-horizontal">
+                                    <div class="grid grid-auto">
                                         <span>@tribe.Name</span>
                                         <div>
                                             <button class="button button-primary" @onclick="() => EditTribe(tribe)">Edit</button>
@@ -116,7 +116,7 @@
 
                                     @foreach (var squad in tribe.Squads)
                                     {
-                                        <div class="card indent">
+                                        <div class="card stack-sm">
                                             @if (EditingHierarchy.Contains(squad))
                                             {
                                                 <input class="input" @bind="squad.Name" />

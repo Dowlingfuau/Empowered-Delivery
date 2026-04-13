@@ -1,6 +1,6 @@
 @using OperationalIntelligenceHub.Models
 
-<div class="stack-horizontal">
+<div class="grid grid-4">
     @foreach (var item in Items)
     {
         var selected = item.Id == SelectedId ? "card-selected" : "";
@@ -9,7 +9,7 @@
              style="cursor:pointer; min-width:180px;"
              @onclick="() => Select(item.Id)">
 
-            <div class="stack-horizontal">
+            <div class="grid grid-2">
 
                 <strong>@item.Title</strong>
 

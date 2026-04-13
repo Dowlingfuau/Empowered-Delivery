@@ -42,7 +42,7 @@
     <div class="card">
         <!-- Row 1: Title + Button -->
         <div class="stack">
-            <div class="stack-horizontal">
+            <div class="grid grid-2">
             <h3>Team Health</h3>
 
             <div class="button btn-secondary"
@@ -84,8 +84,8 @@
     <div class="card">
         <div class="stack">
         <!-- Row 1: Title + Button -->
-        <div class="stack-horizontal">
-        <h5 class="mb-0">Backlog Health</h5>
+        <div class="grid grid-2">
+        <h3 class="mb-0">Backlog Health</h3>
 
         <div class="button btn-secondary"
                 @onclick="() => ToggleDeepDive(DeepDiveType.Backlog)">
@@ -261,7 +261,7 @@
 
         var labels = uniqueDates.Select(d => d.ToString("dd MMM")).ToArray();
 
-        await JS.InvokeVoidAsync("createMultiLineChart", canvasId, labels, datasets);
+        await ChartService.CreateMultiLineChart(canvasId, labels, datasets);
     }
 
     // Deep Dive RenderFragment Method

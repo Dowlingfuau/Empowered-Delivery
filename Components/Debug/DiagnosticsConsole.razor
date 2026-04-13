@@ -41,11 +41,11 @@
                     @foreach (var signal in group.OrderBy (s => s.Name))
                     {
                         <div class="stack card">
-                            <div class="stack-horizontal">
-                                <span style="width: 30%">@FormatSignalName(signal.Name)</span>
-                                <span style="width: 15%">@signal.NormalisedValue.ToString("0.00")</span>
-                                <span style="width: 15%">@signal.RawValue.ToString("0.00")</span>
-                                <span style="width: 15%">Dir: @(signal.Direction)</span>
+                            <div class="grid grid-4">
+                                <span>@FormatSignalName(signal.Name)</span>
+                                <span>@signal.NormalisedValue.ToString("0.00")</span>
+                                <span>@signal.RawValue.ToString("0.00")</span>
+                                <span>Dir: @(signal.Direction)</span>
                             </div>
                         </div>
                     }
@@ -67,10 +67,10 @@
                     <h5>@group.Key</h5>
                     @foreach (var signal in group)
                     {
-                            <div class="stack-horizontal">
-                                <span style="width: 70%">@signal.Name</span>
-                                <span style="width: 15%">@FormatScore(signal.Score)</span>
-                                <span class="text-muted" style="width: 15%">(@signal.Source)</span>
+                            <div class="grid grid-3">
+                                <span>@signal.Name</span>
+                                <span>@FormatScore(signal.Score)</span>
+                                <span class="text-muted">(@signal.Source)</span>
                             </div>
                             @if (signal.ContributingSignals?.Any() == true)
                             {
@@ -94,10 +94,10 @@
         {
             @foreach (var insight in Insights)
             {
-                    <div class="stack-horizontal">
-                        <span style="width 60%">@insight.Name</span>
-                        <span style="width: 20%">@insight.Intensity</span>
-                        <span class="text-muted" style="width: 20%">(@insight.Source)</span>
+                    <div class="grid grid-3">
+                        <span>@insight.Name</span>
+                        <span>@insight.Intensity</span>
+                        <span class="text-muted">(@insight.Source)</span>
                     </div>
                     @if (!string.IsNullOrEmpty(insight.Interpretation))
                     {
@@ -120,20 +120,20 @@
             
                 <h4>Rule Evaluations</h4>
             <div class="card">
-                <div class="table-header stack-horizontal">
-                    <strong style="width: 30%">Rule</strong>
-                    <strong style="width: 45%">Condition</strong>
-                    <strong style="width: 15%">Result</strong>
-                    <strong style="width: 10%">Match</strong>
+                <div class="table-header grid grid-4">
+                    <strong>Rule</strong>
+                    <strong>Condition</strong>
+                    <strong>Result</strong>
+                    <strong>Match</strong>
                 </div>
 
                 @foreach (var eval in RuleEvaluations)
                 {
-                    <div class="stack-horizontal">
-                        <span style="width: 30%">@eval.RuleName</span>
-                        <span style="width: 45%">@eval.Condition</span>
-                        <span style="width: 15%">@eval.Output</span>
-                        <span style="width: 10%">@(eval.Result ? "✔" : "✖")</span>
+                    <div class="grid grid-4">
+                        <span>@eval.RuleName</span>
+                        <span>@eval.Condition</span>
+                        <span>@eval.Output</span>
+                        <span>@(eval.Result ? "✔" : "✖")</span>
                     </div>
                 }
             </div>

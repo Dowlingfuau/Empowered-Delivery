@@ -6,18 +6,19 @@
 <div class="app">
     <Header />
     
-    <div class="page">
+    <div class="hub-layout">
 
         <div class="sidebar @(SidebarCollapsed ? "collapsed" : "")">
             <HubSidebar ToggleSidebar="ToggleSidebar" SidebarCollapsed="SidebarCollapsed" />
         </div>
 
         <main>
-            <div class="content px-4">
+            <article>
                 @Body
-            </div>
+            </article>
         </main>
     </div>
+
      <TooltipOverlay /> 
    
 </div>

@@ -3,6 +3,8 @@
 @import "Foundation/base.css";
 @import "Foundation/layout.css";
 @import "Foundation/patterns.css";
+@import "Foundation/depth.css";
+@import "Foundation/typography.css";
 
 @import "Navigation/navigation.css";
 @import "Navigation/sidebar.css";
