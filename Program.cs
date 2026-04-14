@@ -7,6 +7,7 @@ using OperationalIntelligenceHub.Shared;
 using OperationalIntelligenceHub.Components;
 using OperationalIntelligenceHub.Pages.Hub.Diagnostics;
 using Microsoft.AspNetCore.Components.Forms.Mapping;
+using Microsoft.JSInterop;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -40,7 +41,56 @@ builder.Services.AddScoped<HealthAggregationService>();
 
 var host = builder.Build();
 
-var ruleRepo = host.Services.GetRequiredService<RuleRepositoryService>();
-await ruleRepo.InitializeAsync();
+try
+{
+	var ruleRepo = host.Services.GetRequiredService<RuleRepositoryService>();
+	await ruleRepo.InitializeAsync();
 
-await host.RunAsync();
+	// Try to capture .NET-side unhandled exceptions and report to window.__logBlazorError
+	var jsRuntime = host.Services.GetService<IJSRuntime>();
+
+	AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+	{
+		try
+		{
+			var msg = e?.ExceptionObject?.ToString() ?? e?.ToString() ?? "Unhandled exception (no details)";
+			Console.Error.WriteLine("UnhandledException: " + msg);
+			_ = Task.Run(async () =>
+			{
+				try { if (jsRuntime != null) await jsRuntime.InvokeVoidAsync("__logBlazorError", msg); } catch { }
+			});
+		}
+		catch { }
+	};
+
+	TaskScheduler.UnobservedTaskException += (sender, e) =>
+	{
+		try
+		{
+			var msg = e?.Exception?.ToString() ?? "UnobservedTaskException";
+			Console.Error.WriteLine("UnobservedTaskException: " + msg);
+			_ = Task.Run(async () =>
+			{
+				try { if (jsRuntime != null) await jsRuntime.InvokeVoidAsync("__logBlazorError", msg); } catch { }
+			});
+		}
+		catch { }
+	};
+
+	try
+	{
+		await host.RunAsync();
+	}
+	catch (Exception ex)
+	{
+		Console.Error.WriteLine("Unhandled exception running host: " + ex);
+		try { if (jsRuntime != null) await jsRuntime.InvokeVoidAsync("__logBlazorError", ex.ToString()); } catch { }
+		throw;
+	}
+}
+catch (Exception ex)
+{
+	Console.Error.WriteLine("Startup exception: " + ex);
+	try { var js = host.Services.GetService<IJSRuntime>(); if (js != null) await js.InvokeVoidAsync("__logBlazorError", ex.ToString()); } catch { }
+	throw;
+}

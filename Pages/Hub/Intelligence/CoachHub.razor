@@ -45,7 +45,7 @@
             <div class="grid grid-2">
             <h3>Team Health</h3>
 
-            <div class="button btn-secondary"
+            <div class="button button-secondary"
                     @onclick="() => ToggleDeepDive(DeepDiveType.Team)">
                 @(DeepDive.IsActive(DeepDiveType.Team) 
                     ? "Hide Deep Dive ▲" 
@@ -85,9 +85,9 @@
         <div class="stack">
         <!-- Row 1: Title + Button -->
         <div class="grid grid-2">
-        <h3 class="mb-0">Backlog Health</h3>
+        <h3>Backlog Health</h3>
 
-        <div class="button btn-secondary"
+        <div class="button button-secondary"
                 @onclick="() => ToggleDeepDive(DeepDiveType.Backlog)">
             @(DeepDive.IsActive(DeepDiveType.Backlog) 
                 ? "Hide Deep Dive ▲" 
@@ -135,7 +135,7 @@
 <h2>Saved Assessments</h2>
 
 <div class="card">
-<div class="button btn-secondary" @onclick="TogglePanel">
+<div class="button button-secondary" @onclick="TogglePanel">
     @(ShowPanel ? "Hide" : "Show")
 </div>
 
@@ -145,7 +145,7 @@
 
         <!-- BACKLOG TABLE -->
         <h5>Backlog Health</h5>
-        <div class="button btn btn-sm btn-danger mb-2"
+        <div class="button button-sm button-destructive"
                 @onclick="DeleteAllBacklog"
                 disabled="@(!BacklogInCurrentWorkspace)">
             Delete All (Current Workspace)
@@ -157,7 +157,7 @@
 
         <!-- TEAM TABLE -->
         <h5>Team Health</h5>
-        <div class="button btn btn-sm btn-danger mb-2"
+        <div class="button button-sm button-destructive"
                 @onclick="DeleteAllTeam"
                 disabled="@(!TeamInCurrentWorkspace)">
             Delete All (Current Workspace)
@@ -653,7 +653,7 @@
             // Delete button
             builder.OpenElement(seq++, "td");
             builder.OpenElement(seq++, "button");
-            builder.AddAttribute(seq++, "class", "btn btn-sm btn-danger");
+            builder.AddAttribute(seq++, "class", "button button-sm button-destructive");
             builder.AddAttribute(seq++, "disabled", false); // always enabled
             builder.AddAttribute(seq++, "onclick",
                 EventCallback.Factory.Create(this, () => Delete(r.Id, type)));

@@ -48,7 +48,7 @@
         <h4>@ActiveWorkspace.Name Hierarchy</h4>
         @foreach (var company in ActiveWorkspace.Structure.Companies)
         {
-            <div class="card hierarchy-card company-card mb-2 p-2">
+            <div class="card hierarchy-card company-card">
                 @if (EditingHierarchy.Contains(company))
                 {
                     <input class="input" @bind="company.Name" />
