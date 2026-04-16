@@ -1,6 +1,9 @@
 <div class="continuum-container">
     <div class="continuum-title">@Title
-        <Tooltip Text="@TooltipText" />
+        @if (!string.IsNullOrEmpty(TooltipText))
+        {
+            <Tooltip Mode="overlay" Placement="right" Text="@TooltipTextHtml" />
+        }
     </div>
 
     <div class="continuum-bar">
@@ -105,4 +108,7 @@
 
         return "right";
     }
+
+    private string TooltipTextHtml => string.IsNullOrEmpty(TooltipText) ? string.Empty : TooltipText.Replace("\n", "<br/>");
+
 }

@@ -1,6 +1,7 @@
 ﻿@using OperationalIntelligenceHub.Shared
 @using OperationalIntelligenceHub.Components
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject IJSRuntime JS
 
 <div class="app">
@@ -14,16 +15,53 @@
 
         <main>
             <article>
-                @Body
+                <CascadingValue Value="DiagnosticsPortal">
+                    @Body
+                </CascadingValue>
             </article>
         </main>
     </div>
 
-     <TooltipOverlay /> 
+     <TooltipOverlay />
+
+    <div class="diagnostics-console-dock @(DiagnosticsConsoleExpanded ? "is-expanded" : "")">
+        @if (DiagnosticsConsoleExpanded)
+        {
+            <div id="diagnostics-console-panel"
+                 class="diagnostics-console-panel"
+                 role="dialog"
+                 aria-label="Diagnostics console">
+                @if (DiagnosticsPortal.Content == null)
+                {
+                    <div class="diagnostics-console-empty text-muted small">No data available</div>
+                }
+                else
+                {
+                    @DiagnosticsPortal.Content
+                }
+            </div>
+        }
+
+        <button type="button"
+                class="diagnostics-console-pill"
+                @onclick="ToggleDiagnosticsConsole"
+                aria-controls="diagnostics-console-panel"
+                aria-expanded="@DiagnosticsConsoleExpanded">
+            @(DiagnosticsConsoleExpanded ? "Close diagnostics" : "Diagnostics")
+        </button>
+    </div>
    
 </div>
 @code {
     private bool SidebarCollapsed = false;
+    private bool DiagnosticsConsoleExpanded = false;
+    private readonly DiagnosticsConsolePortalState DiagnosticsPortal = new();
+
+    protected override void OnInitialized()
+    {
+        DiagnosticsPortal.ContentChanged += OnDiagnosticsPortalContentChanged;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -41,5 +79,20 @@
     void ToggleSidebar()
     {
         SidebarCollapsed = !SidebarCollapsed;
+    }
+
+    void ToggleDiagnosticsConsole()
+    {
+        DiagnosticsConsoleExpanded = !DiagnosticsConsoleExpanded;
+    }
+
+    private void OnDiagnosticsPortalContentChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        DiagnosticsPortal.ContentChanged -= OnDiagnosticsPortalContentChanged;
     }
 }

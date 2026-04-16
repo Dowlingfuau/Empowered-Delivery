@@ -1,8 +1,71 @@
-<!-- Inline Info Tooltips-->
-<span class="tooltip-container">
-    <span class="info-icon">ⓘ</span>
-    <span class="tooltip-text">@Text</span>
+@using Microsoft.AspNetCore.Components.Web
+@inject TooltipService TooltipService
+@inject IJSRuntime JS
+
+<!-- Tooltip component: supports `Mode` = "inline" (default) or "overlay" -->
+<span class="tooltip-container" tabindex="0" @ref="_triggerRef"
+      @onmouseenter="OnMouseEnter"
+      @onmouseleave="OnMouseLeave"
+      @onfocusin="OnFocusIn"
+      @onfocusout="OnFocusOut">
+    <span class="info-icon" aria-hidden="true">ⓘ</span>
+
+    @if (Mode == "inline")
+    {
+        <span id="@_id" role="tooltip" class="tooltip-text">@((MarkupString)_textHtml)</span>
+    }
 </span>
+
 @code {
     [Parameter] public string Text { get; set; } = "";
+    [Parameter] public string Mode { get; set; } = "inline"; // "inline" or "overlay"
+    [Parameter] public string Placement { get; set; } = "top";
+    [Parameter] public int MaxWidth { get; set; } = 220;
+
+    private string _id = $"tooltip-{Guid.NewGuid():N}";
+    private ElementReference _triggerRef;
+    private string _textHtml => string.IsNullOrEmpty(Text) ? string.Empty : Text.Replace("\n", "<br/>");
+
+    private Task OnMouseEnter(MouseEventArgs e)
+    {
+        if (Mode == "overlay")
+        {
+            TooltipService.Show(e, _textHtml);
+        }
+        return Task.CompletedTask;
+    }
+
+    private Task OnMouseLeave(MouseEventArgs e)
+    {
+        if (Mode == "overlay")
+            TooltipService.Hide();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnFocusIn(FocusEventArgs e)
+    {
+        if (Mode == "overlay")
+        {
+            try
+            {
+                var pos = await JS.InvokeAsync<JsPosition>("uiHelpers.getTooltipPositionForElement", _triggerRef, Placement);
+                if (pos != null)
+                    TooltipService.ShowAt(pos.top, pos.left, _textHtml);
+            }
+            catch
+            {
+                // fallback: show at 0,0
+                TooltipService.ShowAt(0, 0, _textHtml);
+            }
+        }
+    }
+
+    private Task OnFocusOut(FocusEventArgs e)
+    {
+        if (Mode == "overlay")
+            TooltipService.Hide();
+        return Task.CompletedTask;
+    }
+
+    private class JsPosition { public double top { get; set; } public double left { get; set; } }
 }

@@ -27,25 +27,25 @@
 </div>
 
 @code {
-    [Parameter] public int Value { get; set; }
-    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
 
     [Parameter] public string Placeholder { get; set; } = "";
     [Parameter] public Func<int?, string>? Formatter { get; set; }
 
     private bool IsEditing = false;
-    private int InternalValue;
+    private string InternalValue = string.Empty;
     private ElementReference inputRef;
 
     protected override void OnParametersSet()
     {
-        InternalValue = Value;
+        InternalValue = Value?.ToString() ?? string.Empty;
     }
 
-    private bool IsEmpty => Value == 0;
+    private bool IsEmpty => !Value.HasValue;
 
     private string FormattedValue =>
-        Formatter != null ? Formatter(Value) : Value.ToString();
+        Formatter != null ? Formatter(Value) : (Value?.ToString() ?? string.Empty);
 
     private async Task EnterEditMode()
     {
@@ -57,17 +57,30 @@
     private async Task ExitEditMode()
     {
         IsEditing = false;
-        await ValueChanged.InvokeAsync(InternalValue);
+        if (int.TryParse(InternalValue, out var parsed))
+        {
+            await ValueChanged.InvokeAsync(parsed);
+        }
+        else
+        {
+            await ValueChanged.InvokeAsync(null);
+        }
     }
 
     private async Task HandleInput(ChangeEventArgs e)
     {
-        var text = e.Value?.ToString() ?? "";
+        var text = e.Value?.ToString() ?? string.Empty;
+        InternalValue = text;
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            await ValueChanged.InvokeAsync(null);
+            return;
+        }
 
         if (int.TryParse(text, out var parsed))
         {
-            InternalValue = parsed;
-            await ValueChanged.InvokeAsync(InternalValue);
+            await ValueChanged.InvokeAsync(parsed);
         }
     }
 

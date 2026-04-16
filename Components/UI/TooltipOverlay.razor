@@ -1,12 +1,10 @@
 @inject TooltipService TooltipService
 
-@if (TooltipService.Text != null)
+@if (!string.IsNullOrEmpty(TooltipService.Text))
 {
     <div class="nav-tooltip"
-         style="
-         top:@(TooltipService.Top)px; 
-         left: @(TooltipService.Left)px;">
-        @TooltipService.Text
+         style="top:@(TooltipService.Top)px; left:@(TooltipService.Left)px; max-width: calc(100vw - 32px);">
+        @((MarkupString)TooltipService.Text)
     </div>
 }
 

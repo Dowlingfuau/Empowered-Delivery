@@ -364,7 +364,7 @@
                                     while older work may lose relevance if not actively maintained."
                         Value="@(AgeSignal?.ContinuumValue ?? AgeSignal?.NormalisedValue ?? 0.5)"
                         Label="@AgeLabel" 
-                        Direction=@AgeSignal.Direction
+                        Direction="@(AgeSignal?.Direction ?? 0)"
                         Zones="@(new List<string> { "Under-ripe", "", "Over-ripe" })" />
                         @if (Predictability < 0.4)
                         {
@@ -498,6 +498,8 @@
 @code {
     private List<DerivedSignal> BehaviourSignals = new();
     private List<DerivedSignal> SystemSignals = new();
+    private List<Signal> Signals = new();
+    private List<OperationalIntelligenceHub.Models.SignalTrace> SignalTraces = new();
     private List<OperationalInsight> Insights = new();
     private SystemHealth Health = new();
     private async Task RunPipeline()
@@ -515,21 +517,28 @@
         Console.WriteLine($">>> Backlog Pipeline Complete: {Insights.Count} insights");
 
     }
-    List<Signal> Signals => SignalBuilder.BuildSignals(
-        WorkspaceRepository.ActiveWorkspaceId ?? Guid.Empty,
-        string.IsNullOrEmpty(SelectedSquad) ? Guid.Empty : Guid.Parse(SelectedSquad),
-        TotalItems,
-        Added1 + Added2 + Added3,
-        ThroughputHistory.Sum(),
-        ThroughputHistory,
-        FreshItems,
-        MidAgeItems,
-        OldItems,
-        HighPriority,
-        MediumPriority,
-        LowPriority,
-        0 // TODO: Unprioritised (not yet in UI)
-    );
+    private void RefreshSignals()
+    {
+        var result = SignalBuilder.BuildSignals(
+            WorkspaceRepository.ActiveWorkspaceId ?? Guid.Empty,
+            string.IsNullOrEmpty(SelectedSquad) ? Guid.Empty : Guid.Parse(SelectedSquad),
+            TotalItems ?? 0,
+            (Added1 ?? 0) + (Added2 ?? 0) + (Added3 ?? 0),
+            ThroughputHistory.Sum(),
+            ThroughputHistory,
+            FreshItems ?? 0,
+            MidAgeItems ?? 0,
+            OldItems ?? 0,
+            HighPriority ?? 0,
+            MediumPriority ?? 0,
+            LowPriority ?? 0,
+            0 // TODO: Unprioritised (not yet in UI)
+        );
+
+        Signals = result.Item1;
+        SignalTraces = result.Item2;
+    }
+
     void DebugSignals()
     {
         Console.WriteLine($">>> Backlog Signals Built: {Signals.Count}");
@@ -544,24 +553,29 @@
     // Inputs
     // ================================
 
-    int TotalItems;
-    int Added1, Added2, Added3;
-    int Velocity1, Velocity2, Velocity3;
-    int FreshItems, MidAgeItems, OldItems;
-    int HighPriority, MediumPriority, LowPriority;
-    List<int> ThroughputHistory => new()
+    int? TotalItems;
+    int? Added1, Added2, Added3;
+    int? Velocity1, Velocity2, Velocity3;
+    int? FreshItems, MidAgeItems, OldItems;
+    int? HighPriority, MediumPriority, LowPriority;
+    List<int> ThroughputHistory
+    {
+        get
         {
-            Velocity1,
-            Velocity2,
-            Velocity3
-        };
-    bool HasAnyData => TotalItems > 0 || Added1 > 0 || Added2 > 0 || Added3 > 0 || FreshItems > 0 || MidAgeItems > 0 ||
-    OldItems > 0 || HighPriority > 0 || MediumPriority > 0 || LowPriority > 0 || Velocity1 > 0 || Velocity2 > 0 || Velocity3 > 0;
-    Signal BacklogSizeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogSize");
-    Signal PredictabilitySignal => Signals.FirstOrDefault(s => s.Name == "DeliveryPredictability");
-    Signal VolatilitySignal => Signals.FirstOrDefault(s => s.Name == "BacklogVolatility");
-    Signal AgeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogAge");
-    Signal PrioritisationSignal => Signals.FirstOrDefault(s => s.Name == "BacklogPrioritisation");
+            var list = new List<int>();
+            if (Velocity1.HasValue) list.Add(Velocity1.Value);
+            if (Velocity2.HasValue) list.Add(Velocity2.Value);
+            if (Velocity3.HasValue) list.Add(Velocity3.Value);
+            return list;
+        }
+    }
+    bool HasAnyData => TotalItems.HasValue || Added1.HasValue || Added2.HasValue || Added3.HasValue || FreshItems.HasValue || MidAgeItems.HasValue ||
+    OldItems.HasValue || HighPriority.HasValue || MediumPriority.HasValue || LowPriority.HasValue || Velocity1.HasValue || Velocity2.HasValue || Velocity3.HasValue;
+    Signal? BacklogSizeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogSize");
+    Signal? PredictabilitySignal => Signals.FirstOrDefault(s => s.Name == "DeliveryPredictability");
+    Signal? VolatilitySignal => Signals.FirstOrDefault(s => s.Name == "BacklogVolatility");
+    Signal? AgeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogAge");
+    Signal? PrioritisationSignal => Signals.FirstOrDefault(s => s.Name == "BacklogPrioritisation");
 
     private string SelectedSquad { get; set; } = string.Empty;
 
@@ -605,8 +619,8 @@
             string workHorizon = $"{weeks:F1} weeks of work";
             // Line 2: WHAT
             string context = avgThroughput > 0
-                ? $"{TotalItems} items | {avgThroughput:F1}/2 weeks"
-                : $"{TotalItems} items";
+                ? $"{TotalItems ?? 0} items | {avgThroughput:F1}/2 weeks"
+                : $"{TotalItems ?? 0} items";
 
             return $"{workHorizon}\n{context}";
         }
@@ -620,9 +634,12 @@
             if (AgeSignal == null)
                 return "-";
             
-            var fresh = FreshItems;
-            var mid = MidAgeItems;
-            var old = OldItems;
+            if (!FreshItems.HasValue && !MidAgeItems.HasValue && !OldItems.HasValue)
+                return "No age data";
+
+            int fresh = FreshItems.GetValueOrDefault(0);
+            int mid = MidAgeItems.GetValueOrDefault(0);
+            int old = OldItems.GetValueOrDefault(0);
 
             int total = fresh + mid + old;
 
@@ -654,15 +671,15 @@
             if (VolatilitySignal == null)
                 return "-";
 
-            int totalAdded = Added1 + Added2 + Added3;
+            int totalAdded = (Added1 ?? 0) + (Added2 ?? 0) + (Added3 ?? 0);
             int totalCompleted = ThroughputHistory.Sum();
 
             int net = totalAdded - totalCompleted;
 
-            if (TotalItems == 0)
+            if (!TotalItems.HasValue || TotalItems.Value == 0)
                 return $"{net:+#;-#;0} items";
 
-            double pct = (double)net / TotalItems;
+            double pct = (double)net / TotalItems.Value;
             // SO WHAT
             string interpretation;
             if (Math.Abs(pct) < 0.05)
@@ -692,17 +709,17 @@
     string PriorityLabel {
         get
         {
-            if (PrioritisationSignal == null || TotalItems == 0)
+            if (PrioritisationSignal == null || !TotalItems.HasValue || TotalItems.Value == 0)
                 return "-";
 
-            int prioritisedTotal = HighPriority + MediumPriority + LowPriority;
-            int unprioritised = Math.Max(0, TotalItems - prioritisedTotal);
+            int prioritisedTotal = (HighPriority ?? 0) + (MediumPriority ?? 0) + (LowPriority ?? 0);
+            int unprioritised = Math.Max(0, TotalItems.Value - prioritisedTotal);
 
-            double coverage = (double)prioritisedTotal / TotalItems;
+            double coverage = (double)prioritisedTotal / TotalItems.Value;
 
-            double highPct = (double)HighPriority / TotalItems;
-            double mediumPct = (double)MediumPriority / TotalItems;
-            double lowPct = (double)LowPriority / TotalItems;
+            double highPct = (double)(HighPriority ?? 0) / TotalItems.Value;
+            double mediumPct = (double)(MediumPriority ?? 0) / TotalItems.Value;
+            double lowPct = (double)(LowPriority ?? 0) / TotalItems.Value;
             // SO WHAT
             string interpretation;
             if (coverage < 0.7)
@@ -937,11 +954,13 @@
     {
         _workspaceChangedHandler = WorkspaceChanged;
         WorkspaceRepository.OnWorkspaceChanged += _workspaceChangedHandler;
+        RefreshSignals();
 
         return Task.CompletedTask;
     }
     private async Task Recalculate()
     {
+        RefreshSignals();
         DebugSignals();
         await RunPipeline();
     }

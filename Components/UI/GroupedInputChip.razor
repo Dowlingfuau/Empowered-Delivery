@@ -38,14 +38,14 @@
 @code {
     [Parameter] public string Label { get; set; } = "";
 
-    [Parameter] public int Value1 { get; set; }
-    [Parameter] public EventCallback<int> Value1Changed { get; set; }
+    [Parameter] public int? Value1 { get; set; }
+    [Parameter] public EventCallback<int?> Value1Changed { get; set; }
 
-    [Parameter] public int Value2 { get; set; }
-    [Parameter] public EventCallback<int> Value2Changed { get; set; }
+    [Parameter] public int? Value2 { get; set; }
+    [Parameter] public EventCallback<int?> Value2Changed { get; set; }
 
-    [Parameter] public int Value3 { get; set; }
-    [Parameter] public EventCallback<int> Value3Changed { get; set; }
+    [Parameter] public int? Value3 { get; set; }
+    [Parameter] public EventCallback<int?> Value3Changed { get; set; }
 
     private bool IsOpen = false;
     private static GroupedInputChip? ActiveInstance;
@@ -67,15 +67,15 @@
         StateHasChanged();
     }
 
-    private bool IsEmpty => Value1 == 0 && Value2 == 0 && Value3 == 0;
+    private bool IsEmpty => !Value1.HasValue && !Value2.HasValue && !Value3.HasValue;
 
     private string DisplayText =>
     Label switch
     {
-        "Age" => $"{Value1} <2w, {Value2} 2–4w, {Value3} >4w",
-        "Priority" => $"{Value1} high, {Value2} med, {Value3} low",
-        "Throughput" => $"{Value1}/{Value2}/{Value3} per sprint",
-        "Added" => $"{Value1} <2w, {Value2} 2-4w, {Value3} >4w",
+        "Age" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} <2w, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4w, {(Value3.HasValue ? Value3.Value.ToString() : "-")} >4w",
+        "Priority" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} high, {(Value2.HasValue ? Value2.Value.ToString() : "-")} med, {(Value3.HasValue ? Value3.Value.ToString() : "-")} low",
+        "Throughput" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")}/{(Value2.HasValue ? Value2.Value.ToString() : "-")}/{(Value3.HasValue ? Value3.Value.ToString() : "-")} per sprint",
+        "Added" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} <2w, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2-4w, {(Value3.HasValue ? Value3.Value.ToString() : "-")} >4w",
         _ => Label
     };
     private (string, string, string) Labels =>

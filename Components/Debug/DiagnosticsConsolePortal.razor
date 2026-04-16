@@ -1,0 +1,20 @@
+@using OperationalIntelligenceHub.Layout
+@implements IDisposable
+
+@code {
+    [CascadingParameter] public DiagnosticsConsolePortalState? Portal { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private RenderFragment? registeredContent;
+
+    protected override void OnParametersSet()
+    {
+        registeredContent = ChildContent;
+        Portal?.SetContent(ChildContent);
+    }
+
+    public void Dispose()
+    {
+        Portal?.ClearContent(registeredContent);
+    }
+}

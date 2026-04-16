@@ -1,184 +1,620 @@
 @using OperationalIntelligenceHub.Models
-@inject SignalPipelineService SignalService
 
 <div class="card stack">
 
     <h3>Diagnostics Console</h3>
 
-    <h4>Quick Trace</h4>
-
-    <div class="card text-muted small">
-        @if (Signals != null)
-        {
-            var age = Signals.FirstOrDefault(s => s.Name == "BacklogAge");
-
-            if (age != null)
-            {
-                <div>
-                    AGE → Score: @age.NormalisedValue.ToString("0.00") |
-                    Continuum: @FormatNullable(age.ContinuumValue) |
-                    Direction: @age.Direction |
-                    Shape: @age.Shape
-                </div>
-            }
-        }
-    </div>
-
     <div class="stack">
 
-        <h4>Signals</h4>
+        <div class="card stack">
+            <div class="grid grid-3" @onclick="() => ToggleSection(SectionInputs)" style="cursor:pointer">
+                <strong>Inputs</strong>
+                <span class="text-muted small">@FormatCount(GetInputCount(), "input")</span>
+                <span>@GetSectionMarker(SectionInputs)</span>
+            </div>
 
-        @if (Signals == null || !Signals.Any())
-        {
-            <p>No signals</p>
-        }
-        else
-        {
-            @foreach (var group in Signals.GroupBy(GetLens))
-            {
-                <div class="stack card">
-                    <h3>@group.Key</h3>
-                    @foreach (var signal in group.OrderBy (s => s.Name))
-                    {
-                        <div class="stack card">
-                            <div class="grid grid-4">
-                                <span>@FormatSignalName(signal.Name)</span>
-                                <span>@signal.NormalisedValue.ToString("0.00")</span>
-                                <span>@signal.RawValue.ToString("0.00")</span>
-                                <span>Dir: @(signal.Direction)</span>
-                            </div>
-                        </div>
-                    }
-                </div>
+            @{
+                var userInputs = GetUserInputs();
             }
-        }
 
-        <h4>Derived Signals</h4>
-
-        @if (DerivedSignals == null || !DerivedSignals.Any())
-        {
-            <p>No derived signals</p>
-        }
-        else
-        {
-            @foreach (var group in DerivedSignals.GroupBy(s => s.Source))
+            @if (IsSectionExpanded(SectionInputs))
             {
-                <div class="stack card">
-                    <h5>@group.Key</h5>
-                    @foreach (var signal in group)
+                @if (userInputs == null || !userInputs.Any())
+                {
+                    <div class="text-muted small">No data available</div>
+                }
+                else
+                {
+                    @foreach (var input in userInputs)
                     {
-                            <div class="grid grid-3">
-                                <span>@signal.Name</span>
-                                <span>@FormatScore(signal.Score)</span>
-                                <span class="text-muted">(@signal.Source)</span>
+                        var itemKey = GetItemKey(SectionInputs, $"{input.Source}:{input.Name}");
+
+                        <div class="card stack">
+                            <div class="grid grid-4" @onclick="() => ToggleItem(itemKey)" style="cursor:pointer">
+                                <span>@input.Name</span>
+                                <span>@FormatObject(input.Value)</span>
+                                <span class="text-muted">@input.Source</span>
+                                <span>@GetItemMarker(itemKey)</span>
                             </div>
-                            @if (signal.ContributingSignals?.Any() == true)
+
+                            @if (IsItemExpanded(itemKey))
                             {
-                                <div class="text-muted small">
-                                    Based on:
-                                    @string.Join(", ", signal.ContributingSignals)
+                                <div class="card stack">
+                                    <h5>Inputs</h5>
+                                    <div class="grid grid-4">
+                                        <span>@input.Name</span>
+                                        <span>@FormatObject(input.Value)</span>
+                                        <span class="text-muted">@input.Source</span>
+                                        <span class="text-muted">@FormatNullableDate(input.Timestamp)</span>
+                                    </div>
+
+                                    <h5>Calculation / Formation</h5>
+                                    <div class="text-muted small">No data available</div>
+
+                                    <h5>Rule Evaluation</h5>
+                                    <div class="text-muted small">No data available</div>
+
+                                    <h5>Pattern Detection</h5>
+                                    <div class="text-muted small">No data available</div>
                                 </div>
                             }
-                    }
-                </div>
-            }
-        }
-
-        <h4>Insights</h4>
-        <div class="card">
-        @if (Insights == null || !Insights.Any())
-        {
-            <p>No insights</p>
-        }
-        else
-        {
-            @foreach (var insight in Insights)
-            {
-                    <div class="grid grid-3">
-                        <span>@insight.Name</span>
-                        <span>@insight.Intensity</span>
-                        <span class="text-muted">(@insight.Source)</span>
-                    </div>
-                    @if (!string.IsNullOrEmpty(insight.Interpretation))
-                    {
-                        <div class="text-muted small">
-                            @insight.Interpretation
                         </div>
                     }
-                    @if (insight.ContributingSignals?.Any() == true)
-                    {
-                        <div class="text-muted small">
-                            Based on:@string.Join(", ", insight.ContributingSignals)
-                        </div>
-                    }
+                }
             }
-        }
         </div>
 
-        @if (RuleEvaluations?.Any() == true)
-        {
-            
-                <h4>Rule Evaluations</h4>
-            <div class="card">
-                <div class="table-header grid grid-4">
-                    <strong>Rule</strong>
-                    <strong>Condition</strong>
-                    <strong>Result</strong>
-                    <strong>Match</strong>
-                </div>
-
-                @foreach (var eval in RuleEvaluations)
-                {
-                    <div class="grid grid-4">
-                        <span>@eval.RuleName</span>
-                        <span>@eval.Condition</span>
-                        <span>@eval.Output</span>
-                        <span>@(eval.Result ? "✔" : "✖")</span>
-                    </div>
-                }
+        <div class="card stack">
+            <div class="grid grid-3" @onclick="() => ToggleSection(SectionSignals)" style="cursor:pointer">
+                <strong>Signals</strong>
+                <span class="text-muted small">@FormatCount(Signals?.Count ?? 0, "signal")</span>
+                <span>@GetSectionMarker(SectionSignals)</span>
             </div>
-        }
+
+            @if (IsSectionExpanded(SectionSignals))
+            {
+                @if (Signals == null || !Signals.Any())
+                {
+                    <div class="text-muted small">No data available</div>
+                }
+                else
+                {
+                    @foreach (var signal in Signals.OrderBy(s => s.Name))
+                    {
+                        var itemKey = GetItemKey(SectionSignals, signal.Name);
+                        var trace = GetTraceFor(signal.Name);
+
+                        <div class="card stack">
+                            <div class="grid grid-4" @onclick="() => ToggleItem(itemKey)" style="cursor:pointer">
+                                <span>@signal.Name</span>
+                                <span>@signal.NormalisedValue.ToString("0.00")</span>
+                                <span>@signal.RawValue.ToString("0.00")</span>
+                                <span>@GetItemMarker(itemKey)</span>
+                            </div>
+
+                            @if (IsItemExpanded(itemKey))
+                            {
+                                <div class="card stack">
+                                    <h5>Inputs</h5>
+                                    @if (trace?.Inputs?.Any() == true)
+                                    {
+                                        @foreach (var input in trace.Inputs)
+                                        {
+                                            <div class="grid grid-4">
+                                                <span>@input.Name</span>
+                                                <span>@FormatObject(input.Value)</span>
+                                                <span class="text-muted">@input.Source</span>
+                                                <span class="text-muted">@FormatNullableDate(input.Timestamp)</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Calculation / Formation</h5>
+                                    @if (trace?.CalculationSteps?.Any() == true)
+                                    {
+                                        @foreach (var step in trace.CalculationSteps)
+                                        {
+                                            <div>
+                                                <strong>@step.StepName</strong>
+                                                @if (!string.IsNullOrWhiteSpace(step.Description))
+                                                {
+                                                    <div class="text-muted small">@step.Description</div>
+                                                }
+                                                <div>Value: @FormatObject(step.Value)</div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Rule Evaluation</h5>
+                                    @if (trace?.RuleEvaluations?.Any() == true)
+                                    {
+                                        @foreach (var evaluation in trace.RuleEvaluations)
+                                        {
+                                            <div class="grid grid-4">
+                                                <span>@evaluation.RuleName</span>
+                                                <span class="text-muted">@evaluation.Condition</span>
+                                                <span>@evaluation.Output</span>
+                                                <span>@FormatBoolean(evaluation.Result)</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Pattern Detection</h5>
+                                    @if (trace?.PatternDetections?.Any() == true)
+                                    {
+                                        @foreach (var pattern in trace.PatternDetections)
+                                        {
+                                            <div class="grid grid-3">
+                                                <span>@pattern.Name</span>
+                                                <span>@pattern.Description</span>
+                                                <span class="text-muted">Confidence: @FormatNullable(pattern.Confidence)</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            }
+        </div>
+
+        <div class="card stack">
+            <div class="grid grid-3" @onclick="() => ToggleSection(SectionDerivedSignals)" style="cursor:pointer">
+                <strong>Derived Signals</strong>
+                <span class="text-muted small">@FormatCount(DerivedSignals?.Count ?? 0, "derived signal")</span>
+                <span>@GetSectionMarker(SectionDerivedSignals)</span>
+            </div>
+
+            @if (IsSectionExpanded(SectionDerivedSignals))
+            {
+                @if (DerivedSignals == null || !DerivedSignals.Any())
+                {
+                    <div class="text-muted small">No data available</div>
+                }
+                else
+                {
+                    @foreach (var signal in DerivedSignals.OrderBy(s => s.Name))
+                    {
+                        var itemKey = GetItemKey(SectionDerivedSignals, signal.Name);
+                        var calculationTrace = GetCalculationTraceFor(signal.Name);
+
+                        <div class="card stack">
+                            <div class="grid grid-4" @onclick="() => ToggleItem(itemKey)" style="cursor:pointer">
+                                <span>@signal.Name</span>
+                                <span>@signal.Intensity</span>
+                                <span>@signal.Score.ToString("0.00")</span>
+                                <span>@GetItemMarker(itemKey)</span>
+                            </div>
+
+                            @if (IsItemExpanded(itemKey))
+                            {
+                                <div class="card stack">
+                                    <h5>Inputs</h5>
+                                    @if (signal.ContributingSignals?.Any() == true)
+                                    {
+                                        @foreach (var contributingSignal in signal.ContributingSignals)
+                                        {
+                                            <div>@contributingSignal</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Calculation / Formation</h5>
+                                    @if (calculationTrace?.Steps?.Any() == true)
+                                    {
+                                        @foreach (var step in calculationTrace.Steps)
+                                        {
+                                            <div>
+                                                <strong>@step.StepName</strong>
+                                                @if (!string.IsNullOrWhiteSpace(step.Description))
+                                                {
+                                                    <div class="text-muted small">@step.Description</div>
+                                                }
+                                                <div>Value: @FormatObject(step.Value)</div>
+                                            </div>
+                                        }
+                                    }
+                                    else if (signal.Reasons?.Any() == true)
+                                    {
+                                        @foreach (var reason in signal.Reasons)
+                                        {
+                                            <div class="grid grid-3">
+                                                <span>@reason.SignalName</span>
+                                                <span>@reason.SignalValue.ToString("0.00")</span>
+                                                <span class="text-muted">Contribution: @reason.ContributionScore.ToString("0.00")</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Rule Evaluation</h5>
+                                    @if (signal.Reasons?.Any() == true)
+                                    {
+                                        @foreach (var reason in signal.Reasons)
+                                        {
+                                            <div class="grid grid-4">
+                                                <span>@reason.SignalName</span>
+                                                <span class="text-muted">@reason.Condition</span>
+                                                <span>@reason.Result</span>
+                                                <span>@reason.ContributionScore.ToString("0.00")</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Pattern Detection</h5>
+                                    @if (calculationTrace?.PatternDetections?.Any() == true)
+                                    {
+                                        @foreach (var pattern in calculationTrace.PatternDetections)
+                                        {
+                                            <div class="grid grid-3">
+                                                <span>@pattern.Name</span>
+                                                <span>@pattern.Description</span>
+                                                <span class="text-muted">Confidence: @FormatNullable(pattern.Confidence)</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            }
+        </div>
+
+        <div class="card stack">
+            <div class="grid grid-3" @onclick="() => ToggleSection(SectionInsights)" style="cursor:pointer">
+                <strong>Insights</strong>
+                <span class="text-muted small">@FormatCount(Insights?.Count ?? 0, "insight")</span>
+                <span>@GetSectionMarker(SectionInsights)</span>
+            </div>
+
+            @if (IsSectionExpanded(SectionInsights))
+            {
+                @if (Insights == null || !Insights.Any())
+                {
+                    <div class="text-muted small">No data available</div>
+                }
+                else
+                {
+                    @foreach (var insight in Insights.OrderBy(i => i.Name))
+                    {
+                        var itemKey = GetItemKey(SectionInsights, insight.Name);
+                        var calculationTrace = GetCalculationTraceFor(insight.Name);
+
+                        <div class="card stack">
+                            <div class="grid grid-4" @onclick="() => ToggleItem(itemKey)" style="cursor:pointer">
+                                <span>@insight.Name</span>
+                                <span>@insight.Intensity</span>
+                                <span>@insight.Score.ToString("0.00")</span>
+                                <span>@GetItemMarker(itemKey)</span>
+                            </div>
+
+                            @if (IsItemExpanded(itemKey))
+                            {
+                                <div class="card stack">
+                                    <h5>Inputs</h5>
+                                    @if (insight.ContributingSignals?.Any() == true || insight.SupportingSignals?.Any() == true)
+                                    {
+                                        @if (insight.ContributingSignals?.Any() == true)
+                                        {
+                                            <div class="text-muted small">Contributing</div>
+                                            @foreach (var contributingSignal in insight.ContributingSignals)
+                                            {
+                                                <div>@contributingSignal</div>
+                                            }
+                                        }
+
+                                        @if (insight.SupportingSignals?.Any() == true)
+                                        {
+                                            <div class="text-muted small">Supporting</div>
+                                            @foreach (var supportingSignal in insight.SupportingSignals)
+                                            {
+                                                <div>@supportingSignal</div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Calculation / Formation</h5>
+                                    @if (calculationTrace?.Steps?.Any() == true)
+                                    {
+                                        @foreach (var step in calculationTrace.Steps)
+                                        {
+                                            <div>
+                                                <strong>@step.StepName</strong>
+                                                @if (!string.IsNullOrWhiteSpace(step.Description))
+                                                {
+                                                    <div class="text-muted small">@step.Description</div>
+                                                }
+                                                <div>Value: @FormatObject(step.Value)</div>
+                                            </div>
+                                        }
+                                    }
+                                    else if (HasInsightFormation(insight))
+                                    {
+                                        @if (!string.IsNullOrWhiteSpace(insight.Description))
+                                        {
+                                            <div>@insight.Description</div>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(insight.Interpretation))
+                                        {
+                                            <div class="text-muted small">@insight.Interpretation</div>
+                                        }
+
+                                        @if (insight.Reasons?.Any() == true)
+                                        {
+                                            @foreach (var reason in insight.Reasons)
+                                            {
+                                                <div class="grid grid-3">
+                                                    <span>@reason.SignalName</span>
+                                                    <span>@reason.SignalValue.ToString("0.00")</span>
+                                                    <span class="text-muted">Contribution: @reason.ContributionScore.ToString("0.00")</span>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Rule Evaluation</h5>
+                                    @if (insight.Reasons?.Any() == true)
+                                    {
+                                        @foreach (var reason in insight.Reasons)
+                                        {
+                                            <div class="grid grid-4">
+                                                <span>@reason.SignalName</span>
+                                                <span class="text-muted">@reason.Condition</span>
+                                                <span>@reason.Result</span>
+                                                <span>@reason.ContributionScore.ToString("0.00")</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+
+                                    <h5>Pattern Detection</h5>
+                                    @if (calculationTrace?.PatternDetections?.Any() == true)
+                                    {
+                                        @foreach (var pattern in calculationTrace.PatternDetections)
+                                        {
+                                            <div class="grid grid-3">
+                                                <span>@pattern.Name</span>
+                                                <span>@pattern.Description</span>
+                                                <span class="text-muted">Confidence: @FormatNullable(pattern.Confidence)</span>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small">No data available</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            }
+        </div>
 
     </div>
 
 </div>
 
 @code {
+    private const string SectionInputs = "Inputs";
+    private const string SectionSignals = "Signals";
+    private const string SectionDerivedSignals = "Derived Signals";
+    private const string SectionInsights = "Insights";
 
     [Parameter] public List<Signal>? Signals { get; set; }
     [Parameter] public List<DerivedSignal>? DerivedSignals { get; set; }
     [Parameter] public List<OperationalInsight>? Insights { get; set; }
     [Parameter] public List<RuleEvaluation>? RuleEvaluations { get; set; }
-    
-    private string FormatScore(double score)
+    [Parameter] public List<SignalTrace>? SignalTraces { get; set; }
+    [Parameter] public List<CalculationTrace>? CalculationTraces { get; set; }
+
+    private readonly HashSet<string> expandedSections = new();
+
+    private readonly HashSet<string> expandedItems = new();
+
+    private void ToggleSection(string section)
     {
-        if (score >= 0.8) return "HIGH";
-        if (score >= 0.5) return "MODERATE";
-        return "LOW";
+        if (expandedSections.Contains(section)) expandedSections.Remove(section);
+        else expandedSections.Add(section);
     }
-    private string FormatNullable(double? value)
+
+    private bool IsSectionExpanded(string section) => expandedSections.Contains(section);
+
+    private string GetSectionMarker(string section) => IsSectionExpanded(section) ? "v" : ">";
+
+    private void ToggleItem(string key)
+    {
+        if (expandedItems.Contains(key)) expandedItems.Remove(key);
+        else expandedItems.Add(key);
+    }
+
+    private bool IsItemExpanded(string key) => expandedItems.Contains(key);
+
+    private string GetItemMarker(string key) => IsItemExpanded(key) ? "v" : ">";
+
+    private static string GetItemKey(string section, string name) => $"{section}:{name}";
+
+    private SignalTrace? GetTraceFor(string signalName)
+    {
+        if (SignalTraces == null || string.IsNullOrWhiteSpace(signalName)) return null;
+
+        // Exact match
+        var exact = SignalTraces.FirstOrDefault(t => string.Equals(t.SignalName, signalName, StringComparison.OrdinalIgnoreCase));
+        if (exact != null) return exact;
+
+        // Try partial matches (e.g. Predictability vs DeliveryPredictability)
+        var partial = SignalTraces.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t.SignalName) &&
+            signalName.IndexOf(t.SignalName, StringComparison.OrdinalIgnoreCase) >= 0);
+        if (partial != null) return partial;
+
+        var reverse = SignalTraces.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t.SignalName) &&
+            t.SignalName.IndexOf(signalName, StringComparison.OrdinalIgnoreCase) >= 0);
+        return reverse;
+    }
+
+    private CalculationTrace? GetCalculationTraceFor(string calculationName)
+    {
+        return CalculationTraces?.FirstOrDefault(t => t.CalculationName == calculationName);
+    }
+
+    private bool HasTraceInputs()
+    {
+        return GetUserInputs()?.Any() == true;
+    }
+
+    private int GetInputCount()
+    {
+        return GetUserInputs()?.Count ?? 0;
+    }
+
+    private List<TraceInput> GetUserInputs()
+    {
+        var inputs = new List<TraceInput>();
+        if (SignalTraces == null) return inputs;
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var trace in SignalTraces)
+        {
+            if (trace?.Inputs == null) continue;
+            foreach (var input in trace.Inputs)
+            {
+                if (input == null) continue;
+                if (!IsUserInput(input)) continue;
+                var key = $"{input.Source ?? ""}:{input.Name ?? ""}";
+                if (seen.Contains(key)) continue;
+                seen.Add(key);
+                inputs.Add(input);
+            }
+        }
+
+        return inputs;
+    }
+
+    private static bool IsUserInput(TraceInput input)
+    {
+        if (input == null) return false;
+        var name = (input.Name ?? string.Empty).ToLowerInvariant();
+        var source = (input.Source ?? string.Empty).ToLowerInvariant();
+
+        // Explicitly exclude calculation-sourced inputs
+        if (source == "calculation") return false;
+
+        // Exclude commonly-derived names
+        if (name.Contains("average") || name.Contains("variance") || name.Contains("standarddeviation") || name.Contains("coefficientofvariation") || name.Contains("cv"))
+            return false;
+
+        // Throughput history list is considered a user input
+        if (source == "throughputhistory" && input.Value is System.Collections.IEnumerable && input.Value is not string)
+            return true;
+
+        // BacklogInput is user-provided
+        if (source == "backloginput") return true;
+
+        // A few other common sources that indicate user/input origin
+        if (source == "input" || source == "throughputhistory") return true;
+
+        // As a fallback, simple primitive values without an explicit calculation source are considered user inputs
+        if (string.IsNullOrWhiteSpace(source) && (input.Value is int || input.Value is long || input.Value is double || input.Value is float || input.Value is decimal))
+            return true;
+
+        return false;
+    }
+
+    private static bool HasInsightFormation(OperationalInsight insight)
+    {
+        return !string.IsNullOrWhiteSpace(insight.Description)
+            || !string.IsNullOrWhiteSpace(insight.Interpretation)
+            || insight.Reasons?.Any() == true;
+    }
+
+    private static string FormatObject(object? o)
+    {
+        if (o == null) return "-";
+        if (o is double d) return d.ToString("0.00");
+        if (o is float f) return f.ToString("0.00");
+        if (o is DateTime dt) return dt.ToString("s");
+        if (o is System.Collections.IEnumerable collection && o is not string)
+        {
+            var items = collection.Cast<object?>().ToList();
+            var preview = string.Join(", ", items.Take(3).Select(FormatPreviewValue));
+            return $"[{preview}] ({items.Count} items)";
+        }
+        return o.ToString() ?? "-";
+    }
+
+    private static string FormatPreviewValue(object? value)
+    {
+        return value switch
+        {
+            null => "-",
+            double d => d.ToString("0.00"),
+            float f => f.ToString("0.00"),
+            DateTime dt => dt.ToString("s"),
+            _ => value.ToString() ?? "-"
+        };
+    }
+
+    private static string FormatNullable(double? value)
     {
         return value.HasValue ? value.Value.ToString("0.00") : "-";
     }
-    private string GetLens(Signal s)
+
+    private static string FormatNullableDate(DateTime? value)
     {
-        if (s.Name.StartsWith("Leader")) return "Leader";
-        if (s.Name.StartsWith("SM")) return "Scrum Master";
-        if (s.Name.StartsWith("PO")) return "Product Owner";
-        if (s.Name.StartsWith("Team")) return "Squad";
-        if (s.Domain == "Flow") return "Flow";
-        if (s.Domain == "Delivery") return "Delivery";
-        return "Other";
+        return value.HasValue ? value.Value.ToString("s") : "-";
     }
 
-    private string FormatSignalName(string name)
+    private static string FormatBoolean(bool value)
     {
-        return name
-            .Replace("Leader", "")
-            .Replace("SM", "")
-            .Replace("PO", "")
-            .Replace("Team", "")
-            .Replace("Level", "");
+        return value ? "True" : "False";
     }
 
+    private static string FormatCount(int count, string singular)
+    {
+        return count == 1 ? $"1 {singular}" : $"{count} {singular}s";
+    }
 }
