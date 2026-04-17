@@ -1,0 +1,409 @@
+/* Design tokens */
+:root {
+/* =========================================
+   NEW DESIGN SYSTEM TOKENS
+   SOURCE OF TRUTH
+========================================= */
+
+    /* =========================================
+        HEX COLOUR PALETTE (SOURCE OF TRUTH)
+    ========================================= */
+
+    /* -----------------------------------------
+        CORE (Structure + Brand Depth)
+    ----------------------------------------- */
+    /* Neutral / Structural */
+    --color-core-base: #0B0F1A;
+    --color-core-surface: #0F172A;
+    --color-core-muted: #64748B;
+    --color-core-light: #E2E8F0;
+    --color-absolute-white: #ffffff;
+    --color-absolute-black: #000000;
+    /* Brand Depth */
+    --color-core-blue: #1C2A4A;
+    --color-core-violet: #1E1B4B;
+    /* -----------------------------------------
+        ACCENT (Emphasis / Direction)
+    ----------------------------------------- */
+    --color-accent-blue: #6E7BFF;
+    --color-accent-orange: #FF8A3D;
+    /* -----------------------------------------
+        SECONDARY (Expression / Energy)
+    ----------------------------------------- */
+    --color-secondary-indigo: #4A5BD4;
+    --color-secondary-cyan: #3BC9DB;
+    --color-secondary-teal: #2FBF9F;
+    --color-secondary-purple: #7A5CFF;
+    --color-secondary-pink: #EC4899;
+    /* -----------------------------------------
+        Data Visualisation
+    ----------------------------------------- */
+    /* Data Visualisation Palette */
+    --chart-1: #38bdf8;
+    --chart-2: #818cf8;
+    --chart-3: #c084fc;
+    --chart-4: #f472b6;
+    --chart-5: #fb7185;
+    --chart-6: #facc15;
+    --chart-7: #4ade80;
+    --chart-8: #2dd4bf;
+    --chart-9: #60a5fa;
+    --chart-10: #a78bfa;
+    /* -----------------------------------------
+        Functional (System States)
+    ----------------------------------------- */
+    --color-success: #6BCB77;
+    --color-warning: #FFD166;
+    --color-error: #FF6B6B;
+    --color-info: #6E7BFF;
+
+    /* =========================================
+    COLOUR PALETTE (RGB VALUES)
+    Enables opacity, glow, gradients
+    ========================================= */
+
+    /* -----------------------------------------
+    CORE (Structure + Brand Depth)
+    ----------------------------------------- */
+    /* Neutral / Structural */
+    --color-core-base-rgb: 11, 15, 26;
+    --color-core-surface-rgb: 30, 41, 59;
+    --color-core-muted-rgb: 100, 116, 139;
+    --color-core-light-rgb: 226, 232, 240;
+    --color-absolute-white-rgb: 255, 255, 255;
+    --color-absolute-black-rgb: 0, 0, 0;
+    /* Brand Depth */
+    --color-core-blue-rgb: 28, 42, 74;
+    --color-core-violet-rgb: 30, 27, 75;
+    /* -----------------------------------------
+    ACCENT (Emphasis / Direction)
+    ----------------------------------------- */
+    --color-accent-blue-rgb: 110, 123, 255;
+    --color-accent-orange-rgb: 255, 138, 61;
+    /* -----------------------------------------
+    SECONDARY (Expression / Energy)
+    ----------------------------------------- */
+    --color-secondary-indigo-rgb: 74, 91, 212;
+    --color-secondary-cyan-rgb: 59, 201, 219;
+    --color-secondary-teal-rgb: 47, 191, 159;
+    --color-secondary-purple-rgb: 122, 92, 255;
+    --color-secondary-pink-rgb: 236, 72, 153;
+    /* -----------------------------------------
+        Data Visualisation
+    ----------------------------------------- */
+    /* Data Visualisation Palette */
+    --chart-1-rgb: 56, 189, 248;
+    --chart-2-rgb: 129, 140, 248;
+    --chart-3-rgb: 192, 132, 252;
+    --chart-4-rgb: 244, 114, 182;
+    --chart-5-rgb: 251, 113, 133;
+    --chart-6-rgb: 250, 204, 21;
+    --chart-7-rgb: 74, 222, 128;
+    --chart-8-rgb: 45, 212, 191;
+    --chart-9-rgb: 96, 165, 250;
+    --chart-10-rgb: 167, 139, 250;
+    /* -----------------------------------------
+        Functional (System States)
+    ----------------------------------------- */
+    --color-success-rgb: 107, 203, 119;
+    --color-warning-rgb: 255, 209, 102;
+    --color-error-rgb: 255, 107, 107;
+    --color-info-rgb: 110, 123, 255;
+
+    /* =========================================
+        TYPOGRAPHY COLOUR TOKENS (SYSTEM ALIGNED)
+    ========================================= */
+
+    /* Core Text */
+    --text-primary: var(--color-core-light);
+    --text-secondary: rgba(var(--color-core-light-rgb), 0.8);
+    --text-muted: rgba(var(--color-core-light-rgb), 0.6);
+    --text-inverse: var(--color-core-base);
+    --text-disabled: rgba(var(--color-core-light-rgb), 0.4);
+    /* Structural Roles */
+    --text-heading: var(--text-primary);
+    --text-body: var(--text-secondary);
+    /* Insight Communication */
+    --text-observation: var(--text-secondary);
+    --text-insight: var(--text-primary);
+    --text-direction: var(--color-accent-blue);
+
+    /* =========================================
+        TYPOGRAPHY SCALE (STRUCTURAL ROLES)
+    ========================================= */
+
+    /* Font Family */
+    --font-family-primary: "Inter", "Segoe UI", sans-serif;
+    --font-family-accent: "Roboto Slab", serif;
+    /* Font Weights */
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    /* Line Heights */
+    --line-height-tight: 1.2;
+    --line-height-heading: 1.3;
+    --line-height-body: 1.6;
+    /* -----------------------------------------
+    DISPLAY
+    ----------------------------------------- */
+    --font-display-size: 40px;
+    --font-display-weight: var(--font-weight-semibold);
+    --font-display-line-height: var(--line-height-tight);
+    /* -----------------------------------------
+    HEADINGS
+    ----------------------------------------- */
+    --font-h1-size: 32px;
+    --font-h1-weight: var(--font-weight-semibold);
+    --font-h1-line-height: var(--line-height-heading);
+
+    --font-h2-size: 24px;
+    --font-h2-weight: var(--font-weight-semibold);
+    --font-h2-line-height: var(--line-height-heading);
+
+    --font-h3-size: 20px;
+    --font-h3-weight: var(--font-weight-medium);
+    --font-h3-line-height: var(--line-height-heading);
+
+    --font-h4-size: 16px;
+    --font-h4-weight: var(--font-weight-medium);
+    --font-h4-line-height: 1.4;
+    /* -----------------------------------------
+    BODY
+    ----------------------------------------- */
+    --font-body-lg-size: 18px;
+    --font-body-lg-weight: var(--font-weight-regular);
+    --font-body-lg-line-height: var(--line-height-body);
+
+    --font-body-size: 16px;
+    --font-body-weight: var(--font-weight-regular);
+    --font-body-line-height: var(--line-height-body);
+
+    --font-body-subtle-size: 16px;
+    --font-body-subtle-weight: var(--font-weight-regular);
+    --font-body-subtle-line-height: var(--line-height-body);
+    /* -----------------------------------------
+    LABEL + MICRO
+    ----------------------------------------- */
+    --font-label-size: 14px;
+    --font-label-weight: var(--font-weight-medium);
+    --font-label-line-height: 1.4;
+
+    --font-micro-size: 12px;
+    --font-micro-weight: var(--font-weight-regular);
+    --font-micro-line-height: 1.4;
+
+    /* =========================================
+        SPACING SYSTEM
+    ========================================= */
+
+    --spacing-unit: 8px;
+   /* Spacing Scale */
+    --space-xs: 4px;    /* micro spacing */
+    --space-sm: 8px;    /* related elements */
+    --space-md: 16px;   /* standard spacing */
+    --space-lg: 24px;   /* section grouping */
+    --space-xl: 32px;   /* major separation */
+    --space-xxl: 48px;  /* page-level spacing */
+
+    /* =========================================
+        BORDER SYSTEM
+    ========================================= */
+    --border-subtle: rgba(255,255,255,0.08);
+    --border-default: rgba(255,255,255,0.12);
+    --border-strong: rgba(255,255,255,0.18);
+
+    /* =========================================
+        RADIUS SYSTEM
+    ========================================= */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+
+    /* =========================================
+        LAYOUT CONSTRAINT SYSTEM
+    ========================================= */
+
+    /* Container */
+    --container-default: 1200px;
+    --container-wide: 1440px;
+    /* Content (readability) */
+    --content-width: 720px;
+    /* Grid */
+    --grid-column-min: 320px;
+    /* Structural */
+    --layout-header-height: 4.75rem;
+    --layout-sidebar-width: 260px;
+
+    /* =========================================
+        SURFACE DRIVEN ELEVATION MODEL
+    ========================================= */
+
+    /* LEVEL 0 - BASE LAYER (Background, Structural Layout, Passive Info) */
+    --surface-base-bg: linear-gradient(180deg, var(--color-core-base), var(--color-core-blue));
+    --surface-base-accent: 
+        radial-gradient(1200px circle at 0% 0%. rgba(var(--color-secondary-purple-rgb), 0.12), transparent 60%),
+        radial-gradient(900px circle at 100% 0%, rgba(var(--color-secondary-pink-rgb),0.08), transparent 60%);
+    /* no shadow */
+    /* no border */
+    /* no glow */
+    /* LEVEL 1 - RAISED (Interactive Elements, User Controls, Inputs) */
+    --surface-raised-bg: linear-gradient(180deg, rgba(var(--color-core-base-rgb),0.9), rgba(var(--color-core-surface-rgb),0.9));
+    --surface-raised-shadow: 0 2px 6px rgba(var(--color-core-base-rgb), 0.05);
+    --surface-raised-border: var(--border-subtle);
+    --surface-raised-blur: blur(6px);
+    /* LEVEL 2 - ELEVATED (Grouped Content, Structured Info, Important but not dominant elements) */
+    --surface-elevated-bg: linear-gradient(180deg, var(--color-core-base) 0%, var(--color-core-surface) 100%);
+    --surface-elevated-shadow: 0 6px 16px rgba(var(--color-core-base-rgb), 0.08);
+    --surface-elevated-border: var(--border-default);
+    /* LEVEL 3 - FOCUS (System Interpretation, Insight, Key Understanding) */
+    --surface-focus-bg:
+        radial-gradient(600px circle at 0% 0%, rgba(var(--color-secondary-purple-rgb),0.25), transparent 60%),
+        radial-gradient(600px circle at 100% 0%, rgba(var(--color-secondary-pink-rgb),0.2), transparent 60%),
+        linear-gradient(180deg, var(--color-core-base) 0%, var(--color-core-violet) 100%);
+    --surface-focus-shadow: 0 12px 32px rgba(var(--color-core-base-rgb), 0.12);
+    --surface-focus-border: var(--border-strong);
+    --surface-focus-glow:
+        0 0 40px rgba(var(--color-secondary-purple-rgb),0.25),
+        0 0 80px rgba(var(--color-secondary-pink-rgb),0.2);
+    /* LEVEL 4 - OVERLAY (Interruption, Critical Decisions, Modal Focus) */
+    --overlay-bg: rgba(var(--color-core-base-rgb), 0.6);
+    --overlay-blur: blur(8px);
+    --overlay-shadow: 0 20px 60px rgba(var(--color-core-base-rgb), 0.18);
+
+    /* =========================================
+        Z-INDEX SYSTEM (SEMANTIC LAYERS)
+    ========================================= */
+
+    /* Level 0 — Base (background, layout) */
+    --z-base: 0;
+    /* Level 1 — Raised (interactive elements) */
+    --z-raised: 10;
+    /* Level 2 — Elevated (content groups) */
+    --z-elevated: 20;
+    /* Level 3 — Focus (insight / emphasis) */
+    --z-focus: 30;
+    /* Level 4 — Overlay (modals, blocking UI) */
+    --z-overlay: 100;
+
+    /* =========================================
+        MOTION SYSTEM
+    ========================================= */
+
+    --motion-speed-fast: 120ms;
+    --motion-speed-medium: 240ms;
+    --motion-speed-slow: 400ms;
+
+    --motion-ease-standard: ease;
+    --motion-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+    
+/* =========================================
+   LEGACY TOKENS (TO BE REMOVED OR UPDATED)
+   DO NOT USE
+========================================= */
+         
+
+/* =========================================
+   TO BE REMOVED
+   DO NOT USE
+========================================= */
+
+/* Visual Tokens */  
+    /* Brand colours & Themes */
+    --color-primary: #0a1f44;                         /* Navy blue – main primary brand colour */
+    --color-secondary: #5c667a;                       /* Neutral grey for secondary elements */
+    --color-accent: rgb(255, 46, 136);                /* Accent pink for highlights & interactive states */
+    --color-accent-purple: #6b4b9a;                   /* Accent purple for charts or special highlights */
+    /* Status */
+    --color-danger: #ff5630;                          /* Alerts / error messages */
+        /*--color-success: rgb(82, 194, 222);  */                       /* Success / positive feedback */
+        /*--color-warning: #ffab00; */
+        /*--color-info: #1976d2; */
+    /* Background */
+    --color-bg-light: #f5f7fb;                        /* Light background for page */
+    --color-bg-panel: #ffffff;                        /* Card / panel background */  
+    /* Charts */
+    --color-chart-1: #00ffcc;
+    --color-chart-2: #ff0080;
+    --color-chart-3: #8b5cf6;
+    --color-chart-4: #06b6d4;
+    --color-chart-5: #fbbf24;
+    /* Text */
+    --color-text-primary: #1a1a1a;                    /* Main text colour */
+    --color-text-secondary: #5c667a;                  /* Secondary text */
+    --color-text-light: #a3a9b6;                      /* Tertiary text / hints */
+    /* Borders */
+    --color-border: #e4e8f0;                          /* General borders */
+    --color-border-light: #eef1f6;
+    --color-border-strong: #cdd6e3;
+    /* Typography Tokens */
+    /* Typography */
+    --font-primary: "Inter", "Segoe UI", sans-serif;    /* Main UI font */
+    --font-accent: "Roboto Slab", serif;                /* For headings or decorative emphasis */
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+    --font-size-xxl: 32px;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+    --line-height-base: 1.5;
+    --line-height-tight: 1.3;
+    /* Shadows */
+    --shadow-light: 0 2px 6px rgba(0, 0, 0, 0.078);
+    --shadow-medium: 0 6px 18px rgba(0, 0, 0, 0.122);
+    --shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.161);
+    --shadow-panel: 0 2px 8px rgba(0, 0, 0, 0.059);
+    /* Z-Index */
+    --z-base: 1;                                        /* Normal layout */
+    --z-dropdown: 100;                                  /* Selects & Menus */
+    --z-sidebar: 50;                                    /* Fixed Navigation */
+    --z-modal: 1000;                                    /* Dialogs */
+    --z-toast: 1100;                                    /* Notifications */
+    --z-overlay: 500;          
+    /* Dark Mode Tokens */
+    /* [data-theme="dark"] {
+    --color-bg-light: #111318;
+    --color-bg-panel: #1e1e28;
+    --color-nav-bg: #151b2d;
+    --color-text-primary: #e4e4e4;
+    --color-text-secondary: #b0b0b0;
+    --color-text-light: #7d7d7d;
+    --color-border: #2c2c2c;
+    --color-border-light: #333;}*/   
+    
+    /* Radius - ACTION: Convert to --radius-sm / --radius-md / --radius-lg */
+    --radius-small: 6px;
+    --radius-medium: 10px;
+    --radius-large: 16px;
+
+    /* Layout */
+    --header-height: 4.75rem;
+    --container-max-width: 1200px;
+    --column-min-width: 320px;
+    --sidebar-width: 260px;
+
+/* =========================================
+   TO BE UPDATED
+   DO NOT USE
+========================================= */
+
+    /* Interaction - ACTION: Move into interaction / state tokens */
+    --color-hover: rgba(10, 31, 68, 0.059);
+    --color-focus: rgba(255, 46, 136, 0.349);
+    --color-active: rgba(0, 0, 0, 0.122);
+    
+    
+    
+    /* Navigation - ACTION: REBUILD using surfaces/text tokens/interaction system */
+    --color-nav-bg: #0a1f44;                          /* Hover state for lists/buttons */
+    --color-nav-text: #e6ecf5;
+    --color-nav-text-muted: rgba(255,255,255,0.55);
+    --color-nav-hover: #ffffff14;
+    --color-nav-active: var(--color-accent);
+    
+}
+
+

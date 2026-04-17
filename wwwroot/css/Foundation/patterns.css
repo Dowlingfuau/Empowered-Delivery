@@ -1,0 +1,135 @@
+/* =========================================
+   LEGACY (TO BE REMOVED OR UPDATED)
+   DO NOT USE
+========================================= */
+
+/* Hero Layout */
+    /* Defines typography */
+.hero {
+    padding-top: calc(var(--spacing-unit) * 6);
+    padding-bottom: calc(var(--spacing-unit) * 6);
+    max-width: 720px;
+    margin-bottom: calc(var(--spacing-unit) * 4);
+}
+.hero h1 {
+    margin-bottom: calc(var(--spacing-unit) * 2);
+}
+.hero p {
+    margin-bottom: calc(var(--spacing-unit) * 2);
+}
+    /* Layout Primitive */
+.hero-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: calc(var(--spacing-unit) * 6);
+    align-items: center;
+} 
+.hero-image img {
+    width: 100%;
+    border-radius: var(--radius-medium);
+}
+
+/* Plays */
+.learn-step {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: calc(var(--spacing-unit) * 3);
+    margin-bottom: calc(var(--spacing-unit) * 4);
+}
+.learn-step-side {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 2);
+}
+/* Floating Control Surface */
+.control-surface {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sidebar);
+    display: flex;
+    justify-content: center;
+    padding-top: 12px;
+    padding-bottom: 12px;   
+}
+.control-surface-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing-unit) * 1.5);
+    padding: 10px 16px;
+    width: fit-content;
+    max-width: 100%;
+    border-radius: 999px;
+    backdrop-filter: blur(12px);
+    background: var(--surface-raised-bg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 1);
+    padding: 4px 8px;
+    border-radius: var(--radius-medium);
+}
+
+/* -------------------------
+   Signal Grounding
+   ------------------------- */
+
+.signal-grounded {
+  position: relative;
+}
+.signal-grounded::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+
+  box-shadow:
+    0 10px 20px rgba(0,0,0,0.6);
+
+  z-index: -1;
+}
+
+/* -----------------------------------------
+   Viewport (PATTERN)
+   Viewport aware layout behaviours
+----------------------------------------- */
+.viewport-fit {
+    min-height: calc(100vh - var(--layout-header-height));
+    display: flex;
+    flex-direction: column;
+}
+.viewport-centre {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* -----------------------------------------
+   FOCUS OF ATTENTION (SYSTEM)
+   Focus composition pattern
+----------------------------------------- */
+.layout-focus {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+}
+.layout-focus > * {
+    max-width: 720px;
+    width: 100%;
+}
+
+/* Tablet Breakpoint 900px */
+
+@media (max-width: 900px) {
+    .hero-layout {
+        grid-template-columns: 1fr;
+    }
+    .hero-image {
+        order: -1;
+    }
+} 
+/* Large Desktop Breakpoint 1200px */

@@ -1,6 +1,5 @@
 /* Table Component */
 .table {
-    background: var(--color-bg-panel);
     color: var(--text-primary);
     width: 100%;
     border-collapse: collapse;
@@ -21,7 +20,6 @@
     text-align: left; 
     font-weight: var(--font-weight-bold);
     color: var(--text-primary); 
-    background-color: var(--color-bg-panel);
 }
 /* Row Striping */ 
 .table tr:nth-child(even) { 

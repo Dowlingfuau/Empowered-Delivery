@@ -1,0 +1,84 @@
+/* Header Layout */
+.top-bar { 
+    height: var(--header-height); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-nav-bg);
+    padding: 0 calc(var(--spacing-unit) * 2);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-topbar, var(--z-overlay));
+}
+.top-bar::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-accent);
+    box-shadow:
+        0 0 6px rgba(var(--color-accent),0.7),
+        0 0 14px rgba(var(--color-accent),0.5);
+}
+.top-bar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.topbar-brand {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-nav-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}   
+.topbar-brand a {
+    text-decoration: none;
+    color: var(--color-nav-text);
+}
+.topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 3);
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+.topbar-nav a {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-nav-text);
+    text-decoration: none;
+    position: relative;
+}
+.topbar-nav a:hover {
+    color: var(--color-accent);
+}
+.topbar-nav a.active {
+    color: var(--color-accent);
+}
+.topbar-nav a.active::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: var(--color-accent);
+    box-shadow: 0 0 8px rgba(var(--color-accent), 0.6);
+}
+/* Toggle */
+.nav-toggle {                               /* toggle inside sidebar header */
+    background: transparent;
+    border: none;
+    color: var(--color-nav-text);
+    font-size: var(--font-size-lg);
+}
+@media (max-width: 640px) {
+    .brand-main {
+        font-size: var(--font-size-md);
+        white-space: nowrap;
+    }
+}

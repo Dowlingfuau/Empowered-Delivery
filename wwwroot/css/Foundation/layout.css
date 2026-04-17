@@ -1,0 +1,232 @@
+/* =========================================
+   NEW DESIGN SYSTEM 
+========================================= */
+
+/* -----------------------------------------
+    APPLICATION ROOT
+    (define layout root, define flow, 
+    define viewport behaviour)
+----------------------------------------- */
+
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* Environment */
+    background: radial-gradient(1200px circle at 0% 0%, rgba(124,58,237,0.18), transparent 60%),
+        radial-gradient(900px circle at 100% 0%, rgba(236,72,153,0.12), transparent 60%),
+        radial-gradient(1000px circle at 50% 100%, rgba(56,189,248,0.12), transparent 60%),
+        #0B0F1A;
+}
+main {
+    flex: 1;
+}
+.hub-layout {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+}
+
+/* -----------------------------------------
+    SECTION (SYSTEM)
+    Top-Level grouping of content blocks
+----------------------------------------- */
+.section {
+    position: relative;
+    margin-top: var(--space-xl);
+}
+.section-large {
+    margin-top: var(--space-xxl);
+}
+.section-tight {
+    margin-top: var(--space-lg);
+}
+
+/* -----------------------------------------
+   CONTAINER (SYSTEM)
+   Horizontal constraint +
+   Readable layout boundary
+----------------------------------------- */
+/* Mobile first (default) */
+.container {
+    position: relative;
+    width: 100%; 
+    max-width: var(--container-default); 
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--space-sm); 
+    padding-right: var(--space-sm);
+}
+.container-wide {
+    max-width: var(--container-wide);
+}
+.container-narrow {
+    max-width: var(--content-width);
+}
+/* Tablet Breakpoint 640px */
+@media (min-width: 640px) {
+    .container {
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+    }
+}
+/* Desktop Breakpoint 1024px */
+@media (min-width: 1024px) {
+    .container {
+        padding-left: var(--space-lg);
+        padding-right: var(--space-lg);
+    }
+}
+
+/* -----------------------------------------
+    STACK (SYSTEM)
+    Vertical layout primitive
+----------------------------------------- */
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+.stack-sm {
+    gap: var(--space-sm);
+}
+.stack-lg {
+    gap: var(--space-lg);
+}
+.stack-xl {
+    gap: var(--space-xl);
+}
+
+/* -----------------------------------------
+   GRID (SYSTEM)
+   Primary horizontal layout primitive
+----------------------------------------- */
+.grid { 
+    display: grid; 
+    gap: var(--space-md); 
+}
+.grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(var(--grid-column-min), 1fr));
+}
+.grid-sm {
+    gap: var(--space-sm);
+}
+.grid-lg {
+    gap: var(--space-lg);
+}
+.grid-2 { 
+    grid-template-columns: repeat(2, 1fr); 
+}
+.grid-3 { 
+    grid-template-columns: repeat(3, 1fr); 
+}
+.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+.grid-5 {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* -----------------------------------------
+   Diagnostics Console Dock
+----------------------------------------- */
+.diagnostics-console-dock {
+    position: fixed;
+    right: var(--space-lg);
+    bottom: var(--space-lg);
+    z-index: 1100;
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    pointer-events: none;
+}
+
+.diagnostics-console-dock > * {
+    pointer-events: auto;
+}
+
+.diagnostics-console-pill {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 132px;
+    min-height: 44px;
+    padding: 0 var(--space-md);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-label-size);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    background: rgba(var(--color-core-surface-rgb), 0.96);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    box-shadow: var(--overlay-shadow);
+    cursor: pointer;
+}
+
+.diagnostics-console-pill:hover,
+.diagnostics-console-pill:focus {
+    border-color: var(--border-strong);
+    box-shadow: var(--overlay-shadow), 0 0 24px rgba(var(--color-secondary-cyan-rgb), 0.18);
+}
+
+.diagnostics-console-panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--space-sm));
+    width: min(760px, calc(100vw - 48px));
+    max-height: min(72vh, 720px);
+    overflow: auto;
+    padding: var(--space-md);
+    color: var(--text-primary);
+    background: rgba(var(--color-core-surface-rgb), 0.96);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--overlay-shadow);
+    backdrop-filter: var(--overlay-blur);
+}
+
+.diagnostics-console-empty {
+    padding: var(--space-md);
+}
+
+.diagnostics-console-panel .card {
+    border-color: var(--border-subtle);
+    box-shadow: none;
+}
+
+.diagnostics-console-panel .card:hover {
+    transform: none;
+    box-shadow: none;
+    z-index: auto;
+}
+
+.diagnostics-console-panel .grid-3,
+.diagnostics-console-panel .grid-4 {
+    align-items: start;
+}
+
+@media (max-width: 760px) {
+    .diagnostics-console-dock {
+        right: var(--space-sm);
+        bottom: var(--space-sm);
+        left: var(--space-sm);
+    }
+
+    .diagnostics-console-pill {
+        align-self: flex-end;
+    }
+
+    .diagnostics-console-panel {
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-height: 78vh;
+    }
+
+    .diagnostics-console-panel .grid-3,
+    .diagnostics-console-panel .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}

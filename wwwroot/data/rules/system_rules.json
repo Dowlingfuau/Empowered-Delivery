@@ -1,0 +1,144 @@
+{
+  "derived_signal_rules": [
+    {
+      "name": "DeliveryFactoryRisk",
+      "category": "Constraint",
+      "domain": "System",
+      "priority": 10,
+      "confidence_weight": 0.9,
+      "source_signals": [
+        "WeakProductOwnership",
+        "BacklogVolatility",
+        "FlowStabilityEmerging"
+      ],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "WeakProductOwnership = High AND BacklogVolatility = High",
+          "result": "High"
+        },
+        {
+          "condition": "WeakProductOwnership = Moderate",
+          "result": "Moderate"
+        },
+        {
+          "condition": "WeakProductOwnership = Low",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Delivery may be operating as a work intake system rather than a value-focused delivery system."
+    },
+    {
+      "name": "CapabilityConstraint",
+      "category": "Constraint",
+      "domain": "System",
+      "priority": 9,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "OwnershipConstraint",
+        "CollaborationWeakness",
+        "DeliveryInstability"
+      ],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "OwnershipConstraint = High AND CollaborationWeakness = High",
+          "result": "High"
+        },
+        {
+          "condition": "OwnershipConstraint = Moderate",
+          "result": "Moderate"
+        },
+        {
+          "condition": "OwnershipConstraint = Low",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Delivery performance may be limited by capability or collaboration constraints."
+    },
+    {
+      "name": "SystemFriction",
+      "category": "Constraint",
+      "domain": "System",
+      "priority": 9,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "AutonomyFriction",
+        "DeliveryInstability",
+        "RoleClarityIssues"
+      ],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "AutonomyFriction = High AND RoleClarityIssues = High",
+          "result": "High"
+        },
+        {
+          "condition": "AutonomyFriction = Moderate",
+          "result": "Moderate"
+        },
+        {
+          "condition": "AutonomyFriction = Low",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Delivery may be slowed by organisational decision friction or unclear responsibilities."
+    },
+    {
+      "name": "OrganisationalDeliveryMisalignment",
+      "category": "Constraint",
+      "domain": "System",
+      "priority": 10,
+      "confidence_weight": 0.9,
+      "source_signals": [
+        "OrganisationalAlignmentGap",
+        "DeliveryInstability",
+        "BacklogPressure"
+      ],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "OrganisationalAlignmentGap = High AND DeliveryInstability = High",
+          "result": "High"
+        },
+        {
+          "condition": "OrganisationalAlignmentGap = Moderate",
+          "result": "Moderate"
+        },
+        {
+          "condition": "OrganisationalAlignmentGap = Low",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Leadership expectations and delivery realities may not currently be aligned."
+    },
+    {
+      "name": "FlowOverloadSystem",
+      "category": "Risk",
+      "domain": "System",
+      "priority": 8,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "BacklogPressure",
+        "IntakePressure",
+        "DeliveryInstability"
+      ],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "BacklogPressure = High AND IntakePressure = High",
+          "result": "High"
+        },
+        {
+          "condition": "BacklogPressure = Moderate",
+          "result": "Moderate"
+        },
+        {
+          "condition": "BacklogPressure = Low",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "The delivery system may be overloaded with more work than it can realistically process."
+    }
+  ]
+}

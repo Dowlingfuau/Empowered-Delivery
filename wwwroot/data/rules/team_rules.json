@@ -1,0 +1,112 @@
+{
+  "derived_signal_rules": [
+    {
+      "name": "PsychologicalSafetyRisk",
+      "category": "Risk",
+      "domain": "Team",
+      "priority": 9,
+      "confidence_weight": 0.9,
+      "source_signals": ["SafetyScore"],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        { "condition": "SafetyScore >= 0.7", "result": "Low" },
+        { "condition": "SafetyScore >= 0.4 AND SafetyScore < 0.7", "result": "Moderate" },
+        { "condition": "SafetyScore < 0.4", "result": "High" }
+      ],
+      "interpretation": "Team members may not feel comfortable raising concerns or challenging ideas."
+    },
+    {
+      "name": "CollaborationWeakness",
+      "category": "Risk",
+      "domain": "Team",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": ["CollaborationScore"],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        { "condition": "CollaborationScore >= 0.7", "result": "Low" },
+        { "condition": "CollaborationScore >= 0.4 AND CollaborationScore < 0.7", "result": "Moderate" },
+        { "condition": "CollaborationScore < 0.4", "result": "High" }
+      ],
+      "interpretation": "Team members may be working in silos rather than collaborating on delivery."
+    },
+    {
+      "name": "ImprovementCultureWeak",
+      "category": "Risk",
+      "domain": "Team",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": ["ImprovementScore"],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        { "condition": "ImprovementScore >= 0.7", "result": "Low" },
+        { "condition": "ImprovementScore >= 0.4 AND ImprovementScore < 0.7", "result": "Moderate" },
+        { "condition": "ImprovementScore < 0.4", "result": "High" }
+      ],
+      "interpretation": "Teams may not be consistently reflecting on and improving their delivery practices."
+    },
+    {
+      "name": "StrongTeamEnvironment",
+      "category": "Positive",
+      "domain": "Team",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": ["SafetyScore", "CollaborationScore", "ImprovementScore"],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "SafetyScore >= 0.7 AND CollaborationScore >= 0.7 AND ImprovementScore >= 0.7",
+          "result": "High"
+        },
+        {
+          "condition": "SafetyScore >= 0.5 AND CollaborationScore >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "SafetyScore < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "The team environment appears supportive of collaboration, learning, and open communication."
+    },
+    {
+      "name": "RoleClarityIssues",
+      "category": "Risk",
+      "domain": "Team",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": ["RoleClarityScore"],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        { "condition": "RoleClarityScore >= 0.7", "result": "Low" },
+        { "condition": "RoleClarityScore >= 0.4 AND RoleClarityScore < 0.7", "result": "Moderate" },
+        { "condition": "RoleClarityScore < 0.4", "result": "High" }
+      ],
+      "interpretation": "Team members may be unclear about responsibilities or decision boundaries."
+    },
+    {
+      "name": "TeamLearningMomentum",
+      "category": "Positive",
+      "domain": "Team",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": ["ImprovementScore", "CollaborationScore"],
+      "intensity_model": ["Low", "Moderate", "High"],
+      "rules": [
+        {
+          "condition": "ImprovementScore >= 0.7 AND CollaborationScore >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "ImprovementScore >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "ImprovementScore < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "The team appears to be actively learning and improving its delivery practices."
+    }
+  ]
+}

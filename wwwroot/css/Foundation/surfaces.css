@@ -1,0 +1,67 @@
+.surface-base {
+  background: var(--surface-base-bg);
+  min-height: 100%;
+}
+.surface-raised {
+  background: var(--surface-raised-bg);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--surface-raised-shadow);
+  backdrop-filter: var(--surface-raised-blur);
+  border-radius: var(--radius-md);
+}
+.surface-elevated {
+  background: var(--surface-elevated-bg);
+  border: 1px solid var(--surface-elevated-border);
+  box-shadow: var(--surface-elevated-shadow);
+  border-radius: var(--radius-md);
+}
+.surface-focus {
+  background: var(--surface-focus-bg);
+  border: 1px solid var(--surface-focus-border);
+  box-shadow: var(--surface-focus-shadow), var(--surface-focus-glow);
+  border-radius: var(--radius-lg);
+}
+
+/* -------------------------
+   Glass Surfaces
+   ------------------------- */
+
+.glass {
+  background: rgba(var(--color-core-surface-rgb), 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border: 1px solid var(--border-subtle);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* Stronger elevation glass */
+.glass-raised {
+  border-radius: var(--radius-lg);
+
+  background: rgba(var(--color-core-surface-rgb), 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  border: 1px solid rgba(var(--color-core-light-rgb), 0.08);
+  
+  box-shadow:
+    0 0 60px rgba(var(--color-core-light-rgb), 0.06),
+    0 20px 40px rgba(var(--color-core-light-rgb), 0.04),
+    0 30px 40px rgba(0,0,0,0.6);
+}
+
+/* Focus glass (insight) */
+.glass-focus {
+  background: rgba(var(--color-core-surface-rgb), 0.75);
+
+  border: 1px solid var(--border-strong);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.8),
+    0 0 60px rgba(var(--color-secondary-purple-rgb), 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}

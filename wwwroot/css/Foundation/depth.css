@@ -1,0 +1,481 @@
+/* =========================
+    MATERIALS
+   ========================= */
+
+   .material {
+    position: relative;
+    z-index: 1;
+   }
+   .material::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: -1;
+   }
+   /* -------------------------
+   Transmissive Materials
+   (Light passes through)
+   ------------------------- */
+    /*coloured transmission*/
+    .material-tinted::before {
+        background: rgba(var(--color-core-surface-rgb), 0.5);
+        box-shadow: inset 0 0 30px rgba(var(--color-absolute-black-rgb),0.35);
+    }
+    /*high transmission*/
+    .material-clear::before {
+        background: rgba(var(--color-core-light-rgb), 0.2);
+        box-shadow: inset 0 0 20px rgba(var(--color-absolute-black-rgb),0.25);
+    }
+    /*diffused transmission (blur/softened)*/
+    .material-frosted::before {
+        background: rgba(var(--color-core-surface-rgb), 0.4);
+        backdrop-filter: blur(12px);
+        box-shadow: inset 0 0 25px rgba(var(--color-absolute-black-rgb),0.3);
+    }
+    /* -------------------------
+    Non-Transmissive Materials
+    (Light does NOT pass through)
+    ------------------------- */
+    /*blocks light completely*/
+    .material-solid::before {
+        background: rgba(var(--color-core-base-rgb), 0.95);
+    }
+    /*near-solid but still subtle interation*/
+    .material-opaque::before {
+        background: rgba(var(--color-core-surface-rgb), 0.85);
+        box-shadow: inset 0 0 20px rgba(var(--color-absolute-black-rgb), 0.4);
+    }
+
+   /* =========================
+    Light
+   ========================= */
+
+   .light {
+    position: absolute;
+    
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+   }
+   .light::before {
+    content: "";
+
+    width: 120%;
+    height: 200%;
+
+    border-radius: inherit;
+   }
+   .light-small::before {
+    width: 60%;
+    height: 100%;
+   }
+   .light-wide::before {
+    width: 150%;
+    height: 250%;
+   }
+   .light-offset::before {
+    transform: translateY(-20%);
+   }
+   /*HELPERS*/
+   .light-above {
+    z-index: 2;
+   }
+   .light-top {
+    top: 0;
+   }
+   .light-mid {
+    top: 50%;
+    transform: translate(-50%, -50%);
+   }
+   .light-bottom {
+    bottom: 0;
+    top: auto;
+   }
+   /* -------------------------
+    Backlight
+    (Behind material - creates elevation)
+    ------------------------- */
+   .light-back {
+    background: 
+        radial-gradient(
+            60% 140% at 50% 40%,
+            rgba(var(--color-absolute-white-rgb), 0.35) 0%,
+            rgba(var(--color-absolute-white-rgb), 0.15) 50%,
+            rgba(var(--color-absolute-white-rgb), 0.02) 80%,
+            transparent 120%
+        );
+   }
+   /* -------------------------
+    Halo
+    (Wraps around material edges)
+    ------------------------- */
+   .light-halo {
+    box-shadow: 
+        0 0 40px rgba(var(--color-absolute-white-rgb), 0.25),
+        0 0 80px rgba(var(--color-absolute-white-rgb), 0.15);
+   }
+   /* -------------------------
+    Directional
+    (Creates orientation (top/left light))
+    ------------------------- */
+   .light-direction-top {
+    background: 
+        linear-gradient(
+            to bottom,
+            rgba(var(--color-absolute-white-rgb), 0.25),
+            transparent 40%
+        );
+   }
+   /* -------------------------
+    Light Temperature
+    (Colour - Warm, Cool, Neutral)
+    ------------------------- */
+   .light-warm {
+    background: 
+        radial-gradient(
+            50% 140% at 50% 50%,
+            rgba(var(--color-accent-orange-rgb), 0.5) 0%,
+            rgba(var(--color-secondary-pink-rgb), 0.25) 50%,
+            rgba(var(--color-secondary-pink-rgb), 0.08) 80%,
+            transparent 120%
+        );
+   }
+   .light-cool {
+    background: 
+        radial-gradient(
+            50% 140% at 50% 50%,
+            rgba(var(--color-secondary-cyan-rgb), 0.5) 0%,
+            rgba(var(--color-accent-blue-rgb), 0.25) 50%,
+            rgba(var(--color-secondary-purple-rgb), 0.08) 80%,
+            transparent 120%
+        );
+   }
+   /* =========================
+    Shadow
+   ========================= */
+
+   /* -------------------------
+   Ground Shadow
+   (Anchors material in space)
+   ------------------------- */
+   .shadow-ground {
+    box-shadow: 
+        0 10px 30px rgba(var(--color-absolute-black-rgb), 0.35),
+        0 2px 8px rgba(var(--color-absolute-black-rgb), 0.2);
+   }
+    /* -------------------------
+    Contact Shadow
+    (Material touching a surface)
+    ------------------------- */
+    .shadow-contact {
+        box-shadow: 
+            0 20px 6px rgba(var(--color-absolute-black-rgb), 0.45);
+    }
+    /* -------------------------
+    Cast Shadow
+    (Light creates projection)
+    ------------------------- */
+    .shadow-cast {
+        box-shadow: 
+            0 20px 60px rgba(var(--color-absolute-black-rgb), 0.4);
+    }
+    /* -------------------------
+    Direction Shadows
+    (Light aware shadows)
+    ------------------------- */
+    .shadow-cast-top {
+    box-shadow: 0 30px 80px rgba(var(--color-absolute-black-rgb), 0.45);
+    }
+    .shadow-cast-left {
+        box-shadow: 20px 0 60px rgba(var(--color-absolute-black-rgb), 0.35);
+    }
+    .shadow-cast-right {
+        box-shadow: -20px 0 60px rgba(var(--color-absolute-black-rgb), 0.35);
+    }
+    
+
+   /* -------------------------
+   Glow
+   ------------------------- */
+
+   /* -------------------------
+   Colour interaction
+   ------------------------- */
+
+/* =========================
+   PERCEPTUAL DEPTH SYSTEM
+   (This matters more right now)
+   ========================= */
+
+   .perceptual-a {
+    padding-top: var(--space-xxl);
+    padding-bottom: var(--space-xxl);
+   }
+   .type-emphasis {
+    font-size: 1.1rem;
+    line-height: 1.6;
+   }
+   .perceptual-d {
+    min-height: 80vh;
+
+    display: flex;
+    align-items: center;
+   }
+
+   /* -------------------------
+   Spacing
+   ------------------------- */
+
+   /* -------------------------
+   Padding
+   ------------------------- */
+
+   /* -------------------------
+   Gaps
+   ------------------------- */
+
+   /* -------------------------
+   Typography
+   ------------------------- */
+
+   /* -------------------------
+   Viewport control
+   ------------------------- */
+
+   /* -------------------------
+   Content density
+   ------------------------- */
+
+
+
+/* =========================
+    LEGACY SYSTEM - DO NOT USE
+    DEPTH SYSTEM — V1
+   ========================= */
+
+/* -------------------------
+   Elevation (Structure)
+   ------------------------- */
+.depth-plane {
+    position: relative;
+}
+.depth-0 {
+    z-index: 0;
+}
+.depth-1 {
+    z-index: 1;
+}
+.depth-2 {
+    z-index: 2;
+}
+.depth-3 {
+    z-index: 3;
+}
+.depth-4 {
+    z-index: 4;
+}
+
+/* -------------------------
+   Contrast (Primary depth driver)
+   ------------------------- */
+.depth-contrast-none {
+    background: transparent;
+}
+.depth-contrast-low {
+    background-color: rgba(var(--color-core-surface-rgb), 0.02);
+}
+.depth-contrast-medium {
+    background-color: rgba(var(--color-core-surface-rgb), 0.06);
+}
+.depth-contrast-high {
+    background-color: rgba(var(--color-core-surface-rgb), 0.12);
+}
+
+/* -------------------------
+   Light (Glow / background)
+   ------------------------- */
+.depth-glow-none {
+    box-shadow: none;
+}
+.depth-glow-soft {
+    box-shadow: 0 0 20px rgba(var(--color-accent-orange-rgb), 0.15);
+}
+.depth-glow-medium {
+    box-shadow: 0 0 40px rgba(var(--color-accent-orange-rgb), 0.25);
+}
+.depth-glow-strong {
+    box-shadow: 0 0 80px rgba(var(--color-accent-orange-rgb), 0.4);
+}
+
+.light-gradient-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary-purple),
+    var(--color-secondary-pink),
+    var(--color-accent-orange),
+    var(--color-secondary-cyan)
+  );
+}
+.light-glow-soft {
+  box-shadow: 0 0 60px rgba(var(--color-accent-orange-rgb), 0.2);
+}
+.light-glow-strong {
+  box-shadow: 0 0 120px rgba(var(--color-secondary-pink-rgb), 0.35);
+}
+/* directional light (for focus targeting) */
+.light-directional {
+  position: relative;
+}
+.light-directional::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(
+    circle at center,
+    rgba(var(--color-secondary-purple-rgb), 0.2),
+    transparent 70%
+  );
+  z-index: -1;
+}
+
+/* -------------------------
+   Micro Depth (Edges / Inner layers)
+   ------------------------- */
+.depth-edge-none {
+    border: none;
+}
+.depth-edge-soft {
+    border: 1px solid var(--border-subtle);
+}
+.depth-edge-medium {
+    border: 1px solid var(--border-default);
+}
+.depth-edge-strong {
+    border: 1px solid var(--border-strong);
+}
+.depth-inner-none {
+    box-shadow: none;
+}
+.depth-inner-glow {
+    box-shadow: inset 0 0 10px rgba(var(--color-core-base-rgb), 0.05);
+}
+
+/* -------------------------
+   Structural Depth (Positioning cues)
+   ------------------------- */
+.depth-static {
+    transform: none;
+}
+.depth-floating-xs {
+    transform: translateY(-1px);
+}
+.depth-floating-sm {
+    transform: translateY(-2px);
+}
+.depth-floating-md {
+    transform: translateY(-4px);
+}
+
+/* -------------------------
+   Motion Hooks (Light / composable)
+   ------------------------- */
+.depth-motion-hover-sm {
+    transition: transform var(--motion-speed-fast) ease,
+                box-shadow var(--motion-speed-fast) ease;
+}
+.depth-motion-hover-sm:hover {
+    transform: translateY(-2px);
+}
+.depth-motion-hover-md {
+    transition: transform var(--motion-speed-medium) ease,
+                box-shadow var(--motion-speed-medium) ease;
+}
+.depth-motion-hover-md:hover {
+    transform: translateY(-4px);
+}
+
+/* -------------------------
+   Focus Helpers (Optional shortcuts)
+   NOT enforced system rules
+   ------------------------- */
+.depth-focus-subtle {
+    background-color: rgba(var(--color-core-surface-rgb), 0.06);
+    border: 1px solid var(--border-default);
+}
+.depth-focus-strong {
+    background-color: rgba(var(--color-core-surface-rgb), 0.12);
+    box-shadow: 0 0 40px rgba(var(--color-accent-orange-rgb), 0.25);
+}
+
+.elevated {
+    border-radius: var(--radius-md);
+
+    padding: 16px;
+}
+.elevated-light {
+    background:
+        radial-gradient(85% 60% at 50% 0%,
+            rgba(255,255,255,0.12),
+            rgba(255,255,255,0.04) 50%,
+            transparent 100%),
+            rgba(var(--color-core-muted-rgb), 0.45);
+    
+            box-shadow: 
+                0 0 60px rgba(255,255,255,0.25),
+                inset 0 0 20px rgba(0,0,0,0.4);
+}
+.elevated-top {
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(255,255,255,0.12),
+            rgba(255,255,255,0.02) 30%,
+            rgba(var(--color-core-surface-rgb), 0.5)
+        );
+    
+        box-shadow: 
+            0 -10px 40px rgba(255,255,255,0.15),
+            0 20px 40px rgba(0,0,0,0.4);
+}
+.elevated-structure {
+    background: rgba(var(--color-core-surface-rgb), 0.6);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    padding: 20px;
+
+    margin-top: var(--space-lg);
+}
+.backlight-section {
+    position: relative;
+    overflow: visible;
+}
+.backlight {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+    z-index: 0;
+}
+.backlight::before {
+    content: "";
+
+    width: 1152px;
+    height: 170px;
+
+    border-radius: var(--radius-lg);
+
+    background: radial-gradient(
+        40% 147% at 50% 46.2%,
+        rgba(255,119,119,.2) 5%,
+        rgba(154,170,255,.11) 60%,
+        rgba(255,192,192,0) 140%);
+}

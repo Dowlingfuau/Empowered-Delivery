@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operational Intelligence Hub</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <style>
+        /* Hide native Blazor error UI by default; only show when script sets it visible */
+        #blazor-error-ui { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); color: #fff; padding: 8px 12px; z-index: 10000; font-weight: 600; box-sizing: border-box; }
+        #blazor-error-ui .reload, #blazor-error-ui .dismiss { cursor: pointer; margin-left: 12px; color: inherit; text-decoration: none; }
+
+        /* Keep the app root layout untouched so the SPA renders full-width */
+        #app { min-height: 100vh; }
+
+        /* Loading overlay centers the spinner without affecting layout */
+        #loading-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--surface-base-bg, rgba(255,255,255,0.95)); z-index: 9999; }
+        #loading-overlay.hidden { display: none !important; }
+
+        svg.loading-progress { width: 72px; height: 72px; transform-origin: 50% 50%; animation: spin 1s linear infinite; }
+        svg.loading-progress circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+        svg.loading-progress circle:first-of-type { stroke: rgba(0,0,0,0.08); }
+        svg.loading-progress circle:last-of-type { stroke: var(--color-accent-blue, #0078d4); stroke-dasharray: 150; stroke-dashoffset: 30; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+    <script>
+        // Diagnostics are off by default; enable via `enableBlazorDiagnostics()` in console
+        window.__enableBlazorDiagnostics = false;
+        window.enableBlazorDiagnostics = function(){
+            window.__enableBlazorDiagnostics = true;
+            if (window.fetchBootJson) try { window.fetchBootJson(); } catch(e) { console.warn('fetchBootJson failed', e); }
+            console.warn('Blazor diagnostics enabled');
+        };
+    </script>
+</head>
+
+<script>
+    window.getViewportWidth = () => window.innerWidth;
+</script>
+
+<body>
+    <div id="app"></div>
+
+    <div id="loading-overlay" aria-hidden="true">
+        <div class="loading-contents">
+            <svg class="loading-progress" role="img" aria-label="Loading">
+                <circle r="40%" cx="50%" cy="50%" />
+                <circle r="40%" cx="50%" cy="50%" />
+            </svg>
+            <div class="loading-progress-text" aria-hidden="true"></div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        <span>An unhandled error has occurred.</span>
+        <span id="error-detail"></span>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script>
+    // Attach dismiss/reload handlers and keep the UI hidden by default
+    (function(){
+        try {
+            const el = document.getElementById('blazor-error-ui');
+            if (!el) return;
+            // ensure default hidden (CSS handles this) but set explicit style for robustness
+            if (!el.style.display) el.style.display = 'none';
+            el.querySelectorAll('.reload').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); try { location.reload(); } catch(_){} }));
+            el.querySelectorAll('.dismiss').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); try { el.style.display='none'; } catch(_){} }));
+        } catch (e) { /* noop */ }
+    })();
+    </script>
+    <!-- Chart.js & plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+    <!-- Our chart helper functions -->
+    <script src="js/ChartHelpers.js"></script>
+    <script src="js/TooltipHelpers.js"></script>
+    
+    <!-- Enhanced Blazor error logging: capture global errors and unhandled promise
+         rejections early, write detailed info to console and the Blazor error UI. -->
+    <script>
+    (function () {
+        const blazorErrorUI = document.getElementById('blazor-error-ui');
+        const errorDetail = document.getElementById('error-detail');
+
+        function setErrorDetail(text) {
+            try {
+                if (errorDetail) {
+                    errorDetail.textContent = String(text);
+                }
+            } catch (e) { console.warn('Failed to set error detail element', e); }
+        }
+
+        function logErrorObject(err) {
+            try {
+                if (!err) return;
+                if (err instanceof Error) {
+                    console.error('Blazor error:', err.message);
+                    console.error(err.stack || err);
+                    setErrorDetail(err.message + '\n' + (err.stack || ''));
+                    window.__lastBlazorError = err;
+                } else if (err && err.message) {
+                    console.error('Blazor error:', err.message);
+                    console.error(err);
+                    setErrorDetail(err.message + '\n' + JSON.stringify(err));
+                    window.__lastBlazorError = err;
+                } else {
+                    console.error('Blazor error (non-Error):', err);
+                    setErrorDetail(JSON.stringify(err));
+                    window.__lastBlazorError = err;
+                }
+            } catch (e) {
+                console.error('Failed to log Blazor error object', e);
+            }
+        }
+
+        window.addEventListener('error', function (evt) {
+            try {
+                console.error('Global error event:', evt.message, 'at', evt.filename + ':' + evt.lineno + ':' + evt.colno);
+                if (evt.error) logErrorObject(evt.error);
+                else setErrorDetail(evt.message + ' @ ' + evt.filename + ':' + evt.lineno + ':' + evt.colno);
+                if (blazorErrorUI) blazorErrorUI.style.display = 'block';
+            } catch (e) { console.error(e); }
+        });
+
+        window.addEventListener('unhandledrejection', function (evt) {
+            try {
+                console.error('Unhandled promise rejection:', evt.reason);
+                logErrorObject(evt.reason);
+                if (blazorErrorUI) blazorErrorUI.style.display = 'block';
+            } catch (e) { console.error(e); }
+        });
+
+        // Keep the last error accessible for quick inspection
+        window.__lastBlazorError = null;
+
+        // Capture last console.error args for diagnostics
+        const originalConsoleError = console.error.bind(console);
+        console.error = function () {
+            try { window.__lastBlazorError = Array.from(arguments); } catch (e) { /* ignore */ }
+            originalConsoleError.apply(console, arguments);
+        };
+
+        if (blazorErrorUI) {
+            const observer = new MutationObserver(function (mutations) {
+                for (const m of mutations) {
+                    if (m.type === 'attributes' && (m.attributeName === 'style' || m.attributeName === 'class')) {
+                        try {
+                            const visible = window.getComputedStyle(blazorErrorUI).display !== 'none';
+                            if (visible) {
+                                console.group('Blazor Error UI shown');
+                                try {
+                                    console.log('Error detail element:', errorDetail ? errorDetail.textContent : '(none)');
+                                    if (window.__lastBlazorError) console.error('Last captured error:', window.__lastBlazorError);
+                                    console.error('Stack at UI show:', new Error().stack);
+                                    if (window.__enableBlazorDiagnostics && window.dumpBlazorDiagnostics) window.dumpBlazorDiagnostics().then(r => console.log('dumpBlazorDiagnostics result:', r)).catch(e => console.error(e));
+                                } catch (e) { console.error(e); }
+                                console.groupEnd();
+                            }
+                        } catch (e) { console.error('Observer failure', e); }
+                    }
+                }
+            });
+            observer.observe(blazorErrorUI, { attributes: true, attributeFilter: ['style', 'class'] });
+
+            if (errorDetail) {
+                const contentObserver = new MutationObserver(function () {
+                    const content = (errorDetail.textContent || '').trim();
+                    if (content) {
+                        console.group('Blazor Error UI content updated');
+                        try {
+                            console.error('Error detail content:', content);
+                            if (window.__lastBlazorError) console.error('Last captured error:', window.__lastBlazorError);
+                        } catch (e) { console.error(e); }
+                        console.groupEnd();
+                    }
+                });
+                contentObserver.observe(errorDetail, { childList: true, characterData: true, subtree: true });
+            }
+        }
+
+        window.showBlazorErrorDetails = function () {
+            console.log('Error detail:', errorDetail ? errorDetail.textContent : null);
+            console.log('Last captured error:', window.__lastBlazorError);
+            return { detail: errorDetail ? errorDetail.textContent : null, last: window.__lastBlazorError };
+        };
+
+        window.__logBlazorError = function (err) {
+            try { logErrorObject(err); } catch (e) { console.error('Failure inside __logBlazorError', e); }
+        };
+    })();
+    </script>
+
+    <script>
+    (function(){
+        async function fetchBootJson(){
+            try {
+                const res = await fetch('/_framework/blazor.boot.json', { cache: 'no-store' });
+                if (!res.ok) { console.warn('Failed to fetch blazor.boot.json', res.status); return null; }
+                const boot = await res.json();
+                console.group('blazor.boot.json');
+                try { console.log('boot.resources keys:', Object.keys(boot.resources || {})); } catch(e){}
+                try { console.log('runtime:', boot.resources && boot.resources.runtime ? boot.resources.runtime : null); } catch(e){}
+                try { console.log('assembly count:', boot.resources && boot.resources.assembly ? Object.keys(boot.resources.assembly).length : 0); } catch(e){}
+                const allRes = [];
+                try {
+                    for (const k of ['runtime','assembly','pdb','native','satelliteResources']) {
+                        const coll = boot.resources && boot.resources[k];
+                        if (!coll) continue;
+                        if (typeof coll === 'object') {
+                            for (const name of Object.keys(coll)) allRes.push(name);
+                        }
+                    }
+                } catch(e){}
+                const wasmRefs = allRes.filter(n => /\.wasm$/i.test(n));
+                console.log('wasm refs:', wasmRefs);
+                console.groupEnd();
+                return boot;
+            } catch (e) {
+                console.error('Error fetching/parsing blazor.boot.json', e);
+                return null;
+            }
+        }
+
+        window.dumpBlazorDiagnostics = async function(){
+            try {
+                const boot = await fetchBootJson();
+                console.log('Performance entries (framework/wasm):', performance.getEntries().filter(e => /(\.wasm|_framework)/i.test(e.name)).map(e => ({ name: e.name, initiator: e.initiatorType, size: e.transferSize })));
+                console.log('navigator.userAgent:', navigator.userAgent);
+                console.log('blazor-error-ui:', document.getElementById('blazor-error-ui')?.outerHTML);
+                console.log('error-detail:', document.getElementById('error-detail')?.textContent);
+                console.log('__lastBlazorError:', window.__lastBlazorError);
+                console.log('boot.json object:', boot);
+                return { boot, lastError: window.__lastBlazorError };
+            } catch (e) { console.error('dumpBlazorDiagnostics failed', e); throw e; }
+        };
+
+        // Expose the boot.json fetch helper so diagnostics can be enabled from the console
+        try { window.fetchBootJson = fetchBootJson; } catch (e) { /* ignore */ }
+
+    })();
+    </script>
+
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+
+    <script>
+    (function () {
+        function tryLog(err) {
+            try {
+                if (window.__logBlazorError) window.__logBlazorError(err);
+                else {
+                    const el = document.getElementById('error-detail');
+                    if (el) el.textContent = String(err && err.message ? err.message : err);
+                    const ui = document.getElementById('blazor-error-ui');
+                    if (ui) ui.style.display = 'block';
+                }
+            } catch (e) { console.error('Failed to log Blazor start error', e); }
+        }
+
+        function startBlazor() {
+            if (window.Blazor && typeof Blazor.start === 'function') {
+                const originalStart = Blazor.start.bind(Blazor);
+                Blazor.start = function (opts) {
+                    const p = originalStart(opts);
+                    if (p && typeof p.then === 'function') {
+                        p.catch(err => {
+                            console.error('Blazor.start rejected:', err);
+                            tryLog(err);
+                        });
+                        p.then(() => {
+                            try {
+                                const overlay = document.getElementById('loading-overlay');
+                                if (overlay) overlay.classList.add('hidden');
+                            } catch (e) { /* ignore */ }
+                        });
+                    }
+                    return p;
+                };
+                try {
+                    const promise = Blazor.start({ logLevel: 4 });
+                    if (promise && typeof promise.catch === 'function') {
+                        promise.catch(err => {
+                            console.error('Blazor.start top-level catch:', err);
+                            tryLog(err);
+                        });
+                    }
+                } catch (err) {
+                    console.error('Blazor.start threw synchronously:', err);
+                    tryLog(err);
+                }
+            } else {
+                console.warn('Blazor not available to start; retrying shortly...');
+                setTimeout(startBlazor, 50);
+            }
+        }
+
+        startBlazor();
+    })();
+    </script>
+
+</body>
+
+</html>
