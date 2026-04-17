@@ -6,7 +6,7 @@ namespace OperationalIntelligenceHub.Services
     public class BacklogHealthSignalBuilderService
     {
         // TODO: Add metadata
-        public List<Signal> BuildSignals(
+        public (List<Signal> Signals, List<SignalTrace> SignalTraces) BuildSignals(
             Guid workspaceId,
             Guid squadId,
             int totalItems,
@@ -23,6 +23,7 @@ namespace OperationalIntelligenceHub.Services
         )
         {
             var signals = new List<Signal>();
+            var signalTraces = new List<SignalTrace>();
 
             // ================================
             // BACKLOG SIZE
@@ -84,6 +85,42 @@ namespace OperationalIntelligenceHub.Services
             };
 
             signals.Add(sizeSignal);
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "BacklogSize",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput
+                    {
+                        Name = "TotalItems",
+                        Value = totalItems,
+                        Source = "BacklogInput"
+                    },
+                    new TraceInput
+                    {
+                        Name = "ThroughputHistory",
+                        Value = throughputHistory.ToList(),
+                        Source = "ThroughputHistory"
+                    },
+                    new TraceInput
+                    {
+                        Name = "AverageThroughput",
+                        Value = avgThroughput,
+                        Source = "ThroughputHistory"
+                    }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep
+                    {
+                        StepName = "WeeksOfWork",
+                        Description = "TotalItems divided by throughput",
+                        Value = weeksofWork
+                    }
+                }
+            });
 
             // ================================
             // BACKLOG AGE
@@ -196,6 +233,30 @@ namespace OperationalIntelligenceHub.Services
             };
             
             signals.Add(ageSignal);
+            // Trace for BacklogAge
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "BacklogAge",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "FreshItems", Value = freshItems, Source = "BacklogInput" },
+                    new TraceInput { Name = "MidAgeItems", Value = midAgeItems, Source = "BacklogInput" },
+                    new TraceInput { Name = "OldItems", Value = oldItems, Source = "BacklogInput" },
+                    new TraceInput { Name = "TotalAgeItems", Value = totalAgeItems, Source = "Calculation" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "FreshPercent", Description = "Fresh items / total age items", Value = freshPercent },
+                    new CalculationStep { StepName = "MidPercent", Description = "Mid-age items / total age items", Value = midPercent },
+                    new CalculationStep { StepName = "OldPercent", Description = "Old items / total age items", Value = oldPercent },
+                    new CalculationStep { StepName = "DistributionDistance", Description = "Sum absolute differences between actual and ideal distribution", Value = distributionDistance },
+                    new CalculationStep { StepName = "AgeScore", Description = "Converted score from distribution distance", Value = ageScore },
+                    new CalculationStep { StepName = "Bias", Description = "Fresh percent minus old percent", Value = bias },
+                    new CalculationStep { StepName = "Shape", Description = "Shape classification of age distribution", Value = shape }
+                }
+            });
             }
                 
             // TODO: Add recency 
@@ -286,6 +347,28 @@ namespace OperationalIntelligenceHub.Services
             
             signals.Add(volatilitySignal);
 
+            // Trace for BacklogVolatility
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "BacklogVolatility",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "ItemsAdded", Value = itemsAdded, Source = "BacklogInput" },
+                    new TraceInput { Name = "ItemsCompleted", Value = itemsCompleted, Source = "BacklogInput" },
+                    new TraceInput { Name = "TotalItems", Value = totalItems, Source = "BacklogInput" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "Ratio", Description = "Items added divided by items completed", Value = ratio },
+                    new CalculationStep { StepName = "BalanceRatio", Description = "Symmetric balance score (0-1)", Value = balanceRatio },
+                    new CalculationStep { StepName = "RelativeDelta", Description = "Relative change scaled by backlog size", Value = relativeDelta },
+                    new CalculationStep { StepName = "VolatilityContinuum", Description = "Continuum value for volatility UX", Value = volatilityContinuumValue },
+                    new CalculationStep { StepName = "Pattern", Description = "Detected pattern", Value = pattern }
+                }
+            });
+
             Console.WriteLine(
             $"VOL → ratio:{ratio:F2} | score:{balanceRatio:F2} | dir:{volatilityDirection} | delta:{relativeDelta:F2} | pattern:{pattern}");
 
@@ -355,16 +438,43 @@ namespace OperationalIntelligenceHub.Services
 
             signals.Add(prioritisationSignal);
 
+            // Trace for BacklogPrioritisation
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "BacklogPrioritisation",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "HighPriority", Value = highPriority, Source = "BacklogInput" },
+                    new TraceInput { Name = "MediumPriority", Value = mediumPriority, Source = "BacklogInput" },
+                    new TraceInput { Name = "LowPriority", Value = lowPriority, Source = "BacklogInput" },
+                    new TraceInput { Name = "TotalItems", Value = totalItems, Source = "BacklogInput" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "HighPercent", Description = "High priority percentage", Value = highPercent },
+                    new CalculationStep { StepName = "MediumPercent", Description = "Medium priority percentage", Value = mediumPercent },
+                    new CalculationStep { StepName = "LowPercent", Description = "Low priority percentage", Value = lowPercent },
+                    new CalculationStep { StepName = "UnprioritisedPercent", Description = "Unprioritised percentage", Value = unprioritisedPercent },
+                    new CalculationStep { StepName = "Coverage", Description = "Coverage (1 - unprioritised percent)", Value = coverage },
+                    new CalculationStep { StepName = "DistributionScore", Description = "Balance score for distribution", Value = distributionScore },
+                    new CalculationStep { StepName = "PrioritisationScore", Description = "Combined prioritisation score", Value = prioritisationScore },
+                    new CalculationStep { StepName = "Direction", Description = "Direction indicator (-1,0,1)", Value = prioritisationDirection }
+                }
+            });
+
             // ================================
             // DELIVERY PREDICTABILITY
             // ================================
 
             double avg = avgThroughput;
             double stdDev = 0;
+            double variance = 0;
 
             if (throughputHistory.Any() && avg > 0)
             {
-                var variance = throughputHistory.Sum(v => Math.Pow(v - avg, 2)) / throughputHistory.Count;
+                variance = throughputHistory.Sum(v => Math.Pow(v - avg, 2)) / throughputHistory.Count;
                 stdDev = Math.Sqrt(variance);
             }
 
@@ -379,6 +489,82 @@ namespace OperationalIntelligenceHub.Services
                 { "coefficientOfVariation", cv },
                 { "historyLength", throughputHistory.Count }
             };
+
+            signals.Add(predictabilitySignal);
+
+            // Build trace for Predictability
+            var predictabilityCalculationSteps = new List<CalculationStep>();
+            if (throughputHistory.Any() && avg > 0)
+            {
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "AverageThroughput",
+                    Description = "Average of throughput history",
+                    Value = avg
+                });
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "Variance",
+                    Description = "Variance of throughput values",
+                    Value = variance
+                });
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "CoefficientOfVariation",
+                    Description = "Standard deviation divided by mean",
+                    Value = cv
+                });
+            }
+            else
+            {
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "InsufficientData",
+                    Description = "Insufficient data for predictability calculation",
+                    Value = null
+                });
+            }
+
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "Predictability",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput
+                    {
+                        Name = "ThroughputHistory",
+                        Value = throughputHistory.ToList(),
+                        Source = "ThroughputHistory"
+                    },
+                    new TraceInput
+                    {
+                        Name = "AverageThroughput",
+                        Value = avg,
+                        Source = "ThroughputHistory"
+                    },
+                    new TraceInput
+                    {
+                        Name = "Variance",
+                        Value = variance,
+                        Source = "Calculation"
+                    },
+                    new TraceInput
+                    {
+                        Name = "StandardDeviation",
+                        Value = stdDev,
+                        Source = "Calculation"
+                    },
+                    new TraceInput
+                    {
+                        Name = "CoefficientOfVariation",
+                        Value = cv,
+                        Source = "Calculation"
+                    }
+                },
+                CalculationSteps = predictabilityCalculationSteps
+            });
 
             // ================================
             // RAW SIGNALS
@@ -395,6 +581,20 @@ namespace OperationalIntelligenceHub.Services
                 SourceDiagnostic = "BacklogHealth",
                 Timestamp = DateTime.UtcNow
             });
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "ItemsAdded",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "ItemsAdded", Value = itemsAdded, Source = "BacklogInput" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "RawValue", Description = "Raw input value", Value = itemsAdded }
+                }
+            });
 
             signals.Add(new Signal
             {
@@ -406,6 +606,20 @@ namespace OperationalIntelligenceHub.Services
                 Category = "Input",
                 SourceDiagnostic = "BacklogHealth",
                 Timestamp = DateTime.UtcNow
+            });
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "ItemsCompleted",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "ItemsCompleted", Value = itemsCompleted, Source = "BacklogInput" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "RawValue", Description = "Raw input value", Value = itemsCompleted }
+                }
             });
             // TODO: Split WorkHorizon into:
             // - BacklogHorizon (time-based)
@@ -421,6 +635,22 @@ namespace OperationalIntelligenceHub.Services
                 SourceDiagnostic = "BacklogHealth",
                 Timestamp = DateTime.UtcNow
             });
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "WorkHorizon",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "TotalItems", Value = totalItems, Source = "BacklogInput" },
+                    new TraceInput { Name = "ThroughputHistory", Value = throughputHistory.ToList(), Source = "ThroughputHistory" },
+                    new TraceInput { Name = "AverageThroughput", Value = avgThroughput, Source = "ThroughputHistory" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "WeeksOfWork", Description = "Total items divided by average throughput", Value = weeksofWork }
+                }
+            });
             signals.Add(new Signal
             {
                 Name = "FlowBalance",
@@ -431,6 +661,22 @@ namespace OperationalIntelligenceHub.Services
                 Category = "Calculation",
                 SourceDiagnostic = "BacklogHealth",
                 Timestamp = DateTime.UtcNow
+            });
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "FlowBalance",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "ItemsAdded", Value = itemsAdded, Source = "BacklogInput" },
+                    new TraceInput { Name = "ItemsCompleted", Value = itemsCompleted, Source = "BacklogInput" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "Ratio", Description = "Items added / items completed", Value = ratio },
+                    new CalculationStep { StepName = "BalanceScore", Description = "Balance score derived from ratio", Value = balanceRatio }
+                }
             });
             signals.Add(new Signal
             {
@@ -443,9 +689,24 @@ namespace OperationalIntelligenceHub.Services
                 SourceDiagnostic = "BacklogHealth",
                 Timestamp = DateTime.UtcNow
             });
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = "OldWorkPercentage",
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = "OldItems", Value = oldItems, Source = "BacklogInput" },
+                    new TraceInput { Name = "TotalAgeItems", Value = totalAgeItems, Source = "Calculation" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "OldPercent", Description = "Old items / total age items", Value = oldPercent }
+                }
+            });
 
 
-            return signals;
+            return (signals, signalTraces);
         }
 
         private Signal CreateSignal(string name, string domain, double rawValue, double normalisedValue)
@@ -463,5 +724,6 @@ namespace OperationalIntelligenceHub.Services
                 Confidence = 1.0
             };
         }
+
     }
 }
