@@ -1,349 +1,404 @@
-# Maturity Assessment — Signal Definitions (Working Context)
+# Maturity Assessment — Signal Model (Working Context)
 
 ## Purpose
 
-This document defines how Maturity Assessment signals are constructed, interpreted, and used.
+Defines how maturity signals are constructed from behavioural data and how they drive system insights.
 
-Unlike Backlog Health, Maturity signals are:
+This document is aligned to:
 
-* qualitative
-* behaviour-driven
-* role-dependent
-* comparative (disparity-based)
-
-This document provides the source of truth for:
-
-* signal meaning
-* scoring logic
-* interpretation guidance
+* behaviour catalogue
+* behaviour → signal mapping
+* derived signal rules
+* insight rules
 
 ---
 
-# 1. Core Model
+# 1. System Overview
 
-Maturity signals follow:
+Maturity Assessment pipeline:
 
-Responses → Behaviour Mapping → Role Scores → Aggregation → Disparity → Normalised Signal
-
----
-
-## Key Difference from Backlog Health
-
-Backlog Health:
-
-* data-driven (facts, metrics)
-
-Maturity Assessment:
-
-* behaviour-driven (perception, practice, alignment)
+Responses
+→ Behaviour Identification
+→ Behaviour Level (1–5)
+→ Signal Mapping
+→ Role-Based Signal Scores
+→ Aggregation (Averages)
+→ Disparity (Gaps)
+→ Derived Signals
+→ Insights
 
 ---
 
-# 2. Input Structure
+# 2. Behaviour Model (FOUNDATION)
 
-## Inputs
+Maturity is defined through behaviours.
 
-* Responses (survey or assessment answers)
-* Role (e.g. Leader, Product Owner, Team)
-* Behaviour Indicators (mapped from responses)
+Each behaviour:
+
+* belongs to a **role (lens)**
+* belongs to a **theme (Ownership, Trust, Value, Learning, System)**
+* has a **level (1–5)**
+* includes:
+
+  * signals (indicators)
+  * examples (real-world patterns)
 
 ---
 
 ## Example
 
+From behaviour catalogue: 
+
+Level 1 Ownership (Squad):
+
+* “Work ownership sits with individuals”
+* “Collaboration is limited”
+
+Level 5 Ownership:
+
+* “Team leads value creation”
+* “Proactively improves product outcomes”
+
+---
+
+## Key Insight
+
+Levels are not arbitrary:
+
+👉 They represent **evolution of capability**
+
+---
+
+# 3. Behaviour → Signal Mapping
+
+Each behaviour maps to a signal.
+
+From mapping: 
+
+Example:
+
 ```text
-Leader → “Decisions are centralised”
-Team → “We self-organise”
+Squad_Ownership_L3 → TeamOwnershipLevel
+Leader_Trust_L2 → LeaderTrustLevel
 ```
 
 ---
 
-👉 These inputs may conflict
+## Result
 
-This is intentional.
+Signals are:
 
----
-
-# 3. Behaviour Mapping
-
-Each response maps to:
-
-* one or more behaviours
-* within a specific domain (e.g. Trust, Ownership, Flow)
+* theme-based
+* role-specific
 
 ---
 
-## Example
+## Signal Structure
 
-```text
-Response: “Work is assigned by leadership”
-→ Behaviour: Low Ownership
-→ Domain: Team Autonomy
-```
+SignalName = <Role><Theme>Level
 
----
+Examples:
 
-## Purpose
-
-To translate subjective responses into structured indicators.
+* TeamOwnershipLevel
+* LeaderTrustLevel
+* POValueLevel
 
 ---
 
-# 4. Role-Based Scoring
+# 4. Role-Based Signal Scoring
 
 Each role produces:
 
-* a score per domain
-* based on behaviour indicators
+* one score per theme
 
 ---
 
 ## Example
 
 ```text
-Leader Trust Score: 0.8
-Team Trust Score: 0.4
+TeamOwnershipLevel = 0.6
+LeaderOwnershipLevel = 0.3
 ```
 
 ---
 
 ## Meaning
 
-* high score → stronger maturity in that domain
-* low score → weaker maturity
+* higher score → higher maturity level
+* lower score → earlier stage behaviour
 
 ---
 
 # 5. Aggregation
 
-Scores are aggregated to form:
+Signals are aggregated into:
 
-* overall signal score
-* domain-level maturity
-
----
-
-## Methods
-
-* average scoring
-* weighted scoring (if roles differ in importance)
+* theme averages
+* system-level indicators
 
 ---
 
-# 6. Disparity (CRITICAL CONCEPT)
-
-## What it represents
-
-Difference between roles’ perception of the same domain.
-
----
-
-## Calculation
-
-Disparity = difference between role scores
-
-Example:
+## Example
 
 ```text
-Leader: 0.8
-Team: 0.4
+OwnershipAverage =
+(TeamOwnership + POOwnership + LeaderOwnership) / N
+```
 
-Disparity = 0.4
+---
+
+# 6. Disparity (CRITICAL)
+
+Disparity measures difference between roles.
+
+---
+
+## Example
+
+```text
+LeaderTrustLevel = 0.8
+TeamTrustLevel = 0.4
+
+TrustGap = 0.4
+```
+
+---
+
+## Insight Rules Use This
+
+From insights: 
+
+```text
+trust_gap >= 2 → alignment issue
 ```
 
 ---
 
 ## Meaning
 
-* low disparity → aligned understanding
-* high disparity → misalignment / dysfunction
+* low disparity → aligned system
+* high disparity → hidden dysfunction
 
 ---
 
-## Continuum
+## Key Principle
 
-Aligned ← → Misaligned
-
-* 0.0 → perfect agreement
-* 1.0 → complete disagreement
+👉 Disparity often matters more than absolute score
 
 ---
 
-## Notes
+# 7. Derived Signals
 
-Disparity is often more important than absolute score.
+Derived signals combine multiple signals.
 
----
-
-# 7. Signal Formation
-
-Each maturity signal includes:
-
-* aggregated score
-* disparity
-* contributing behaviours
+From rules: 
 
 ---
 
-## Example Signal
+## Example
 
-### Team Autonomy
+### AutonomyFriction
 
-Inputs:
-
-* behavioural indicators
-* role responses
-
-Outputs:
-
-* AutonomyScore
-* DisparityScore
+```text
+TeamOwnershipLevel >= 0.7
+AND LeaderTrustLevel <= 0.4
+→ High
+```
 
 ---
 
-# 8. Continuum Model
+## Meaning
 
-Each maturity signal exists on a continuum.
-
----
-
-## Example Continua
-
-### Trust
-
-Low Trust ← → High Trust
+* teams are capable
+* leadership is restrictive
 
 ---
 
-### Ownership
+## Structure
 
-Command-Control ← → Self-Organising
+Each derived signal includes:
 
----
-
-### Decision Making
-
-Centralised ← → Distributed
-
----
-
-### Flow
-
-Fragmented ← → Optimised
+* source signals
+* conditions
+* intensity (Low / Moderate / High)
+* interpretation
 
 ---
 
-## Important
+## Categories
 
-Signals are not “good or bad” in isolation.
-
-They describe:
-
-* system state
-* tendencies
-* operating model
+* Positive
+* Opportunity
+* Constraint
+* Risk
 
 ---
 
-# 9. Interpretation Principles
+# 8. Insight Layer
+
+Insights are triggered from:
+
+* averages
+* gaps
+* derived signals
 
 ---
 
-## 1. Absolute Score
+## Example
 
-Indicates strength of maturity.
+From insight rules: 
 
----
+### Trust Alignment Gap
 
-## 2. Disparity
-
-Indicates alignment between roles.
-
----
-
-## 3. Combined Meaning
-
-Example:
-
-* High score + High disparity → unstable maturity
-* Low score + Low disparity → consistently immature
-* High score + Low disparity → healthy maturity
-
----
-
-# 10. Signal Interaction
-
-Signals combine to form deeper insights.
-
----
-
-## Examples
-
-* Trust + Autonomy → empowerment
-* Ownership + Flow → delivery effectiveness
-* Decision Making + Disparity → governance issues
-
----
-
-# 11. Trace Requirements
-
-Each maturity signal must be traceable.
-
----
-
-## Inputs
-
-* responses per role
-* behaviour indicators
-
----
-
-## Calculation
-
-* role scores
-* aggregation logic
-* disparity calculation
+* metric: trust_gap
+* threshold: 2
 
 ---
 
 ## Output
 
-* final score
+* title
+* description
+* recommendation
+
+---
+
+# 9. Continuum Model
+
+Each signal exists on a maturity continuum:
+
+---
+
+## Ownership
+
+Individual → Team → System Ownership
+
+---
+
+## Trust
+
+Control → Collaboration → Autonomy
+
+---
+
+## Value
+
+Output → Outcome → Value
+
+---
+
+## Learning
+
+Compliance → Reflection → Evolution
+
+---
+
+## System
+
+Local → Cross-team → Organisational
+
+---
+
+---
+
+# 10. Interpretation Principles
+
+---
+
+## 1. Absolute Level
+
+Indicates maturity stage
+
+---
+
+## 2. Disparity
+
+Indicates alignment between roles
+
+---
+
+## 3. Derived Signals
+
+Reveal system dynamics
+
+---
+
+## Combined Interpretation
+
+| Condition                   | Meaning               |
+| --------------------------- | --------------------- |
+| High score + low disparity  | healthy maturity      |
+| High score + high disparity | unstable / fragile    |
+| Low score + low disparity   | consistent immaturity |
+| Mixed signals               | transitional system   |
+
+---
+
+# 11. Trace Requirements (IMPORTANT)
+
+Each maturity signal must expose:
+
+---
+
+## Inputs
+
+* behaviours selected
+* role responses
+
+---
+
+## Calculation
+
+* level mapping
+* scoring
+* aggregation
 * disparity
-* interpretation context
+
+---
+
+## Derived
+
+* rule evaluation
+* condition results
+
+---
+
+## Output
+
+* final signal
+* gap values
+* derived signals
+* triggered insights
 
 ---
 
 # 12. Validation Guidance
 
-When testing maturity signals:
-
 ---
 
 ## Check:
 
-1. Responses map correctly to behaviours
-2. Role scores are accurate
-3. Disparity is calculated correctly
-4. Signal meaning aligns with real-world expectations
+* behaviours match responses
+* signal levels are correct
+* gaps reflect real disagreement
+* derived signals trigger correctly
 
 ---
 
 ## Red Flags
 
-* identical scores across roles when responses differ
-* no disparity when disagreement exists
-* overly sensitive scoring
-* signals not reflecting behaviours
+* identical scores across roles with different inputs
+* no gaps when disagreement exists
+* incorrect rule triggering
+* signals not matching behaviour descriptions
 
 ---
 
 # 13. Future Enhancements
 
-* confidence scoring (response consistency)
-* pattern detection across roles
+* confidence scoring
 * behavioural clustering
-* cross-domain maturity insights
-* integration with operational signals (Backlog Health)
+* trend analysis
+* cross-diagnostic insights (with Backlog Health)
 
 ---
