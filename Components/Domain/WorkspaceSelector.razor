@@ -3,7 +3,7 @@
 @inject WorkspaceRepositoryService Repository
 
 <div class="nav-section">Select Workspace</div>
-<select class="form-select" value="@SelectedWorkspaceId" @onchange="OnWorkspaceChanged">
+<select class="select" value="@SelectedWorkspaceId" @onchange="OnWorkspaceChanged">
     <option value="">-- ALL WORKSPACES --</option>
     @foreach (var ws in Workspaces)
     {
