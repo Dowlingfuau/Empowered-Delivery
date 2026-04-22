@@ -440,5 +440,46 @@
       "Signals": ["Leaders shape how the organisation evolves", "Delivery systems continuously adapt"], 
       "Examples": ["Leaders redesign organisational structures when needed", "Teams influence how the organisation works"] }
     ]
+  },
+
+  "EngineeringManager": {
+    "Ownership": [
+      { "Level": 1, "Headline": "Directs engineering work", "Signals": ["Manager assigns tasks and technical approach", "Day-to-day decisions are made by manager"], "Examples": ["Creates and assigns tickets", "Approves PRs before merge; steps into debugging decisions"] },
+      { "Level": 2, "Headline": "Delegates and develops leads", "Signals": ["Delegates assignment and tactical choices to tech leads", "Coaches execution and short-term planning"], "Examples": ["Empowers TLs to assign work", "Delegates code-review ownership; runs targeted 1:1 coaching"] },
+      { "Level": 3, "Headline": "Accountable for team outcomes", "Signals": ["Owns delivery, quality and team goals", "Prioritises outcomes not just tasks"], "Examples": ["Defines team OKRs with product", "Leads retros with action ownership; owns release quality metrics"] },
+      { "Level": 4, "Headline": "Coordinates cross-team delivery", "Signals": ["Negotiates priorities across squads, product and platform", "Resolves cross-team dependencies and blockers"], "Examples": ["Runs cross-team release planning", "Negotiates resource allocation; resolves architectural conflicts"] },
+      { "Level": 5, "Headline": "Drives engineering ownership & strategy", "Signals": ["Sets long-term engineering standards, charters and architecture direction", "Ensures teams take end-to-end ownership of outcomes"], "Examples": ["Defines platform roadmap and SLAs", "Sets engineering KPIs; sponsors large architecture initiatives"] }
+    ],
+    "Trust": [
+      { "Level": 1, "Headline": "Control-oriented oversight", "Signals": ["Decisions validated by manager", "Limited autonomy for engineers"], "Examples": ["Mandatory sign-offs for major changes", "Close PR gating"] },
+      { "Level": 2, "Headline": "Coaching builds confidence", "Signals": ["Manager uses 1:1s and feedback to grow autonomy", "Trust increases with coaching"], "Examples": ["Regular feedback cadence", "Mentor assignments for juniors"] },
+      { "Level": 3, "Headline": "Delegated decision-making", "Signals": ["Senior engineers and TLs make technical choices", "Manager intervenes only on escalations"], "Examples": ["Teams lead design reviews", "TLs approve implementations"] },
+      { "Level": 4, "Headline": "Cultivates psychological safety & leadership", "Signals": ["Team takes informed risks", "Failures used as learning opportunities"], "Examples": ["Blameless postmortems", "Sponsorship of internal leaders"] },
+      { "Level": 5, "Headline": "Organisation-level trust builder", "Signals": ["Manager influences execs to grant autonomy", "Builds cross-org transparency and accountability"], "Examples": ["Advocates for decentralised decision making", "Publishes open metrics and postmortems"] }
+    ],
+    "Value": [
+      { "Level": 1, "Headline": "Delivery & efficiency focus", "Signals": ["Success measured by throughput and schedules", "Focus on hitting release dates"], "Examples": ["Tracks velocity", "Focuses on hitting delivery dates"] },
+      { "Level": 2, "Headline": "Predictability & quality", "Signals": ["Emphasis on stable delivery and reduced defects", "Introduces quality controls"], "Examples": ["Introduces CI gates", "Targets bug-rate reductions"] },
+      { "Level": 3, "Headline": "Outcome-driven engineering", "Signals": ["Measures feature impact and user outcomes", "Aligns engineering goals to product metrics"], "Examples": ["Tracks feature adoption/retention", "Measures time-to-value after releases"] },
+      { "Level": 4, "Headline": "Optimises cross-team value flow", "Signals": ["Prioritises platform and cross-team investments", "Improves overall throughput/value"], "Examples": ["Funds platform work to reduce cycle time", "Sets shared KPIs across squads"] },
+      { "Level": 5, "Headline": "Engineering aligned to business outcomes", "Signals": ["Engineering OKRs map to business KPIs", "Investment decisions emphasise measurable ROI"], "Examples": ["Drives initiatives tied to revenue/retention", "Reports engineering impact to execs"] }
+    ],
+    "Learning": [
+      { "Level": 1, "Headline": "Supports individual development", "Signals": ["Approves training and ad-hoc learning", "Encourages self-study"], "Examples": ["Pays for courses/conferences", "Assigns online training"] },
+      { "Level": 2, "Headline": "Facilitates team learning", "Signals": ["Enforces retros, brown-bags and knowledge sharing", "Learning integrated into sprint cadence"], "Examples": ["Organises lunch-and-learns", "Ensures retros produce experiments"] },
+      { "Level": 3, "Headline": "Structured career & mentorship", "Signals": ["Provides promotion frameworks and formal mentorship", "Regular coaching and feedback"], "Examples": ["Maps growth paths", "Runs structured mentoring programs"] },
+      { "Level": 4, "Headline": "Builds shared learning systems", "Signals": ["Creates guilds, rotations and repeatable learning programs"], "Examples": ["Runs guilds for platform/architecture", "Sponsors hackweeks and internal training"] },
+      { "Level": 5, "Headline": "Drives enterprise engineering capability", "Signals": ["Designs measurable capability uplift programs and institutional learning"], "Examples": ["Launches internal certification/apprenticeship", "Measures capability improvements over time"] }
+    ],
+    "System": [
+      { "Level": 1, "Headline": "Operates within existing systems", "Signals": ["Uses existing CI/CD, monitoring and processes", "Focuses team on execution"], "Examples": ["Follows standard pipelines and release windows"] },
+      { "Level": 2, "Headline": "Coordinates with stakeholders", "Signals": ["Engages product, QA and ops to align work"], "Examples": ["Attends cross-functional planning", "Liaises with SRE/ops for incidents"] },
+      { "Level": 3, "Headline": "Improves delivery tooling & processes", "Signals": ["Leads improvements to CI, observability and incident response"], "Examples": ["Adds automated deployments", "Standardises logging and alerts"] },
+      { "Level": 4, "Headline": "Designs enabling structures & team models", "Signals": ["Shapes team boundaries, escalation paths and platform services"], "Examples": ["Redefines team charters", "Introduces clear API/contract patterns"] },
+      { "Level": 5, "Headline": "Shapes adaptive engineering organisation & platform", "Signals": ["Leads org design and platform investments for scale"], "Examples": ["Drives platform consolidation", "Leads org redesigns to reduce cognitive load and speed delivery"] }
+    ],
+    "_ImplementationNote": [
+      { "Level": 0, "Headline": "Draft placeholder - not yet integrated", "Signals": ["This EngineeringManager lens is a draft and has not been wired into assessments or descriptors"], "Examples": ["Refine wording and integrate into `MaturityTheme.BehaviouralDescriptors` if desired"] }
+    ]
   }
 }

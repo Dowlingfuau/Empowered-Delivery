@@ -165,26 +165,3 @@
         0 0 12px var(--color-accent),
         0 0 18px var(--color-accent);
 }
-/* Workspace selector styling */
-.workspace-selector select {
-    appearance: auto;
-    background: var(--color-bg-panel);
-    color: var(--text-primary);
-    border: 1px solid var(--color-border);
-}
-.workspace-selector {
-    padding: calc(var(--spacing-unit) * 1.5);
-    position: relative;
-}
-.workspace-popover {
-    position: absolute;
-    left: calc(100% + 8px);
-    top: 0;
-    width: 220px;
-    background: var(--color-bg-panel);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-medium);
-    padding: calc(var(--spacing-unit) * 1);
-    box-shadow: var(--shadow-medium);
-    z-index: var(--z-overlay);
-}
