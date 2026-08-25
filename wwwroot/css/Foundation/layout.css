@@ -12,11 +12,11 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* Environment */
+    /* Environment 
     background: radial-gradient(1200px circle at 0% 0%, rgba(124,58,237,0.18), transparent 60%),
         radial-gradient(900px circle at 100% 0%, rgba(236,72,153,0.12), transparent 60%),
         radial-gradient(1000px circle at 50% 100%, rgba(56,189,248,0.12), transparent 60%),
-        #0B0F1A;
+        #0B0F1A; */
 }
 main {
     flex: 1;
@@ -33,13 +33,20 @@ main {
 ----------------------------------------- */
 .section {
     position: relative;
-    margin-top: var(--space-xl);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
 }
 .section-large {
-    margin-top: var(--space-xxl);
+    padding-top: var(--space-xxl);
+    padding-bottom: var(--space-xxl);
 }
 .section-tight {
-    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    padding-bottom: var(--space-lg);
+}
+.section-break {
+    padding-top: calc(var(--space-xxl) * 2);
+    padding-bottom: calc(var(--space-xxl) * 2);
 }
 
 /* -----------------------------------------
@@ -79,22 +86,71 @@ main {
 }
 
 /* -----------------------------------------
+    STAGE (SYSTEM)
+    Effects Orchestration
+----------------------------------------- */
+.stage {
+    position: relative;
+}
+
+/* -----------------------------------------
     STACK (SYSTEM)
     Vertical layout primitive
 ----------------------------------------- */
+/* Content Stack */
 .stack {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
 }
+.stack-xs {
+    gap: var(--space-xs);
+}
 .stack-sm {
     gap: var(--space-sm);
 }
+/* Structure Stack */
 .stack-lg {
     gap: var(--space-lg);
 }
+/* Flow Stack */
 .stack-xl {
     gap: var(--space-xl);
+}
+/* Focus Stack */
+.stack-xxl {
+    gap: var(--space-xxl);
+}
+
+/* -----------------------------------------
+   GROUPINGS (SYSTEM)
+   Soft Containers
+----------------------------------------- */
+.group {
+    padding: var(--space-md);
+}
+.group-sm {
+    padding: var(--space-sm);
+}
+.group-lg {
+    padding: var(--space-lg);
+}
+.group-xl {
+    padding: var(--space-xl);
+}
+
+/* -----------------------------------------
+   FLOW (SYSTEM)
+   Vertical Spacing between sections
+----------------------------------------- */
+.flow > * + * {
+    margin-top: var(--space-xl);
+}
+.flow-tight > * + * {
+    margin-top: var(--space-lg);
+}
+.flow-loose > * + * {
+    margin-top: var(--space-xxl);
 }
 
 /* -----------------------------------------
@@ -140,11 +196,9 @@ main {
     align-items: flex-end;
     pointer-events: none;
 }
-
 .diagnostics-console-dock > * {
     pointer-events: auto;
 }
-
 .diagnostics-console-pill {
     position: relative;
     z-index: 2;
@@ -164,13 +218,11 @@ main {
     box-shadow: var(--overlay-shadow);
     cursor: pointer;
 }
-
 .diagnostics-console-pill:hover,
 .diagnostics-console-pill:focus {
     border-color: var(--border-strong);
     box-shadow: var(--overlay-shadow), 0 0 24px rgba(var(--color-secondary-cyan-rgb), 0.18);
 }
-
 .diagnostics-console-panel {
     position: absolute;
     right: 0;
@@ -186,45 +238,37 @@ main {
     box-shadow: var(--overlay-shadow);
     backdrop-filter: var(--overlay-blur);
 }
-
 .diagnostics-console-empty {
     padding: var(--space-md);
 }
-
 .diagnostics-console-panel .card {
     border-color: var(--border-subtle);
     box-shadow: none;
 }
-
 .diagnostics-console-panel .card:hover {
     transform: none;
     box-shadow: none;
     z-index: auto;
 }
-
 .diagnostics-console-panel .grid-3,
 .diagnostics-console-panel .grid-4 {
     align-items: start;
 }
-
 @media (max-width: 760px) {
     .diagnostics-console-dock {
         right: var(--space-sm);
         bottom: var(--space-sm);
         left: var(--space-sm);
     }
-
     .diagnostics-console-pill {
         align-self: flex-end;
     }
-
     .diagnostics-console-panel {
         right: 0;
         left: 0;
         width: 100%;
         max-height: 78vh;
     }
-
     .diagnostics-console-panel .grid-3,
     .diagnostics-console-panel .grid-4 {
         grid-template-columns: 1fr;

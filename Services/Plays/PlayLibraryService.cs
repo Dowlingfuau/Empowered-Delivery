@@ -32,6 +32,15 @@ public static class PlayLibraryService
             Duration = "60 minutes",
             Category = "Flow Experiments",
             Route = "/plays/disruptive-brainstorming"
+        },
+        new Play
+        {
+            Title = "Team Culture of Trust",
+            Description = "Surface team norms and turn trust conversations into concrete actions.",
+            Difficulty = "Medium",
+            Duration = "60-90 minutes",
+            Category = "Team Health",
+            Route = "/plays/team-culture-of-trust"
         }
     };
 }

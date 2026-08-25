@@ -1,3 +1,15 @@
+/* Layout Primitive */
+.hero-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xxl);
+    align-items: stretch;
+} 
+.hero-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-start; /* Currently redundant */
+}
 /* =========================================
    LEGACY (TO BE REMOVED OR UPDATED)
    DO NOT USE
@@ -17,13 +29,7 @@
 .hero p {
     margin-bottom: calc(var(--spacing-unit) * 2);
 }
-    /* Layout Primitive */
-.hero-layout {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: calc(var(--spacing-unit) * 6);
-    align-items: center;
-} 
+
 .hero-image img {
     width: 100%;
     border-radius: var(--radius-medium);

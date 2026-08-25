@@ -5,12 +5,12 @@
    .material {
     position: relative;
     z-index: 1;
+    border-radius: inherit;
    }
    .material::before {
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: inherit;
     z-index: -1;
    }
    /* -------------------------
@@ -24,7 +24,7 @@
     }
     /*high transmission*/
     .material-clear::before {
-        background: rgba(var(--color-core-light-rgb), 0.2);
+        background: rgba(var(--color-core-light-rgb), 0.02);
         box-shadow: inset 0 0 20px rgba(var(--color-absolute-black-rgb),0.25);
     }
     /*diffused transmission (blur/softened)*/
@@ -47,38 +47,71 @@
         box-shadow: inset 0 0 20px rgba(var(--color-absolute-black-rgb), 0.4);
     }
 
+    /* =========================
+    FRAMES
+    ========================= */
+
+    .frame {
+        border-radius: var(--radius-lg);
+        position: relative;
+
+        padding: var(--spacing-unit);
+    }
+
+    /* =========================
+    EDGES
+    ========================= */
+
+    /* Base (Defines boundary behaviour */
+    .edge {
+        position: relative;
+    }
+    .edge-soft::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+
+        border: 1px solid rgba(var(--color-absolute-white-rgb), 0.06);
+    }
+    .edge-focus::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+
+        border: 1px solid rgba(var(--color-absolute-white-rgb), 0.12);
+    }
+    .edge-focus::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+
+        box-shadow: 
+            inset 0 1px 0 rgba(var(--color-absolute-white-rgb), 0.18),
+    }
+
    /* =========================
     Light
    ========================= */
 
    .light {
     position: absolute;
-    
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     pointer-events: none;
    }
    .light::before {
     content: "";
+    position: absolute;
 
-    width: 120%;
-    height: 200%;
-
-    border-radius: inherit;
-   }
-   .light-small::before {
-    width: 60%;
+    width: 100%;
     height: 100%;
-   }
-   .light-wide::before {
-    width: 150%;
-    height: 250%;
-   }
-   .light-offset::before {
-    transform: translateY(-20%);
+    border-radius: 0;
    }
    /*HELPERS*/
    .light-above {
@@ -99,14 +132,13 @@
     Backlight
     (Behind material - creates elevation)
     ------------------------- */
-   .light-back {
+   .light-back::before {
     background: 
         radial-gradient(
-            60% 140% at 50% 40%,
-            rgba(var(--color-absolute-white-rgb), 0.35) 0%,
-            rgba(var(--color-absolute-white-rgb), 0.15) 50%,
-            rgba(var(--color-absolute-white-rgb), 0.02) 80%,
-            transparent 120%
+            40% 147% at 50% 46.2%,
+            rgba(var(--color-absolute-white-rgb), 0.2) 5%,
+            rgba(var(--color-absolute-white-rgb), 0.11) 60%,
+            rgba(var(--color-absolute-white-rgb), 0) 140%
         );
    }
    /* -------------------------
@@ -134,24 +166,22 @@
     Light Temperature
     (Colour - Warm, Cool, Neutral)
     ------------------------- */
-   .light-warm {
+   .light-warm::before {
     background: 
         radial-gradient(
-            50% 140% at 50% 50%,
-            rgba(var(--color-accent-orange-rgb), 0.5) 0%,
-            rgba(var(--color-secondary-pink-rgb), 0.25) 50%,
-            rgba(var(--color-secondary-pink-rgb), 0.08) 80%,
-            transparent 120%
+            40% 147% at 50% 46.2%,
+            rgba(var(--color-accent-orange-rgb), 0.2) 5%,
+            rgba(var(--color-secondary-pink-rgb), 0.11) 60%,
+            rgba(var(--color-secondary-pink-rgb), 0) 140%
         );
    }
-   .light-cool {
+   .light-cool::before {
     background: 
         radial-gradient(
-            50% 140% at 50% 50%,
-            rgba(var(--color-secondary-cyan-rgb), 0.5) 0%,
-            rgba(var(--color-accent-blue-rgb), 0.25) 50%,
-            rgba(var(--color-secondary-purple-rgb), 0.08) 80%,
-            transparent 120%
+            40% 147% at 50% 46.2%,
+            rgba(var(--color-secondary-cyan-rgb), 0.2) 5%,
+            rgba(var(--color-accent-blue-rgb), 0.11) 60%,
+            rgba(var(--color-secondary-purple-rgb), 0) 140%
         );
    }
    /* =========================
@@ -196,7 +226,6 @@
     .shadow-cast-right {
         box-shadow: -20px 0 60px rgba(var(--color-absolute-black-rgb), 0.35);
     }
-    
 
    /* -------------------------
    Glow
@@ -256,6 +285,18 @@
     LEGACY SYSTEM - DO NOT USE
     DEPTH SYSTEM — V1
    ========================= */
+
+    .light-small::before {
+    width: 60%;
+    height: 100%;
+   }
+   .light-wide::before {
+    width: 150%;
+    height: 250%;
+   }
+   .light-offset::before {
+    transform: translateY(-20%);
+   }
 
 /* -------------------------
    Elevation (Structure)
