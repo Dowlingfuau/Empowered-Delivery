@@ -1,0 +1,267 @@
+@if (currentStepIndex == -1)
+{
+    <div class="run-overlay">
+        <div class="run-panel stack stack-lg">
+
+            <div class="stage">
+                <div class="light light-warm"></div>
+                <div class="frame edge edge-focus shadow-cast">
+                    <div class="material material-frosted group group-lg stack stack-lg">
+                        <p class="label">Ready to run</p>
+
+                        <h2>@Title</h2>
+
+                        @if (!string.IsNullOrWhiteSpace(Summary))
+                        {
+                            <p class="type-emphasis">@Summary</p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(TargetOutcome))
+                        {
+                            <h3>Target outcome</h3>
+                            <p class="text-direction">@TargetOutcome</p>
+                        }
+
+                        @if (GuideItems.Any())
+                        {
+                            <p>You will guide participants through:</p>
+
+                            <ul>
+                                @foreach (var item in GuideItems)
+                                {
+                                    <li>@item</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @if (Steps.Any() || PrepItems.Any())
+            {
+                <div class="grid grid-2 grid-lg">
+
+                    @if (Steps.Any())
+                    {
+                        <div class="stage">
+                            <div class="frame edge edge-soft shadow-ground">
+                                <div class="material material-solid group stack stack-sm">
+                                    <h3>Session flow</h3>
+
+                                    <ol>
+                                        @for (var index = 0; index < Steps.Count; index++)
+                                        {
+                                            var stepIndex = index;
+                                            <li @onclick="() => StartFromStep(stepIndex)" class="run-link">
+                                                @GetFlowTitle(Steps[stepIndex])
+                                            </li>
+                                        }
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (PrepItems.Any())
+                    {
+                        <div class="stage">
+                            <div class="frame edge edge-soft shadow-ground">
+                                <div class="material material-solid group stack stack-sm">
+                                    <h3>Prep</h3>
+
+                                    <ul>
+                                        @foreach (var item in PrepItems)
+                                        {
+                                            <li>@item</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            }
+
+            <div class="run-controls">
+                <button class="button button-secondary" @onclick="OnClose">
+                    Exit
+                </button>
+
+                <button class="button button-primary" @onclick="Start" disabled="@(!Steps.Any())">
+                    @StartButtonText
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    var step = Steps[currentStepIndex];
+    var nextStep = currentStepIndex < Steps.Count - 1
+        ? Steps[currentStepIndex + 1]
+        : null;
+
+    <div class="run-overlay">
+        <div class="run-panel stack stack-lg">
+
+            <div class="run-top-bar">
+                <button class="button button-secondary" @onclick="Reset">
+                    Start over
+                </button>
+
+                <button class="button button-secondary" @onclick="OnClose">
+                    Exit
+                </button>
+            </div>
+
+            <div class="grid run-grid grid-lg">
+
+                <div class="stage run-current">
+                    <div class="light light-cool"></div>
+                    <div class="frame edge edge-focus shadow-cast">
+                        <div class="material material-frosted group group-lg stack stack-lg">
+                            <p class="label">Step @(currentStepIndex + 1) of @Steps.Count</p>
+
+                            <h2>@step.Title</h2>
+
+                            <ul>
+                                @foreach (var item in SplitInstructions(step.Instruction))
+                                {
+                                    <li>@item</li>
+                                }
+                            </ul>
+
+                            @if (!string.IsNullOrWhiteSpace(step.Timebox))
+                            {
+                                <p class="text-direction">@step.Timebox</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stage run-next">
+                    <div class="frame edge edge-soft shadow-ground">
+                        <div class="material material-solid group stack stack-sm">
+                            <p class="label">Next</p>
+
+                            @if (nextStep is not null)
+                            {
+                                <h3>@nextStep.Title</h3>
+                                <p>@nextStep.Instruction</p>
+                            }
+                            else
+                            {
+                                <h3>@FinalStepTitle</h3>
+                                <p>@FinalStepMessage</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            @if (step.Notes.Any())
+            {
+                <div class="stage">
+                    <div class="frame edge edge-soft shadow-ground">
+                        <div class="material material-solid group stack stack-sm">
+                            <h3>Facilitator tips</h3>
+
+                            <div class="grid grid-3">
+                                @foreach (var note in step.Notes)
+                                {
+                                    <p>@note</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="run-controls">
+                <button class="button button-primary" @onclick="Back" disabled="@(currentStepIndex == 0)">
+                    Back
+                </button>
+
+                <button class="button button-primary" @onclick="Next" disabled="@(currentStepIndex == Steps.Count - 1)">
+                    Next
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Summary { get; set; } = "";
+    [Parameter] public string TargetOutcome { get; set; } = "";
+    [Parameter] public string StartButtonText { get; set; } = "Start session";
+    [Parameter] public string FinalStepTitle { get; set; } = "Final step";
+    [Parameter] public string FinalStepMessage { get; set; } = "Thank your participants for their energy, capture the outcome, and make the next action clear.";
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public IReadOnlyList<string> GuideItems { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<string> PrepItems { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<RunStep> Steps { get; set; } = Array.Empty<RunStep>();
+
+    private int currentStepIndex = -1;
+
+    private void StartFromStep(int index)
+    {
+        currentStepIndex = index;
+    }
+
+    private void Start()
+    {
+        if (Steps.Any())
+        {
+            currentStepIndex = 0;
+        }
+    }
+
+    private void Next()
+    {
+        if (currentStepIndex < Steps.Count - 1)
+        {
+            currentStepIndex++;
+        }
+    }
+
+    private void Back()
+    {
+        if (currentStepIndex > 0)
+        {
+            currentStepIndex--;
+        }
+    }
+
+    private void Reset()
+    {
+        currentStepIndex = -1;
+    }
+
+    private static string GetFlowTitle(RunStep step)
+    {
+        return string.IsNullOrWhiteSpace(step.FlowTitle)
+            ? step.Title
+            : step.FlowTitle;
+    }
+
+    private static IEnumerable<string> SplitInstructions(string instruction)
+    {
+        return string.IsNullOrWhiteSpace(instruction)
+            ? Array.Empty<string>()
+            : instruction.Split(". ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    public sealed class RunStep
+    {
+        public string Title { get; set; } = "";
+        public string FlowTitle { get; set; } = "";
+        public string Instruction { get; set; } = "";
+        public string Timebox { get; set; } = "";
+        public IReadOnlyList<string> Notes { get; set; } = Array.Empty<string>();
+    }
+}

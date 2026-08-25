@@ -1,4 +1,4 @@
-<div class="surface-focus stack-md">
+<div class="stack">
 
     @if (!string.IsNullOrEmpty(Title))
     {
@@ -7,7 +7,7 @@
         
     @if (!string.IsNullOrEmpty(Observation))
     {
-        <div class="stack-sm">
+        
             <p>@Observation</p>
 
             @if (!string.IsNullOrEmpty(WhyItMatters))
@@ -19,7 +19,7 @@
             {
                 <p>@Direction</p>
             }
-        </div>
+        
     }
     else
     {
