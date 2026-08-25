@@ -1,260 +1,157 @@
 @page "/new-design-system"
 
-
-
+<div class="flow">
   <!-- HERO / MARKETING -->
-  <section class="section">
-    <div class="container">
-
-      <div class="grid grid-2">
-
+  <section class="section section-tight">
+    <div class="container hero-layout">
         <!-- NARRATIVE -->
-        <div class="stack-lg">
-
-        <h1>Understand how your team is really operating</h1>
-
-        <p>
-          Delivery issues rarely start where they appear.
-          Team morale often reveals deeper system pressures before performancedrops.
-        </p>
-
-        <p class="text-dim">
-          Diagnose early signals, uncover hidden constraints, and take action before delivery slows.
-        </p>
-
-        <div class="stack-sm">
-          <a class="button button-primary">Start Diagnostic</a>
-          <a class="button button-tertiary">See how it works</a>
+        <div class="stack stack-lg">
+          <h1 class="display">Understand how your team is really operating</h1>
+          <p class="text-secondary">Delivery issues often start with team health.</p>        
         </div>
-        
-        </div>
-
-        <!-- SYSTEM VISUAL / BRAND EXPRESSION -->
-        <div class="stack-md" style="background:
-        linear-gradient(
-        135deg, 
-        transparent, 
-        transparent, 
-        transparent, 
-        var(--color-secondary-purple), 
-        var(--color-secondary-pink), 
-        var(--color-accent-orange), 
-        var(--color-secondary-cyan), 
-        transparent, 
-        transparent, 
-        transparent)
-        ">
-
-          <!-- PLACEHOLDER for visual system representation -->
-          <!-- This will later become:
-                - singal visualisation
-                - abstract system graphic
-                - or branded illustration
-          -->
-
-          <div class="surface-elevated stack-sm">
-            <p class="label">Preview</p>
-            <p>Team morale signal emerging...</p>
+        <div class="stack stack-lg">
+          <div></div>
+          <div class="hero-actions">
+            <div class="stack stack-sm">
+              <a class="button button-primary">Start Diagnostic</a>
+              <span class="micro subtle">Takes ~2 minutes</span>
+            </div>
           </div>
-
-          <div class="surface-elevated stack-sm">
-            <p class="label">Pattern</p>
-            <p>Increasing pressure detected across recent sprints</p>
-          </div>
-
         </div>
-
-      </div>
-        
     </div>
+        
   </section>
 
   <!-- DIAGNOSTIC -->
   <section class="section">
     <div class="container">
-
-        <div class="glass-raised depth-plane depth-1 stack-lg">
+        <div class="stack stack-xl">
 
           <!-- CONTEXT -->
-          <div class="stack-sm">
+          <div class="stack stack-sm">
             <h2>Team Morale Diagnostic</h2>
-            <p>Assess how your team is operating and uncover early signals of delivery risk.</p>
-          </div>
+            <p class="text-muted">Answer based on how you feel today.</p>
 
-          <!-- CONFIGURATION -->
-          <div class="stack-md">
-
-            <div class="stack-sm">
-              <p class="label">Scope</p>
-
-              <!-- Control Surface Placeholder -->
-              <div class="depth=plane depth-2 stack-sm">
-
-                <!-- Squad Selector -->
-                <SquadSelector></SquadSelector>
-
+            <!-- CONFIGURATION -->                         
                 <!-- Input Chips (Control Surface Content) -->
                 <ControlSurface>
+                  <SquadSelector></SquadSelector>
                   <InputChip Placeholder="Size" />
                   <GroupedInputChip Label="Throughput" />
                   <GroupedInputChip Label="Age" />
                   <GroupedInputChip Label="Priority" />
-                </ControlSurface>
-
-              </div>
-
-            </div>
-
+                </ControlSurface> 
           </div>
 
-          <!-- INPUT (BEHAVIOUR SELECTION) -->
-          <div class="stack-md">
-
-            <div class="stack-sm">
-              <p class="label">Assessment</p>
-              <p class="text-dim">
-                Select the option that best reflects your team's current experience.
-                </p>
-            </div>
-            
+          <!-- INPUT (BEHAVIOUR SELECTION) -->            
             <div class="grid grid-2">
 
                 <!-- Behaviour Selector Placeholder -->
-                <div class="signal-grounded stack-sm">
+                <div class="group">
                     <p>Team energy is consistent sprint to sprint</p>
-                    <div class="stack-sm">
-                      <p class="micro">[Behaviour Selector]</p>
+                    <div class="grid grid-2">
+                      <button class="button button-primary">Every sprint</button>
+                      <button class="button button-secondary">Often</button>
+                      <button class="button button-tertiary">Sometimes</button>
+                      <button class="button button-destructive">Never</button>
                     </div>
                 </div>
 
                 <!-- Behaviour Selector Placeholder -->
-                <div class="signal-grounded stack-sm">
+                <div class="group">
                     <p>Work feels manageable and sustainable</p>
-                    <div class="stack-sm">
-                      <p class="micro">[Behaviour Selector]</p>
+                    <div class="grid grid-2">
+                      <button class="button button-primary">Every sprint</button>
+                      <button class="button button-secondary">Often</button>
+                      <button class="button button-tertiary">Sometimes</button>
+                      <button class="button button-destructive">Never</button>
                     </div>
                 </div>
 
             </div>
 
-          </div>
-
           <!-- FEEDBACK (Early Signals) -->
-          <div class="stack-md">
-            
-            <div class="stack-sm">
+          <div class="stack stack-sm">
               <p class="label">Emerging Signals</p>
               <p class="text-dim">Early indicators based on your inputs.</p>
-            </div>
-
+          </div>
+          <div class="stack stack-lg">
             <div class="grid grid-2">
 
               <!-- Continuum Placeholder -->
-              <div class="signal-grounded stack-sm">
                 <ContinuumBar 
                   Title="Team Morale Factors"
-                  TooltipText="Testing the tooltip text"
+                  TooltipText="Testing the tooltip text."
+                  Label="Happiness Levels"
+                  Zones="@(new List<string> { "Life sucks", "", "Life's TOO good" })"
                   ></ContinuumBar>
-              </div>
 
               <!-- Gauge Placeholder -->
-              <div class="signal-grounded stack-sm">
                 <Gauge
                   Title="Team Morale Intensity"
+                  TooltipText="Testing the tooltip text."
                   Label="How is the team doing out of 10?"
                   Value="80"
                   ></Gauge>
-              </div>
-
             </div>
-
           </div>
-
         </div>
     </div>
   </section>
 
   <!-- INSIGHT -->
-  <section class="section">
+  <section class="section section-break">
     <div class="container">
-      <div class="light-directional">
-      <div class="glass-focus depth-plane depth-3 stack-lg">
 
-        <!-- SECTION HEADER -->
-        <div class="stack-sm">
-          <h2>What the system is showing</h2>
-          <p class="text-dim">A summary of emerging patterns based on your inputs.</p>
-        </div>
-
-        <div class="grid grid-2">
-
-          <!-- VISUAL -->
-          <div class="stack-md">
-
-            <!-- Chart Placeholder -->
-            <div class="surface-raised stack-sm">
-
-              <!-- Title -->
-              <p class="Label">Team Morale Trend</p>
-
-              <!-- Chart -->
-              <div class="chart-container">
-                <canvas id="moraleChart"></canvas>
-              </div>
-
-            </div>
-
+        <h2 style="text-align: center;margin-bottom: var(--space-lg);">SYSTEM INSIGHT</h2>
+     
+      <!-- STAGE (Just a div, no class yet) -->
+      <div class="stage">
+        <!-- EFFECT LAYER (light lives outside material) -->
+        <div class="light light-warm"></div>
+        <!-- FRAME -->
+        <div class="frame shadow-cast edge edge-focus">
+          <!-- MATERIAL LAYER -->
+          <div class="material material-tinted">
+            <!-- CONTENT -->
+            <InsightPanel
+                Title="What the system is showing"
+                Observation="Your team may be experiencing hidden overload."
+                WhyItMatters="When pressure builds gradually, it often goes unnoticed until delivery slows."
+                Direction="Consider reducing work in progress and improving flow visibility."
+              />
           </div>
-
-          <!-- INTERPRETATION -->
-          <div class="stack-md">
-
-            <!-- WHAT -->
-            <div class="stack-sm">
-              <p class="label">What</p>
-              <p>Your team may be experiencing hidden overload.</p>
-            </div>
-
-            <!-- SO WHAT -->
-            <div class="stack-sm">
-              <p class="label">Why it matters</p>
-              <p>
-                When pressure builds gradually, it often goes unnoticed until delivery slows.
-              </p>
-            </div>
-
-            <!-- NOW WHAT -->
-            <div class="stack-sm">
-              <p class="label">What you can do</p>
-              <p>
-                Consider reducing work in progress and improving flow visibility.
-              </p>
-            </div>
-
-          </div>
-
         </div>
-
       </div>
-      </div>
-
     </div>
   </section>
 
-  <!-- ARTICLE -->
+  <!-- Context -->
   <section class="section">
-    <div class="container container-narrow">
-      <div class="surface-elevated stack-md">
+    <div class="container">
+      <div class="stack stack-lg">
 
-        <!-- Section Header -->
-        <div class="stack-sm">
-          <h2>Understanding Team Morale</h2>
-          <p>Why this matters for deliver performance</p>
-        </div>
-
-        <p>Team morale is a leading indicator of delivery performance.</p>
-        <p>When morale declines, predictability and flow efficiency are often impacted.</p>
-        <p>Sustained pressure, unclear priorities, and lack of ownership can gradually reduce morale without immediate visibility.</p>
+        <!-- Section Header -->       
+          <h3>What this looks like</h3>
+          <div class="grid grid-2">
+            <div class="stack stack-sm">
+              <p class="text-observation">
+                Work is entering faster than it is being completed.
+              </p>
+              <p>
+                This creates pressure and reduces delivery predictability.
+              </p>
+            </div>
+            <div class="stack stack-sm">
+              <p class="text-challenge">
+                Are you comfortable continuing like this?
+              </p>
+              <p class="text-direction">
+                This will not resolve itself.
+              </p>
+            </div>
+          </div>
+         
       </div>
     </div>
   </section>
@@ -262,50 +159,12 @@
   <!-- EDUCATIONAL ACTION -->
   <section class="section">
     <div class="container container-narrow">
-      <div class="surface-elevated stack-md">
-
-        <!-- Section Header -->
-        <div class="stack-sm">
-          <h2>What you can do</h2>
-          <p>Practical steps to improve team morale</p>
-        </div>
-
-        <!-- Action Steps -->
-        <div class="stack-sm">
-
-          <div class="stack-sm">
-            <h4>Reduce Work in Progress</h4>
-            <p>Limit how much work the team takes on at once to reduce pressure and increase focus.</p>
-          </div>
-
-          <div class="stack-sm">
-            <h4>Make Work Visible</h4>
-            <p>Ensure all work is visible and understood to avoid hidden overload.</p>
-          </div>
-
-          <div class="stack-sm">
-            <h4>Strengthen Feedback Loops</h4>
-            <p>Introduce regular opportunities for the team to reflect and adapt.</p>
-          </div>
-
-        </div>
-
+      <div class="stack">
+        <h2>Understanding Team Morale</h2>
+        <p> Team morale is a leading indicator of delivery performance.</p>
+        <p>When morale declines, predictability and flow efficiency are impacted.</p>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="section">
-    <div class="container">
-      <div class="stack-lg">
-        <h2>Improve your team's delivery</h2>
-        <p>Run a full diagnostic and uncover deeper system insights.</p>
-
-        <div class="stack-sm">
-          <a class="button button-primary">Run Full Diagnostic</a>
-          <a class="button button-secondary">Explore Other Diagnostics</a>
-        </div>
-
-      </div>
-    </div>
-  </section>
+</div>

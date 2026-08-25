@@ -141,3 +141,72 @@ Each lens maps to:
 - Insight tags (used for grouping in UI)
 
 Example structure:
+
+
+---
+
+## System Usage
+
+Lenses are used across the platform to:
+
+### 1. Group Insights
+- Coach Hub organises insights by lens
+- Users can navigate by problem type instead of signal type
+
+### 2. Tag Plays and Actions
+- Plays are tagged with relevant lenses
+- Users can take action based on the type of problem
+
+### 3. Tag Perspectives / Content
+- Articles and guidance are organised by lens
+- Enables deeper learning aligned to system issues
+
+### 4. Aggregate Diagnostics
+- Signals from multiple tools contribute to the same lens
+- Enables cross-diagnostic understanding
+
+---
+
+## UX Intent
+
+The Lens Model enables:
+
+- A consistent mental model across the platform
+- Aggregated views of system health without collapsing into scores
+- Visibility of where issues originate:
+  - Behaviour (Team Health)
+  - Structure (Backlog / Flow)
+  - Capability (Maturity)
+
+Users should be able to:
+
+- Identify a problem category (e.g. Culture)
+- See all related signals and insights
+- Navigate to relevant actions
+- Form their own system-level hypotheses
+
+---
+
+## Non-Goals
+
+The Lens Model must not:
+
+- Produce a combined score per lens
+- Replace or duplicate derived signal logic
+- Hide underlying signals or system behaviour
+- Introduce hidden weighting or aggregation
+
+---
+
+## Future Considerations
+
+The Lens Model may later support:
+
+- Dynamic filtering of insights
+- Personalised recommendations
+- Visual aggregation layers (e.g. system radar views)
+
+Any future enhancements must maintain:
+- transparency
+- traceability back to signals
+- separation from core signal logic

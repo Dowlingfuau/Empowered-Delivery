@@ -1,0 +1,235 @@
+@page "/plays/team-culture-of-trust"
+
+<PlayLayout Title="Team Culture of Trust"
+            Subtitle="Surface visible and hidden team norms so trust can be strengthened deliberately."
+            Description="A structured culture-mapping play for teams that want safer conversation, clearer expectations, and stronger follow-through. The session uses an iceberg model to make visible habits, hidden assumptions, and deeper values easier to discuss."
+            OnRun="StartRunMode"
+            WhenToUse="WhenToUse"
+            KeysToSuccess="KeysToSuccess"
+            Facts="Facts"
+            Materials="Materials"
+            Steps="Steps" />
+
+@if (isRunning)
+{
+    <PlayRunOverlay Title="Team Culture of Trust"
+                    Summary="Guide the team through a focused culture iceberg conversation and turn the discussion into concrete trust-building actions."
+                    TargetOutcome="Leave with a shared view of the habits that build or erode trust, plus a small set of actions to reinforce over the next 4-6 weeks."
+                    GuideItems="RunGuideItems"
+                    PrepItems="RunPrepItems"
+                    Steps="RunSteps"
+                    OnClose="StopRunMode" />
+}
+
+@code {
+    private bool isRunning;
+
+    private static readonly IReadOnlyList<string> WhenToUse = new[]
+    {
+        "A new team or project is forming and needs clear working expectations",
+        "The team has been through change, such as new members, new leadership, or a strategy shift",
+        "There is friction, low trust, or confusion that is hard to name directly",
+        "Team norms or working agreements need a deeper refresh"
+    };
+
+    private static readonly IReadOnlyList<string> KeysToSuccess = new[]
+    {
+        "Make the session psychologically safe before asking for candour",
+        "Discuss team habits and systems, not individual personalities",
+        "Capture specific examples rather than broad labels",
+        "Convert discussion into a small number of observable actions"
+    };
+
+    private static readonly IReadOnlyList<PlayLayout.PlayFact> Facts = new[]
+    {
+        new PlayLayout.PlayFact
+        {
+            Label = "Prep time",
+            Value = "30 minutes"
+        },
+        new PlayLayout.PlayFact
+        {
+            Label = "Run time",
+            Value = "60-90 minutes"
+        },
+        new PlayLayout.PlayFact
+        {
+            Label = "Participants",
+            Value = "3-10 people"
+        }
+    };
+
+    private static readonly IReadOnlyList<string> Materials = new[]
+    {
+        "Physical or digital whiteboard",
+        "An iceberg template with visible, unseen, and deep culture layers",
+        "Sticky notes or digital notes",
+        "Shared document for actions and follow-up",
+        "Timer"
+    };
+
+    private static readonly IReadOnlyList<PlayLayout.PlayStep> Steps = new[]
+    {
+        new PlayLayout.PlayStep
+        {
+            Title = "Prep the play",
+            Instruction = "Book time with the team and share the purpose in advance: to understand what shapes trust in how the team works.\n\nPrepare a physical or digital iceberg with three layers: visible culture, unseen culture, and deep culture. Make sure everyone has access to contribute.\n\nChoose a facilitator who can hold the space, keep the conversation moving, and protect the session from becoming personal or blame-oriented.",
+            WhyItMatters = "Trust conversations work best when people understand the purpose before they enter the room. Good prep lowers anxiety and makes candid contribution more likely.",
+            Timebox = "30 minutes prep",
+            Tips = new[]
+            {
+                "Send the goal and agenda before the session",
+                "Avoid recording or transcribing the conversation",
+                "Prepare examples for each iceberg layer"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Set the stage",
+            Instruction = "Open by explaining that the goal is to learn how the team works, communicates, and makes decisions. Make it clear that the session is about patterns, not blame.\n\nWalk through the iceberg layers. Visible culture includes meetings, rituals, channels, and decision announcements. Unseen culture includes attitudes about risk, conflict, inclusion, and speaking up. Deep culture includes values, beliefs, rewards, and assumptions about what good looks like.\n\nInvite the team to assume positive intent, listen to understand, and focus on improving the system of work.",
+            WhyItMatters = "The first few minutes set the emotional contract for the whole play. If the room does not feel safe, the iceberg will stay shallow.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Name psychological safety explicitly",
+                "Use neutral examples before asking the team to contribute",
+                "Redirect personal comments back to team habits"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Map the culture iceberg",
+            Instruction = "Give participants quiet time to reflect on recent team experiences. Ask them to add one idea per note to the appropriate iceberg layer.\n\nEncourage specific examples. For example, a concrete meeting habit is more useful than saying meetings are bad.\n\nAfter individual reflection, read the notes together and cluster similar ideas into themes such as decision-making, feedback, inclusion, ownership, risk, or communication.",
+            WhyItMatters = "The iceberg makes implicit norms discussable. The team can see the difference between what is observable and what may be driving behaviour underneath.",
+            Timebox = "25 minutes",
+            Tips = new[]
+            {
+                "Start with silent reflection so louder voices do not set the frame",
+                "Cluster by theme, not by who contributed the note",
+                "Ask for clarification before interpreting a vague note"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Discuss trust builders and trust breakers",
+            Instruction = "Look across the iceberg and ask what themes the team notices. Invite people to identify what currently builds trust and what may unintentionally erode it.\n\nUse a keep, change, try structure. Keep the norms and rituals that support trust. Change the behaviours that create confusion or fear. Try new small experiments that could make trust easier to practice.\n\nNarrow the conversation to a small set of concrete, observable changes.",
+            WhyItMatters = "Trust improves through repeated behaviour, not vague intent. This step turns reflection into choices the team can actually practise.",
+            Timebox = "15 minutes",
+            Tips = new[]
+            {
+                "Ask what the team wants to keep before discussing what to change",
+                "Push for observable behaviours",
+                "Look for rituals that can reinforce the desired culture"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Commit to next steps",
+            Instruction = "Capture the strongest agreements in a shared document. Include trust-building practices to reinforce, experiments to try, and signals the team will watch for.\n\nFor each action, agree an owner, a target date or check-in window, and where progress will be tracked.\n\nSchedule a follow-up so the conversation becomes part of the team's operating rhythm rather than a one-off workshop.",
+            WhyItMatters = "The value of the play depends on follow-through. Clear ownership and follow-up turn cultural insight into changed behaviour.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Limit the team to a few commitments",
+                "Make each action small enough to try soon",
+                "Schedule the follow-up before ending the session"
+            }
+        }
+    };
+
+    private static readonly IReadOnlyList<string> RunGuideItems = new[]
+    {
+        "Set psychological safety and explain the iceberg model",
+        "Map visible, unseen, and deep culture patterns",
+        "Identify trust builders and trust breakers",
+        "Commit to a small set of follow-up actions"
+    };
+
+    private static readonly IReadOnlyList<string> RunPrepItems = new[]
+    {
+        "Book 60-90 minutes with the team",
+        "Prepare the iceberg template",
+        "Set up sticky notes or a digital whiteboard",
+        "Create a shared document for actions",
+        "Ask a facilitator to guide the discussion"
+    };
+
+    private static readonly IReadOnlyList<PlayRunOverlay.RunStep> RunSteps = new[]
+    {
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Prep the play",
+            FlowTitle = "Prep",
+            Instruction = "Confirm the goal, prepare the iceberg template, and make sure everyone can contribute. Avoid recording the session so the space feels safer.",
+            Timebox = "30 minutes prep",
+            Notes = new[]
+            {
+                "Share the goal and agenda in advance",
+                "Prepare examples for visible, unseen, and deep culture",
+                "Choose a facilitator"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Set the stage",
+            FlowTitle = "Set the stage",
+            Instruction = "Explain that the session is about learning how the team works, not assigning blame. Walk through the three iceberg layers and invite curiosity, positive intent, and specific examples.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Keep the tone calm and generous",
+                "Redirect personal comments to team patterns",
+                "Use examples before asking for contributions"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Map the culture iceberg",
+            FlowTitle = "Map the iceberg",
+            Instruction = "Give everyone quiet time to add notes to the iceberg. Ask for one idea per note, placed in the visible, unseen, or deep culture layer. Read the notes together and cluster similar themes.",
+            Timebox = "25 minutes",
+            Notes = new[]
+            {
+                "Start silently",
+                "Ask for concrete examples",
+                "Cluster by theme, not person"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Discuss trust builders and trust breakers",
+            FlowTitle = "Discuss trust",
+            Instruction = "Ask what themes the team sees. Identify what builds trust, what erodes trust, and what the team wants to keep, change, or try.",
+            Timebox = "15 minutes",
+            Notes = new[]
+            {
+                "Discuss what to keep first",
+                "Convert vague ideas into behaviours",
+                "Aim for a few high-value changes"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Commit to next steps",
+            FlowTitle = "Commit",
+            Instruction = "Capture the team's selected actions, owners, dates, and signals to watch. Schedule a follow-up before closing.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Limit commitments",
+                "Assign owners",
+                "Create a follow-up checkpoint"
+            }
+        }
+    };
+
+    private void StartRunMode()
+    {
+        isRunning = true;
+    }
+
+    private void StopRunMode()
+    {
+        isRunning = false;
+    }
+}

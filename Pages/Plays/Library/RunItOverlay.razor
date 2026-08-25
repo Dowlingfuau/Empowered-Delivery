@@ -121,7 +121,7 @@ else
 
                     @if (!string.IsNullOrEmpty(step.Timebox))
                     {
-                        <p class="accent-text">⏱ @step.Timebox</p>
+                        <p class="accent-text">@step.Timebox</p>
                     }
 
                 </div>
@@ -168,11 +168,11 @@ else
             <div class="run-controls">
 
                 <button class="button button-primary" @onclick="Back">
-                    ←
+                    Back
                 </button>
 
                 <button class="button button-primary" @onclick="Next">
-                    →
+                    Next
                 </button>
 
             </div>
@@ -197,19 +197,19 @@ else
         new PlayStep
         {
             Title = "Set the scene",
-            Instruction = "Explain the goal of the session and how it will work. Split participants into small groups (3–5 people per group) and assign each group a space (whiteboard, wall, or virtual board).",
+            Instruction = "Explain the goal of the session and how it will work. Split participants into small groups (3-5 people per group) and assign each group a space (whiteboard, wall, or virtual board).",
             Timebox = "5 minutes",
             Notes = new List<string>
             {
-                "Set energy early — this drives the whole session",
+                "Set energy early - this drives the whole session",
                 "Make it safe to share anything",
                 "Be clear on the problem you're solving"
             }
         },
         new PlayStep
         {
-            Title = "Round 1 — Initial brainstorm",
-            Instruction = "In their groups, participants write down ideas on sticky notes (or virtual notes), one idea per note. Place all ideas on their group’s board.",
+            Title = "Round 1 - Initial brainstorm",
+            Instruction = "In their groups, participants write down ideas on sticky notes (or virtual notes), one idea per note. Place all ideas on their group's board.",
             Timebox = "10 minutes",
             Notes = new List<string>
             {
@@ -226,13 +226,13 @@ else
             Notes = new List<string>
             {
                 "Encourage quick decisions",
-                "It’s okay to challenge ideas",
+                "It's okay to challenge ideas",
                 "Keep only what stands out"
             }
         },
         new PlayStep
         {
-            Title = "Round 2 — Disruption",
+            Title = "Round 2 - Disruption",
             Instruction = "Introduce a constraint (e.g. no budget, no tech) and have groups adapt or create ideas under that constraint.",
             Timebox = "10 minutes",
             Notes = new List<string>
@@ -255,7 +255,7 @@ else
         },
         new PlayStep
         {
-            Title = "Final round — New disruption",
+            Title = "Final round - New disruption",
             Instruction = "Introduce a final disruption (e.g. people-first thinking, extreme constraints) and refine ideas again.",
             Timebox = "10 minutes",
             Notes = new List<string>
@@ -283,7 +283,7 @@ else
             Timebox = "10 minutes",
             Notes = new List<string>
             {
-                "Ensure ideas don’t get lost",
+                "Ensure ideas don't get lost",
                 "Assign clear ownership",
                 "Define immediate next actions"
             }
