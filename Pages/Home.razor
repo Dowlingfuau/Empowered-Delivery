@@ -1,110 +1,260 @@
-﻿@page "/"
+@page "/"
+@layout PlatformLayout
+@using Microsoft.AspNetCore.Components.Web
 
-<div class="container">
+<PageTitle>Empowered Delivery</PageTitle>
 
-<Hero>
+<div class="final-homepage">
+    <header class="final-nav">
+        <a class="final-brand" href="#final-top" aria-label="Empowered Delivery home">
+            <span class="final-brand-mark">ED</span>
+            <span>EMPOWERED<br />DELIVERY</span>
+        </a>
+        <nav aria-label="Primary navigation">
+            <a href="/hub">Tools</a>
+            <a href="#final-intelligence">Intelligence</a>
+            <a href="/plays">Plays</a>
+            <a href="/perspectives">Perspectives</a>
+            <a href="/services">Services</a>
+            <a href="/about">About</a>
+        </nav>
+        <a class="final-nav-action" href="#final-close">Start with the system <span>↗</span></a>
+    </header>
 
-<h1>You already have delivery data.</h1>
+    <main id="final-top">
+        <section class="final-hero">
+            <div class="final-hero-copy">
+                <p class="final-stamp">A field guide for seeing how delivery really works</p>
+                <h1>Reports show the surface.<br /><em>The system is underneath.</em></h1>
+                <p class="final-hero-question">Why do my reports tell me we are delivering, but I still cannot see the value?</p>
+                <a class="final-hero-link" href="#final-surface">Pull the system into view <span>↓</span></a>
+            </div>
+            <div class="final-hero-art">
+                <img src="/images/Bake%20Off/Final%20round/Hero%20image.jpg" alt="A retro-futurist machine representing the delivery system" />
+                <span class="final-art-note final-art-note-top">THE MACHINE / 01</span>
+                <span class="final-art-note final-art-note-bottom">BUILT TO REVEAL WHAT MEASURES MISS</span>
+            </div>
+        </section>
 
-<p>But is it telling you the full story?</p>
-<p>Are your reports green and your delivery still slow?</p>
+        <section id="final-surface" class="final-surface">
+            <div class="final-section-index">02 / THE SURFACE</div>
+            <div class="final-surface-intro">
+                <p>The dashboard is not lying.</p>
+                <h2>It is simply<br /><strong>incomplete.</strong></h2>
+            </div>
+            <div class="final-dashboard-stage">
+                <img src="/images/Bake%20Off/Final%20round/The%20Dashboard.jpg" alt="Dashboard artwork showing a reassuring reporting surface" />
+                <div class="final-dashboard-label"><span>WHAT THE REPORT SAYS</span><b>Healthy</b></div>
+                <div class="final-dashboard-callout">3 measures<br /><strong>1 story missing</strong></div>
+            </div>
+            <p class="final-surface-caption">A report can tell you what is happening. It cannot, by itself, tell you why the system keeps behaving that way.</p>
+        </section>
 
-<a class="button button-primary" href="/hub">
-Explore the Operational Intelligence Hub
-</a>
+        <section class="final-contradiction">
+            <div class="final-contradiction-axis" aria-hidden="true"></div>
+            <p class="final-section-index">03 / THE CONTRADICTION</p>
+            <div class="final-contradiction-line">
+                <span>We are delivering consistently,</span>
+                <b>but we are not delivering value.</b>
+            </div>
+            <div class="final-contradiction-line">
+                <span>Decisions are decentralised,</span>
+                <b>but decisions are slower than ever.</b>
+            </div>
+            <div class="final-contradiction-line">
+                <span>Everything is green.</span>
+                <b>Something still is not right.</b>
+            </div>
+        </section>
 
-</Hero>
+        <section class="final-cutaway">
+            <div class="final-section-index">04 / PULL THE SYSTEM APART</div>
+            <div class="final-cutaway-heading">
+                <h2>You cannot understand<br />the engine by reading<br /><em>one dial.</em></h2>
+                <p>The useful signal lives in the relationships between measures, behaviour and culture.</p>
+            </div>
+            <div class="final-cutaway-art">
+                <img src="/images/Bake%20Off/Final%20round/The%20Cutaway.jpg" alt="Cutaway view revealing the connected parts of a machine" />
+                <span class="final-cutaway-tag tag-engine">ENGINE</span>
+                <span class="final-cutaway-tag tag-demand">DEMAND</span>
+                <span class="final-cutaway-tag tag-capacity">CAPACITY</span>
+            </div>
+        </section>
 
-<section class="section">
+        <section id="final-intelligence" class="final-lenses">
+            <div class="final-section-index">05 / THE FULLER PICTURE</div>
+            <div class="final-lenses-heading">
+                <p>We connect the things reporting normally keeps apart.</p>
+                <h2>System measures<br /><span>+ behaviour</span><br /><strong>+ culture</strong></h2>
+            </div>
+            <div class="final-lens-orbit" aria-label="The three connected lenses of operational intelligence">
+                <span class="lens-system">SYSTEM</span>
+                <span class="lens-behaviour">BEHAVIOUR</span>
+                <span class="lens-culture">CULTURE</span>
+                <b>FULLER<br />PICTURE</b>
+            </div>
+        </section>
 
-<h2>
-Why delivery data misleads organisations
-</h2>
+        <section class="final-clarity">
+            <div class="final-clarity-copy">
+                <p class="final-section-index">06 / NEW CLARITY</p>
+                <h2>That is not a metric problem.<br /><em>It is a system problem.</em></h2>
+                <p>Empowered Delivery helps you investigate the relationships underneath the report, without pretending to know the answer before you look.</p>
+            </div>
+            <button class="final-signal" type="button" @onclick="() => showSignal = !showSignal" aria-label="Reveal a representative relationship">
+                <div class="signal-ring"></div>
+                <span>OBSERVATION</span>
+                <span>RELATIONSHIP</span>
+                <strong>@(showSignal ? "HYPOTHESIS" : "REVEAL THE SIGNAL")</strong>
+                @if (showSignal)
+                {
+                    <small>Completion improves while unplanned demand enters through the side door.</small>
+                }
+            </button>
+        </section>
 
-<FeatureGrid Columns="3">
+        <section id="final-tools" class="final-tools">
+            <div class="final-section-index">07 / THE TOOLS</div>
+            <div class="final-tools-head">
+                <h2>Machines for<br /><em>investigation.</em></h2>
+                <p>Diagnostics turn a vague feeling into something you can inspect, discuss and act on.</p>
+            </div>
+            <div class="final-tool-console">
+                <div class="final-tool-list" role="tablist" aria-label="Diagnostic tools">
+                    <button class="@(selectedTool == "backlog" ? "active" : "")" type="button" @onclick='() => selectedTool = "backlog"'><span>01</span>Backlog Health Monitor</button>
+                    <button class="@(selectedTool == "team" ? "active" : "")" type="button" @onclick='() => selectedTool = "team"'><span>02</span>Team Health Check</button>
+                    <button class="@(selectedTool == "maturity" ? "active" : "")" type="button" @onclick='() => selectedTool = "maturity"'><span>03</span>Maturity Assessment</button>
+                </div>
+                <div class="final-tool-readout">
+                    <div class="readout-top"><span>DIAGNOSTIC / @selectedTool.ToUpperInvariant()</span><b>READY TO INSPECT</b></div>
+                    <div class="readout-grid"><span>Signal strength</span><strong>78</strong><span>Relationships found</span><strong>04</strong><span>Next useful question</span><em>What is entering the system?</em></div>
+                    <div class="readout-bar"><i></i></div>
+                </div>
+            </div>
+        </section>
 
-<div class="card">
-<h3>Metrics get gamed</h3>
-<p>When metrics become targets, teams optimise the number instead of the system.</p>
+        <section class="final-hypothesis">
+            <div class="final-section-index">08 / HYPOTHESIS</div>
+            <div class="final-equation">
+                <span>WHAT WE SEE</span><b>+</b><span>WHAT CONNECTS</span><b>=</b><strong>A HYPOTHESIS<br />WORTH TESTING</strong>
+            </div>
+            <button class="final-hypothesis-toggle" type="button" @onclick="() => showHypothesis = !showHypothesis">
+                @(showHypothesis ? "Hide the working theory" : "Show the working theory") <span>↗</span>
+            </button>
+            @if (showHypothesis)
+            {
+                <p class="final-working-theory">The system may be protecting completion by trading away decision speed. Make that trade-off visible before the team absorbs it.</p>
+            }
+        </section>
+
+        <section id="final-play" class="final-play">
+            <div class="final-play-art"><img src="/images/Bake%20Off/Final%20round/The%20Intervention.jpg" alt="A deliberate mechanical intervention" /></div>
+            <div class="final-play-copy">
+                <p class="final-section-index">09 / THE PLAY</p>
+                <h2>Do not just understand the problem.<br /><em>Try something.</em></h2>
+                <p>A Play is a practical intervention that follows from the hypothesis. Small enough to run. Specific enough to learn from.</p>
+                <button type="button" class="final-action-button">RUN THE PLAY <span>→</span></button>
+            </div>
+        </section>
+
+        <section class="final-learning">
+            <div class="final-learning-copy">
+                <p class="final-section-index">10 / INSPECT / ADAPT / LEARN</p>
+                <h2>Try. Observe.<br /><em>Learn what moved.</em></h2>
+                <p>There is no magic recommendation. Understanding gets sharper through repeated inspection.</p>
+            </div>
+            <div class="final-learning-art"><img src="/images/Bake%20Off/Final%20round/The%20Learning%20Loop.jpg" alt="A technical learning loop showing change over time" /></div>
+        </section>
+
+        <section class="final-momentum">
+            <img src="/images/Bake%20Off/Final%20round/The%20Machine%20in%20Motion.jpg" alt="The machine moving forward with purpose" />
+            <div><p class="final-section-index">11 / MOMENTUM</p><h2>Understanding<br /><em>creates momentum.</em></h2></div>
+        </section>
+
+        <section id="final-ecosystem" class="final-ecosystem">
+            <p class="final-section-index">12 / THE ECOSYSTEM</p>
+            <h2>One system.<br /><em>Four ways in.</em></h2>
+            <div class="final-ecosystem-route">
+                <a href="#final-tools"><b>TOOLS</b><span>understand</span><i>↘</i></a>
+                <a href="#final-intelligence"><b>PERSPECTIVES</b><span>think</span><i>↘</i></a>
+                <a href="#final-play"><b>PLAYS</b><span>act</span><i>↘</i></a>
+                <a href="#final-services"><b>SERVICES</b><span>go deeper</span><i>↘</i></a>
+            </div>
+        </section>
+
+        <section id="final-services" class="final-services">
+            <div class="final-services-art"><img src="/images/Bake%20Off/Final%20round/The%20Driver.jpg" alt="A driver operating the machine" /></div>
+            <div class="final-services-copy">
+                <p class="final-section-index">13 / HUMAN HELP</p>
+                <h2>The machine helps you see.<br /><em>People still decide what to do.</em></h2>
+                <p>Use the tools. Build understanding. Try something. Learn. When the problem needs deeper intervention, work with us.</p>
+                <a class="final-action-button" href="#final-close">WORK WITH US <span>↗</span></a>
+            </div>
+        </section>
+
+        <section id="final-close" class="final-close">
+            <img src="/images/Bake%20Off/Final%20round/The%20Heroic%20System.jpg" alt="A heroic system ready to move" />
+            <div class="final-close-copy"><p class="final-section-index">14 / START HERE</p><h2>Find the thing<br />your reports<br /><em>cannot show you.</em></h2><a class="final-close-action" href="#final-tools">START WITH THE SYSTEM <span>↗</span></a></div>
+        </section>
+    </main>
 </div>
 
-<div class="card">
-<h3>Dashboards hide problems</h3>
-<p>Aggregated reports mask queues, delays and structural constraints.</p>
-</div>
+@code {
+    private string selectedTool = "backlog";
+    private bool showSignal;
+    private bool showHypothesis;
+}
 
-<div class="card">
-<h3>Data becomes fragmented</h3>
-<p>Information spreads across tools and teams without a shared system view.</p>
-</div>
-
-</FeatureGrid>
-
-</section>
-
-<section class="section">
-
-<h2>
-Explore the platform
-</h2>
-
-<FeatureGrid Columns="2">
-
-<ToolCard
-Title="Operational Intelligence Hub"
-Description="Diagnostic tools to understand delivery systems."
-Link="/hub"
-Icon="📊"
-/>
-
-<ToolCard
-Title="Perspectives"
-Description="Thought leadership on delivery systems."
-Link="/insights"
-Icon="🧠"
-/>
-
-<ToolCard
-Title="Improvement Plays"
-Description="Practical experiments to improve delivery flow."
-Link="/plays"
-Icon="⚙"
-/>
-
-<ToolCard
-Title="Advisory Services"
-Description="Coaching and advisory for organisational change."
-Link="/services"
-Icon="🤝"
-/>
-
-</FeatureGrid>
-
-</section>
-
-<section class="section">
-
-<h2>
-Example observation
-</h2>
-
-<ObservationCard>
-
-<p>Your backlog might be carrying too much work.</p>
-<p>When queues grow, delivery slows down and prioritisation becomes harder.</p>
-
-</ObservationCard>
-
-</section>
-
-<CTASection>
-
-<h2>Start understanding your delivery system</h2>
-
-<a class="button button-primary button-lg" href="/hub">
-Explore the Operational Intelligence Hub
-</a>
-
-</CTASection>
-
-</div>
+<style>
+    .bakeoff-final-frame { background: #101112; }
+    .final-homepage {
+        --ink:#111315; --charcoal:#17191a; --cream:#f2eadb; --muted:#a9aaa2; --line:#4a4d4a; --red:#d5523d; --blue:#2f789d;
+        background:var(--ink); color:var(--cream); font-family:Inter,Segoe UI,sans-serif; overflow:hidden; position:relative; isolation:isolate;
+    }
+    .final-homepage a { color:inherit; text-decoration:none; }
+    .final-homepage a:hover { opacity:0.9; }
+    .final-homepage section { position:relative; }
+    .final-nav {
+        align-items:center; background:rgba(17,19,21,0.34); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.06);
+        box-sizing:border-box; display:flex; gap:32px; justify-content:space-between; padding:18px clamp(22px,5vw,76px); position:absolute; width:100%; z-index:3;
+    }
+    .final-brand { align-items:center; display:flex; font-size:10px; font-weight:700; letter-spacing:.1em; line-height:1.15; }
+    .final-brand-mark { align-items:center; border:1px solid var(--red); border-radius:2px; color:var(--red); display:flex; font-family:Georgia,serif; font-size:14px; height:34px; justify-content:center; margin-right:10px; width:34px; }
+    .final-nav nav { display:flex; font-size:11px; gap:24px; letter-spacing:.1em; text-transform:uppercase; }
+    .final-nav nav a { opacity:0.8; transition:opacity 150ms ease; }
+    .final-nav nav a:hover { opacity:1; }
+    .final-nav-action,.final-hero-link,.final-close-action { border-bottom:1px solid var(--red); color:var(--cream); font-size:11px; letter-spacing:.1em; padding-bottom:7px; text-transform:uppercase; }
+    .final-nav-action span,.final-hero-link span,.final-close-action span { color:var(--red); margin-left:12px; }
+    .final-hero {
+        background:radial-gradient(circle at 20% 10%, rgba(213,82,61,0.18), transparent 23%),
+            linear-gradient(90deg, #1c1d1f 0%, #232426 42%, #1c1d20 100%);
+        min-height:780px; overflow:hidden; padding:160px clamp(24px,8vw,130px) 110px; position:relative; box-shadow:inset 0 -1px 0 rgba(255,255,255,0.04);
+    }
+    .final-hero-copy { max-width:650px; position:relative; z-index:2; }
+    .final-hero h1 { text-shadow:0 12px 32px rgba(0,0,0,0.18); }
+    .final-stamp,.final-section-index { color:var(--red); font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+    .final-hero h1,.final-clarity h2,.final-cutaway h2,.final-tools h2,.final-play h2,.final-learning h2,.final-ecosystem h2,.final-services h2,.final-close h2 { font-family:Georgia,serif; font-weight:400; letter-spacing:-.06em; line-height:.91; }
+    .final-hero h1 { font-size:clamp(50px,8vw,120px); margin:38px 0 30px; }
+    .final-hero h1 em,.final-clarity h2 em,.final-cutaway h2 em,.final-tools h2 em,.final-play h2 em,.final-learning h2 em,.final-ecosystem h2 em,.final-services h2 em,.final-close h2 em { color:var(--red); font-style:normal; }
+    .final-hero-question { color:#d2d0c4; font-size:clamp(16px,2vw,22px); line-height:1.35; max-width:390px; }
+    .final-hero-link { display:inline-block; margin-top:52px; }
+    .final-hero-art { height:620px; position:absolute; right:-4%; top:90px; width:64%; }
+    .final-hero-art:after { background:linear-gradient(90deg,#242426 0%,transparent 32%),linear-gradient(0deg,#242426 0%,transparent 22%); content:""; inset:0; position:absolute; }
+    .final-hero-art img { height:100%; object-fit:cover; width:100%; }
+    .final-art-note { color:#d1cab9; font-size:9px; letter-spacing:.16em; position:absolute; z-index:1; }
+    .final-art-note-top { left:12%; top:11%; }.final-art-note-bottom { bottom:9%; right:14%; }
+    .final-surface { background:var(--cream); color:var(--ink); min-height:870px; padding:120px clamp(24px,9vw,140px); position:relative; }
+    .final-surface .final-section-index { color:#a23f31; }.final-surface-intro { margin:58px 0 20px; position:relative; z-index:1; }.final-surface-intro p { color:#a23f31; font-size:12px; letter-spacing:.12em; text-transform:uppercase; }.final-surface-intro h2 { font-family:Georgia,serif; font-size:clamp(50px,7vw,105px); font-weight:400; letter-spacing:-.07em; line-height:.87; margin:18px 0; }.final-surface-intro strong { color:#a23f31; font-weight:400; }
+    .final-dashboard-stage { margin-left:28%; max-width:780px; position:relative; }.final-dashboard-stage img { display:block; filter:saturate(.75); width:100%; }.final-dashboard-label,.final-dashboard-callout { background:var(--ink); color:var(--cream); font-size:10px; letter-spacing:.12em; padding:12px 16px; position:absolute; text-transform:uppercase; }.final-dashboard-label { left:-45px; top:24px; }.final-dashboard-label b { color:#76b49e; margin-left:20px; }.final-dashboard-callout { bottom:-20px; right:-22px; }.final-dashboard-callout strong { color:var(--red); }.final-surface-caption { font-family:Georgia,serif; font-size:21px; line-height:1.2; margin:78px 0 0 auto; max-width:330px; }
+    .final-contradiction { background:var(--ink); min-height:780px; padding:120px clamp(24px,10vw,160px); position:relative; }.final-contradiction-axis { background:var(--red); height:100%; left:13%; opacity:.7; position:absolute; top:0; width:1px; }.final-contradiction-line { border-bottom:1px solid #3d403d; display:flex; flex-wrap:wrap; font-family:Georgia,serif; font-size:clamp(31px,4.5vw,70px); gap:18px; letter-spacing:-.05em; line-height:1; margin:74px 0 0 12%; padding-bottom:26px; }.final-contradiction-line b { color:var(--red); font-weight:400; }.final-cutaway { background:#d6d0c0; color:var(--ink); min-height:960px; overflow:hidden; padding:115px clamp(24px,8vw,125px); position:relative; }.final-cutaway .final-section-index { color:#a23f31; }.final-cutaway-heading { position:relative; z-index:1; }.final-cutaway-heading h2 { font-size:clamp(52px,7vw,108px); margin:70px 0 24px; }.final-cutaway-heading p { font-size:17px; line-height:1.4; max-width:280px; }.final-cutaway-art { bottom:0; position:absolute; right:-6%; width:72%; }.final-cutaway-art img { display:block; mix-blend-mode:multiply; width:100%; }.final-cutaway-tag { border:1px solid #a23f31; color:#a23f31; font-size:10px; letter-spacing:.15em; padding:7px 10px; position:absolute; }.tag-engine { left:25%; top:35%; }.tag-demand { right:28%; top:58%; }.tag-capacity { bottom:16%; left:46%; }
+    .final-lenses { background:#1b272c; display:grid; grid-template-columns:1fr 1fr; min-height:720px; padding:120px clamp(24px,8vw,125px); position:relative; }.final-lenses-heading { align-self:end; }.final-lenses-heading p { color:#d6d0c0; font-family:Georgia,serif; font-size:24px; max-width:330px; }.final-lenses-heading h2 { font-family:Georgia,serif; font-size:clamp(50px,6vw,90px); font-weight:400; letter-spacing:-.07em; line-height:.88; margin:26px 0; }.final-lenses-heading h2 span { color:#91b4bc; }.final-lenses-heading h2 strong { color:var(--red); font-weight:400; }.final-lens-orbit { align-self:center; border:1px solid #78929a; border-radius:50%; height:370px; justify-self:center; position:relative; width:370px; }.final-lens-orbit:before,.final-lens-orbit:after { border:1px solid #5b7379; border-radius:50%; content:""; inset:48px; position:absolute; }.final-lens-orbit:after { inset:110px; }.final-lens-orbit span,.final-lens-orbit b { font-size:10px; letter-spacing:.15em; position:absolute; text-transform:uppercase; }.lens-system { left:12%; top:20%; }.lens-behaviour { right:10%; top:44%; }.lens-culture { bottom:20%; left:15%; }.final-lens-orbit b { color:var(--red); left:50%; line-height:1.3; text-align:center; top:50%; transform:translate(-50%,-50%); }
+    .final-clarity { align-items:center; background:var(--cream); color:var(--ink); display:grid; gap:60px; grid-template-columns:1.2fr .8fr; min-height:700px; padding:120px clamp(24px,10vw,155px); }.final-clarity .final-section-index { color:#a23f31; }.final-clarity h2 { font-size:clamp(44px,6vw,88px); margin:52px 0 26px; }.final-clarity-copy>p:last-child { font-size:17px; line-height:1.5; max-width:470px; }    .final-signal { align-items:center; background:#22282a; border:0; border-radius:50%; color:var(--cream); cursor:pointer; display:flex; flex-direction:column; font:inherit; gap:12px; height:320px; justify-content:center; justify-self:center; outline:none; padding:40px; position:relative; text-align:center; width:320px; }.final-signal:focus-visible { box-shadow:0 0 0 3px var(--red); }.signal-ring { border:1px solid #7398a5; border-radius:50%; inset:22px; position:absolute; }.signal-ring:after { background:var(--red); border-radius:50%; content:""; height:20px; left:50%; position:absolute; top:50%; transform:translate(-50%,-50%); width:20px; }.final-signal span,.final-signal strong { font-size:10px; letter-spacing:.14em; position:relative; }.final-signal span { color:#a9c6c7; }.final-signal strong { color:var(--red); }.final-signal small { color:#d4d1c4; font-size:12px; line-height:1.3; max-width:180px; position:relative; }
+    .final-tools { background:var(--charcoal); min-height:760px; padding:120px clamp(24px,9vw,140px); }.final-tools-head { align-items:end; display:flex; gap:60px; justify-content:space-between; margin:70px 0; }.final-tools h2 { font-size:clamp(54px,7vw,100px); margin:0; }.final-tools-head p { color:var(--muted); line-height:1.5; max-width:270px; }.final-tool-console { border-top:1px solid var(--line); display:grid; grid-template-columns:300px 1fr; }.final-tool-list button { background:transparent; border:0; border-bottom:1px solid var(--line); color:var(--muted); cursor:pointer; display:block; font:inherit; padding:22px 12px; text-align:left; width:100%; }.final-tool-list button span { color:var(--red); font-size:10px; margin-right:28px; }.final-tool-list button.active { color:var(--cream); }.final-tool-readout { border-left:1px solid var(--line); padding:26px 32px; }.readout-top,.readout-grid { display:grid; gap:15px; grid-template-columns:1fr auto; }.readout-top { border-bottom:1px solid var(--line); font-size:10px; letter-spacing:.12em; padding-bottom:18px; }.readout-top b { color:#79b09b; font-weight:400; }.readout-grid { color:var(--muted); font-size:13px; margin-top:30px; }.readout-grid strong { color:var(--cream); font-family:Georgia,serif; font-size:28px; font-weight:400; }.readout-grid em { color:var(--red); font-style:normal; text-align:right; }.readout-bar { background:#313536; height:4px; margin-top:34px; }.readout-bar i { background:var(--red); display:block; height:100%; width:78%; }
+    .final-hypothesis { background:#c8c3b5; color:var(--ink); min-height:620px; padding:120px clamp(24px,9vw,140px); }.final-hypothesis .final-section-index { color:#a23f31; }.final-equation { align-items:center; display:flex; flex-wrap:wrap; font-family:Georgia,serif; font-size:clamp(29px,4vw,62px); gap:20px; letter-spacing:-.05em; margin:100px 0 60px; }.final-equation span { color:#5c6361; }.final-equation b { color:var(--red); font-family:Inter,sans-serif; font-size:26px; }.final-equation strong { color:var(--red); font-weight:400; }.final-hypothesis-toggle,.final-action-button { background:transparent; border:1px solid currentColor; color:inherit; cursor:pointer; font:inherit; font-size:11px; letter-spacing:.12em; padding:14px 18px; text-transform:uppercase; }.final-hypothesis-toggle span,.final-action-button span { color:var(--red); margin-left:22px; }.final-working-theory { border-left:2px solid var(--red); font-family:Georgia,serif; font-size:23px; line-height:1.3; margin:32px 0 0; max-width:590px; padding-left:20px; }
+    .final-play { align-items:center; background:#171a1b; display:grid; gap:70px; grid-template-columns:1.05fr .95fr; min-height:850px; padding:100px clamp(24px,8vw,125px); }.final-play-art img,.final-learning-art img,.final-services-art img { display:block; width:100%; }.final-play-art { align-self:stretch; overflow:hidden; }.final-play-art img { height:100%; object-fit:cover; }.final-play-copy h2,.final-learning h2,.final-services h2 { font-size:clamp(48px,6vw,92px); margin:52px 0 28px; }.final-play-copy>p:last-of-type,.final-services-copy>p:last-of-type { color:var(--muted); line-height:1.55; max-width:370px; }.final-play .final-action-button,.final-services .final-action-button { color:var(--cream); display:inline-block; margin-top:32px; }.final-learning { align-items:center; background:#263c42; display:grid; gap:60px; grid-template-columns:.8fr 1.2fr; min-height:780px; padding:110px clamp(24px,8vw,125px); }.final-learning-copy>p:last-child { color:#d4d4c9; line-height:1.5; max-width:290px; }.final-learning-art { transform:rotate(2deg); }.final-momentum { min-height:700px; overflow:hidden; position:relative; }.final-momentum img { height:100%; object-fit:cover; opacity:.7; position:absolute; width:100%; }.final-momentum:after { background:linear-gradient(90deg,#17191a 0%,transparent 75%); content:""; inset:0; position:absolute; }.final-momentum>div { left:12%; position:absolute; top:30%; z-index:1; }.final-momentum h2 { font-family:Georgia,serif; font-size:clamp(55px,8vw,125px); font-weight:400; letter-spacing:-.07em; line-height:.84; margin:55px 0; }.final-momentum h2 em { color:var(--red); font-style:normal; }
+    .final-ecosystem { background:var(--cream); color:var(--ink); min-height:720px; padding:120px clamp(24px,9vw,140px); }.final-ecosystem .final-section-index { color:#a23f31; }.final-ecosystem h2 { font-size:clamp(60px,8vw,120px); margin:60px 0 90px; }.final-ecosystem-route { border-top:1px solid #96948a; display:grid; grid-template-columns:repeat(4,1fr); }.final-ecosystem-route a { border-right:1px solid #96948a; display:flex; flex-direction:column; gap:16px; min-height:180px; padding:22px 18px 0 0; }.final-ecosystem-route a:not(:first-child) { padding-left:18px; }.final-ecosystem-route b { font-size:13px; letter-spacing:.12em; }.final-ecosystem-route span { color:#a23f31; font-family:Georgia,serif; font-size:22px; }.final-ecosystem-route i { font-style:normal; margin-top:auto; }
+    .final-services { align-items:center; background:#1d292c; display:grid; gap:70px; grid-template-columns:1fr 1fr; min-height:760px; padding:100px clamp(24px,8vw,125px); }.final-services-art { max-height:560px; overflow:hidden; }.final-services-art img { height:560px; object-fit:cover; }.final-services-copy h2 { color:var(--cream); }.final-services-copy>p:last-of-type { color:#c3c4ba; }.final-close { min-height:760px; overflow:hidden; position:relative; }.final-close img { height:100%; object-fit:cover; opacity:.72; position:absolute; width:100%; }.final-close:after { background:linear-gradient(90deg,#161819 5%,transparent 75%); content:""; inset:0; position:absolute; }.final-close-copy { left:12%; position:absolute; top:18%; z-index:1; }.final-close h2 { font-size:clamp(60px,8vw,125px); margin:65px 0 52px; }.final-close-action { display:inline-block; }
+    @@media (max-width: 760px) { .final-nav { align-items:flex-start; }.final-nav nav { display:none; }.final-nav-action { font-size:9px; }.final-hero { min-height:820px; padding-top:130px; }.final-hero-art { bottom:0; height:420px; left:0; right:auto; top:auto; width:125%; }.final-hero-art:after { background:linear-gradient(0deg,#242426 0%,transparent 45%); }.final-surface { padding-top:80px; }.final-dashboard-stage { margin-left:0; margin-top:55px; }.final-dashboard-label { left:10px; top:10px; }.final-surface-caption { margin-top:65px; }.final-contradiction { min-height:670px; padding-top:85px; }.final-contradiction-line { font-size:35px; margin-left:8%; margin-top:56px; }.final-contradiction-axis { left:5%; }.final-cutaway { min-height:800px; }.final-cutaway-art { bottom:0; right:-40%; width:145%; }.final-lenses,.final-clarity,.final-tools-head,.final-play,.final-learning,.final-services { grid-template-columns:1fr; }.final-lenses { gap:45px; min-height:900px; }.final-lens-orbit { height:280px; width:280px; }.final-lens-orbit:before { inset:36px; }.final-lens-orbit:after { inset:83px; }.final-clarity { min-height:850px; }.final-signal { height:280px; width:280px; }.final-tools-head { align-items:start; gap:26px; margin:48px 0; }.final-tool-console { grid-template-columns:1fr; }.final-tool-readout { border-left:0; border-top:1px solid var(--line); }.final-equation { align-items:flex-start; flex-direction:column; margin-top:65px; }.final-play { gap:35px; }.final-play-art { max-height:400px; }.final-learning { gap:45px; }.final-momentum { min-height:620px; }.final-ecosystem h2 { margin-bottom:55px; }.final-ecosystem-route { grid-template-columns:1fr 1fr; }.final-ecosystem-route a { min-height:150px; }.final-services-art img { height:420px; }.final-close { min-height:680px; }.final-close-copy { left:8%; top:14%; } }
+    @@media (prefers-reduced-motion: no-preference) { .final-hero-art img,.final-cutaway-art img,.final-momentum img { animation: final-drift 14s ease-in-out infinite alternate; } @@keyframes final-drift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(-1.5%, -1%, 0) scale(1.04); } } }
+    @@media (prefers-reduced-motion: reduce) { .final-homepage * { scroll-behavior:auto !important; transition:none !important; animation:none !important; } }
+</style>
