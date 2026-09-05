@@ -12,14 +12,12 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* Environment 
-    background: radial-gradient(1200px circle at 0% 0%, rgba(124,58,237,0.18), transparent 60%),
-        radial-gradient(900px circle at 100% 0%, rgba(236,72,153,0.12), transparent 60%),
-        radial-gradient(1000px circle at 50% 100%, rgba(56,189,248,0.12), transparent 60%),
-        #0B0F1A; */
+    background: var(--surface-base-bg);
+    color: var(--text-primary);
 }
 main {
     flex: 1;
+    background: transparent;
 }
 .hub-layout {
     display: flex;

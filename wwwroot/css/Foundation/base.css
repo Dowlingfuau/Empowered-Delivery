@@ -19,7 +19,10 @@ html {
 } 
 body {
     font-family: var(--font-family-primary);
-    background: var(--color-core-base);
+    background:
+        radial-gradient(circle at top left, rgba(124, 199, 255, 0.12), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(255, 124, 168, 0.08), transparent 18%),
+        var(--surface-base-bg);
     color: var(--text-primary);
     line-height: var(--font-body-line-height);
     margin: 0;

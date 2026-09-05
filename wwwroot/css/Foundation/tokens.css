@@ -12,29 +12,34 @@
     /* -----------------------------------------
         CORE (Structure + Brand Depth)
     ----------------------------------------- */
+    /* Outer canvas / neutral environment */
+    --canvas-base: #070d16;
+    --canvas-base-strong: #0d1420;
+    --canvas-surface: #0f1b2a;
+
     /* Neutral / Structural */
-    --color-core-base: #0B0F1A;
-    --color-core-surface: #0F172A;
-    --color-core-muted: #64748B;
-    --color-core-light: #E2E8F0;
+    --color-core-base: #edf5ff;
+    --color-core-surface: #101b2a;
+    --color-core-muted: rgba(203, 219, 255, 0.72);
+    --color-core-light: #edf5ff;
     --color-absolute-white: #ffffff;
     --color-absolute-black: #000000;
     /* Brand Depth */
-    --color-core-blue: #1C2A4A;
-    --color-core-violet: #1E1B4B;
+    --color-core-blue: #0d1420;
+    --color-core-violet: #141a2a;
     /* -----------------------------------------
-        ACCENT (Emphasis / Direction)
+       ACCENT (Emphasis / Direction)
     ----------------------------------------- */
-    --color-accent-blue: #6E7BFF;
-    --color-accent-orange: #FF8A3D;
+    --color-accent-blue: #7cc7ff;
+    --color-accent-orange: #ffb067;
     /* -----------------------------------------
-        SECONDARY (Expression / Energy)
+       SECONDARY (Expression / Energy)
     ----------------------------------------- */
-    --color-secondary-indigo: #4A5BD4;
-    --color-secondary-cyan: #3BC9DB;
-    --color-secondary-teal: #2FBF9F;
-    --color-secondary-purple: #7A5CFF;
-    --color-secondary-pink: #EC4899;
+    --color-secondary-indigo: #7d8cff;
+    --color-secondary-cyan: #84f5d2;
+    --color-secondary-teal: #7bc7d9;
+    --color-secondary-purple: #b892ff;
+    --color-secondary-pink: #ff7ca8;
     /* -----------------------------------------
         Data Visualisation
     ----------------------------------------- */
@@ -116,10 +121,10 @@
 
     /* Core Text */
     --text-primary: var(--color-core-light);
-    --text-secondary: rgba(var(--color-core-light-rgb), 0.8);
+    --text-secondary: rgba(var(--color-core-light-rgb), 0.76);
     --text-muted: rgba(var(--color-core-light-rgb), 0.6);
     --text-inverse: var(--color-core-base);
-    --text-disabled: rgba(var(--color-core-light-rgb), 0.4);
+    --text-disabled: rgba(var(--color-core-light-rgb), 0.38);
     /* Structural Roles */
     --text-heading: var(--text-primary);
     --text-body: var(--text-secondary);
@@ -239,32 +244,32 @@
     ========================================= */
 
     /* LEVEL 0 - BASE LAYER (Background, Structural Layout, Passive Info) */
-    --surface-base-bg: linear-gradient(180deg, var(--color-core-base), var(--color-core-blue));
-    --surface-base-accent: 
-        radial-gradient(1200px circle at 0% 0%. rgba(var(--color-secondary-purple-rgb), 0.12), transparent 60%),
-        radial-gradient(900px circle at 100% 0%, rgba(var(--color-secondary-pink-rgb),0.08), transparent 60%);
+    --surface-base-bg: linear-gradient(180deg, #070d16 0%, #0d1420 42%, #101b2a 100%);
+    --surface-base-accent:
+        radial-gradient(1200px circle at 0% 0%, rgba(var(--color-secondary-cyan-rgb), 0.10), transparent 62%),
+        radial-gradient(900px circle at 100% 100%, rgba(var(--color-secondary-pink-rgb),0.08), transparent 58%);
     /* no shadow */
     /* no border */
     /* no glow */
     /* LEVEL 1 - RAISED (Interactive Elements, User Controls, Inputs) */
-    --surface-raised-bg: linear-gradient(180deg, rgba(var(--color-core-base-rgb),0.9), rgba(var(--color-core-surface-rgb),0.9));
-    --surface-raised-shadow: 0 2px 6px rgba(var(--color-core-base-rgb), 0.05);
-    --surface-raised-border: var(--border-subtle);
+    --surface-raised-bg: linear-gradient(180deg, rgba(12, 18, 27, 0.98), rgba(18, 27, 39, 0.98));
+    --surface-raised-shadow: 0 2px 6px rgba(11, 17, 24, 0.08);
+    --surface-raised-border: rgba(255,255,255,0.08);
     --surface-raised-blur: blur(6px);
     /* LEVEL 2 - ELEVATED (Grouped Content, Structured Info, Important but not dominant elements) */
-    --surface-elevated-bg: linear-gradient(180deg, var(--color-core-base) 0%, var(--color-core-surface) 100%);
-    --surface-elevated-shadow: 0 6px 16px rgba(var(--color-core-base-rgb), 0.08);
-    --surface-elevated-border: var(--border-default);
+    --surface-elevated-bg: linear-gradient(180deg, #0D1420 0%, #101B2A 100%);
+    --surface-elevated-shadow: 0 8px 18px rgba(11, 17, 24, 0.10);
+    --surface-elevated-border: rgba(255,255,255,0.08);
     /* LEVEL 3 - FOCUS (System Interpretation, Insight, Key Understanding) */
     --surface-focus-bg:
-        radial-gradient(600px circle at 0% 0%, rgba(var(--color-secondary-purple-rgb),0.25), transparent 60%),
-        radial-gradient(600px circle at 100% 0%, rgba(var(--color-secondary-pink-rgb),0.2), transparent 60%),
-        linear-gradient(180deg, var(--color-core-base) 0%, var(--color-core-violet) 100%);
-    --surface-focus-shadow: 0 12px 32px rgba(var(--color-core-base-rgb), 0.12);
-    --surface-focus-border: var(--border-strong);
+        radial-gradient(600px circle at 0% 0%, rgba(var(--color-secondary-cyan-rgb),0.12), transparent 60%),
+        radial-gradient(600px circle at 100% 0%, rgba(var(--color-secondary-pink-rgb),0.10), transparent 58%),
+        linear-gradient(180deg, #0D1420 0%, #101B2A 100%);
+    --surface-focus-shadow: 0 12px 28px rgba(11, 17, 24, 0.12);
+    --surface-focus-border: rgba(255,255,255,0.12);
     --surface-focus-glow:
-        0 0 40px rgba(var(--color-secondary-purple-rgb),0.25),
-        0 0 80px rgba(var(--color-secondary-pink-rgb),0.2);
+        0 0 30px rgba(var(--color-secondary-cyan-rgb),0.12),
+        0 0 60px rgba(var(--color-secondary-pink-rgb),0.10);
     /* LEVEL 4 - OVERLAY (Interruption, Critical Decisions, Modal Focus) */
     --overlay-bg: rgba(var(--color-core-base-rgb), 0.6);
     --overlay-blur: blur(8px);
@@ -308,38 +313,34 @@
    DO NOT USE
 ========================================= */
 
-/* Visual Tokens */  
+/* Visual Tokens */
     /* Brand colours & Themes */
-    --color-primary: #0a1f44;                         /* Navy blue – main primary brand colour */
-    --color-secondary: #5c667a;                       /* Neutral grey for secondary elements */
-    --color-accent: rgb(255, 46, 136);                /* Accent pink for highlights & interactive states */
-    --color-accent-purple: #6b4b9a;                   /* Accent purple for charts or special highlights */
+    --color-primary: var(--color-core-base);
+    --color-secondary: var(--color-core-muted);
+    --color-accent: var(--color-secondary-pink);
+    --color-accent-purple: var(--color-secondary-purple);
     /* Status */
-    --color-danger: #ff5630;                          /* Alerts / error messages */
-        /*--color-success: rgb(82, 194, 222);  */                       /* Success / positive feedback */
-        /*--color-warning: #ffab00; */
-        /*--color-info: #1976d2; */
+    --color-danger: var(--color-error);
     /* Background */
-    --color-bg-light: #f5f7fb;                        /* Light background for page */
-    --color-bg-panel: #ffffff;                        /* Card / panel background */  
+    --color-bg-light: var(--canvas-base);
+    --color-bg-panel: var(--canvas-surface);
     /* Charts */
-    --color-chart-1: #00ffcc;
-    --color-chart-2: #ff0080;
-    --color-chart-3: #8b5cf6;
-    --color-chart-4: #06b6d4;
-    --color-chart-5: #fbbf24;
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
     /* Text */
-    --color-text-primary: #1a1a1a;                    /* Main text colour */
-    --color-text-secondary: #5c667a;                  /* Secondary text */
-    --color-text-light: #a3a9b6;                      /* Tertiary text / hints */
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-light: var(--text-muted);
     /* Borders */
-    --color-border: #e4e8f0;                          /* General borders */
-    --color-border-light: #eef1f6;
-    --color-border-strong: #cdd6e3;
+    --color-border: rgba(var(--color-core-base-rgb), 0.12);
+    --color-border-light: rgba(var(--color-core-base-rgb), 0.08);
+    --color-border-strong: rgba(var(--color-core-base-rgb), 0.18);
     /* Typography Tokens */
-    /* Typography */
-    --font-primary: "Inter", "Segoe UI", sans-serif;    /* Main UI font */
-    --font-accent: "Roboto Slab", serif;                /* For headings or decorative emphasis */
+    --font-primary: var(--font-family-primary);
+    --font-accent: var(--font-family-accent);
     --font-size-xs: 12px;
     --font-size-sm: 14px;
     --font-size-md: 16px;
@@ -349,32 +350,21 @@
     --font-weight-regular: 400;
     --font-weight-medium: 500;
     --font-weight-bold: 600;
-    --line-height-base: 1.5;
-    --line-height-tight: 1.3;
+    --line-height-base: var(--line-height-body);
+    --line-height-tight: var(--line-height-tight);
     /* Shadows */
     --shadow-light: 0 2px 6px rgba(0, 0, 0, 0.078);
     --shadow-medium: 0 6px 18px rgba(0, 0, 0, 0.122);
     --shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.161);
     --shadow-panel: 0 2px 8px rgba(0, 0, 0, 0.059);
     /* Z-Index */
-    --z-base: 1;                                        /* Normal layout */
-    --z-dropdown: 100;                                  /* Selects & Menus */
-    --z-sidebar: 50;                                    /* Fixed Navigation */
-    --z-modal: 1000;                                    /* Dialogs */
-    --z-toast: 1100;                                    /* Notifications */
-    --z-overlay: 500;          
-    /* Dark Mode Tokens */
-    /* [data-theme="dark"] {
-    --color-bg-light: #111318;
-    --color-bg-panel: #1e1e28;
-    --color-nav-bg: #151b2d;
-    --color-text-primary: #e4e4e4;
-    --color-text-secondary: #b0b0b0;
-    --color-text-light: #7d7d7d;
-    --color-border: #2c2c2c;
-    --color-border-light: #333;}*/   
-    
-    /* Radius - ACTION: Convert to --radius-sm / --radius-md / --radius-lg */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sidebar: 50;
+    --z-modal: 1000;
+    --z-toast: 1100;
+    --z-overlay: 500;
+    /* Radius */
     --radius-small: 6px;
     --radius-medium: 10px;
     --radius-large: 16px;
@@ -397,12 +387,12 @@
     
     
     
-    /* Navigation - ACTION: REBUILD using surfaces/text tokens/interaction system */
-    --color-nav-bg: #0a1f44;                          /* Hover state for lists/buttons */
-    --color-nav-text: #e6ecf5;
-    --color-nav-text-muted: rgba(255,255,255,0.55);
-    --color-nav-hover: #ffffff14;
-    --color-nav-active: var(--color-accent);
+    /* Navigation - align with the dark premium Bake Off treatment */
+    --color-nav-bg: rgba(11, 17, 27, 0.92);
+    --color-nav-text: #edf5ff;
+    --color-nav-text-muted: rgba(237, 245, 255, 0.72);
+    --color-nav-hover: rgba(124, 199, 255, 0.12);
+    --color-nav-active: var(--color-accent-blue);
     
 }
 
