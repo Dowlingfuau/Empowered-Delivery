@@ -1,0 +1,301 @@
+<div class="play-template">
+    <header class="play-template__masthead">
+        <div class="play-template__wordmark">PLAYS / FIELD GUIDE</div>
+        <div class="play-template__mode-switch" role="group" aria-label="Play mode">
+            <span class="play-template__mode is-active">LEARN IT</span>
+            @if (OnRun.HasDelegate)
+            {
+                <button type="button" class="play-template__mode-link" @onclick="InvokeRun">
+                    RUN IT <span aria-hidden="true">→</span>
+                </button>
+            }
+        </div>
+    </header>
+
+    <main class="play-template__canvas">
+        <section class="play-template__opening">
+            <div class="play-template__copy">
+                <p class="play-template__kicker">FIELD GUIDE / 01</p>
+                <h1>@((MarkupString)FormatTitle(Title))</h1>
+
+                @if (!string.IsNullOrWhiteSpace(Subtitle))
+                {
+                    <p class="play-template__summary">@Subtitle</p>
+                }
+
+                @if (OnRun.HasDelegate)
+                {
+                    <button type="button" class="play-template__run-bridge" @onclick="InvokeRun">
+                        <span>RUN THIS PLAY</span>
+                        <span class="play-template__run-bridge-arrow" aria-hidden="true">→</span>
+                    </button>
+                }
+            </div>
+
+            <div class="play-template__specimen" aria-label="Play specifications">
+                <div class="play-template__specimen-mark">@GetInitials(Title)</div>
+                <div class="play-template__specimen-caption">INTERVENTION<br />SPECIMEN 01</div>
+                <dl>
+                    @foreach (var fact in GetHeroFacts())
+                    {
+                        <div>
+                            <dt>@fact.Label.ToUpperInvariant()</dt>
+                            <dd>@fact.Value</dd>
+                        </div>
+                    }
+                </dl>
+            </div>
+        </section>
+
+        @if (WhenToUse.Any() || KeysToSuccess.Any() || Materials.Any())
+        {
+            <section class="play-template__briefing">
+                <div class="play-template__section-marker">FIELD BRIEFING</div>
+                <div class="play-template__briefing-grid">
+                    <div>
+                        <h2>Use this play<br /><em>with purpose.</em></h2>
+                        @foreach (var paragraph in SplitParagraphs(Description))
+                        {
+                            <p class="play-template__briefing-lede">@paragraph</p>
+                        }
+                    </div>
+                    <div class="play-template__briefing-notes">
+                        @if (WhenToUse.Any())
+                        {
+                            <div class="play-template__note-block">
+                                <h3>WHEN TO USE</h3>
+                                <ul>
+                                    @foreach (var item in WhenToUse)
+                                    {
+                                        <li>@item</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        @if (KeysToSuccess.Any())
+                        {
+                            <div class="play-template__note-block">
+                                <h3>KEYS TO SUCCESS</h3>
+                                <ul>
+                                    @foreach (var item in KeysToSuccess)
+                                    {
+                                        <li>@item</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (Materials.Any())
+                {
+                    <div class="play-template__equipment-strip">
+                        <div class="play-template__equipment-label">EQUIPMENT / PREP</div>
+                        @foreach (var material in Materials)
+                        {
+                            <span>@material</span>
+                        }
+                    </div>
+                }
+            </section>
+        }
+
+        @if (Steps.Any())
+        {
+            <section class="play-template__flow">
+                <div class="play-template__section-marker">THE PLAY FLOW</div>
+                <div class="play-template__flow-heading">
+                    <h2>Mental rehearsal<br /><em>for the intervention.</em></h2>
+                    <p>Select a step to inspect what the facilitator does, why it matters, and what to watch for.</p>
+                </div>
+
+                <div class="play-template__flow-layout">
+                    <nav class="play-template__flow-route" aria-label="Play steps">
+                        @for (var index = 0; index < Steps.Count; index++)
+                        {
+                            var stepIndex = index;
+                            var step = Steps[stepIndex];
+                            <button type="button" class="play-template__flow-stop @(selectedStepIndex == stepIndex ? "is-selected" : string.Empty)" @onclick="() => SelectStep(stepIndex)" aria-pressed="@(selectedStepIndex == stepIndex)">
+                                <span class="play-template__flow-number">@((stepIndex + 1).ToString("00"))</span>
+                                <span class="play-template__flow-stop-title">@step.Title</span>
+                                <span class="play-template__flow-time">@GetTimeLabel(step.Timebox)</span>
+                            </button>
+                        }
+                    </nav>
+
+                    <article class="play-template__step-inspection">
+                        <div class="play-template__inspection-topline">
+                            <span>INSPECTION / @((selectedStepIndex + 1).ToString("00"))</span>
+                            <span>@GetTimeLabel(SelectedStep.Timebox)</span>
+                        </div>
+                        <h3>@SelectedStep.Title</h3>
+                        <div class="play-template__inspection-main">
+                            <div>
+                                <p class="play-template__inspection-label">WHAT YOU DO</p>
+                                @foreach (var paragraph in SplitParagraphs(SelectedStep.Instruction))
+                                {
+                                    <p class="play-template__instruction">@paragraph</p>
+                                }
+                            </div>
+                            <div class="play-template__inspection-aside">
+                                <div>
+                                    <p class="play-template__inspection-label">WHY IT MATTERS</p>
+                                    <p>@SelectedStep.WhyItMatters</p>
+                                </div>
+                                <div>
+                                    <p class="play-template__inspection-label">FACILITATOR TIPS</p>
+                                    <ul>
+                                        @foreach (var tip in SelectedStep.Tips)
+                                        {
+                                            <li>@tip</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        }
+
+        @if (OnRun.HasDelegate)
+        {
+            <section class="play-template__run-invitation">
+                <div>
+                    <p class="play-template__kicker">FIELD GUIDE / READY STATE</p>
+                    <h2>Ready to put<br /><em>it to work?</em></h2>
+                </div>
+                <button type="button" class="play-template__run-invitation-button" @onclick="InvokeRun">
+                    RUN IT <span aria-hidden="true">→</span>
+                </button>
+            </section>
+        }
+    </main>
+
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string Description { get; set; } = "";
+    [Parameter] public string RunButtonText { get; set; } = "Run it!";
+    [Parameter] public EventCallback OnRun { get; set; }
+    [Parameter] public IReadOnlyList<string> WhenToUse { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<string> KeysToSuccess { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<PlayFact> Facts { get; set; } = Array.Empty<PlayFact>();
+    [Parameter] public IReadOnlyList<string> Materials { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<PlayStep> Steps { get; set; } = Array.Empty<PlayStep>();
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private static IEnumerable<string> SplitParagraphs(string? content)
+    {
+        return string.IsNullOrWhiteSpace(content)
+            ? Array.Empty<string>()
+            : content.Split(
+                new[] { "\r\n\r\n", "\n\n" },
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    private int selectedStepIndex;
+
+    private PlayStep SelectedStep => Steps.Any()
+        ? Steps[Math.Clamp(selectedStepIndex, 0, Steps.Count - 1)]
+        : new PlayStep();
+
+    private IReadOnlyList<PlayFact> GetHeroFacts()
+    {
+        var facts = new List<PlayFact>();
+        if (Facts.Any())
+        {
+            facts.AddRange(Facts.Take(3));
+        }
+
+        while (facts.Count < 3)
+        {
+            facts.Add(new PlayFact { Label = "Format", Value = "Facilitated" });
+        }
+
+        return facts.Take(3).ToArray();
+    }
+
+    private static string GetInitials(string title)
+    {
+        var words = title.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (words.Length == 0)
+        {
+            return "P";
+        }
+
+        var initials = words
+            .Where(word => !string.IsNullOrWhiteSpace(word))
+            .Take(2)
+            .Select(word => word[0].ToString())
+            .ToArray();
+
+        return string.Concat(initials).ToUpperInvariant();
+    }
+
+    private static string FormatTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return "Play";
+        }
+
+        var words = title.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (words.Length <= 1)
+        {
+            return title;
+        }
+
+        var formatted = string.Join(" ", words.Take(words.Length - 1));
+        var lastWord = words[^1];
+        return $"{formatted}<br /><em>{lastWord}</em>";
+    }
+
+    private static string GetTimeLabel(string? timebox)
+    {
+        return string.IsNullOrWhiteSpace(timebox) ? "—" : timebox;
+    }
+
+    private void SelectStep(int index)
+    {
+        if (Steps.Any())
+        {
+            selectedStepIndex = Math.Clamp(index, 0, Steps.Count - 1);
+        }
+    }
+
+    private Task InvokeRun()
+    {
+        return OnRun.InvokeAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Steps.Any() && selectedStepIndex < 0)
+        {
+            selectedStepIndex = 0;
+        }
+    }
+
+    public sealed class PlayFact
+    {
+        public string Label { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+
+    public sealed class PlayStep
+    {
+        public string Title { get; set; } = "";
+        public string Instruction { get; set; } = "";
+        public string WhyItMatters { get; set; } = "";
+        public string Timebox { get; set; } = "";
+        public IReadOnlyList<string> Tips { get; set; } = Array.Empty<string>();
+    }
+}

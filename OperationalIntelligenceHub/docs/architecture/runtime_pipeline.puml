@@ -1,0 +1,30 @@
+@startuml runtime pipeline
+
+title Insight Engine Runtime
+
+actor User
+
+rectangle Assessment
+rectangle SignalBuilder
+rectangle RuleEngines
+rectangle DerivedSignals
+rectangle DomainProfiles
+rectangle InsightGenerator
+rectangle InsightPrioritiser
+rectangle Insights
+
+User --> Assessment
+
+Assessment --> SignalBuilder
+SignalBuilder --> RuleEngines
+RuleEngines --> DerivedSignals
+
+DerivedSignals --> DomainProfiles
+DerivedSignals --> InsightGenerator
+
+InsightGenerator --> InsightPrioritiser
+InsightPrioritiser --> Insights
+
+Insights --> User
+
+@enduml

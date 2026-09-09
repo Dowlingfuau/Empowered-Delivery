@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T20:07:00+10:00",
+  "title": "Design System: Empowered Delivery — Final Homepage",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#111315" },
+      "charcoal": { "role": "neutral", "displayName": "Charcoal", "canonical": "#17191a" },
+      "cream": { "role": "neutral", "displayName": "Cream", "canonical": "#f2eadb" },
+      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "#a9aaa2" },
+      "line": { "role": "neutral", "displayName": "Line", "canonical": "#4a4d4a" },
+      "vermillion": { "role": "primary", "displayName": "Vermillion", "canonical": "#d5523d" },
+      "vermillion-deep": { "role": "primary", "displayName": "Vermillion Deep", "canonical": "#a23f31" },
+      "petrol-blue": { "role": "secondary", "displayName": "Petrol Blue", "canonical": "#2f789d" },
+      "cutaway-paper": { "role": "neutral", "displayName": "Cutaway Paper", "canonical": "#d6d0c0" },
+      "lenses-petrol-dark": { "role": "secondary", "displayName": "Lenses Petrol Dark", "canonical": "#1b272c" },
+      "hypothesis-mineral": { "role": "neutral", "displayName": "Hypothesis Mineral", "canonical": "#c8c3b5" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline only." },
+      "headline": { "displayName": "Headline", "purpose": "Every other scene's h2." },
+      "body": { "displayName": "Body", "purpose": "Scene descriptions and supporting paragraphs." },
+      "label": { "displayName": "Label", "purpose": "Section index numbers, nav, CTA text, art notes, tool console rail." }
+    },
+    "shadows": [
+      { "name": "hero-close-inset", "value": "inset 0 -1px 0 rgba(255,255,255,0.04)", "purpose": "Single closing hairline shadow on the hero scene." },
+      { "name": "hero-headline-text-shadow", "value": "0 12px 32px rgba(0,0,0,0.18)", "purpose": "Legibility for hero h1 over photography." },
+      { "name": "focus-ring-vermillion", "value": "0 0 0 3px var(--red)", "purpose": "Visible keyboard focus ring on the signal-reveal button." }
+    ],
+    "motion": [
+      { "name": "link-hover-fade", "value": "opacity 150ms ease", "purpose": "Nav and text link hover fade." },
+      { "name": "image-drift-reduced-motion-guard", "value": "prefers-reduced-motion: reduce disables all transition/animation", "purpose": "Slow image drift only runs when motion is allowed; reduced motion disables it entirely." }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Section Index Label",
+      "kind": "custom",
+      "description": "Scene wayfinding label, e.g. '01 / THE MACHINE'. Appears at the top of every scene.",
+      "html": "<p class=\"final-section-index\">01 / THE MACHINE</p>",
+      "css": ".final-section-index { color: var(--red); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Bordered, unfilled text button with a vermillion trailing glyph.",
+      "html": "<button class=\"final-action-button\">RUN THE PLAY <span>→</span></button>",
+      "css": ".final-action-button { background:transparent; border:1px solid currentColor; color:inherit; cursor:pointer; font:inherit; font-size:11px; letter-spacing:.12em; padding:14px 18px; text-transform:uppercase; } .final-action-button span { color:var(--red); margin-left:22px; }"
+    },
+    {
+      "name": "Signal Reveal Button",
+      "kind": "custom",
+      "description": "320px circular instrument that reveals a representative relationship caption on click; the page's one hidden-content interaction, used exactly once.",
+      "html": "<button class=\"final-signal\"><div class=\"signal-ring\"></div><span>OBSERVATION</span><span>RELATIONSHIP</span><strong>REVEAL THE SIGNAL</strong></button>",
+      "css": ".final-signal { align-items:center; background:#22282a; border:0; border-radius:50%; color:var(--cream); cursor:pointer; display:flex; flex-direction:column; gap:12px; height:320px; justify-content:center; padding:40px; width:320px; } .final-signal:focus-visible { box-shadow:0 0 0 3px var(--red); } .signal-ring { border:1px solid #7398a5; border-radius:50%; inset:22px; position:absolute; }"
+    },
+    {
+      "name": "Diagnostic Console",
+      "kind": "custom",
+      "description": "Two-column instrument: 300px selector rail plus a readout panel with a flat vermillion signal-strength bar.",
+      "html": "<div class=\"final-tool-console\"><div class=\"final-tool-list\"><button class=\"active\"><span>01</span>Backlog Health Monitor</button></div><div class=\"final-tool-readout\"><div class=\"readout-bar\"><i></i></div></div></div>",
+      "css": ".final-tool-console { border-top:1px solid var(--line); display:grid; grid-template-columns:300px 1fr; } .readout-bar { background:#313536; height:4px; margin-top:34px; } .readout-bar i { background:var(--red); display:block; height:100%; width:78%; }"
+    },
+    {
+      "name": "Lens Orbit Diagram",
+      "kind": "custom",
+      "description": "Concentric circle diagram visualizing system + behaviour + culture; the system's one relationship visualization, petrol-toned.",
+      "html": "<div class=\"final-lens-orbit\"><span class=\"lens-system\">SYSTEM</span><span class=\"lens-behaviour\">BEHAVIOUR</span><span class=\"lens-culture\">CULTURE</span><b>FULLER<br />PICTURE</b></div>",
+      "css": ".final-lens-orbit { border:1px solid #78929a; border-radius:50%; height:370px; position:relative; width:370px; } .final-lens-orbit:before,.final-lens-orbit:after { border:1px solid #5b7379; border-radius:50%; content:''; inset:48px; position:absolute; } .final-lens-orbit:after { inset:110px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Reports show the surface. The system is underneath.",
+    "overview": "The Empowered Delivery final homepage tells one continuous story across fourteen full-bleed scenes, alternating dark ink/charcoal machine scenes with warm cream paper scenes. Oversized Georgia display type and treated photographic machinery carry the narrative instead of cards, icons, or dashboard chrome. Vermillion marks tension, action, and diagnostic emphasis; petrol/steel blue marks systemic relationships. The page reads as a field guide, not a marketing grid.",
+    "keyCharacteristics": [
+      "Full-bleed scene composition, no shared container width",
+      "Single vermillion accent; petrol blue reserved for systems/relationships",
+      "Georgia display serif for meaning, Inter for structure and function",
+      "Flat surfaces, no card elevation, photography as narrative machinery",
+      "Section index labels as the wayfinding spine across all fourteen scenes"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Vermillion is the only accent used for action, tension, and emphasis anywhere in the page. Petrol blue is borrowed only for the systems/relationships motif and never competes with vermillion on the same scene.", "section": "colors" },
+      { "name": "The Georgia-for-Meaning Rule", "body": "Only headline text and the equation/theory statements use Georgia. Structural, navigational, or numeric content stays in Inter.", "section": "typography" },
+      { "name": "The Flat Field Rule", "body": "Surfaces are flat. The only permitted shadow is the hero's closing hairline and the hero headline's legibility text-shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep every scene full-bleed with its own background field",
+      "Do reserve vermillion as the single accent for tension, action, and emphasis",
+      "Do pair Georgia display type with Inter functional type",
+      "Do treat photography as narrative machinery, not card decoration",
+      "Do use the section index label on every new scene"
+    ],
+    "donts": [
+      "Don't add drop-shadow card elevation or rounded card corners",
+      "Don't introduce a second color accent alongside vermillion",
+      "Don't repeat the signal-reveal interaction pattern elsewhere",
+      "Don't center content into a fixed-width column"
+    ]
+  }
+}

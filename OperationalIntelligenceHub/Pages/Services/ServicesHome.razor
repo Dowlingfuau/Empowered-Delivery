@@ -1,0 +1,310 @@
+@page "/services"
+
+@code {
+    private int selectedSituation;
+    private int selectedStage;
+
+    private readonly Situation[] situations =
+    [
+        new("SOMETHING ISN'T WORKING", "Your reports look healthy. Delivery doesn't feel healthy."),
+        new("YOU'RE CHANGING THE WAY YOU WORK", "New operating model. New structure. New expectations. Same old behaviours."),
+        new("YOUR TEAMS ARE BUSY BUT YOU'RE NOT MOVING", "Activity is high. Progress isn't."),
+        new("YOU NEED SOMEONE IN THE ROOM", "Sometimes the problem isn't something you can solve with another framework.")
+    ];
+
+    private readonly ServiceOffering[] offerings =
+    [
+        new("DIAGNOSE", "Understand what is actually happening beneath the signal.", true),
+        new("DESIGN", "Design a better operating model or way of working.", true),
+        new("FACILITATE", "Bring the right people together and make progress visible.", true),
+        new("COACH", "Build capability so the organisation can solve more of its own problems.", true),
+        new("LEAD", "Step into difficult delivery environments and help move things forward.", true)
+    ];
+
+    private readonly SystemStage[] stages =
+    [
+        new("SIGNAL", "Something doesn't look right.", "Start with the thing that is visible, felt or being reported."),
+        new("RELATIONSHIP", "What else is connected to it?", "Look across the system before deciding where the problem lives."),
+        new("HYPOTHESIS", "Here's what we think might be happening.", "Make an explanation explicit enough to inspect, not a claim to defend."),
+        new("INTERVENTION", "Try something deliberately.", "Change one relationship or condition and pay attention to what follows."),
+        new("LEARN", "What happened when we changed something?", "Use what the system tells you to decide what to keep, adjust or test next.")
+    ];
+
+    private sealed record Situation(string Title, string Description);
+    private sealed record ServiceOffering(string Name, string Description, bool IsActive);
+    private sealed record SystemStage(string Name, string Prompt, string Description);
+}
+
+<PageTitle>Services / Empowered Delivery</PageTitle>
+
+<div class="services-page">
+    <header class="services-hero">
+        <p class="services-kicker">SERVICES / HUMAN LAYER</p>
+        <div class="services-hero-grid">
+            <div>
+                <p class="services-tag">YOU FOUND THE PROBLEM.</p>
+                <h1>NOW WHAT?</h1>
+            </div>
+            <p class="services-hero-note">Sometimes the signal is obvious.<br />The solution isn't.</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="services-human">
+            <p class="section-label">ACT II / THE HUMAN</p>
+            <div class="human-grid">
+                <div class="human-copy">
+                    <p class="quote-kicker">THE TOOLS CAN SHOW YOU WHERE TO LOOK.</p>
+                    <h2>I can help you figure out what to do about it.</h2>
+                    <p>Tom enters the system with you and helps make sense of what is really happening — then works out what is worth changing.</p>
+                </div>
+                <figure class="human-photo">
+                    <img src="/images/tom-dowling.jpg" alt="Tom Dowling in an editorial portrait" />
+                </figure>
+            </div>
+        </section>
+
+        <section class="services-help">
+            <p class="section-label">ACT III / WAYS I CAN HELP</p>
+            <div class="help-grid">
+                <div class="situations-panel">
+                    <h2>YOUR SITUATION</h2>
+                    <div class="situation-list">
+                        @for (var index = 0; index < situations.Length; index++)
+                        {
+                            var situation = situations[index];
+                            <button type="button" class="situation @(selectedSituation == index ? "selected" : string.Empty)" @onclick="() => selectedSituation = index" aria-pressed="@(selectedSituation == index)">
+                                <strong>@situation.Title</strong>
+                                <span>@situation.Description</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="offerings-panel">
+                    <h2>THE KIND OF HELP THAT MIGHT MAKE SENSE</h2>
+                    <p class="help-bridge">You recognise the problem. Start with the kind of help that fits the moment.</p>
+                    <div class="offering-grid">
+                        @foreach (var offering in offerings)
+                        {
+                            @if (offering.IsActive)
+                            {
+                                <article class="offering">
+                                    <h3>@offering.Name</h3>
+                                    <p>@offering.Description</p>
+                                </article>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="services-system">
+            <p class="section-label">ACT IV / PUT THE SYSTEM ON THE TABLE</p>
+            <div class="system-heading">
+                <div>
+                    <p class="system-note">NOT A PROCESS. A WAY OF WORKING.</p>
+                    <h2>Signal. Relationship. Hypothesis. Intervention. Learn.</h2>
+                </div>
+                <p class="system-intro">The useful move is not to follow a method. It is to see what the system is telling you, then make one deliberate change.</p>
+            </div>
+
+            <div class="system-stages" role="tablist" aria-label="System on the Table">
+                @for (var index = 0; index < stages.Length; index++)
+                {
+                    var stage = stages[index];
+                    var active = selectedStage == index;
+                    <button type="button" class="system-stage @(active ? "active" : string.Empty) stage-@index" role="tab" aria-selected="@active" aria-controls="system-reading" @onclick="() => selectedStage = index">
+                        <span class="stage-number">0@(index + 1)</span>
+                        <strong>@stage.Name</strong>
+                    </button>
+                }
+            </div>
+
+            <div id="system-reading" class="system-reading" role="tabpanel" aria-live="polite">
+                <span class="reading-stage">@stages[selectedStage].Name</span>
+                <h3>@stages[selectedStage].Prompt</h3>
+                <p>@stages[selectedStage].Description</p>
+            </div>
+
+            <div class="system-ribbon" aria-label="Supporting dimensions">
+                <span>VALUE</span><span>FLOW</span><span>DECISIONS</span><span>STRUCTURE</span><span>BEHAVIOUR</span><span>PEOPLE</span>
+            </div>
+        </section>
+
+        <section class="services-close">
+            <p class="section-label">ACT V / LET'S TALK</p>
+            <div class="close-grid">
+                <h2>YOU DON'T NEED ANOTHER FRAMEWORK.<br />YOU MIGHT NEED SOMEONE TO HELP YOU SEE WHAT'S ACTUALLY HAPPENING.</h2>
+                <div class="close-action">
+                    <a href="/about">LET'S TALK <span aria-hidden="true">→</span></a>
+                    <p>Tell me what's not working. We can figure out whether I can help.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<style>
+    .services-page {
+        --paper: #f3ece3;
+        --cream: #f8f1e9;
+        --ink: #111315;
+        --muted: rgba(17, 19, 21, .7);
+        --dark: #101416;
+        --petrol: #214a59;
+        --line: rgba(17, 19, 21, .14);
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .services-page h1,
+    .services-page h2,
+    .services-page h3,
+    .services-page p {
+        margin: 0;
+    }
+
+    .services-page h1,
+    .services-page h2,
+    .services-page h3,
+    .services-page .situation strong,
+    .services-page .offering h3,
+    .services-page .close-action a {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+        letter-spacing: -.045em;
+    }
+
+    .services-hero,
+    .services-human,
+    .services-help,
+    .services-system,
+    .services-close {
+        padding: clamp(2rem, 5vw, 5rem) clamp(1.25rem, 5vw, 5rem);
+    }
+
+    .services-hero,
+    .services-close {
+        background: var(--dark);
+        color: var(--cream);
+    }
+
+    .services-kicker,
+    .section-label,
+    .quote-kicker,
+    .services-tag,
+    .system-note,
+    .reading-stage,
+    .stage-number {
+        text-transform: uppercase;
+        letter-spacing: .14em;
+        font-size: .68rem;
+        font-weight: 700;
+    }
+
+    .services-kicker,
+    .section-label,
+    .services-tag,
+    .system-note,
+    .reading-stage {
+        opacity: .72;
+    }
+
+    .services-hero { border-bottom: 1px solid rgba(255,255,255,.12); }
+    .services-hero-grid,
+    .human-grid,
+    .help-grid,
+    .system-heading,
+    .close-grid {
+        display: grid;
+        gap: clamp(1.5rem, 4vw, 4rem);
+    }
+
+    .services-hero-grid {
+        grid-template-columns: minmax(0, 1.35fr) minmax(14rem, .65fr);
+        align-items: end;
+        margin-top: 1.5rem;
+    }
+
+    .services-hero h1 {
+        color: var(--cream);
+        font-size: clamp(4rem, 12vw, 10rem);
+        line-height: .8;
+    }
+
+    .services-tag { margin-bottom: 1rem; }
+    .services-hero-note { justify-self: end; max-width: 20rem; line-height: 1.5; }
+
+    .services-human { background: var(--paper); }
+    .section-label { color: currentColor; }
+    .human-grid { grid-template-columns: minmax(0, 1fr) minmax(16rem, .85fr); margin-top: 2.5rem; align-items: end; }
+    .human-copy { max-width: 44rem; }
+    .quote-kicker { margin-bottom: 1rem !important; color: var(--petrol); }
+    .human-copy h2 { max-width: 12ch; font-size: clamp(2.8rem, 6vw, 6.5rem); line-height: .94; }
+    .human-copy > p:last-child { max-width: 34rem; margin-top: 1.5rem; color: var(--muted); line-height: 1.65; }
+    .human-photo { margin: 0; border: 1px solid var(--line); background: #d3ccc1; }
+    .human-photo img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; filter: saturate(.85) contrast(1.05); }
+
+    .services-help { background: var(--dark); color: var(--cream); }
+    .help-grid { grid-template-columns: minmax(15rem, .65fr) minmax(0, 1.35fr); margin-top: 1.5rem; }
+    .situations-panel,
+    .offerings-panel { border: 1px solid rgba(255,255,255,.12); padding: clamp(1rem, 2vw, 1.5rem); }
+    .services-help h2 { color: var(--cream); font-size: clamp(1.7rem, 3vw, 3rem); line-height: .95; }
+    .situation-list { display: grid; gap: .8rem; margin-top: 1.5rem; }
+    .situation { display: grid; gap: .45rem; padding: 1rem 0; border: 0; border-top: 1px solid rgba(255,255,255,.1); background: transparent; color: inherit; text-align: left; cursor: pointer; }
+    .situation strong { color: var(--cream); font-size: clamp(1.25rem, 2vw, 2rem); line-height: 1; }
+    .situation span,
+    .help-bridge,
+    .offering p { color: rgba(248,241,233,.72); line-height: 1.55; }
+    .situation.selected strong { color: #df755c; }
+    .situation:focus-visible,
+    .system-stage:focus-visible,
+    .close-action a:focus-visible { outline: 2px solid #df755c; outline-offset: 5px; }
+    .help-bridge { margin-top: 1rem; max-width: 34rem; }
+    .offering-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin-top: 1.5rem; }
+    .offering { min-height: 10rem; display: grid; align-content: space-between; gap: 1rem; padding: 1rem; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); }
+    .offering h3 { color: var(--cream); font-size: clamp(1.5rem, 2.4vw, 2.5rem); line-height: .9; }
+    .offering p { font-size: .92rem; }
+
+    .services-system { background: #dfeaf0; }
+    .system-heading { grid-template-columns: minmax(0, 1fr) minmax(15rem, .6fr); align-items: end; margin-top: 1.5rem; }
+    .system-heading h2 { max-width: 15ch; margin-top: .8rem; font-size: clamp(2.5rem, 5vw, 5.5rem); line-height: .9; }
+    .system-intro { color: rgba(17,19,21,.72); line-height: 1.6; }
+    .system-stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin-top: 2rem; }
+    .system-stage { min-height: 9rem; display: grid; align-content: space-between; gap: 1rem; padding: 1rem; border: 0; color: var(--cream); text-align: left; cursor: pointer; transition: transform .2s ease, filter .2s ease; }
+    .system-stage:hover { transform: translateY(-.3rem); filter: brightness(1.08); }
+    .system-stage strong { font-family: Arial, Helvetica, sans-serif; font-size: .8rem; letter-spacing: .12em; }
+    .stage-0 { background: #0e1b20; } .stage-1 { background: #1f4d5a; } .stage-2 { background: #2d6573; } .stage-3 { background: #cb573e; } .stage-4 { background: #1f2d31; }
+    .system-stage.active { box-shadow: 0 0 0 3px var(--cream), 0 0 0 5px currentColor; }
+    .system-reading { display: grid; gap: .65rem; max-width: 42rem; margin-top: 1.5rem; padding: 1.5rem; border-left: 3px solid #cb573e; background: rgba(255,255,255,.28); }
+    .system-reading h3 { font-size: clamp(1.8rem, 3vw, 3.2rem); line-height: 1; }
+    .system-reading p { color: rgba(17,19,21,.75); line-height: 1.55; }
+    .system-ribbon { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 2rem; }
+    .system-ribbon span { padding: .6rem .8rem; border: 1px solid rgba(17,19,21,.18); font-size: .65rem; font-weight: 700; letter-spacing: .12em; }
+
+    .services-close { border-top: 1px solid rgba(255,255,255,.12); }
+    .close-grid { grid-template-columns: minmax(0, 1.4fr) minmax(13rem, .6fr); align-items: end; margin-top: 1.5rem; }
+    .close-grid h2 { color: var(--cream); font-size: clamp(2.5rem, 6vw, 7rem); line-height: .88; }
+    .close-action { display: grid; gap: 1rem; border-top: 1px solid rgba(255,255,255,.14); padding-top: 1rem; }
+    .close-action a { color: var(--cream); font-size: clamp(2rem, 3.5vw, 3.5rem); line-height: 1; text-decoration: none; }
+    .close-action p { max-width: 20rem; color: rgba(248,241,233,.7); line-height: 1.55; }
+
+    @@media (max-width: 780px) {
+        .services-hero-grid, .human-grid, .help-grid, .system-heading, .close-grid { grid-template-columns: 1fr; }
+        .services-hero-note { justify-self: start; }
+        .system-stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .system-stage:last-child { grid-column: span 2; }
+    }
+
+    @@media (max-width: 480px) {
+        .services-hero h1 { font-size: clamp(3.8rem, 20vw, 6rem); }
+        .system-stages { grid-template-columns: 1fr; }
+        .system-stage:last-child { grid-column: auto; }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .services-page * { transition: none !important; scroll-behavior: auto !important; }
+    }
+</style>

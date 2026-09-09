@@ -1,0 +1,764 @@
+﻿@page "/perspectives"
+
+@code {
+    private int selectedIndex = 0;
+
+    private readonly NotebookEntry[] entries =
+    [
+        new("01", "ARE ALL YOUR REPORTS GREEN BUT YOUR DELIVERY STILL SUCKS?", "Field note", "A useful symptom is not the same as a useful system.", "08 min read", "Mara / systems and evidence"),
+        new("02", "WHY I CREATED THIS", "Perspective", "Delivery teams are asked to be both accountable and invisible. The system does the rest.", "05 min read", "Alex / why this exists"),
+        new("03", "THE VELOCITY TRAP", "Provocation", "The fastest path to delay is to make every decision feel local, urgent and separate.", "07 min read", "Sam / flow and trade-off"),
+        new("04", "WE DECENTRALISED DECISIONS. SOMEHOW THEY'RE SLOWER THAN EVER.", "Field note", "Autonomy without visible constraints creates more friction than it removes.", "10 min read", "Tess / structure and behaviour"),
+        new("05", "THE SYSTEM ENCOURAGES WHAT IT MEASURES", "Perspective", "A metric is not just a way to monitor work — it is a way to steer behaviour.", "09 min read", "Jules / incentives and motion")
+    ];
+
+    private readonly Territory[] territories =
+    [
+        new("VALUE", "Are we delivering something useful?"),
+        new("FLOW", "What actually moves through the system?"),
+        new("DECISIONS", "Why does something that should take an hour take three weeks?"),
+        new("BEHAVIOUR", "What does the system encourage people to do?"),
+        new("STRUCTURE", "How does the organisation itself shape delivery?")
+    ];
+
+    private readonly ElsewhereItem[] elsewhereItems =
+    [
+        new("The Tyranny of Metrics", "M. O. Osei", "Harvard Business Review", "An interesting argument about how measurement changes behaviour. We think it matters because teams can optimise the visible while missing the real trade-off."),
+        new("The Design of Everyday Things", "Don Norman", "Basic Books", "A useful reminder that system constraints shape action long before people consciously decide what to do."),
+        new("Seeing Like a State", "James C. Scott", "Yale University Press", "A classic on how the order we imagine is not always the order that actually exists in real organisations.")
+    ];
+
+    private NotebookEntry SelectedEntry => entries[selectedIndex];
+
+    private sealed class NotebookEntry(string number, string title, string type, string thesis, string readingTime, string byline)
+    {
+        public string Number { get; } = number;
+        public string Title { get; } = title;
+        public string Type { get; } = type;
+        public string Thesis { get; } = thesis;
+        public string ReadingTime { get; } = readingTime;
+        public string Byline { get; } = byline;
+    }
+
+    private sealed class Territory(string name, string question)
+    {
+        public string Name { get; } = name;
+        public string Question { get; } = question;
+    }
+
+    private sealed class ElsewhereItem(string title, string author, string source, string commentary)
+    {
+        public string Title { get; } = title;
+        public string Author { get; } = author;
+        public string Source { get; } = source;
+        public string Commentary { get; } = commentary;
+    }
+}
+
+<div class="perspectives-concept">
+    <header class="perspectives-header">
+        <p class="perspectives-kicker">PERSPECTIVES / thinking layer</p>
+        <div class="perspectives-hero">
+            <div>
+                <h1>YOUR REPORTS AREN’T LYING.</h1>
+                <h1>THEY’RE JUST NOT TELLING YOU EVERYTHING.</h1>
+            </div>
+            <p>
+                Perspectives is the thinking layer of Empowered Delivery — a curated body of thinking about how delivery systems actually behave.
+            </p>
+        </div>
+    </header>
+
+    <section class="perspectives-featured">
+        <div class="section-label">01 / FEATURED THINKING</div>
+        <article class="feature-story">
+            <div class="feature-copy">
+                <p class="meta">FIELD NOTE / 12 min read</p>
+                <h2>The system is not failing because the numbers are wrong. It is failing because they are incomplete.</h2>
+                <p>
+                    What looks healthy from the surface can still be creating delay, confusion and the wrong behaviours underneath.
+                    This is where Empowered Delivery starts to look differently.
+                </p>
+                <div class="feature-actions">
+                    <button type="button">Read the thinking</button>
+                    <span>Why the report feels reassuring but still misses the signal</span>
+                </div>
+            </div>
+            <div class="feature-visual" aria-hidden="true">
+                <div class="feature-visual-grid"></div>
+                <div class="feature-visual-lines"></div>
+                <div class="feature-visual-card">
+                    <span>THE HIDDEN STORY</span>
+                    <strong>VISIBLE SIGNAL</strong>
+                    <small>+ delivery friction</small>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="perspectives-notebook">
+        <div class="notebook-intro">
+            <div class="section-label">02 / THE NOTEBOOK</div>
+            <p>Browse the body of thinking. Encounter the idea. Understand why it matters. Read if it changes the way you look at delivery.</p>
+        </div>
+
+        <div class="notebook-layout">
+            <ol class="notebook-list" aria-label="Perspective entries">
+                @for (var index = 0; index < entries.Length; index++)
+                {
+                    var item = entries[index];
+                    var active = selectedIndex == index;
+                    <li>
+                        <button type="button" class="notebook-entry @(active ? "active" : string.Empty)" @onclick="() => selectedIndex = index" aria-pressed="@(active ? "true" : "false")">
+                            <span class="entry-number">@item.Number</span>
+                            <span class="entry-copy">
+                                <small>@item.Type</small>
+                                <strong>@item.Title</strong>
+                            </span>
+                            <span class="entry-time">@item.ReadingTime</span>
+                        </button>
+                    </li>
+                }
+            </ol>
+
+            <aside class="notebook-detail" aria-live="polite">
+                <p class="detail-tag">@SelectedEntry.Type</p>
+                <h3>@SelectedEntry.Title</h3>
+                <p class="detail-thesis">@SelectedEntry.Thesis</p>
+                <dl>
+                    <div>
+                        <dt>Author</dt>
+                        <dd>@SelectedEntry.Byline</dd>
+                    </div>
+                    <div>
+                        <dt>Format</dt>
+                        <dd>Perspective</dd>
+                    </div>
+                    <div>
+                        <dt>Read time</dt>
+                        <dd>@SelectedEntry.ReadingTime</dd>
+                    </div>
+                </dl>
+                <button type="button" class="detail-action">Open the premise →</button>
+            </aside>
+        </div>
+    </section>
+
+    <section class="perspectives-territories">
+        <div class="section-label">03 / THINGS UNDERNEATH</div>
+        <div class="territory-grid">
+            @foreach (var territory in territories)
+            {
+                <article class="territory-card">
+                    <span>@territory.Name</span>
+                    <p>@territory.Question</p>
+                </article>
+            }
+        </div>
+    </section>
+
+    <section class="perspectives-elsewhere">
+        <div class="elsewhere-head">
+            <div class="section-label">04 / ELSEWHERE</div>
+            <p>Good ideas do not have to originate here.</p>
+        </div>
+
+        <div class="elsewhere-list">
+            @foreach (var item in elsewhereItems)
+            {
+                <article class="elsewhere-item">
+                    <div class="source-meta">
+                        <span>@item.Author</span>
+                        <span>@item.Source</span>
+                    </div>
+                    <h3>@item.Title</h3>
+                    <p>@item.Commentary</p>
+                    <span class="elsewhere-status">Original reference pending</span>
+                </article>
+            }
+        </div>
+    </section>
+
+    <section class="perspectives-close">
+        <div class="section-label">05 / FROM THINKING TO DOING</div>
+        <div class="close-statement">
+            <h2>Thinking is useful.</h2>
+            <h2>Doing is better.</h2>
+        </div>
+        <div class="close-paths">
+            <a href="/hub" class="close-path-card">
+                <span>Found something worth investigating?</span>
+                <strong>Tools</strong>
+            </a>
+            <a href="/plays" class="close-path-card">
+                <span>Found something worth trying?</span>
+                <strong>Plays</strong>
+            </a>
+            <a href="/services" class="close-path-card">
+                <span>Need another pair of eyes?</span>
+                <strong>Services</strong>
+            </a>
+        </div>
+    </section>
+</div>
+
+<style>
+    .perspectives-concept {
+        --bg: #111615;
+        --bg-alt: #191f1f;
+        --bg-panel: rgba(22, 28, 28, 0.96);
+        --paper: #f5efe5;
+        --paper-softer: #e7d9c2;
+        --ink: #151311;
+        --text: #f7f1e9;
+        --muted: #c7b8a5;
+        --line: rgba(247, 241, 233, 0.12);
+        --line-strong: rgba(247, 241, 233, 0.2);
+        --petrol: #59706e;
+        --petrol-soft: #a0bbb7;
+        --vermillion: #d75b2b;
+        --vermillion-soft: #eb9d77;
+        background: radial-gradient(circle at top left, rgba(89, 112, 110, 0.24), transparent 28%), linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+        color: var(--text);
+        border: 1px solid var(--line);
+        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        overflow: hidden;
+    }
+
+    .perspectives-header,
+    .perspectives-featured,
+    .perspectives-notebook,
+    .perspectives-territories,
+    .perspectives-elsewhere,
+    .perspectives-close {
+        padding: clamp(28px, 4vw, 56px);
+    }
+
+    .perspectives-kicker,
+    .section-label,
+    .detail-tag {
+        margin: 0 0 18px;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .perspectives-header {
+        background: linear-gradient(180deg, rgba(18, 22, 22, 0.96), rgba(27, 28, 26, 0.9));
+        border-bottom: 1px solid var(--line);
+    }
+
+    .perspectives-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.7fr);
+        gap: clamp(20px, 3vw, 50px);
+        align-items: end;
+    }
+
+    .perspectives-hero h1 {
+        margin: 0;
+        font-size: clamp(2.8rem, 6vw, 7rem);
+        line-height: 0.88;
+        letter-spacing: -0.08em;
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+        color: var(--paper);
+    }
+
+    .perspectives-hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.6;
+        max-width: 30ch;
+        justify-self: end;
+    }
+
+    .feature-story {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+        gap: 28px;
+        background: linear-gradient(135deg, rgba(15, 19, 20, 0.94), rgba(26, 31, 31, 0.96));
+        border: 1px solid var(--line);
+        padding: clamp(20px, 3vw, 36px);
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .feature-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .meta {
+        margin: 0 0 14px;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--petrol-soft);
+    }
+
+    .feature-copy h2 {
+        margin: 0 0 20px;
+        max-width: 16ch;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(2rem, 4vw, 4rem);
+        line-height: 0.98;
+        letter-spacing: -0.05em;
+        font-weight: 500;
+        color: var(--paper);
+    }
+
+    .feature-copy p {
+        margin: 0;
+        color: #d9d0c7;
+        max-width: 58ch;
+        line-height: 1.7;
+    }
+
+    .feature-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 26px;
+        flex-wrap: wrap;
+    }
+
+    .feature-actions button,
+    .detail-action {
+        appearance: none;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, var(--vermillion), #b94a25);
+        color: #f5efe6;
+        padding: 0.9rem 1.3rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .feature-actions button:hover,
+    .detail-action:hover,
+    .notebook-entry:hover,
+    .close-path-card:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+    }
+
+    .feature-actions span {
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .feature-visual {
+        position: relative;
+        min-height: 340px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, rgba(89, 112, 110, 0.75), rgba(232, 214, 185, 0.88));
+        border: 1px solid rgba(255,255,255,0.15);
+        overflow: hidden;
+    }
+
+    .feature-visual-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(18, 19, 19, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(18, 19, 19, 0.12) 1px, transparent 1px);
+        background-size: 18px 18px;
+        mask-image: linear-gradient(135deg, rgba(0,0,0,0.8), transparent);
+    }
+
+    .feature-visual-lines {
+        position: absolute;
+        inset: 8% 12%;
+        border: 1px solid rgba(22, 20, 17, 0.28);
+        transform: skew(-8deg);
+        background: linear-gradient(135deg, rgba(89, 112, 110, 0.15), rgba(215, 91, 43, 0.15));
+    }
+
+    .feature-visual-card {
+        position: relative;
+        z-index: 1;
+        width: 74%;
+        padding: 22px 20px;
+        background: rgba(17, 22, 21, 0.9);
+        color: #f4efe8;
+        border: 1px solid rgba(255,255,255,0.16);
+        display: grid;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .feature-visual-card span {
+        font-size: 0.66rem;
+        color: #d7d5d2;
+    }
+
+    .feature-visual-card strong {
+        font-size: clamp(1.8rem, 3vw, 3rem);
+        letter-spacing: -0.08em;
+        font-weight: 600;
+    }
+
+    .feature-visual-card small {
+        font-size: 0.7rem;
+        color: var(--vermillion-soft);
+    }
+
+    .notebook-intro {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 18px;
+    }
+
+    .notebook-intro p {
+        max-width: 42ch;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .notebook-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+        gap: 24px;
+    }
+
+    .notebook-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border: 1px solid var(--line);
+        background: rgba(17, 21, 21, 0.82);
+    }
+
+    .notebook-entry {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        text-align: left;
+        padding: 18px 20px;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        color: var(--text);
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .notebook-entry:last-child {
+        border-bottom: 0;
+    }
+
+    .notebook-entry.active {
+        background: linear-gradient(180deg, #f4efe6, #e7d9c1);
+        color: var(--ink);
+    }
+
+    .entry-number {
+        font-size: clamp(1.2rem, 2vw, 2rem);
+        font-family: Georgia, "Times New Roman", serif;
+        letter-spacing: -0.05em;
+        color: var(--vermillion-soft);
+    }
+
+    .entry-copy {
+        display: grid;
+        gap: 6px;
+    }
+
+    .entry-copy small {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.62rem;
+        color: inherit;
+        opacity: 0.75;
+    }
+
+    .entry-copy strong {
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        line-height: 1.2;
+        letter-spacing: -0.04em;
+        font-weight: 600;
+    }
+
+    .entry-time {
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.8;
+    }
+
+    .notebook-detail {
+        background: radial-gradient(circle at top, rgba(89, 112, 110, 0.25), transparent 35%), #171411;
+        color: #f6f1ea;
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 27px 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .detail-tag {
+        color: #d8c7b2;
+    }
+
+    .notebook-detail h3 {
+        margin: 0 0 14px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        line-height: 0.96;
+        letter-spacing: -0.06em;
+        font-weight: 500;
+    }
+
+    .detail-thesis {
+        margin: 0 0 20px;
+        color: #dfd8d2;
+        line-height: 1.7;
+    }
+
+    .notebook-detail dl {
+        display: grid;
+        gap: 12px;
+        margin: 0 0 22px;
+    }
+
+    .notebook-detail dl div {
+        display: grid;
+        grid-template-columns: 90px minmax(0, 1fr);
+        gap: 12px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .notebook-detail dt,
+    .notebook-detail dd {
+        margin: 0;
+    }
+
+    .notebook-detail dt {
+        color: #d1c5b3;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.64rem;
+    }
+
+    .notebook-detail dd {
+        color: #f4efe8;
+        line-height: 1.5;
+    }
+
+    .territory-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .territory-card {
+        min-height: 180px;
+        background: linear-gradient(180deg, rgba(18, 24, 23, 0.94), rgba(32, 41, 39, 0.9));
+        border: 1px solid rgba(160, 187, 183, 0.24);
+        padding: 22px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .territory-card span {
+        color: var(--petrol-soft);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .territory-card p {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.3rem, 2vw, 2.2rem);
+        line-height: 1.02;
+        letter-spacing: -0.05em;
+        color: var(--paper);
+    }
+
+    .elsewhere-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: end;
+        margin-bottom: 18px;
+    }
+
+    .elsewhere-head p {
+        margin: 0;
+        font-size: clamp(1.5rem, 3vw, 3rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--paper);
+    }
+
+    .elsewhere-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .elsewhere-item {
+        padding: 20px 18px;
+        background: linear-gradient(180deg, #f1e6d8, #eadcc0);
+        border: 1px solid rgba(21, 19, 17, 0.16);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        color: var(--ink);
+    }
+
+    .source-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: #4f514f;
+        font-size: 0.7rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+    }
+
+    .elsewhere-item h3 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.6rem, 2.5vw, 2.5rem);
+        line-height: 1.02;
+        letter-spacing: -0.05em;
+        font-weight: 500;
+        color: var(--ink);
+    }
+
+    .elsewhere-item p {
+        margin: 0;
+        line-height: 1.6;
+        color: rgba(21, 19, 17, 0.82);
+    }
+
+    .elsewhere-status {
+        margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 0.4rem 0.7rem;
+        background: rgba(21, 19, 17, 0.06);
+        color: rgba(21, 19, 17, 0.78);
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .perspectives-close {
+        background: linear-gradient(180deg, rgba(25, 31, 30, 0.95), rgba(17, 20, 19, 1));
+        border-top: 1px solid var(--line);
+    }
+
+    .close-statement {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .close-statement h2 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(2.4rem, 5vw, 6rem);
+        line-height: 0.9;
+        letter-spacing: -0.06em;
+        font-weight: 500;
+        color: var(--paper);
+    }
+
+    .close-paths {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .close-path-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--line);
+        padding: 18px 16px;
+        display: grid;
+        gap: 8px;
+        color: inherit;
+        text-decoration: none;
+        transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .close-path-card span {
+        color: var(--muted);
+        line-height: 1.5;
+    }
+
+    .close-path-card strong {
+        font-size: 1.6rem;
+        letter-spacing: -0.05em;
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+        color: var(--paper);
+    }
+
+    @@media (max-width: 980px) {
+        .perspectives-hero,
+        .feature-story,
+        .notebook-layout,
+        .territory-grid,
+        .elsewhere-list,
+        .close-paths {
+            grid-template-columns: 1fr;
+        }
+
+        .territory-grid,
+        .elsewhere-list,
+        .close-paths {
+            display: grid;
+        }
+
+        .elsewhere-head,
+        .notebook-intro {
+            display: block;
+        }
+
+        .notebook-intro p,
+        .elsewhere-head p {
+            margin-top: 12px;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .notebook-entry {
+            grid-template-columns: 52px minmax(0, 1fr);
+        }
+
+        .entry-time {
+            grid-column: 2;
+        }
+
+        .feature-actions {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .perspectives-header,
+        .perspectives-featured,
+        .perspectives-notebook,
+        .perspectives-territories,
+        .perspectives-elsewhere,
+        .perspectives-close {
+            padding: 22px 18px;
+        }
+    }
+</style>

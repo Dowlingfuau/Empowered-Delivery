@@ -1,0 +1,34 @@
+@startuml MRI Intelligence Model
+title Operational MRI Intelligence Model
+
+package "Delivery Behaviour" {
+  component TeamBehaviour
+  component LeadershipBehaviour
+  component DeliveryFlow
+}
+
+package "Signals" {
+  component ObservableSignals
+}
+
+package "Pattern Detection" {
+  component DerivedSignals
+}
+
+package "System Diagnosis" {
+  component SystemConstraints
+}
+
+package "Coaching Insights" {
+  component OperationalInsights
+}
+
+TeamBehaviour --> ObservableSignals
+LeadershipBehaviour --> ObservableSignals
+DeliveryFlow --> ObservableSignals
+
+ObservableSignals --> DerivedSignals
+DerivedSignals --> SystemConstraints
+SystemConstraints --> OperationalInsights
+
+@enduml

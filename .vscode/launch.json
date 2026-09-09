@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Blazor WASM Debug",
+      "type": "blazorwasm",
+      "request": "launch",
+      "url": "https://localhost:5255",
+      "webRoot": "${workspaceFolder}/wwwroot"
+    }
+  ]
+}

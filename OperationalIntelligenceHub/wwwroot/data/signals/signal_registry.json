@@ -1,0 +1,25 @@
+[
+  { "name": "SMOwnershipLevel", "domain": "Capability", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "SMTrustLevel", "domain": "Cultural", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "SMValueLevel", "domain": "Capability", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "SMLearningLevel", "domain": "Cultural", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "SMSystemLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" },
+
+  { "name": "POOwnershipLevel", "domain": "Capability", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "POTrustLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "POValueLevel", "domain": "Capability", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "POLearningLevel", "domain": "Cultural", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "POSystemLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" },
+
+  { "name": "TeamOwnershipLevel", "domain": "Capability", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "TeamTrustLevel", "domain": "Team", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "TeamValueLevel", "domain": "Capability", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "TeamLearningLevel", "domain": "Cultural", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "TeamSystemLevel", "domain": "Team", "type": "Behaviour", "normalisationRule": "value/5" },
+
+  { "name": "LeaderOwnershipLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "LeaderTrustLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "LeaderValueLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "LeaderLearningLevel", "domain": "Cultural", "type": "Behaviour", "normalisationRule": "value/5" },
+  { "name": "LeaderSystemLevel", "domain": "Organisational", "type": "Behaviour", "normalisationRule": "value/5" }
+]

@@ -1,0 +1,802 @@
+[
+  {
+    "behaviourId": "ScrumMaster_Ownership_L1",
+    "lens": "ScrumMaster",
+    "theme": "Ownership",
+    "level": 1,
+    "signalName": "SMOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Ownership_L2",
+    "lens": "ScrumMaster",
+    "theme": "Ownership",
+    "level": 2,
+    "signalName": "SMOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Ownership_L3",
+    "lens": "ScrumMaster",
+    "theme": "Ownership",
+    "level": 3,
+    "signalName": "SMOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Ownership_L4",
+    "lens": "ScrumMaster",
+    "theme": "Ownership",
+    "level": 4,
+    "signalName": "SMOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Ownership_L5",
+    "lens": "ScrumMaster",
+    "theme": "Ownership",
+    "level": 5,
+    "signalName": "SMOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Trust_L1",
+    "lens": "ScrumMaster",
+    "theme": "Trust",
+    "level": 1,
+    "signalName": "SMTrustLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Trust_L2",
+    "lens": "ScrumMaster",
+    "theme": "Trust",
+    "level": 2,
+    "signalName": "SMTrustLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Trust_L3",
+    "lens": "ScrumMaster",
+    "theme": "Trust",
+    "level": 3,
+    "signalName": "SMTrustLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Trust_L4",
+    "lens": "ScrumMaster",
+    "theme": "Trust",
+    "level": 4,
+    "signalName": "SMTrustLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Trust_L5",
+    "lens": "ScrumMaster",
+    "theme": "Trust",
+    "level": 5,
+    "signalName": "SMTrustLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Value_L1",
+    "lens": "ScrumMaster",
+    "theme": "Value",
+    "level": 1,
+    "signalName": "SMValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Value_L2",
+    "lens": "ScrumMaster",
+    "theme": "Value",
+    "level": 2,
+    "signalName": "SMValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Value_L3",
+    "lens": "ScrumMaster",
+    "theme": "Value",
+    "level": 3,
+    "signalName": "SMValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Value_L4",
+    "lens": "ScrumMaster",
+    "theme": "Value",
+    "level": 4,
+    "signalName": "SMValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Value_L5",
+    "lens": "ScrumMaster",
+    "theme": "Value",
+    "level": 5,
+    "signalName": "SMValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ScrumMaster_Learning_L1",
+    "lens": "ScrumMaster",
+    "theme": "Learning",
+    "level": 1,
+    "signalName": "SMLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Learning_L2",
+    "lens": "ScrumMaster",
+    "theme": "Learning",
+    "level": 2,
+    "signalName": "SMLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Learning_L3",
+    "lens": "ScrumMaster",
+    "theme": "Learning",
+    "level": 3,
+    "signalName": "SMLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Learning_L4",
+    "lens": "ScrumMaster",
+    "theme": "Learning",
+    "level": 4,
+    "signalName": "SMLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_Learning_L5",
+    "lens": "ScrumMaster",
+    "theme": "Learning",
+    "level": 5,
+    "signalName": "SMLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ScrumMaster_System_L1",
+    "lens": "ScrumMaster",
+    "theme": "System",
+    "level": 1,
+    "signalName": "SMSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ScrumMaster_System_L2",
+    "lens": "ScrumMaster",
+    "theme": "System",
+    "level": 2,
+    "signalName": "SMSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ScrumMaster_System_L3",
+    "lens": "ScrumMaster",
+    "theme": "System",
+    "level": 3,
+    "signalName": "SMSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ScrumMaster_System_L4",
+    "lens": "ScrumMaster",
+    "theme": "System",
+    "level": 4,
+    "signalName": "SMSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ScrumMaster_System_L5",
+    "lens": "ScrumMaster",
+    "theme": "System",
+    "level": 5,
+    "signalName": "SMSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_Ownership_L1",
+    "lens": "ProductOwner",
+    "theme": "Ownership",
+    "level": 1,
+    "signalName": "POOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Ownership_L2",
+    "lens": "ProductOwner",
+    "theme": "Ownership",
+    "level": 2,
+    "signalName": "POOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Ownership_L3",
+    "lens": "ProductOwner",
+    "theme": "Ownership",
+    "level": 3,
+    "signalName": "POOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Ownership_L4",
+    "lens": "ProductOwner",
+    "theme": "Ownership",
+    "level": 4,
+    "signalName": "POOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Ownership_L5",
+    "lens": "ProductOwner",
+    "theme": "Ownership",
+    "level": 5,
+    "signalName": "POOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Trust_L1",
+    "lens": "ProductOwner",
+    "theme": "Trust",
+    "level": 1,
+    "signalName": "POTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_Trust_L2",
+    "lens": "ProductOwner",
+    "theme": "Trust",
+    "level": 2,
+    "signalName": "POTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_Trust_L3",
+    "lens": "ProductOwner",
+    "theme": "Trust",
+    "level": 3,
+    "signalName": "POTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_Trust_L4",
+    "lens": "ProductOwner",
+    "theme": "Trust",
+    "level": 4,
+    "signalName": "POTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_Trust_L5",
+    "lens": "ProductOwner",
+    "theme": "Trust",
+    "level": 5,
+    "signalName": "POTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_Value_L1",
+    "lens": "ProductOwner",
+    "theme": "Value",
+    "level": 1,
+    "signalName": "POValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Value_L2",
+    "lens": "ProductOwner",
+    "theme": "Value",
+    "level": 2,
+    "signalName": "POValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Value_L3",
+    "lens": "ProductOwner",
+    "theme": "Value",
+    "level": 3,
+    "signalName": "POValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Value_L4",
+    "lens": "ProductOwner",
+    "theme": "Value",
+    "level": 4,
+    "signalName": "POValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Value_L5",
+    "lens": "ProductOwner",
+    "theme": "Value",
+    "level": 5,
+    "signalName": "POValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "ProductOwner_Learning_L1",
+    "lens": "ProductOwner",
+    "theme": "Learning",
+    "level": 1,
+    "signalName": "POLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ProductOwner_Learning_L2",
+    "lens": "ProductOwner",
+    "theme": "Learning",
+    "level": 2,
+    "signalName": "POLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ProductOwner_Learning_L3",
+    "lens": "ProductOwner",
+    "theme": "Learning",
+    "level": 3,
+    "signalName": "POLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ProductOwner_Learning_L4",
+    "lens": "ProductOwner",
+    "theme": "Learning",
+    "level": 4,
+    "signalName": "POLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ProductOwner_Learning_L5",
+    "lens": "ProductOwner",
+    "theme": "Learning",
+    "level": 5,
+    "signalName": "POLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "ProductOwner_System_L1",
+    "lens": "ProductOwner",
+    "theme": "System",
+    "level": 1,
+    "signalName": "POSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_System_L2",
+    "lens": "ProductOwner",
+    "theme": "System",
+    "level": 2,
+    "signalName": "POSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_System_L3",
+    "lens": "ProductOwner",
+    "theme": "System",
+    "level": 3,
+    "signalName": "POSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_System_L4",
+    "lens": "ProductOwner",
+    "theme": "System",
+    "level": 4,
+    "signalName": "POSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "ProductOwner_System_L5",
+    "lens": "ProductOwner",
+    "theme": "System",
+    "level": 5,
+    "signalName": "POSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Squad_Ownership_L1",
+    "lens": "Squad",
+    "theme": "Ownership",
+    "level": 1,
+    "signalName": "TeamOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Ownership_L2",
+    "lens": "Squad",
+    "theme": "Ownership",
+    "level": 2,
+    "signalName": "TeamOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Ownership_L3",
+    "lens": "Squad",
+    "theme": "Ownership",
+    "level": 3,
+    "signalName": "TeamOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Ownership_L4",
+    "lens": "Squad",
+    "theme": "Ownership",
+    "level": 4,
+    "signalName": "TeamOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Ownership_L5",
+    "lens": "Squad",
+    "theme": "Ownership",
+    "level": 5,
+    "signalName": "TeamOwnershipLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Trust_L1",
+    "lens": "Squad",
+    "theme": "Trust",
+    "level": 1,
+    "signalName": "TeamTrustLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_Trust_L2",
+    "lens": "Squad",
+    "theme": "Trust",
+    "level": 2,
+    "signalName": "TeamTrustLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_Trust_L3",
+    "lens": "Squad",
+    "theme": "Trust",
+    "level": 3,
+    "signalName": "TeamTrustLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_Trust_L4",
+    "lens": "Squad",
+    "theme": "Trust",
+    "level": 4,
+    "signalName": "TeamTrustLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_Trust_L5",
+    "lens": "Squad",
+    "theme": "Trust",
+    "level": 5,
+    "signalName": "TeamTrustLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_Value_L1",
+    "lens": "Squad",
+    "theme": "Value",
+    "level": 1,
+    "signalName": "TeamValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Value_L2",
+    "lens": "Squad",
+    "theme": "Value",
+    "level": 2,
+    "signalName": "TeamValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Value_L3",
+    "lens": "Squad",
+    "theme": "Value",
+    "level": 3,
+    "signalName": "TeamValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Value_L4",
+    "lens": "Squad",
+    "theme": "Value",
+    "level": 4,
+    "signalName": "TeamValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Value_L5",
+    "lens": "Squad",
+    "theme": "Value",
+    "level": 5,
+    "signalName": "TeamValueLevel",
+    "domain": "Capability"
+  },
+  {
+    "behaviourId": "Squad_Learning_L1",
+    "lens": "Squad",
+    "theme": "Learning",
+    "level": 1,
+    "signalName": "TeamLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Squad_Learning_L2",
+    "lens": "Squad",
+    "theme": "Learning",
+    "level": 2,
+    "signalName": "TeamLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Squad_Learning_L3",
+    "lens": "Squad",
+    "theme": "Learning",
+    "level": 3,
+    "signalName": "TeamLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Squad_Learning_L4",
+    "lens": "Squad",
+    "theme": "Learning",
+    "level": 4,
+    "signalName": "TeamLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Squad_Learning_L5",
+    "lens": "Squad",
+    "theme": "Learning",
+    "level": 5,
+    "signalName": "TeamLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Squad_System_L1",
+    "lens": "Squad",
+    "theme": "System",
+    "level": 1,
+    "signalName": "TeamSystemLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_System_L2",
+    "lens": "Squad",
+    "theme": "System",
+    "level": 2,
+    "signalName": "TeamSystemLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_System_L3",
+    "lens": "Squad",
+    "theme": "System",
+    "level": 3,
+    "signalName": "TeamSystemLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_System_L4",
+    "lens": "Squad",
+    "theme": "System",
+    "level": 4,
+    "signalName": "TeamSystemLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Squad_System_L5",
+    "lens": "Squad",
+    "theme": "System",
+    "level": 5,
+    "signalName": "TeamSystemLevel",
+    "domain": "Team"
+  },
+  {
+    "behaviourId": "Leader_Ownership_L1",
+    "lens": "Leader",
+    "theme": "Ownership",
+    "level": 1,
+    "signalName": "LeaderOwnershipLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Ownership_L2",
+    "lens": "Leader",
+    "theme": "Ownership",
+    "level": 2,
+    "signalName": "LeaderOwnershipLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Ownership_L3",
+    "lens": "Leader",
+    "theme": "Ownership",
+    "level": 3,
+    "signalName": "LeaderOwnershipLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Ownership_L4",
+    "lens": "Leader",
+    "theme": "Ownership",
+    "level": 4,
+    "signalName": "LeaderOwnershipLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Ownership_L5",
+    "lens": "Leader",
+    "theme": "Ownership",
+    "level": 5,
+    "signalName": "LeaderOwnershipLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Trust_L1",
+    "lens": "Leader",
+    "theme": "Trust",
+    "level": 1,
+    "signalName": "LeaderTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Trust_L2",
+    "lens": "Leader",
+    "theme": "Trust",
+    "level": 2,
+    "signalName": "LeaderTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Trust_L3",
+    "lens": "Leader",
+    "theme": "Trust",
+    "level": 3,
+    "signalName": "LeaderTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Trust_L4",
+    "lens": "Leader",
+    "theme": "Trust",
+    "level": 4,
+    "signalName": "LeaderTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Trust_L5",
+    "lens": "Leader",
+    "theme": "Trust",
+    "level": 5,
+    "signalName": "LeaderTrustLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Value_L1",
+    "lens": "Leader",
+    "theme": "Value",
+    "level": 1,
+    "signalName": "LeaderValueLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Value_L2",
+    "lens": "Leader",
+    "theme": "Value",
+    "level": 2,
+    "signalName": "LeaderValueLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Value_L3",
+    "lens": "Leader",
+    "theme": "Value",
+    "level": 3,
+    "signalName": "LeaderValueLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Value_L4",
+    "lens": "Leader",
+    "theme": "Value",
+    "level": 4,
+    "signalName": "LeaderValueLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Value_L5",
+    "lens": "Leader",
+    "theme": "Value",
+    "level": 5,
+    "signalName": "LeaderValueLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_Learning_L1",
+    "lens": "Leader",
+    "theme": "Learning",
+    "level": 1,
+    "signalName": "LeaderLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Leader_Learning_L2",
+    "lens": "Leader",
+    "theme": "Learning",
+    "level": 2,
+    "signalName": "LeaderLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Leader_Learning_L3",
+    "lens": "Leader",
+    "theme": "Learning",
+    "level": 3,
+    "signalName": "LeaderLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Leader_Learning_L4",
+    "lens": "Leader",
+    "theme": "Learning",
+    "level": 4,
+    "signalName": "LeaderLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Leader_Learning_L5",
+    "lens": "Leader",
+    "theme": "Learning",
+    "level": 5,
+    "signalName": "LeaderLearningLevel",
+    "domain": "Cultural"
+  },
+  {
+    "behaviourId": "Leader_System_L1",
+    "lens": "Leader",
+    "theme": "System",
+    "level": 1,
+    "signalName": "LeaderSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_System_L2",
+    "lens": "Leader",
+    "theme": "System",
+    "level": 2,
+    "signalName": "LeaderSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_System_L3",
+    "lens": "Leader",
+    "theme": "System",
+    "level": 3,
+    "signalName": "LeaderSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_System_L4",
+    "lens": "Leader",
+    "theme": "System",
+    "level": 4,
+    "signalName": "LeaderSystemLevel",
+    "domain": "Organisational"
+  },
+  {
+    "behaviourId": "Leader_System_L5",
+    "lens": "Leader",
+    "theme": "System",
+    "level": 5,
+    "signalName": "LeaderSystemLevel",
+    "domain": "Organisational"
+  }
+]

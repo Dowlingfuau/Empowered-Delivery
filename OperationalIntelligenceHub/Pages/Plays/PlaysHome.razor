@@ -1,0 +1,757 @@
+@page "/plays"
+@using OperationalIntelligenceHub.Services
+
+<PageTitle>Plays — Empowered Delivery</PageTitle>
+
+@code {
+    private sealed class ChangeType(string label, string question, string playNumber, string playTitle, string route)
+    {
+        public string Label { get; } = label;
+        public string Question { get; } = question;
+        public string PlayNumber { get; } = playNumber;
+        public string PlayTitle { get; } = playTitle;
+        public string Route { get; } = route;
+    }
+
+    private readonly ChangeType[] changeTypes =
+    [
+        new("HOW PEOPLE THINK", "Stuck generating the same ideas in the same way?", "01", "Disruptive Brainstorming", "/plays/disruptive-brainstorming"),
+        new("HOW PEOPLE INTERACT", "Trust missing, so hard conversations don't happen?", "02", "Team Culture of Trust", "/plays/team-culture-of-trust"),
+        new("HOW TEAMS LEARN", "Retros that surface nothing and change nothing?", "03", "4Ls Retrospective", "/plays/4ls-retrospective"),
+    ];
+
+    private int activeChange = -1;
+}
+
+<div class="plays-landing">
+
+    <header class="plays-hero">
+        <p class="plays-hero-tag">FIELD MANUAL — EMPOWERED DELIVERY</p>
+        <div class="plays-hero-grid">
+            <h1>TRY<br /><em>SOMETHING.</em></h1>
+            <div class="plays-hero-note">
+                <p class="plays-hero-lede">Practical interventions for changing how delivery works.</p>
+                <p>
+                    The Tools show you the system. Perspectives help you think about it.
+                    <strong>These entries are what you actually run.</strong>
+                </p>
+                <div class="plays-hero-specimen" aria-hidden="true">
+                    <span>SPECIMEN</span>
+                    <span>INTERVENTION</span>
+                    <span>3 ENTRIES CATALOGUED</span>
+                </div>
+            </div>
+        </div>
+        <div class="plays-hero-rule">
+            <span>NOT ARTICLES</span>
+            <i></i>
+            <span>THINGS YOU CAN DO</span>
+        </div>
+    </header>
+
+    <section class="playbook" aria-label="The playbook">
+        <div class="playbook-head">
+            <span class="section-index">01</span>
+            <h2>The Playbook</h2>
+            <p>Three catalogued interventions. Each one names what it changes and how to run it.</p>
+        </div>
+
+        <div class="playbook-entries">
+            <article class="play-entry play-entry-primary">
+                <div class="play-entry-frame">
+                    <img src="/images/Plays/Disruptive%20Brainstorming.jpg" alt="Disruptive Brainstorming specimen artwork" />
+                    <span class="play-entry-number">01</span>
+                    <span class="play-entry-tag">PRIMARY ENTRY</span>
+                </div>
+                <div class="play-entry-body">
+                    <p class="play-entry-changes">CHANGES → how people generate ideas</p>
+                    <h3>Disruptive Brainstorming</h3>
+                    <p>Spark creative thinking and generate fresh ideas when the usual conversation keeps landing on the usual answer.</p>
+                    <dl class="play-entry-meta">
+                        <div><dt>Difficulty</dt><dd>Hard</dd></div>
+                        <div><dt>Duration</dt><dd>60 minutes</dd></div>
+                    </dl>
+                    <a class="play-entry-run" href="/plays/disruptive-brainstorming">RUN IT <span>↗</span></a>
+                </div>
+            </article>
+
+            <div class="play-entry-secondary-column">
+                <article class="play-entry play-entry-secondary">
+                    <div class="play-entry-frame">
+                        <img src="/images/Plays/Team%20Culture%20of%20Trust.jpg" alt="Team Culture of Trust specimen artwork" />
+                        <span class="play-entry-number">02</span>
+                    </div>
+                    <div class="play-entry-body">
+                        <p class="play-entry-changes">CHANGES → how people interact</p>
+                        <h3>Team Culture of Trust</h3>
+                        <p>Surface team norms and turn trust conversations into concrete actions.</p>
+                        <dl class="play-entry-meta">
+                            <div><dt>Difficulty</dt><dd>Medium</dd></div>
+                            <div><dt>Duration</dt><dd>60–90 min</dd></div>
+                        </dl>
+                        <a class="play-entry-run" href="/plays/team-culture-of-trust">RUN IT <span>↗</span></a>
+                    </div>
+                </article>
+
+                <article class="play-entry play-entry-secondary">
+                    <div class="play-entry-frame">
+                        <img src="/images/Plays/4Ls%20Retro.jpg" alt="4Ls Retrospective specimen artwork" />
+                        <span class="play-entry-number">03</span>
+                    </div>
+                    <div class="play-entry-body">
+                        <p class="play-entry-changes">CHANGES → how teams learn</p>
+                        <h3>4Ls Retrospective</h3>
+                        <p>Reflect on what the team loved, loathed, longed for, and learned — then turn it into a small number of concrete actions.</p>
+                        <dl class="play-entry-meta">
+                            <div><dt>Difficulty</dt><dd>Easy</dd></div>
+                            <div><dt>Duration</dt><dd>60 minutes</dd></div>
+                        </dl>
+                        <a class="play-entry-run" href="/plays/4ls-retrospective">RUN IT <span>↗</span></a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="play-selector" aria-label="Choosing an intervention">
+        <div class="play-selector-head">
+            <span class="section-index">02</span>
+            <h2>What are you trying to change?</h2>
+            <p>Point at the problem. The manual points back at the entry.</p>
+        </div>
+
+        <div class="play-selector-grid">
+            @for (var i = 0; i < changeTypes.Length; i++)
+            {
+                var index = i;
+                var change = changeTypes[index];
+                var active = activeChange == index;
+                <button type="button"
+                        class="play-selector-item @(active ? "active" : string.Empty)"
+                        @onclick="() => activeChange = active ? -1 : index"
+                        aria-expanded="@(active ? "true" : "false")">
+                    <span class="play-selector-label">@change.Label</span>
+                    <span class="play-selector-question">@change.Question</span>
+                    <span class="play-selector-answer">
+                        <i>ENTRY @change.PlayNumber</i>
+                        <a href="@change.Route">@change.PlayTitle</a>
+                    </span>
+                </button>
+            }
+        </div>
+    </section>
+
+    <section class="experiment-loop" aria-label="Run, observe, learn, adapt">
+        <div class="experiment-loop-head">
+            <span class="section-index">03</span>
+            <h2>A Play is an experiment, not a fix.</h2>
+        </div>
+        <div class="experiment-loop-strip">
+            <div class="experiment-step">
+                <span class="experiment-step-index">01</span>
+                <strong>RUN</strong>
+                <p>Try the intervention deliberately, on purpose, with a real team.</p>
+            </div>
+            <div class="experiment-arrow" aria-hidden="true">→</div>
+            <div class="experiment-step">
+                <span class="experiment-step-index">02</span>
+                <strong>OBSERVE</strong>
+                <p>Watch what actually shifts — in behaviour, not just in sentiment.</p>
+            </div>
+            <div class="experiment-arrow" aria-hidden="true">→</div>
+            <div class="experiment-step">
+                <span class="experiment-step-index">03</span>
+                <strong>LEARN</strong>
+                <p>Decide what the change told you about the system underneath.</p>
+            </div>
+            <div class="experiment-arrow" aria-hidden="true">→</div>
+            <div class="experiment-step">
+                <span class="experiment-step-index">04</span>
+                <strong>ADAPT</strong>
+                <p>Carry the finding into the next Play, or back to the Hub.</p>
+            </div>
+        </div>
+        <p class="experiment-loop-note">It doesn't have to solve the whole problem. It gives you something deliberate to try, then something real to learn from.</p>
+    </section>
+
+    <section class="plays-next-steps" aria-label="Where to go next">
+        <div class="next-steps-statement">
+            <p>Understanding is useful.</p>
+            <p><strong>Doing something with it is better.</strong></p>
+        </div>
+        <div class="next-steps-routes">
+            <a href="/hub">
+                <span>See what is happening</span>
+                <strong>Tools</strong>
+            </a>
+            <a href="/perspectives">
+                <span>Think about what it means</span>
+                <strong>Perspectives</strong>
+            </a>
+            <a href="/services">
+                <span>Get help changing it</span>
+                <strong>Services</strong>
+            </a>
+        </div>
+    </section>
+
+</div>
+
+<style>
+    .plays-landing {
+        --ink: #111315;
+        --charcoal: #17191a;
+        --cream: #f2eadb;
+        --muted: #a9aaa2;
+        --line: #4a4d4a;
+        --line-soft: rgba(242, 234, 219, 0.14);
+        --vermillion: #d5523d;
+        --vermillion-deep: #a23f31;
+        --petrol: #2f789d;
+        background: var(--ink);
+        color: var(--cream);
+        font-family: "Inter", "Segoe UI", sans-serif;
+        overflow: hidden;
+    }
+
+    .plays-landing * {
+        box-sizing: border-box;
+    }
+
+    .plays-landing h1,
+    .plays-landing h2,
+    .plays-landing h3 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 400;
+        letter-spacing: -0.05em;
+        margin: 0;
+    }
+
+    .section-index {
+        color: var(--vermillion);
+        display: block;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        margin-bottom: 14px;
+    }
+
+    /* ACT I — hero */
+    .plays-hero {
+        background: linear-gradient(180deg, #0d0e0f 0%, var(--ink) 100%);
+        border-bottom: 1px solid var(--line-soft);
+        padding: clamp(40px, 6vw, 96px) clamp(24px, 7vw, 110px) clamp(36px, 5vw, 64px);
+    }
+
+    .plays-hero-tag {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        margin: 0 0 28px;
+        text-transform: uppercase;
+    }
+
+    .plays-hero-grid {
+        align-items: end;
+        display: grid;
+        gap: clamp(24px, 4vw, 60px);
+        grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+    }
+
+    .plays-hero-grid h1 {
+        color: var(--cream);
+        font-size: clamp(56px, 10vw, 148px);
+        line-height: 0.86;
+        letter-spacing: -0.06em;
+    }
+
+    .plays-hero-grid h1 em {
+        color: var(--vermillion);
+        font-style: normal;
+    }
+
+    .plays-hero-lede {
+        color: var(--cream);
+        font-size: 1.15rem;
+        line-height: 1.5;
+        margin: 0 0 18px;
+    }
+
+    .plays-hero-note p {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0 0 26px;
+        max-width: 38ch;
+    }
+
+    .plays-hero-note strong {
+        color: var(--cream);
+        font-weight: 600;
+    }
+
+    .plays-hero-specimen {
+        border-top: 1px solid var(--line-soft);
+        display: flex;
+        gap: 22px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        padding-top: 16px;
+        text-transform: uppercase;
+    }
+
+    .plays-hero-specimen span:first-child {
+        color: var(--vermillion);
+    }
+
+    .plays-hero-specimen span:not(:first-child) {
+        color: var(--muted);
+    }
+
+    .plays-hero-rule {
+        align-items: center;
+        display: flex;
+        gap: 18px;
+        margin-top: clamp(28px, 5vw, 56px);
+    }
+
+    .plays-hero-rule i {
+        background: var(--line);
+        flex: 1;
+        height: 1px;
+    }
+
+    .plays-hero-rule span {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        white-space: nowrap;
+    }
+
+    /* ACT II — playbook */
+    .playbook {
+        border-bottom: 1px solid var(--line-soft);
+        padding: clamp(48px, 7vw, 96px) clamp(24px, 7vw, 110px);
+    }
+
+    .playbook-head h2 {
+        color: var(--cream);
+        font-size: clamp(34px, 4.5vw, 58px);
+        line-height: 0.95;
+        margin-bottom: 14px;
+    }
+
+    .playbook-head p {
+        color: var(--muted);
+        margin: 0 0 clamp(32px, 5vw, 56px);
+        max-width: 46ch;
+    }
+
+    .playbook-entries {
+        display: grid;
+        gap: clamp(20px, 3vw, 32px);
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    }
+
+    .play-entry {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .play-entry-frame {
+        background: var(--charcoal);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .play-entry-frame img {
+        display: block;
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .play-entry-primary .play-entry-frame {
+        aspect-ratio: 4 / 5;
+    }
+
+    .play-entry-secondary .play-entry-frame {
+        aspect-ratio: 16 / 8;
+    }
+
+    .play-entry-number {
+        color: var(--cream);
+        font-family: Georgia, serif;
+        font-size: clamp(48px, 6vw, 88px);
+        left: 20px;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        position: absolute;
+        text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+        top: 8px;
+    }
+
+    .play-entry-tag {
+        background: var(--vermillion);
+        bottom: 16px;
+        color: var(--ink);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        padding: 6px 12px;
+        position: absolute;
+        right: 16px;
+        text-transform: uppercase;
+    }
+
+    .play-entry-body {
+        padding-top: 22px;
+    }
+
+    .play-entry-changes {
+        color: var(--petrol);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin: 0 0 12px;
+        text-transform: uppercase;
+    }
+
+    .play-entry-primary h3 {
+        color: var(--cream);
+        font-size: clamp(30px, 3.4vw, 46px);
+        margin-bottom: 14px;
+    }
+
+    .play-entry-secondary h3 {
+        color: var(--cream);
+        font-size: clamp(22px, 2.4vw, 30px);
+        margin-bottom: 10px;
+    }
+
+    .play-entry-body p:not(.play-entry-changes) {
+        color: var(--muted);
+        line-height: 1.55;
+        margin: 0 0 18px;
+        max-width: 48ch;
+    }
+
+    .play-entry-meta {
+        border-top: 1px solid var(--line-soft);
+        display: flex;
+        gap: 28px;
+        margin: 0 0 20px;
+        padding-top: 14px;
+    }
+
+    .play-entry-meta dt {
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin: 0 0 4px;
+        text-transform: uppercase;
+    }
+
+    .play-entry-meta dd {
+        color: var(--cream);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .play-entry-run {
+        border-bottom: 1px solid var(--vermillion);
+        color: var(--vermillion);
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 700;
+        gap: 8px;
+        letter-spacing: 0.1em;
+        padding-bottom: 6px;
+        text-decoration: none;
+        text-transform: uppercase;
+        width: fit-content;
+    }
+
+    .play-entry-run:hover {
+        color: var(--cream);
+    }
+
+    .play-entry-secondary-column {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(24px, 3vw, 36px);
+    }
+
+    /* ACT III — selector */
+    .play-selector {
+        border-bottom: 1px solid var(--line-soft);
+        padding: clamp(48px, 7vw, 96px) clamp(24px, 7vw, 110px);
+    }
+
+    .play-selector-head h2 {
+        color: var(--cream);
+        font-size: clamp(32px, 4vw, 52px);
+        margin-bottom: 12px;
+    }
+
+    .play-selector-head p {
+        color: var(--muted);
+        margin: 0 0 clamp(28px, 4vw, 48px);
+    }
+
+    .play-selector-grid {
+        display: grid;
+        gap: 1px;
+        background: var(--line-soft);
+        border: 1px solid var(--line-soft);
+    }
+
+    .play-selector-item {
+        align-items: center;
+        background: var(--ink);
+        border: 0;
+        color: var(--cream);
+        cursor: pointer;
+        display: grid;
+        font: inherit;
+        gap: clamp(10px, 2vw, 24px);
+        grid-template-columns: minmax(140px, 0.9fr) minmax(0, 1.4fr) minmax(180px, 0.9fr);
+        padding: clamp(18px, 2.4vw, 28px) clamp(18px, 3vw, 32px);
+        text-align: left;
+        transition: background-color 0.2s ease-out;
+    }
+
+    .play-selector-item:hover,
+    .play-selector-item.active {
+        background: var(--charcoal);
+    }
+
+    .play-selector-item:focus-visible {
+        outline: 2px solid var(--vermillion);
+        outline-offset: -2px;
+    }
+
+    .play-selector-label {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+    }
+
+    .play-selector-question {
+        font-size: clamp(16px, 1.8vw, 20px);
+        line-height: 1.3;
+    }
+
+    .play-selector-answer {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        justify-self: end;
+        text-align: right;
+    }
+
+    .play-selector-answer i {
+        color: var(--vermillion);
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+    }
+
+    .play-selector-answer a {
+        color: var(--cream);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .play-selector-answer a:hover {
+        color: var(--vermillion);
+        text-decoration: underline;
+    }
+
+    /* ACT IV — experiment loop */
+    .experiment-loop {
+        border-bottom: 1px solid var(--line-soft);
+        padding: clamp(48px, 7vw, 96px) clamp(24px, 7vw, 110px);
+    }
+
+    .experiment-loop-head h2 {
+        color: var(--cream);
+        font-size: clamp(30px, 3.6vw, 46px);
+        margin-bottom: clamp(28px, 4vw, 48px);
+        max-width: 22ch;
+    }
+
+    .experiment-loop-strip {
+        align-items: stretch;
+        display: flex;
+        gap: 0;
+    }
+
+    .experiment-step {
+        flex: 1;
+        min-width: 0;
+        padding: 20px 4px;
+        position: relative;
+    }
+
+    .experiment-step:before {
+        background: var(--line);
+        content: "";
+        height: 2px;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+
+    .experiment-step-index {
+        color: var(--muted);
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        margin: 16px 0 8px;
+    }
+
+    .experiment-step strong {
+        color: var(--vermillion);
+        display: block;
+        font-family: Georgia, serif;
+        font-size: clamp(22px, 2.6vw, 32px);
+        letter-spacing: -0.03em;
+        margin-bottom: 10px;
+    }
+
+    .experiment-step p {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 0;
+        max-width: 26ch;
+    }
+
+    .experiment-arrow {
+        align-self: center;
+        color: var(--line);
+        flex: 0 0 auto;
+        font-size: 20px;
+        padding: 0 6px;
+    }
+
+    .experiment-loop-note {
+        border-top: 1px solid var(--line-soft);
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+        margin-top: clamp(28px, 4vw, 48px);
+        max-width: 60ch;
+        padding-top: 22px;
+    }
+
+    /* ACT V — next steps */
+    .plays-next-steps {
+        background: var(--cream);
+        color: var(--ink);
+        padding: clamp(48px, 7vw, 96px) clamp(24px, 7vw, 110px);
+    }
+
+    .next-steps-statement p {
+        font-family: Georgia, serif;
+        font-size: clamp(30px, 4vw, 52px);
+        letter-spacing: -0.05em;
+        line-height: 1.05;
+        margin: 0;
+    }
+
+    .next-steps-statement strong {
+        color: var(--vermillion-deep);
+        font-weight: 400;
+    }
+
+    .next-steps-routes {
+        border-top: 1px solid var(--line);
+        display: grid;
+        gap: 1px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: clamp(32px, 5vw, 52px);
+    }
+
+    .next-steps-routes a {
+        background: var(--cream);
+        color: var(--ink);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 24px 20px 32px;
+        text-decoration: none;
+    }
+
+    .next-steps-routes a span {
+        color: #6b6a63;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .next-steps-routes a strong {
+        font-family: Georgia, serif;
+        font-size: clamp(24px, 2.6vw, 32px);
+        font-weight: 400;
+        letter-spacing: -0.03em;
+    }
+
+    .next-steps-routes a:hover strong {
+        color: var(--vermillion-deep);
+    }
+
+    @@media (max-width: 860px) {
+        .plays-hero-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .plays-hero-note {
+            margin-top: 12px;
+        }
+
+        .playbook-entries {
+            grid-template-columns: 1fr;
+        }
+
+        .play-selector-item {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .play-selector-answer {
+            justify-self: start;
+            text-align: left;
+        }
+
+        .experiment-loop-strip {
+            flex-direction: column;
+        }
+
+        .experiment-arrow {
+            padding: 4px 0 4px 16px;
+        }
+
+        .next-steps-routes {
+            grid-template-columns: 1fr;
+        }
+
+        .next-steps-routes a {
+            border-bottom: 1px solid var(--line);
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .play-selector-item {
+            transition: none;
+        }
+    }
+</style>

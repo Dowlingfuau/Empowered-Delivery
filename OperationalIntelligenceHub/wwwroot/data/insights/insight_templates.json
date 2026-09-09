@@ -1,0 +1,187 @@
+{
+  "insight_templates": [
+
+    {
+      "id": "flow_overload_system",
+      "signals": [
+        { "name": "FlowOverloadSystem", "intensity": "High" }
+      ],
+      "priority": 10,
+      "category": "constraint",
+      "title": "The delivery system may be overloaded",
+      "insight": "Work appears to be entering the delivery system faster than teams can realistically complete it.",
+      "explanation": "When work intake consistently exceeds delivery capacity, delivery pressure increases and predictability becomes difficult.",
+      "direction": "Exploring how work enters the system may help restore sustainable delivery flow."
+    },
+
+    {
+      "id": "delivery_factory_risk",
+      "signals": [
+        { "name": "DeliveryFactoryRisk", "intensity": "High" }
+      ],
+      "priority": 9,
+      "category": "constraint",
+      "title": "Delivery may be operating as a work intake system",
+      "insight": "Work appears to be entering delivery faster than it can be prioritised for value.",
+      "explanation": "When product ownership is weak and backlog volatility is high, teams often shift into responding to incoming work rather than shaping value delivery.",
+      "direction": "Strengthening product ownership may help reconnect delivery decisions with value."
+    },
+
+    {
+      "id": "system_friction",
+      "signals": [
+        { "name": "SystemFriction", "intensity": "High" }
+      ],
+      "priority": 9,
+      "category": "constraint",
+      "title": "Delivery may be slowed by organisational friction",
+      "insight": "Decisions and responsibilities may not currently flow smoothly through the delivery system.",
+      "explanation": "When decision authority is unclear or centralised, teams often experience delays while waiting for direction.",
+      "direction": "Exploring how decision authority is shared may help improve delivery flow."
+    },
+
+    {
+      "id": "organisational_misalignment",
+      "signals": [
+        { "name": "OrganisationalDeliveryMisalignment", "intensity": "High" }
+      ],
+      "priority": 10,
+      "category": "constraint",
+      "title": "Delivery expectations may not align with system reality",
+      "insight": "Leadership expectations and delivery system behaviour may not currently align.",
+      "explanation": "When expectations exceed the system's current capabilities, teams experience pressure while delivery stability declines.",
+      "direction": "Reviewing expectations alongside delivery constraints may help rebalance the system."
+    },
+
+    {
+      "id": "delivery_instability",
+      "signals": [
+        { "name": "DeliveryInstability", "intensity": "High" }
+      ],
+      "priority": 8,
+      "category": "risk",
+      "title": "Delivery output appears unstable",
+      "insight": "Delivery output varies significantly between iterations.",
+      "explanation": "High delivery variance often indicates interruptions, shifting priorities, or system constraints.",
+      "direction": "Stabilising how work flows through the system may improve predictability."
+    },
+
+    {
+      "id": "backlog_pressure",
+      "signals": [
+        { "name": "BacklogPressure", "intensity": "High" }
+      ],
+      "priority": 8,
+      "category": "risk",
+      "title": "The backlog may contain more work than the team can deliver",
+      "insight": "The backlog currently appears larger than the team's delivery capacity.",
+      "explanation": "When backlog size grows beyond realistic delivery capacity, prioritisation becomes difficult and delivery pressure increases.",
+      "direction": "Reducing backlog size or clarifying priorities may improve focus."
+    },
+
+    {
+      "id": "backlog_ageing",
+      "signals": [
+        { "name": "BacklogAgingRisk", "intensity": "High" }
+      ],
+      "priority": 7,
+      "category": "risk",
+      "title": "Work may be sitting in the backlog too long",
+      "insight": "Some backlog items appear to remain unaddressed for extended periods.",
+      "explanation": "Older backlog items can indicate unclear priorities or excessive backlog size.",
+      "direction": "Reviewing backlog freshness may help maintain a healthy delivery pipeline."
+    },
+
+    {
+      "id": "psychological_safety_risk",
+      "signals": [
+        { "name": "PsychologicalSafetyRisk", "intensity": "High" }
+      ],
+      "priority": 8,
+      "category": "risk",
+      "title": "Psychological safety may be limited",
+      "insight": "Team members may not feel fully comfortable raising concerns or challenging ideas.",
+      "explanation": "Strong delivery environments rely on open communication and constructive challenge.",
+      "direction": "Encouraging open discussion may strengthen team learning and collaboration."
+    },
+
+    {
+      "id": "collaboration_weakness",
+      "signals": [
+        { "name": "CollaborationWeakness", "intensity": "High" }
+      ],
+      "priority": 7,
+      "category": "risk",
+      "title": "Collaboration across the team may be limited",
+      "insight": "Work may currently be organised in ways that reduce collaboration.",
+      "explanation": "When collaboration is limited, delivery often slows and knowledge silos emerge.",
+      "direction": "Exploring how work is shared across the team may strengthen collaboration."
+    },
+
+    {
+      "id": "ownership_opportunity",
+      "signals": [
+        { "name": "OwnershipDeveloping", "intensity": "Moderate" }
+      ],
+      "priority": 5,
+      "category": "opportunity",
+      "title": "Team ownership appears to be developing",
+      "insight": "Teams are beginning to take greater responsibility for delivery decisions.",
+      "explanation": "Growing ownership often creates opportunities for stronger collaboration and learning.",
+      "direction": "Supporting teams in shaping delivery decisions may strengthen ownership further."
+    },
+
+    {
+      "id": "trust_opportunity",
+      "signals": [
+        { "name": "TrustDeveloping", "intensity": "Moderate" }
+      ],
+      "priority": 5,
+      "category": "opportunity",
+      "title": "Trust within the delivery system appears to be growing",
+      "insight": "Leaders appear to be gradually increasing decision authority within teams.",
+      "explanation": "Trust between leadership and teams enables faster and more adaptive delivery decisions.",
+      "direction": "Continuing to expand decision autonomy may strengthen delivery flow."
+    },
+
+    {
+      "id": "flow_stability_positive",
+      "signals": [
+        { "name": "FlowStabilityEmerging", "intensity": "High" }
+      ],
+      "priority": 4,
+      "category": "positive",
+      "title": "Delivery flow appears stable",
+      "insight": "Delivery output appears predictable and consistent.",
+      "explanation": "Stable delivery flow enables teams to plan improvements and deliver value more reliably.",
+      "direction": "Maintaining this stability creates a strong foundation for continuous improvement."
+    },
+
+    {
+      "id": "strong_ownership_positive",
+      "signals": [
+        { "name": "StrongOwnershipCulture", "intensity": "High" }
+      ],
+      "priority": 4,
+      "category": "positive",
+      "title": "Teams appear to demonstrate strong ownership",
+      "insight": "Teams actively influence delivery decisions and backlog direction.",
+      "explanation": "Strong ownership enables teams to respond quickly to delivery challenges.",
+      "direction": "Encouraging this ownership can further strengthen delivery outcomes."
+    },
+
+    {
+      "id": "strong_team_environment",
+      "signals": [
+        { "name": "StrongTeamEnvironment", "intensity": "High" }
+      ],
+      "priority": 4,
+      "category": "positive",
+      "title": "The team environment appears supportive",
+      "insight": "Collaboration, learning, and open communication appear strong.",
+      "explanation": "Supportive team environments enable continuous improvement and resilient delivery.",
+      "direction": "Maintaining this environment can help sustain delivery effectiveness."
+    }
+
+  ]
+}

@@ -1,0 +1,17 @@
+@startuml insight generation
+
+title Insight Generation
+
+class DerivedSignals
+class InsightTemplate
+class InsightGenerator
+class InsightPrioritiser
+class Insight
+
+DerivedSignals --> InsightGenerator
+InsightTemplate --> InsightGenerator
+
+InsightGenerator --> InsightPrioritiser
+InsightPrioritiser --> Insight
+
+@enduml

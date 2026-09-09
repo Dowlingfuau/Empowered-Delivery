@@ -1,0 +1,247 @@
+{
+  "derived_signal_rules": [
+    {
+      "name": "DeliveryInstability",
+      "category": "Risk",
+      "domain": "Flow",
+      "priority": 7,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "BacklogPredictability"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "BacklogPredictability <= 0.3",
+          "result": "Low"
+        },
+        {
+          "condition": "BacklogPredictability > 0.3 AND BacklogPredictability <= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "BacklogPredictability > 0.6",
+          "result": "High"
+        }
+      ],
+      "interpretation": "Delivery output varies significantly between iterations."
+    },
+    {
+      "name": "BacklogPressure",
+      "category": "Risk",
+      "domain": "Flow",
+      "priority": 9,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "BacklogSize",
+        "weeksofWork"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "weeksofWork < 2",
+          "result": "Low"
+        },
+        {
+          "condition": "weeksofWork > 2 AND weeksofWork <= 5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "weeksofWork > 5",
+          "result": "High"
+        }
+      ],
+      "interpretation": "The backlog contains significantly more work than the team can realistically deliver."
+    },
+    {
+      "name": "BacklogVolatility",
+      "category": "Observation",
+      "domain": "Flow",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "BacklogVolatility"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "BacklogVolatility <= 0.3",
+          "result": "Low"
+        },
+        {
+          "condition": "BacklogVolatility > 0.3 AND BacklogVolatility <= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "BacklogVolatility > 0.6",
+          "result": "High"
+        }
+      ],
+      "interpretation": "Work appears to be entering the backlog faster than it is being completed."
+    },
+    {
+      "name": "BacklogAgingRisk",
+      "category": "Risk",
+      "domain": "Flow",
+      "priority": 8,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "BacklogAge",
+        "weeksofWork"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "BacklogAge <= 0.4",
+          "result": "Low"
+        },
+        {
+          "condition": "BacklogAge > 0.4 AND BacklogAge <= 0.7",
+          "result": "Moderate"
+        },
+        {
+          "condition": "BacklogAge > 0.7 OR weeksofWork <= 4",
+          "result": "High"
+        }
+      ],
+      "interpretation": "Work is sitting in the backlog for long periods before being addressed."
+    },
+    {
+      "name": "FlowStabilityEmerging",
+      "category": "Positive",
+      "domain": "Flow",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "BacklogPredictability",
+        "BacklogVolatility",
+        "BacklogAge"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "BacklogPredictability > 0.6 OR BacklogVolatility > 0.6",
+          "result": "Low"
+        },
+        {
+          "condition": "BacklogPredictability <= 0.6 AND BacklogVolatility <= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "BacklogPredictability <= 0.3 AND BacklogVolatility <= 0.3 AND BacklogAge <= 0.3",
+          "result": "High"
+        }
+      ],
+      "interpretation": "Delivery flow appears predictable and stable."
+    },
+    {
+      "name": "IntakePressure",
+      "category": "Risk",
+      "domain": "Flow",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "FlowBalance"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "FlowBalance <= 1",
+          "result": "Low"
+        },
+        {
+          "condition": "FlowBalance > 1 AND FlowBalance <= 1.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "FlowBalance > 1.5",
+          "result": "High"
+        }
+      ],
+      "interpretation": "New work appears to be entering the backlog faster than the team can complete it."
+    },
+    {
+      "name": "PrioritisationClarity",
+      "category": "Risk",
+      "domain": "Flow",
+      "priority": 9,
+      "confidence_weight": 0.9,
+      "source_signals": [
+        "BacklogPrioritisation"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "BacklogPrioritisation <= 0.3",
+          "result": "High"
+        },
+        {
+          "condition": "BacklogPrioritisation > 0.3 AND BacklogPrioritisation <= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "BacklogPrioritisation > 0.6",
+          "result": "High"
+        }
+      ],
+      "interpretation": "Work is not clearly prioritised or differentiated."
+    },
+    {
+      "name": "FlowDisruption",
+      "category": "Risk",
+      "domain": "Flow",
+      "priority": 9,
+      "confidence_weight": 0.9,
+      "source_signals": [
+        "BacklogPressure",
+        "IntakePressure",
+        "BacklogAgingRisk"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "BacklogPressure = High AND IntakePressure = High",
+          "result": "High"
+        },
+        {
+          "condition": "BacklogAgingRisk = High AND IntakePressure = High",
+          "result": "High"
+        }
+      ],
+      "interpretation": "Multiple flow issues are interacting, creating systemic disruption."
+    }
+    
+  ]
+}

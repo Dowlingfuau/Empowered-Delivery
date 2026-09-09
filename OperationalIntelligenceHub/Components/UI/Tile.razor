@@ -1,0 +1,98 @@
+@if (Clickable)
+{
+    if (!string.IsNullOrWhiteSpace(Href))
+    {
+        <a class="@RootClass" href="@Href" @onclick="HandleClick" @attributes="AdditionalAttributesWithoutClass">
+            @TileSurface
+        </a>
+    }
+    else
+    {
+        <button class="@RootClass" type="button" @onclick="HandleClick" @attributes="AdditionalAttributesWithoutClass">
+            @TileSurface
+        </button>
+    }
+}
+else
+{
+    <div class="@RootClass" @attributes="AdditionalAttributesWithoutClass">
+        @TileSurface
+    </div>
+}
+
+@code {
+    [Parameter] public bool Clickable { get; set; } = false;
+    [Parameter] public string? Href { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public string Variant { get; set; } = "tile-raised";
+
+    [Parameter] public RenderFragment? TileHeader { get; set; }
+    [Parameter] public RenderFragment? TileBody { get; set; }
+    [Parameter] public RenderFragment? TileFooter { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string RootClass
+    {
+        get
+        {
+            var classes = new List<string> { "tile" };
+
+            if (Clickable)
+            {
+                classes.Add("tile-interactive");
+            }
+
+            if (!string.IsNullOrWhiteSpace(Variant))
+            {
+                classes.Add(Variant);
+            }
+
+            if (AdditionalAttributes is not null &&
+                AdditionalAttributes.TryGetValue("class", out var classValue))
+            {
+                classes.Add(classValue?.ToString() ?? string.Empty);
+            }
+
+            return string.Join(" ", classes.Where(className => !string.IsNullOrWhiteSpace(className)));
+        }
+    }
+
+    private IReadOnlyDictionary<string, object>? AdditionalAttributesWithoutClass =>
+        AdditionalAttributes?.Where(attribute => !string.Equals(attribute.Key, "class", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(attribute => attribute.Key, attribute => attribute.Value);
+
+    private RenderFragment TileSurface => @<div class="tile-content">
+        @if (TileHeader is not null)
+        {
+            <div class="tile-header">
+                @TileHeader
+            </div>
+        }
+
+        @if (TileBody is not null || ChildContent is not null)
+        {
+            <div class="tile-body">
+                @TileBody
+                @ChildContent
+            </div>
+        }
+
+        @if (TileFooter is not null)
+        {
+            <div class="tile-footer">
+                @TileFooter
+            </div>
+        }
+    </div>;
+
+    private async Task HandleClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync();
+        }
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "cyclical_detection": {
+    "minDataPoints": 4,
+    "requiresAlternatingSigns": true,
+    "minMagnitude": 10
+  }
+}

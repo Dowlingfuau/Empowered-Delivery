@@ -1,0 +1,59 @@
+[
+  {
+    "id": "trust_alignment_gap",
+    "category": "alignment",
+    "metric": "trust_gap",
+    "threshold": 2,
+    "title": "Different roles may experience trust differently",
+    "description": "Trust levels appear to vary between roles involved in the delivery system.",
+    "recommendation": "It may be helpful to explore how trust is experienced across the team and leadership."
+  },
+  {
+    "id": "ownership_alignment_gap",
+    "category": "alignment",
+    "metric": "ownership_gap",
+    "threshold": 2,
+    "title": "Ownership expectations may differ between roles",
+    "description": "Roles appear to have different perspectives on where ownership sits.",
+    "recommendation": "Discuss how responsibility for outcomes is shared across the delivery system."
+  },
+  {
+    "id": "learning_low",
+    "category": "maturity",
+    "metric": "learning_average",
+    "threshold": 2,
+    "comparison": "less_or_equal",
+    "title": "Learning capability may be limited",
+    "description": "The organisation may have limited mechanisms for learning from delivery experience.",
+    "recommendation": "Consider how teams capture insights and improve their ways of working."
+  },
+  {
+    "id": "trust_low",
+    "category": "maturity",
+    "metric": "trust_average",
+    "threshold": 2,
+    "comparison": "less_or_equal",
+    "title": "Trust may be a constraint in the system",
+    "description": "Lower trust levels may be affecting collaboration or openness within the system.",
+    "recommendation": "Explore how psychological safety and trust are supported across the team."
+  },
+  {
+    "id": "system_thinking_gap",
+    "category": "alignment",
+    "metric": "system_gap",
+    "threshold": 2,
+    "title": "System thinking may differ across roles",
+    "description": "Some roles may see the delivery system more broadly than others.",
+    "recommendation": "Discuss how different roles understand the wider delivery system."
+  },
+  {
+    "id": "delivery_learning_imbalance",
+    "category": "balance",
+    "metric_a": "value_average",
+    "metric_b": "learning_average",
+    "difference": 2,
+    "title": "Delivery capability may be outpacing learning capability",
+    "description": "Delivery outcomes may be prioritised more strongly than organisational learning.",
+    "recommendation": "Explore how teams reflect on their work and evolve their practices."
+  }
+]

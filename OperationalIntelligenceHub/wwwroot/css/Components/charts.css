@@ -1,0 +1,59 @@
+/* Chart Container */
+.chart-container {
+    background: var(--color-bg-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    padding: calc(var(--spacing-unit) * 2);
+    position: relative;
+    min-height: 320px;
+    max-height: 520px;
+    width: 100%;
+}
+/* Chart Series Colors */
+.chart-series-1 { 
+    stroke: var(--color-chart-1); 
+}
+.chart-series-2 { 
+    stroke: var(--color-chart-2); 
+}
+.chart-series-3 { 
+    stroke: var(--color-chart-3); 
+}
+.chart-series-4 { 
+    stroke: var(--color-chart-4); 
+}
+.chart-series-5 { 
+    stroke: var(--color-chart-5); 
+}
+/* Chart Tooltip */
+.chart-tooltip { 
+    font-family: var(--font-primary); 
+    font-size: var(--font-size-sm); 
+    color: var(--text-primary); 
+    background: var(--color-bg-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    padding: calc(var(--spacing-unit) * 1);
+    box-shadow: var(--shadow-medium);
+}
+/* Chart Legend */
+.chart-legend {
+    display: flex;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+.chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 0.5);
+}
+.chart-legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+/* Chart.js Canvas Behaviour */
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}

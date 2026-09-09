@@ -1,0 +1,113 @@
+﻿@using OperationalIntelligenceHub.Shared
+@using OperationalIntelligenceHub.Models
+@using Microsoft.AspNetCore.Components.Web
+@using OperationalIntelligenceHub.Components
+@inject TooltipService TooltipService
+@inject IJSRuntime JS
+
+<div class="sidebar-header">
+    <div class="sidebar-brand">
+        <span class="brand-sub">Operational Intelligence Hub</span>
+    </div>
+
+    <button class="nav-toggle" @onclick="ToggleSidebar">
+        ☰
+    </button>
+</div>
+
+<!-- Workspace Selector -->
+<div class="workspace-selector">
+    @if (!SidebarCollapsed)
+    {
+        <WorkspaceSelector />
+    }
+    else
+    {
+        <div id="nav-workspace" class="workspace-icon" tabindex="0" @onclick="ToggleWorkspaceSelector" @onmouseenter="@((MouseEventArgs e) => { if (SidebarCollapsed) TooltipService.Show(e, "Workspace Selector"); })" @onmouseleave="TooltipService.Hide" @onfocusin="@((FocusEventArgs e) => { if (SidebarCollapsed) _ = ShowTooltipForElementId("nav-workspace","Workspace Selector"); })" @onfocusout="TooltipService.Hide">
+            🏢
+        </div>
+        @if (ShowWorkspaceSelector)
+        {
+            <div class="workspace-popover">
+                <WorkspaceSelector />
+            </div>
+        }
+    }
+</div>
+
+<div class="sidebar-body">
+    <nav>
+    <div class="tooltip-container">
+        <NavLink id="nav-home" class="nav-link" href="hub" aria-label="Home" @onmouseenter="@((MouseEventArgs e) => { if (SidebarCollapsed) TooltipService.Show(e, "Home"); })" @onmouseleave="TooltipService.Hide" @onfocusin="@((FocusEventArgs e) => { if (SidebarCollapsed) _ = ShowTooltipForElementId("nav-home","Home"); })" @onfocusout="TooltipService.Hide">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </NavLink>
+    </div>
+
+        <div class="nav-section">Dashboard</div>
+        <div class="tooltip-container">
+        <NavLink id="nav-coach" class="nav-link" href="/hub/coach-hub" aria-label="Operational MRI" @onmouseenter="@((MouseEventArgs e) => { if (SidebarCollapsed) TooltipService.Show(e, "Hub"); })" @onmouseleave="TooltipService.Hide" @onfocusin="@((FocusEventArgs e) => { if (SidebarCollapsed) _ = ShowTooltipForElementId("nav-coach","Operational MRI"); })" @onfocusout="TooltipService.Hide">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Operational MRI</span>
+        </NavLink>
+    </div>
+
+        @foreach (var group in ToolRegistry.Tools.GroupBy(t => t.Category))
+        {
+        <div class="nav-section">@group.Key</div>
+            @for (int i = 0; i < group.Count(); i++)
+            {
+                var tool = group.ElementAt(i);
+                var id = $"nav-tool-{group.Key.Replace(' ', '-')}-{i}";
+            <div class="tooltip-container">
+                <NavLink id="@id" class="nav-link" href="@tool.Route" aria-label="@tool.Name" @onmouseenter="@((MouseEventArgs e) => { if (SidebarCollapsed) TooltipService.Show(e, tool.Name); })" @onmouseleave="TooltipService.Hide" @onfocusin="@((FocusEventArgs e) => { if (SidebarCollapsed) _ = ShowTooltipForElementId(id, tool.Name); })" @onfocusout="TooltipService.Hide">
+                    <span class="nav-icon">@tool.Icon</span>
+                    <span class="nav-label">@tool.Name</span>  
+                </NavLink>
+            </div>
+            }
+            <hr class="nav-divider" />
+        }
+
+        <div class="nav-section">Organisation</div>
+        <div class="tooltip-container">
+        <NavLink id="nav-structure" class="nav-link" href="/hub/structure-studio" aria-label="Structure Studio" @onmouseenter="@((MouseEventArgs e) => { if (SidebarCollapsed) TooltipService.Show(e, "Structure Studio"); })" @onmouseleave="TooltipService.Hide" @onfocusin="@((FocusEventArgs e) => { if (SidebarCollapsed) _ = ShowTooltipForElementId("nav-structure","Structure Studio"); })" @onfocusout="TooltipService.Hide">
+            <span class="nav-icon">🏗</span>
+            <span class="nav-label">Structure Studio</span>
+        </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    [Parameter] public bool SidebarCollapsed { get; set; }
+    [Parameter] public EventCallback ToggleSidebar { get; set; }
+    private Guid? ActiveWorkspaceId { get; set; }
+    bool ShowWorkspaceSelector = false;
+    void ToggleWorkspaceSelector()
+    {
+        ShowWorkspaceSelector = !ShowWorkspaceSelector;
+    }
+
+    private async Task ShowTooltipForElementId(string id, string text, string placement = "right")
+    {
+        try
+        {
+            var pos = await JS.InvokeAsync<JsPos>("uiHelpers.getTooltipPositionForElementId", id, placement);
+            if (pos != null)
+            {
+                TooltipService.ShowAt(pos.top, pos.left, text);
+            }
+            else
+            {
+                TooltipService.ShowAt(0, 0, text);
+            }
+        }
+        catch
+        {
+            TooltipService.ShowAt(0, 0, text);
+        }
+    }
+
+    private class JsPos { public double top { get; set; } public double left { get; set; } }
+}

@@ -1,0 +1,35 @@
+@startuml signal model
+
+title Signal Model
+
+class Signal {
+  Name
+  Domain
+  RawValue
+  NormalisedValue
+}
+
+class DerivedSignal {
+  Name
+  Category
+  Intensity
+  Priority
+}
+
+class DomainProfile {
+  Name
+  Score
+}
+
+class Insight {
+  Title
+  Narrative
+  Category
+  Priority
+}
+
+Signal --> DerivedSignal
+DerivedSignal --> DomainProfile
+DerivedSignal --> Insight
+
+@enduml

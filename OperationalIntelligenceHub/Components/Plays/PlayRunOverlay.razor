@@ -1,0 +1,290 @@
+<div class="play-run-overlay">
+    @if (currentStepIndex == -1 && !sessionCompleted)
+    {
+        <header class="play-run-overlay__header">
+            <button type="button" class="play-run-overlay__back" @onclick="OnClose">LEARN IT / FIELD GUIDE</button>
+            <div class="play-run-overlay__title">@Title</div>
+            <div class="play-run-overlay__state">RUN IT / READY</div>
+        </header>
+
+        <section class="play-run-overlay__briefing">
+            <div class="play-run-overlay__intro">
+                <p class="play-template__kicker">FACILITATOR COCKPIT / START STATE</p>
+                <h1>Guide the room<br /><em>with intent.</em></h1>
+                <p>@Summary</p>
+                <button type="button" class="play-run-overlay__start-session" @onclick="Start">
+                    @StartButtonText <span aria-hidden="true">→</span>
+                </button>
+            </div>
+
+            <aside class="play-run-overlay__readout">
+                <div class="play-run-overlay__line"><span>PLAY</span><strong>@Title</strong></div>
+                <div class="play-run-overlay__line"><span>OUTCOME</span><strong>@TargetOutcome</strong></div>
+                <div class="play-run-overlay__line"><span>DURATION</span><strong>@GetSessionTime()</strong></div>
+            </aside>
+        </section>
+
+        @if (Steps.Any() || PrepItems.Any())
+        {
+            <section class="play-run-overlay__flow">
+                <div class="play-template__section-marker">THE SESSION FLOW</div>
+                <div class="play-run-overlay__flow-list">
+                    @for (var index = 0; index < Steps.Count; index++)
+                    {
+                        var stepIndex = index;
+                        var step = Steps[stepIndex];
+                        <button type="button" @onclick="() => StartFromStep(stepIndex)">
+                            <span>@((stepIndex + 1).ToString("00"))</span>
+                            <strong>@GetFlowTitle(step)</strong>
+                            <small>@GetTimeLabel(step.Timebox)</small>
+                        </button>
+                    }
+                </div>
+            </section>
+        }
+    }
+    else if (sessionCompleted)
+    {
+        <header class="play-run-overlay__header">
+            <button type="button" class="play-run-overlay__back" @onclick="OnClose">LEARN IT / FIELD GUIDE</button>
+            <div class="play-run-overlay__title">@Title</div>
+            <div class="play-run-overlay__state">RUN IT / REFLECTION</div>
+        </header>
+
+        <section class="play-run-overlay__completion">
+            <p class="play-template__kicker">SESSION CLOSE</p>
+            <h1>RUN<br /><em>OBSERVE</em><br />LEARN<br /><em>ADAPT</em></h1>
+            <p>@FinalStepMessage</p>
+            <div class="play-run-overlay__completion-actions">
+                <button type="button" class="play-run-overlay__secondary" @onclick="Reset">Restart</button>
+                <button type="button" class="play-run-overlay__primary" @onclick="OnClose">Close</button>
+            </div>
+        </section>
+    }
+    else
+    {
+        var step = Steps[currentStepIndex];
+        var nextStep = currentStepIndex < Steps.Count - 1 ? Steps[currentStepIndex + 1] : null;
+
+        <header class="play-run-overlay__header">
+            <button type="button" class="play-run-overlay__back" @onclick="OnClose">LEARN IT / FIELD GUIDE</button>
+            <div class="play-run-overlay__title">@Title</div>
+            <div class="play-run-overlay__state">RUN IT / LIVE</div>
+        </header>
+
+        <section class="play-run-overlay__active">
+            <div class="play-run-overlay__progress">
+                <p class="play-template__kicker">PROGRESS</p>
+                @for (var index = 0; index < Steps.Count; index++)
+                {
+                    var stepIndex = index;
+                    var isCurrent = stepIndex == currentStepIndex;
+                    var isDone = stepIndex < currentStepIndex;
+                    <button type="button" class="play-run-overlay__progress-step @(isCurrent ? "is-current" : isDone ? "is-done" : string.Empty)" @onclick="() => StartFromStep(stepIndex)">
+                        <span>@((stepIndex + 1).ToString("00"))</span>
+                        <strong>@GetFlowTitle(Steps[stepIndex])</strong>
+                    </button>
+                }
+            </div>
+
+            <div class="play-run-overlay__current">
+                <p class="play-template__kicker">CURRENT STEP / @((currentStepIndex + 1).ToString("00"))</p>
+                <h1>@step.Title</h1>
+                <p class="play-run-overlay__instruction">@step.Instruction</p>
+
+                <div class="play-run-overlay__actions">
+                    <button type="button" class="play-run-overlay__secondary" @onclick="Back" disabled="@(currentStepIndex == 0)">Back</button>
+                    <button type="button" class="play-run-overlay__primary" @onclick="Next">@(currentStepIndex == Steps.Count - 1 ? "Finish" : "Next step") <span aria-hidden="true">→</span></button>
+                </div>
+            </div>
+
+            <aside class="play-run-overlay__support">
+                <div class="play-run-overlay__timer">
+                    <p class="play-template__kicker">TIME REMAINING</p>
+                    <strong>@GetTimerValue(step.Timebox)</strong>
+                    <span>@GetTimeLabel(step.Timebox)</span>
+                </div>
+
+                @if (step.Notes.Any())
+                {
+                    <div class="play-run-overlay__support-block">
+                        <p class="play-template__kicker">FACILITATOR NOTES</p>
+                        <ul>
+                            @foreach (var note in step.Notes)
+                            {
+                                <li>@note</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(step.WhyItMatters))
+                {
+                    <div class="play-run-overlay__support-block play-run-overlay__support-why">
+                        <p class="play-template__kicker">WHY THIS MATTERS</p>
+                        <p>@step.WhyItMatters</p>
+                    </div>
+                }
+
+                <div class="play-run-overlay__support-block">
+                    <p class="play-template__kicker">UP NEXT</p>
+                    @if (nextStep is not null)
+                    {
+                        <div class="play-run-overlay__next-readout">
+                            <strong>@nextStep.Title</strong>
+                            <span>@GetTimeLabel(nextStep.Timebox)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="play-run-overlay__next-readout">
+                            <strong>@FinalStepTitle</strong>
+                            <span>@FinalStepMessage</span>
+                        </div>
+                    }
+                </div>
+            </aside>
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Summary { get; set; } = "";
+    [Parameter] public string TargetOutcome { get; set; } = "";
+    [Parameter] public string StartButtonText { get; set; } = "Start session";
+    [Parameter] public string FinalStepTitle { get; set; } = "Final step";
+    [Parameter] public string FinalStepMessage { get; set; } = "Thank your participants for their energy, capture the outcome, and make the next action clear.";
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public IReadOnlyList<string> GuideItems { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<string> PrepItems { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<RunStep> Steps { get; set; } = Array.Empty<RunStep>();
+
+    private bool sessionCompleted;
+    private int currentStepIndex = -1;
+
+    private void StartFromStep(int index)
+    {
+        if (Steps.Any())
+        {
+            currentStepIndex = Math.Clamp(index, 0, Steps.Count - 1);
+            sessionCompleted = false;
+        }
+    }
+
+    private void Start()
+    {
+        if (Steps.Any())
+        {
+            currentStepIndex = 0;
+            sessionCompleted = false;
+        }
+    }
+
+    private void Next()
+    {
+        if (sessionCompleted)
+        {
+            return;
+        }
+
+        if (currentStepIndex < Steps.Count - 1)
+        {
+            currentStepIndex++;
+            return;
+        }
+
+        sessionCompleted = true;
+    }
+
+    private void Back()
+    {
+        if (sessionCompleted)
+        {
+            sessionCompleted = false;
+            return;
+        }
+
+        if (currentStepIndex > 0)
+        {
+            currentStepIndex--;
+        }
+    }
+
+    private void Reset()
+    {
+        currentStepIndex = -1;
+        sessionCompleted = false;
+    }
+
+    private static string GetFlowTitle(RunStep step)
+    {
+        return string.IsNullOrWhiteSpace(step.FlowTitle) ? step.Title : step.FlowTitle;
+    }
+
+    private static string GetTimeLabel(string? timebox)
+    {
+        return string.IsNullOrWhiteSpace(timebox) ? "—" : timebox;
+    }
+
+    private static string GetTimerValue(string? timebox)
+    {
+        if (string.IsNullOrWhiteSpace(timebox))
+        {
+            return "—";
+        }
+
+        var match = System.Text.RegularExpressions.Regex.Match(timebox, @"(\d+)");
+        if (!match.Success)
+        {
+            return timebox;
+        }
+
+        var value = int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+        if (value < 60)
+        {
+            return $"00:{value:D2}";
+        }
+
+        var minutes = value / 60;
+        var seconds = value % 60;
+        return $"{minutes:D2}:{seconds:D2}";
+    }
+
+    private string GetSessionTime()
+    {
+        if (!Steps.Any())
+        {
+            return "—";
+        }
+
+        var totalMinutes = Steps.Sum(step => ExtractMinutes(step.Timebox));
+        return totalMinutes > 0 ? $"{totalMinutes} min" : "Facilitated";
+    }
+
+    private static int ExtractMinutes(string? timebox)
+    {
+        if (string.IsNullOrWhiteSpace(timebox))
+        {
+            return 0;
+        }
+
+        var match = System.Text.RegularExpressions.Regex.Match(timebox, @"(\d+)");
+        if (!match.Success)
+        {
+            return 0;
+        }
+
+        return int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    public sealed class RunStep
+    {
+        public string Title { get; set; } = "";
+        public string FlowTitle { get; set; } = "";
+        public string Instruction { get; set; } = "";
+        public string Timebox { get; set; } = "";
+        public string WhyItMatters { get; set; } = "";
+        public IReadOnlyList<string> Notes { get; set; } = Array.Empty<string>();
+    }
+}

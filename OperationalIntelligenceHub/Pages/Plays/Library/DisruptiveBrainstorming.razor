@@ -1,0 +1,310 @@
+@page "/plays/disruptive-brainstorming"
+
+<PlayLayout Title="Disruptive Brainstorming"
+            Subtitle="Generate and stress-test ideas through structured disruption."
+            Description="A high-energy facilitation technique designed to push teams beyond obvious solutions and uncover stronger, more resilient ideas."
+            OnRun="StartRunMode"
+            WhenToUse="WhenToUse"
+            KeysToSuccess="KeysToSuccess"
+            Facts="Facts"
+            Materials="Materials"
+            Steps="Steps" />
+
+@if (isRunning)
+{
+    <PlayRunOverlay Title="Disruptive Brainstorming"
+                    Summary="Guide the team from a clear brief through rapid idea generation and deliberate pressure-testing into a few ideas worth carrying forward."
+                    TargetOutcome="Leave with a small set of considered ideas that have been stress-tested and narrowed to the best options."
+                    GuideItems="RunGuideItems"
+                    PrepItems="RunPrepItems"
+                    Steps="RunSteps"
+                    OnClose="StopRunMode" />
+}
+
+@code {
+    private bool isRunning;
+
+    private static readonly IReadOnlyList<string> WhenToUse = new[]
+    {
+        "Ideas feel repetitive, safe, or stuck",
+        "You need fresh thinking or new perspectives",
+        "You want to challenge assumptions before committing",
+        "You have too many ideas and need to refine them"
+    };
+
+    private static readonly IReadOnlyList<string> KeysToSuccess = new[]
+    {
+        "Create a safe, high-energy environment - this drives creativity",
+        "Facilitate tightly - without control, this becomes chaotic",
+        "Keep strict timeboxes to maintain momentum",
+        "Push participants beyond obvious ideas"
+    };
+
+    private static readonly IReadOnlyList<PlayLayout.PlayFact> Facts = new[]
+    {
+        new PlayLayout.PlayFact
+        {
+            Label = "Prep time",
+            Value = "10-15 minutes"
+        },
+        new PlayLayout.PlayFact
+        {
+            Label = "Run time",
+            Value = "45-60 minutes"
+        },
+        new PlayLayout.PlayFact
+        {
+            Label = "Participants",
+            Value = "6-20 people, in groups"
+        }
+    };
+
+    private static readonly IReadOnlyList<string> Materials = new[]
+    {
+        "Whiteboard, sticky notes, or virtual collaboration tool",
+        "A clear problem or topic to explore",
+        "Disruption constraints, prepared or improvised",
+        "Timer"
+    };
+
+    private static readonly IReadOnlyList<PlayLayout.PlayStep> Steps = new[]
+    {
+        new PlayLayout.PlayStep
+        {
+            Title = "Set the scene",
+            Instruction = "Introduce the session by explaining the goal and how the activity will work.\n\nClearly define the problem or topic you are solving. Split participants into small groups of 3-5 people and assign each group a space, physical or virtual.\n\nSet expectations for pace, participation, and energy. This will be a fast-moving, interactive session.",
+            WhyItMatters = "The energy and clarity set here determine the quality of the session. If participants do not feel safe or do not understand the goal, they will default to safe, low-quality ideas.",
+            Tips = new[]
+            {
+                "Be explicit about the goal - do not assume alignment",
+                "Set expectations for pace and participation",
+                "If energy is low, inject it early"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Round 1 - Initial brainstorm",
+            Instruction = "Split participants into their groups and give each group access to a whiteboard, template, or sticky notes.\n\nSet a timer for 10 minutes and ask participants to generate as many ideas as possible. Emphasise that quantity is more important than quality.\n\nParticipants should add one idea at a time to the board. As ideas are added, encourage quick discussion to refine or build on them, but avoid deep debate.",
+            WhyItMatters = "This step is about volume. Generating a wide range of ideas increases creative thinking and the chances of uncovering strong or unexpected solutions.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Push for speed - thinking too long reduces output",
+                "Encourage rough, incomplete ideas",
+                "If groups stall, ask what else they could try"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Rotate and cut",
+            Instruction = "Ask each group to move to a different board so they are reviewing another group's ideas.\n\nGive groups a short timebox of around 5 minutes to review all ideas and remove any that are unclear, duplicated, or low value.\n\nEncourage quick decision-making. Ideas should either stay or go. Discarded ideas can be removed or grouped separately to keep the board clean.",
+            WhyItMatters = "Fresh perspective reduces attachment to ideas and improves objectivity, helping stronger ideas emerge early.",
+            Timebox = "5 minutes",
+            Tips = new[]
+            {
+                "Keep this step fast - hesitation reduces effectiveness",
+                "Remind participants they are improving ideas, not criticising people",
+                "If groups struggle, ask whether they would invest in the idea"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Round 2 - Disruption",
+            Instruction = "Introduce a disruption constraint, such as no budget, no technology, or people-first only.\n\nAsk groups to run another round of brainstorming using the ideas remaining on their board, now working within the constraint.\n\nSet a timer and encourage participants to adapt, expand, or create new ideas that fit the constraint. Keep the pace high and avoid overthinking.",
+            WhyItMatters = "Constraints force new ways of thinking, breaking teams out of default patterns and encouraging creativity.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Let groups pick random constraints for this round",
+                "Encourage bold or unconventional thinking",
+                "Keep energy high - this should feel different"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Rotate and cut again",
+            Instruction = "Have groups rotate again to a new board.\n\nThis time, ask them to review ideas more critically and remove weaker or less viable options.\n\nEncourage groups to justify why ideas should remain. The goal is to reduce the set to only the strongest candidates.",
+            WhyItMatters = "Repeated filtering strengthens the remaining ideas. Each round increases quality and clarity, making the final selection more meaningful.",
+            Timebox = "5 minutes",
+            Tips = new[]
+            {
+                "Be more critical than the first cut",
+                "Push groups to justify why ideas should stay",
+                "Watch for groups keeping too many ideas"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Final round - New disruption",
+            Instruction = "Introduce a new disruption constraint or perspective that differs from the previous round.\n\nAsk groups to refine, combine, or evolve the remaining ideas based on this new constraint.\n\nEncourage participants to strengthen ideas rather than create entirely new ones, focusing on making them more robust and well thought through.",
+            WhyItMatters = "Applying multiple perspectives ensures ideas are resilient and well thought through. Strong ideas should hold up under different conditions.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Use a different type of constraint than before",
+                "Encourage refinement, not just new ideas",
+                "Look for opportunities to combine ideas"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Final cut",
+            Instruction = "Ask each group to select a small number of ideas to take forward, such as a top 3.\n\nForce prioritisation by limiting how many ideas can be selected. Groups should discuss and agree on which ideas provide the most value.\n\nEnsure selected ideas are clear, specific, and ready to be acted on.",
+            WhyItMatters = "Limiting choices forces prioritisation and ensures focus on what truly matters.",
+            Timebox = "5 minutes",
+            Tips = new[]
+            {
+                "Make this feel difficult - that is the point",
+                "Push for clarity and specificity",
+                "Enforce a limit if needed"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Wrap and next steps",
+            Instruction = "Bring everyone back together and review the final ideas.\n\nCapture the selected ideas clearly and assign an owner to each one. Define the immediate next step for progressing each idea.\n\nClose the session by reinforcing the outcome and recognising the team's contribution.",
+            WhyItMatters = "Ideas only create value when they are owned and acted on.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Ensure each idea has a clear owner",
+                "Define immediate next actions",
+                "Close with energy and recognition"
+            }
+        }
+    };
+
+    private static readonly IReadOnlyList<string> RunGuideItems = new[]
+    {
+        "Set the goal and the challenge clearly",
+        "Facilitate quick and high-energy idea generation",
+        "Pressure-test the ideas with deliberate disruption",
+        "Narrow to a short list of ideas worth exploring"
+    };
+
+    private static readonly IReadOnlyList<string> RunPrepItems = new[]
+    {
+        "Book the room or set up the virtual space",
+        "Prepare whiteboards, sticky notes, or digital tools",
+        "Create disruption prompts or constraints",
+        "Set a timer and choose a facilitator"
+    };
+
+    private static readonly IReadOnlyList<PlayRunOverlay.RunStep> RunSteps = new[]
+    {
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Set the scene",
+            FlowTitle = "Set the scene",
+            Instruction = "Explain the goal of the session and how it will work. Split participants into small groups and assign a space for their ideas.",
+            Timebox = "5 minutes",
+            Notes = new[]
+            {
+                "Set energy early - this drives the whole session",
+                "Make it safe to share anything",
+                "Be clear on the problem you are solving"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Initial brainstorm",
+            FlowTitle = "Initial brainstorm",
+            Instruction = "Ask groups to generate as many ideas as possible quickly, with quantity valued over polish.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Encourage quantity over quality",
+                "No judging ideas yet",
+                "Keep the pace high"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Rotate and cut",
+            FlowTitle = "Rotate and cut",
+            Instruction = "Move groups to another board and remove weak or unclear ideas quickly so only the strongest candidates remain.",
+            Timebox = "5 minutes",
+            Notes = new[]
+            {
+                "Keep this step fast",
+                "Improve the idea instead of attacking the person",
+                "Commit to quick decisions"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Disruption round",
+            FlowTitle = "Disruption round",
+            Instruction = "Introduce a constraint such as no budget, no technology, or people-first only, and force the team to adapt ideas under that pressure.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Let groups pick the constraint",
+                "Pressure creates novelty",
+                "Keep energy high"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Cut again",
+            FlowTitle = "Cut again",
+            Instruction = "Rotate once more and filter the board more critically so only the most promising ideas remain.",
+            Timebox = "5 minutes",
+            Notes = new[]
+            {
+                "Be more critical than before",
+                "Push for justification",
+                "Avoid keeping too many ideas"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Final disruption",
+            FlowTitle = "Final disruption",
+            Instruction = "Add a fresh constraint or perspective and invite the group to refine the strongest remaining options.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Use a different constraint than before",
+                "Encourage refinement, not just new ideas",
+                "Look for opportunities to combine ideas"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Final cut",
+            FlowTitle = "Final cut",
+            Instruction = "Ask each group to select a short list of ideas to carry forward and define what makes them valuable.",
+            Timebox = "5 minutes",
+            Notes = new[]
+            {
+                "Make the selection difficult",
+                "Push for specificity",
+                "Enforce a limit if needed"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Wrap and next steps",
+            FlowTitle = "Wrap and next steps",
+            Instruction = "Review the final ideas, assign owners, and confirm the immediate next step for each one.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Ensure each idea has a clear owner",
+                "Define the next action",
+                "Close with recognition and momentum"
+            }
+        }
+    };
+
+    private void StartRunMode()
+    {
+        isRunning = true;
+    }
+
+    private void StopRunMode()
+    {
+        isRunning = false;
+    }
+}

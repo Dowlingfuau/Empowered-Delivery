@@ -1,0 +1,38 @@
+@startuml Signal Taxonomy
+left to right direction
+title Operational MRI Signal Taxonomy
+
+package "Signal Registry" {
+
+  package "Capability Signals" {
+    component OwnershipSignals
+    component ValueSignals
+    component LearningSignals
+  }
+
+  package "Flow Signals" {
+    component PredictabilitySignals
+    component BacklogSignals
+    component DeliveryRateSignals
+  }
+
+  package "Team Environment Signals" {
+    component SafetySignals
+    component CollaborationSignals
+    component ImprovementSignals
+  }
+
+  package "System Signals" {
+    component AlignmentSignals
+    component AutonomySignals
+    component LeadershipSignals
+  }
+
+}
+
+OwnershipSignals --> ValueSignals
+PredictabilitySignals --> BacklogSignals
+SafetySignals --> CollaborationSignals
+AlignmentSignals --> LeadershipSignals
+
+@enduml

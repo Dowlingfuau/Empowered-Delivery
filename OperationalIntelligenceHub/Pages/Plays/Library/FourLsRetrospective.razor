@@ -1,0 +1,235 @@
+@page "/plays/4ls-retrospective"
+
+<PlayLayout Title="4Ls Retrospective"
+            Subtitle="Reflect on what helped, hindered, was missing, and was learned."
+            Description="A structured retrospective that helps a team reflect on what they loved, loathed, longed for, and learned - then turn that reflection into a small number of concrete actions."
+            OnRun="StartRunMode"
+            WhenToUse="WhenToUse"
+            KeysToSuccess="KeysToSuccess"
+            Facts="Facts"
+            Materials="Materials"
+            Steps="Steps" />
+
+@if (isRunning)
+{
+    <PlayRunOverlay Title="4Ls Retrospective"
+                    Summary="Guide the team from shared context through balanced reflection and into a few practical actions."
+                    TargetOutcome="Leave with a clear view of what to keep, what to change, what was missing, and what the team learned - plus owners and follow-up for the selected actions."
+                    GuideItems="RunGuideItems"
+                    PrepItems="RunPrepItems"
+                    Steps="RunSteps"
+                    OnClose="StopRunMode"
+                    FinalStepTitle="Revisit the actions"
+                    FinalStepMessage="Thank the team, confirm where the actions are recorded, and schedule a short check-in to revisit progress." />
+}
+
+@code {
+    private bool isRunning;
+
+    private static readonly IReadOnlyList<string> WhenToUse = new[]
+    {
+        "A team has completed a sprint, project, release, milestone, or significant period of work",
+        "The team needs to understand what helped and hindered the work",
+        "The team wants to turn reflection into practical improvement",
+        "A retrospective needs a simple structure that balances positive and negative feedback"
+    };
+
+    private static readonly IReadOnlyList<string> KeysToSuccess = new[]
+    {
+        "Set a safe, blame-free context before asking for candid observations",
+        "Ask for specific examples from the period being reviewed",
+        "Give each of the four Ls enough attention",
+        "Limit the close to a small number of meaningful actions"
+    };
+
+    private static readonly IReadOnlyList<PlayLayout.PlayFact> Facts = new[]
+    {
+        new PlayLayout.PlayFact
+        {
+            Label = "Prep time",
+            Value = "5 minutes"
+        },
+        new PlayLayout.PlayFact
+        {
+            Label = "Run time",
+            Value = "60 minutes"
+        },
+        new PlayLayout.PlayFact
+        {
+            Label = "Participants",
+            Value = "2-8 people"
+        }
+    };
+
+    private static readonly IReadOnlyList<string> Materials = new[]
+    {
+        "Physical or digital whiteboard",
+        "Sticky notes or digital notes",
+        "A shared place to record actions",
+        "Timer"
+    };
+
+    private static readonly IReadOnlyList<PlayLayout.PlayStep> Steps = new[]
+    {
+        new PlayLayout.PlayStep
+        {
+            Title = "Set the context",
+            Instruction = "Define the period or milestone the team is reviewing. Explain that the purpose is to understand what happened, not to assign blame.\n\nSet the expectation that the team will learn from the experience and choose a small number of improvements together.",
+            WhyItMatters = "A clear, blame-free frame makes honest reflection more useful and keeps the conversation focused on learning.",
+            Timebox = "5 minutes",
+            Tips = new[]
+            {
+                "Name the period being reviewed",
+                "Say explicitly that this is not a blame session",
+                "Keep the focus on the work and the system"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Recall the milestones",
+            Instruction = "Ask the team to identify the significant moments from the period. Include major deliveries, releases, incidents, celebrations, team changes, difficult moments, and important decisions.\n\nPut the moments in a shared timeline or list so the team has a common view of what happened before moving into reflection.",
+            WhyItMatters = "A shared memory of the period reduces hindsight bias and gives the four Ls a concrete foundation.",
+            Timebox = "10 minutes",
+            Tips = new[]
+            {
+                "Invite contributions from everyone",
+                "Capture moments without debating them yet",
+                "Use the timeline to surface less visible work"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Work through the 4Ls",
+            Instruction = "Invite observations under four headings: Loved - what worked well and should be kept; Loathed - what created friction or unnecessary difficulty; Longed For - what the team wished it had; Learned - what new knowledge or insight emerged.\n\nGive people quiet time to contribute, then read the observations together and group related themes.",
+            WhyItMatters = "The four perspectives create a balanced reflection across what should continue, change, be added, and understood.",
+            Timebox = "25 minutes",
+            Tips = new[]
+            {
+                "Use one observation per note",
+                "Ask for specific examples rather than labels",
+                "Make room for both positive and difficult observations"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Identify actions",
+            Instruction = "Review the themes and choose a small number of meaningful actions. At minimum, select one action that removes or reduces something from Loathed and one action that amplifies something from Loved.\n\nUse Longed For and Learned as supporting evidence when deciding what to do next.",
+            WhyItMatters = "A short, deliberate action list is more likely to change the team's next period than a long list nobody owns.",
+            Timebox = "15 minutes",
+            Tips = new[]
+            {
+                "Prioritise impact over completeness",
+                "Turn observations into observable changes",
+                "Do not leave the team with a giant action list"
+            }
+        },
+        new PlayLayout.PlayStep
+        {
+            Title = "Commit and close",
+            Instruction = "For each selected action, record what the team will do, who owns it, and when it will happen. Confirm where the actions will be tracked.\n\nClose by reminding the team to revisit the actions and schedule a short follow-up.",
+            WhyItMatters = "Clear ownership and a follow-up turn reflection into changed behaviour.",
+            Timebox = "5 minutes",
+            Tips = new[]
+            {
+                "Keep the commitments small enough to start soon",
+                "Agree an owner and target date for every action",
+                "Book the follow-up before ending the session"
+            }
+        }
+    };
+
+    private static readonly IReadOnlyList<string> RunGuideItems = new[]
+    {
+        "Set a safe context for reflection",
+        "Build a shared timeline of significant moments",
+        "Collect observations under Loved, Loathed, Longed For, and Learned",
+        "Choose a small number of actions and assign ownership"
+    };
+
+    private static readonly IReadOnlyList<string> RunPrepItems = new[]
+    {
+        "Define the period or milestone to review",
+        "Set up a four-column board for the 4Ls",
+        "Prepare a shared place to record actions",
+        "Book 60 minutes and choose a facilitator"
+    };
+
+    private static readonly IReadOnlyList<PlayRunOverlay.RunStep> RunSteps = new[]
+    {
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Set the context",
+            FlowTitle = "Set context",
+            Instruction = "Name the period or milestone being reviewed. Explain that the goal is to understand what happened and improve, not to assign blame.",
+            Timebox = "5 minutes",
+            Notes = new[]
+            {
+                "Create a safe tone",
+                "Keep the focus on the work",
+                "State the learning goal"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Recall the milestones",
+            FlowTitle = "Recall milestones",
+            Instruction = "Ask the team to list significant deliveries, releases, incidents, celebrations, changes, difficult moments, and decisions from the period. Build a shared timeline before reflecting.",
+            Timebox = "10 minutes",
+            Notes = new[]
+            {
+                "Invite every voice",
+                "Capture moments without debating them",
+                "Include less visible work"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Work through the 4Ls",
+            FlowTitle = "Work through the 4Ls",
+            Instruction = "Collect observations under Loved, Loathed, Longed For, and Learned. Give people quiet time to contribute, then read the notes together and cluster related themes.",
+            Timebox = "25 minutes",
+            Notes = new[]
+            {
+                "Use one observation per note",
+                "Ask for concrete examples",
+                "Balance positive and difficult observations"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Identify actions",
+            FlowTitle = "Identify actions",
+            Instruction = "Choose a small number of meaningful actions. Include one action that reduces something from Loathed and one that amplifies something from Loved. Use Longed For and Learned as supporting evidence.",
+            Timebox = "15 minutes",
+            Notes = new[]
+            {
+                "Prioritise impact",
+                "Make changes observable",
+                "Keep the list short"
+            }
+        },
+        new PlayRunOverlay.RunStep
+        {
+            Title = "Commit and close",
+            FlowTitle = "Commit and close",
+            Instruction = "Record what each action is, who owns it, and when it will happen. Confirm where the actions are tracked and schedule a short follow-up.",
+            Timebox = "5 minutes",
+            Notes = new[]
+            {
+                "Assign an owner to every action",
+                "Set a target date",
+                "Book the follow-up"
+            }
+        }
+    };
+
+    private void StartRunMode()
+    {
+        isRunning = true;
+    }
+
+    private void StopRunMode()
+    {
+        isRunning = false;
+    }
+}

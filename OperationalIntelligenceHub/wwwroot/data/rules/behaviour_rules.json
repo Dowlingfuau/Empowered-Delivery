@@ -1,0 +1,577 @@
+{
+  "derived_signal_rules": [
+    {
+      "name": "StrongOwnershipCulture",
+      "theme": "Ownership",
+      "category": "Positive",
+      "domain": "Capability",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "TeamOwnershipLevel",
+        "POOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "TeamOwnershipLevel >= 0.7 AND POOwnershipLevel >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.5 AND POOwnershipLevel >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "TeamOwnershipLevel < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams actively influence delivery decisions and backlog direction."
+    },
+    {
+      "name": "OwnershipDeveloping",
+      "theme": "Ownership",
+      "category": "Opportunity",
+      "domain": "Capability",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "TeamOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "TeamOwnershipLevel >= 0.7",
+          "result": "High"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.4 AND TeamOwnershipLevel < 0.7",
+          "result": "Moderate"
+        },
+        {
+          "condition": "TeamOwnershipLevel < 0.4",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams are beginning to take ownership but still rely on external direction."
+    },
+    {
+      "name": "OwnershipConstraint",
+      "theme": "Ownership",
+      "category": "Constraint",
+      "domain": "Capability",
+      "priority": 9,
+      "confidence_weight": 0.9,
+      "source_signals": [
+        "TeamOwnershipLevel",
+        "LeaderOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "TeamOwnershipLevel <= 0.4 AND LeaderOwnershipLevel <= 0.4",
+          "result": "High"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.4 AND LeaderOwnershipLevel >= 0.4",
+          "result": "Moderate"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.7",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams lack authority to influence delivery decisions."
+    },
+    {
+      "name": "EmpowermentEnvironmentStrong",
+      "theme": "Trust",
+      "category": "Positive",
+      "domain": "Organisational",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "LeaderTrustLevel",
+        "TeamOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LeaderTrustLevel >= 0.7 AND TeamOwnershipLevel >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "LeaderTrustLevel >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LeaderTrustLevel < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Leaders actively support team autonomy."
+    },
+    {
+      "name": "TrustDeveloping",
+      "theme": "Trust",
+      "category": "Opportunity",
+      "domain": "Organisational",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "LeaderTrustLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LeaderTrustLevel >= 0.7",
+          "result": "High"
+        },
+        {
+          "condition": "LeaderTrustLevel >= 0.4 AND LeaderTrustLevel < 0.7",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LeaderTrustLevel < 0.4",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Leaders are beginning to delegate delivery decisions."
+    },
+    {
+      "name": "PsychologicalSafetyEmerging",
+      "theme": "Trust",
+      "category": "Positive",
+      "domain": "Cultural",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "LeaderTrustLevel",
+        "LearningLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LeaderTrustLevel >= 0.6 AND LearningLevel >= 0.5",
+          "result": "High"
+        },
+        {
+          "condition": "LearningLevel >= 0.4",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LearningLevel < 0.4",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams appear comfortable challenging ideas and experimenting."
+    },
+    {
+      "name": "StrongProductOwnership",
+      "theme": "Value",
+      "category": "Positive",
+      "domain": "Capability",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "POOwnershipLevel",
+        "ValueLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "POOwnershipLevel >= 0.7 AND ValueLevel >= 0.7",
+          "result": "High"
+        },
+        {
+          "condition": "ValueLevel >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "ValueLevel < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Delivery priorities appear strongly guided by value."
+    },
+    {
+      "name": "ValueAlignmentEmerging",
+      "theme": "Value",
+      "category": "Opportunity",
+      "domain": "Capability",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "ValueLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "ValueLevel >= 0.7",
+          "result": "High"
+        },
+        {
+          "condition": "ValueLevel >= 0.4 AND ValueLevel < 0.7",
+          "result": "Moderate"
+        },
+        {
+          "condition": "ValueLevel < 0.4",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Value awareness exists but is inconsistently applied."
+    },
+    {
+      "name": "WeakProductOwnership",
+      "theme": "Value",
+      "category": "Risk",
+      "domain": "Capability",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "POOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "POOwnershipLevel <= 0.4",
+          "result": "High"
+        },
+        {
+          "condition": "POOwnershipLevel >= 0.4 AND POOwnershipLevel < 0.7",
+          "result": "Moderate"
+        },
+        {
+          "condition": "POOwnershipLevel >= 0.7",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Product direction may be heavily influenced by external stakeholders."
+    },
+    {
+      "name": "LearningCultureStrong",
+      "theme": "Learning",
+      "category": "Positive",
+      "domain": "Cultural",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "LearningLevel",
+        "TeamOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LearningLevel >= 0.7 AND TeamOwnershipLevel >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "LearningLevel >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LearningLevel < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams regularly reflect on and improve their delivery practices."
+    },
+    {
+      "name": "LearningCultureDeveloping",
+      "theme": "Learning",
+      "category": "Opportunity",
+      "domain": "Cultural",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "LearningLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LearningLevel >= 0.7",
+          "result": "High"
+        },
+        {
+          "condition": "LearningLevel >= 0.4 AND LearningLevel < 0.7",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LearningLevel < 0.4",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Improvement practices exist but are not yet embedded."
+    },
+    {
+      "name": "ImprovementStalled",
+      "theme": "Learning",
+      "category": "Risk",
+      "domain": "Cultural",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "LearningLevel",
+        "LeaderTrustLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LearningLevel <= 0.4 AND LeaderTrustLevel <= 0.5",
+          "result": "High"
+        },
+        {
+          "condition": "LearningLevel <= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LearningLevel > 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams may struggle to challenge existing delivery practices."
+    },
+    {
+      "name": "SystemAwarenessStrong",
+      "theme": "System",
+      "category": "Positive",
+      "domain": "Organisational",
+      "priority": 6,
+      "confidence_weight": 0.75,
+      "source_signals": [
+        "SystemAwarenessLevel",
+        "LearningLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "SystemAwarenessLevel >= 0.7 AND LearningLevel >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "SystemAwarenessLevel >= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "SystemAwarenessLevel < 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams consider system-wide impacts when improving delivery."
+    },
+    {
+      "name": "LocalOptimisationRisk",
+      "theme": "System",
+      "category": "Risk",
+      "domain": "Organisational",
+      "priority": 7,
+      "confidence_weight": 0.8,
+      "source_signals": [
+        "SystemAwarenessLevel",
+        "TeamOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "SystemAwarenessLevel <= 0.4 AND TeamOwnershipLevel >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "SystemAwarenessLevel <= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "SystemAwarenessLevel > 0.5",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams optimise locally without considering wider system impacts."
+    },
+    {
+      "name": "AutonomyFriction",
+      "theme": "CrossTheme",
+      "category": "Constraint",
+      "domain": "Organisational",
+      "priority": 9,
+      "confidence_weight": 0.9,
+      "source_signals": [
+        "TeamOwnershipLevel",
+        "LeaderTrustLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "TeamOwnershipLevel >= 0.7 AND LeaderTrustLevel <= 0.4",
+          "result": "High"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.6 AND LeaderTrustLevel <= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LeaderTrustLevel >= 0.6",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams appear ready for autonomy but leadership retains control."
+    },
+    {
+      "name": "CapabilityLeadershipMismatch",
+      "theme": "CrossTheme",
+      "category": "Risk",
+      "domain": "Organisational",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "TeamOwnershipLevel",
+        "LearningLevel",
+        "LeaderTrustLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "TeamOwnershipLevel >= 0.7 AND LearningLevel >= 0.7 AND LeaderTrustLevel <= 0.5",
+          "result": "High"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LeaderTrustLevel >= 0.6",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Team capability appears stronger than leadership trust."
+    },
+    {
+      "name": "LearningWithoutOwnership",
+      "theme": "CrossTheme",
+      "category": "Constraint",
+      "domain": "Capability",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "LearningLevel",
+        "TeamOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LearningLevel >= 0.7 AND TeamOwnershipLevel <= 0.4",
+          "result": "High"
+        },
+        {
+          "condition": "LearningLevel >= 0.6",
+          "result": "Moderate"
+        },
+        {
+          "condition": "TeamOwnershipLevel >= 0.6",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Teams attempt to improve delivery practices but lack authority to change them."
+    },
+    {
+      "name": "OrganisationalAlignmentGap",
+      "theme": "CrossTheme",
+      "category": "Risk",
+      "domain": "Organisational",
+      "priority": 8,
+      "confidence_weight": 0.85,
+      "source_signals": [
+        "LeaderTrustLevel",
+        "POOwnershipLevel",
+        "TeamOwnershipLevel"
+      ],
+      "intensity_model": [
+        "Low",
+        "Moderate",
+        "High"
+      ],
+      "rules": [
+        {
+          "condition": "LeaderTrustLevel <= 0.4 AND POOwnershipLevel >= 0.6 AND TeamOwnershipLevel >= 0.6",
+          "result": "High"
+        },
+        {
+          "condition": "LeaderTrustLevel <= 0.5",
+          "result": "Moderate"
+        },
+        {
+          "condition": "LeaderTrustLevel >= 0.6",
+          "result": "Low"
+        }
+      ],
+      "interpretation": "Leadership behaviours may not yet align with team-level delivery practices."
+    }
+  ]
+}

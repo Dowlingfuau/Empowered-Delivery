@@ -1,0 +1,71 @@
+<div class="@ContainerClass">
+    <div class="gauge-title">
+        @Title
+        <Tooltip Text="@TooltipText" />
+    </div>
+
+    <div class="gauge-bar">
+        <div class="gauge-fill @GaugeClass" style="width:@(IsEmpty ? 0 : DisplayValue)%"></div>
+    </div>
+
+    <div class="gauge-label">@Label</div>
+
+    @if (!IsEmpty && (!string.IsNullOrEmpty(Observation) || !string.IsNullOrEmpty(WhyItMatters)))
+    {
+        <div class="signal-context">
+            @if (!string.IsNullOrEmpty(Observation))
+            {
+                <div class="observation">@Observation</div>
+            }
+            @if (!string.IsNullOrEmpty(WhyItMatters))
+            {
+                <div class="why">@WhyItMatters</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = null!;
+    [Parameter] public int Value { get; set; }
+    [Parameter, EditorRequired] public string Label { get; set; } = null!;
+    [Parameter] public string TooltipText { get; set; } = "";
+    [Parameter] public bool IsEmpty { get; set; }
+    [Parameter] public string Observation { get; set; }
+    [Parameter] public string WhyItMatters { get; set; }
+
+    // NEW: tells the gauge this is the special volatility behaviour
+    [Parameter] public bool IsEquilibriumGauge { get; set; } = false;
+
+   int DisplayValue
+    {
+        get
+        {
+            if (!IsEquilibriumGauge)
+                return Value;
+
+            // For equilibrium gauges:
+            // Value is a "health score" where 100 = perfect, 20 = broken
+            // We want the gauge fill to reflect health correctly (green = good)
+            // So we can just return Value directly
+            return Value;
+        }
+    }
+    
+    string GaugeClass
+    {
+        get
+        {
+            return DisplayValue switch
+            {
+                >= 80 => "gauge-success",
+                >= 40 => "gauge-warning",
+                _ => "gauge-danger"
+            };
+        }
+    }
+    string ContainerClass =>
+    IsEmpty ? "gauge gauge empty" :
+    "gauge";
+    
+}

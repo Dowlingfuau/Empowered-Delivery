@@ -1,0 +1,85 @@
+/* Header Layout */
+.top-bar { 
+    height: var(--header-height); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(11, 17, 27, 0.9);
+    backdrop-filter: blur(12px);
+    padding: 0 calc(var(--spacing-unit) * 2);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-topbar, var(--z-overlay));
+    border-bottom: 1px solid rgba(130, 170, 255, 0.18);
+    box-shadow: 0 12px 36px rgba(1, 4, 10, 0.18);
+}
+.top-bar::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(124, 199, 255, 0.9), rgba(255, 124, 168, 0.8), rgba(132, 245, 210, 0.7));
+    box-shadow: 0 0 12px rgba(124, 199, 255, 0.35);
+}
+.top-bar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.topbar-brand {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-nav-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}   
+.topbar-brand a {
+    text-decoration: none;
+    color: var(--color-nav-text);
+}
+.topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 3);
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+.topbar-nav a {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-nav-text);
+    text-decoration: none;
+    position: relative;
+}
+.topbar-nav a:hover {
+    color: var(--color-accent-blue);
+}
+.topbar-nav a.active {
+    color: var(--color-accent-blue);
+}
+.topbar-nav a.active::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--color-accent-blue), var(--color-secondary-cyan));
+    box-shadow: 0 0 12px rgba(124, 199, 255, 0.5);
+}
+/* Toggle */
+.nav-toggle {                               /* toggle inside sidebar header */
+    background: transparent;
+    border: none;
+    color: var(--color-nav-text);
+    font-size: var(--font-size-lg);
+}
+@media (max-width: 640px) {
+    .brand-main {
+        font-size: var(--font-size-md);
+        white-space: nowrap;
+    }
+}

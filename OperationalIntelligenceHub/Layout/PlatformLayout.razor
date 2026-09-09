@@ -1,0 +1,20 @@
+﻿@inherits LayoutComponentBase
+@using OperationalIntelligenceHub.Components
+@inject NavigationManager Navigation
+
+@if (!IsHomepage)
+{
+    <Header />
+}
+    
+<div class="app @(IsHomepage ? "app-homepage" : string.Empty)">
+    <main>
+        <article>
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private bool IsHomepage => new Uri(Navigation.Uri).AbsolutePath.TrimEnd('/') == string.Empty;
+}
