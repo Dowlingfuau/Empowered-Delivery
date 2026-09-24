@@ -1,0 +1,163 @@
+@using Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager Navigation
+
+<div class="navigation-region"
+     @onmouseleave="CloseTransientRail"
+     @onkeydown="HandleKeyDown">
+    <header class="global-header">
+        <a class="global-brand" href="/" aria-label="Empowered Delivery home"
+           @onmouseenter="CloseTransientRail"
+           @onfocus="CloseTransientRail">
+            <span class="global-brand-mark">ED</span>
+            <span>EMPOWERED<br />DELIVERY</span>
+        </a>
+
+        <nav class="global-nav" aria-label="Primary navigation">
+            <NavLink href="/hub"
+                     Match="NavLinkMatch.Prefix"
+                     @onmouseenter="@(() => OpenTransientRail("TOOLS"))"
+                     @onfocus="@(() => OpenTransientRail("TOOLS"))">
+                Tools
+            </NavLink>
+            <NavLink href="/perspectives"
+                     Match="NavLinkMatch.Prefix"
+                     @onmouseenter="@(() => OpenTransientRail("PERSPECTIVES"))"
+                     @onfocus="@(() => OpenTransientRail("PERSPECTIVES"))">
+                Perspectives
+            </NavLink>
+            <NavLink href="/plays"
+                     Match="NavLinkMatch.Prefix"
+                     @onmouseenter="@(() => OpenTransientRail("PLAYS"))"
+                     @onfocus="@(() => OpenTransientRail("PLAYS"))">
+                Plays
+            </NavLink>
+            <NavLink href="/services"
+                     @onmouseenter="CloseTransientRail"
+                     @onfocus="CloseTransientRail">
+                Services
+            </NavLink>
+            <NavLink href="/about"
+                     @onmouseenter="CloseTransientRail"
+                     @onfocus="CloseTransientRail">
+                About
+            </NavLink>
+        </nav>
+
+        <a class="global-header-action" href="/hub"
+           @onmouseenter="CloseTransientRail"
+           @onfocus="CloseTransientRail">
+            Start with the system <span>↗</span>
+        </a>
+    </header>
+
+    @if (ShowToolsRail)
+    {
+        <nav class="contextual-rail" aria-label="Tools contextual navigation">
+            <div class="contextual-space">
+                <strong>TOOLS</strong>
+                <small>@(IsPersistentContext ? "CONTEXT / ACTIVE" : "TOOLS / HOVER OR FOCUS")</small>
+            </div>
+            <div class="contextual-items">
+                @foreach (var item in ToolItems)
+                {
+                    <NavLink href="@item.Route" Match="NavLinkMatch.All" class="@(IsCurrentRoute(item.Route) ? "is-active" : string.Empty)">
+                        <span>@item.Number</span><strong>@item.Label</strong>
+                    </NavLink>
+                }
+            </div>
+            @if (IsPersistentContext)
+            {
+                <div class="contextual-context">
+                    <small>SQUAD</small>
+                    <strong>Payments — Checkout</strong>
+                </div>
+                <div class="contextual-context contextual-utility">
+                    <a href="/hub">Overview</a>
+                    <a href="/hub">Help</a>
+                    <a href="/hub">Settings</a>
+                </div>
+            }
+        </nav>
+    }
+    else if (ShowPlaysRail)
+    {
+        <nav class="contextual-rail" aria-label="Plays contextual navigation">
+            <div class="contextual-space">
+                <strong>PLAYS</strong>
+                <small>CONTEXT / ACTIVE</small>
+            </div>
+            <div class="contextual-items">
+                @foreach (var item in PlayItems)
+                {
+                    <NavLink href="@item.Route" Match="NavLinkMatch.All" class="@(IsCurrentRoute(item.Route) ? "is-active" : string.Empty)">
+                        <span>@item.Number</span><strong>@item.Label</strong>
+                    </NavLink>
+                }
+            </div>
+            <div class="contextual-context">
+                <small>ABOUT</small>
+                <a href="/about">About Plays</a>
+            </div>
+        </nav>
+    }
+    else if (ShowPerspectivesRail)
+    {
+        <nav class="contextual-rail" aria-label="Perspectives contextual navigation">
+            <div class="contextual-space">
+                <strong>PERSPECTIVES</strong>
+                <small>CONTEXT / ACTIVE</small>
+            </div>
+            <div class="contextual-items">
+                <NavLink href="/perspectives" Match="NavLinkMatch.All" class="@(IsCurrentRoute("/perspectives") ? "is-active" : string.Empty)">
+                    <span>01</span><strong>Perspective Library</strong>
+                </NavLink>
+            </div>
+        </nav>
+    }
+</div>
+
+@code {
+    private string? transientSpace;
+
+    private static readonly NavigationItem[] ToolItems =
+    [
+        new("01", "Operational MRI", "/hub/coach-hub"),
+        new("02", "Backlog Health Monitor", "/hub/backlog-health"),
+        new("03", "Team Health Check", "/hub/team-health-check"),
+        new("04", "Maturity Assessment", "/hub/maturity-assessment"),
+        new("05", "Structure Studio", "/hub/structure-studio")
+    ];
+
+    private static readonly NavigationItem[] PlayItems =
+    [
+        new("01", "Play Library", "/plays"),
+        new("02", "Disruptive Brainstorming", "/plays/disruptive-brainstorming"),
+        new("03", "Team Culture of Trust", "/plays/team-culture-of-trust"),
+        new("04", "4Ls Retrospective", "/plays/4ls-retrospective")
+    ];
+
+    private bool IsToolsContext => CurrentPath.StartsWith("/hub", StringComparison.OrdinalIgnoreCase);
+    private bool IsPlaysContext => CurrentPath.StartsWith("/plays", StringComparison.OrdinalIgnoreCase);
+    private bool IsPerspectivesContext => CurrentPath.StartsWith("/perspectives", StringComparison.OrdinalIgnoreCase);
+    private bool IsPersistentContext => IsToolsContext;
+    private bool ShowToolsRail => IsToolsContext || transientSpace == "TOOLS";
+    private bool ShowPlaysRail => IsPlaysContext || transientSpace == "PLAYS";
+    private bool ShowPerspectivesRail => IsPerspectivesContext || transientSpace == "PERSPECTIVES";
+    private string CurrentPath => new Uri(Navigation.Uri).AbsolutePath.TrimEnd('/');
+
+    private void OpenTransientRail(string space) => transientSpace = space;
+    private void CloseTransientRail() => transientSpace = null;
+
+    private void HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape" && !IsPersistentContext)
+        {
+            transientSpace = null;
+        }
+    }
+
+    private bool IsCurrentRoute(string route) =>
+        string.Equals(CurrentPath, route.TrimEnd('/'), StringComparison.OrdinalIgnoreCase);
+
+    private sealed record NavigationItem(string Number, string Label, string Route);
+}
