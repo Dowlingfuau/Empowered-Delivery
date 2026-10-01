@@ -1,0 +1,176 @@
+<section class="tools-system-section" aria-labelledby="tools-system-title">
+    <div class="tools-system-heading">
+        <div>
+            <span class="tools-home-kicker">THE SYSTEM MAP</span>
+            <h2 id="tools-system-title">Start anywhere.</h2>
+        </div>
+        <p>Four independent perspectives. One delivery system.</p>
+    </div>
+
+    <div class="tools-system-map @(SelectedLens is null ? string.Empty : "has-active-lens")"
+         role="group"
+         aria-label="Four ways to explore the delivery system, connected to Operational MRI">
+        <svg class="tools-map-connections" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            @foreach (var lens in Lenses)
+            {
+                <line class="@ConnectionClass(lens)"
+                      x1="@lens.OriginX"
+                      y1="@lens.OriginY"
+                      x2="50"
+                      y2="50" />
+            }
+        </svg>
+
+        @foreach (var lens in Lenses)
+        {
+            <button type="button"
+                    class="tools-map-lens @lens.PositionClass @(lens.IsContext ? "is-context" : string.Empty) @(SelectedLens?.Index == lens.Index ? "is-selected" : string.Empty) @(IsAvailable(lens) ? "has-observation" : string.Empty)"
+                    aria-pressed="@(SelectedLens?.Index == lens.Index ? "true" : "false")"
+                    aria-label="@LensAccessibleLabel(lens)"
+                    @onclick="() => SelectLens(lens)"
+                    @onmouseenter="() => PreviewLens(lens)"
+                    @onfocus="() => PreviewLens(lens)">
+                <span>@lens.Name</span>
+                <strong>@lens.Role</strong>
+                <small>@LensStatus(lens)</small>
+            </button>
+        }
+
+        <div class="tools-map-core">
+            <span class="tools-map-core-label">THE SYSTEM VIEW</span>
+            <a class="tools-mri-link" href="/hub/coach-hub" aria-label="Open Operational MRI">
+                <strong>Operational <em>MRI</em></strong>
+                <span>
+                    CONNECT THE PICTURE
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" /></svg>
+                </span>
+            </a>
+
+            <div class="tools-map-readout" aria-live="polite" aria-atomic="true">
+                @if (SelectedLens is null)
+                {
+                    <span>FOUR INDEPENDENT LENSES</span>
+                    <p>Choose the question in front of you. There is no prescribed order.</p>
+                }
+                else
+                {
+                    <span>@SelectedLens.Name</span>
+                    <strong>@SelectedLens.Role</strong>
+                    <p>@SelectedLens.Description</p>
+                    <a class="tools-investigate-link" href="@SelectedLens.Route">
+                        INVESTIGATE
+                        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" /></svg>
+                    </a>
+                }
+            </div>
+
+            <div class="tools-map-summary" aria-live="polite">
+                @if (IsLoading)
+                {
+                    <span>CHECKING SAVED OBSERVATIONS</span>
+                }
+                else if (ObservationCount == 0)
+                {
+                    <span>OPERATIONAL MRI IS AVAILABLE AT ANY POINT</span>
+                }
+                else
+                {
+                    <span>@ObservationCount @((ObservationCount == 1) ? "PERSPECTIVE HAS" : "PERSPECTIVES HAVE") SAVED OBSERVATIONS</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="tools-map-key" aria-hidden="true">
+        <span>START WITH ANY QUESTION</span>
+        <i></i>
+        <span>CONNECT WHAT YOU LEARN</span>
+    </div>
+</section>
+
+@code {
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public bool HasWorkingContext { get; set; }
+    [Parameter] public bool HasBacklogObservation { get; set; }
+    [Parameter] public bool HasTeamObservation { get; set; }
+    [Parameter] public bool HasMaturityObservation { get; set; }
+
+    private ToolLens? SelectedLens { get; set; }
+
+    private int ObservationCount =>
+        (HasBacklogObservation ? 1 : 0) +
+        (HasTeamObservation ? 1 : 0) +
+        (HasMaturityObservation ? 1 : 0);
+
+    private static readonly ToolLens[] Lenses =
+    [
+        new(4, "STRUCTURE STUDIO", "Define the context",
+            "Establish or change the working context for your delivery system.",
+            "/hub/structure-studio", "structure-lens", 16, 17, true),
+        new(1, "BACKLOG HEALTH MONITOR", "See the work",
+            "Explore backlog size, age, volatility, prioritisation and predictability.",
+            "/hub/backlog-health", "backlog-lens", 84, 17),
+        new(2, "TEAM HEALTH CHECK", "See the team",
+            "Explore the team-health and team-conditions perspective.",
+            "/hub/team-health-check", "team-lens", 16, 83),
+        new(3, "MATURITY ASSESSMENT", "See how it operates",
+            "Explore behaviour, capability and maturity: how the system operates.",
+            "/hub/maturity-assessment", "maturity-lens", 84, 83)
+    ];
+
+    private void SelectLens(ToolLens lens) => SelectedLens = lens;
+    private void PreviewLens(ToolLens lens) => SelectedLens = lens;
+
+    private bool IsAvailable(ToolLens lens) => lens.Index switch
+    {
+        1 => HasBacklogObservation,
+        2 => HasTeamObservation,
+        3 => HasMaturityObservation,
+        _ => false
+    };
+
+    private string LensStatus(ToolLens lens)
+    {
+        if (IsLoading)
+        {
+            return "CHECKING";
+        }
+
+        if (lens.IsContext)
+        {
+            return HasWorkingContext ? "CONTEXT AVAILABLE" : "SET THE CONTEXT";
+        }
+
+        return IsAvailable(lens) ? "OBSERVATION AVAILABLE" : "READY TO EXPLORE";
+    }
+
+    private string LensAccessibleLabel(ToolLens lens) =>
+        $"{lens.Name}. {lens.Role}. {LensStatus(lens)}";
+
+    private string ConnectionClass(ToolLens lens)
+    {
+        var classes = new List<string> { "tools-map-connection" };
+        if (SelectedLens?.Index == lens.Index)
+        {
+            classes.Add("is-active");
+        }
+
+        if (IsAvailable(lens))
+        {
+            classes.Add("has-observation");
+        }
+
+        return string.Join(' ', classes);
+    }
+
+    private sealed record ToolLens(
+        int Index,
+        string Name,
+        string Role,
+        string Description,
+        string Route,
+        string PositionClass,
+        int OriginX,
+        int OriginY,
+        bool IsContext = false);
+}

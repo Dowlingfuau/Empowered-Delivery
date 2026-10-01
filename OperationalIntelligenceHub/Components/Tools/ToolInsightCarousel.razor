@@ -1,0 +1,154 @@
+<section class="tools-insight-carousel" aria-label="Supporting ideas for building context">
+    <div class="tools-carousel-header">
+        <span class="tools-home-kicker">A WIDER VIEW, WHEN YOU NEED IT</span>
+        <div class="tools-carousel-controls" aria-label="Carousel controls">
+            <button type="button" aria-label="Previous slide" @onclick="PreviousSlide">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 10H4.5m0 0 4.2-4.2M4.5 10l4.2 4.2" /></svg>
+            </button>
+            <span class="tools-carousel-position" aria-live="polite" aria-atomic="true">
+                @((SlideIndex + 1).ToString("00")) <i>/</i> 04
+            </span>
+            <button type="button" aria-label="Next slide" @onclick="NextSlide">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10h11m0 0-4.2-4.2m4.2 4.2-4.2 4.2" /></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="tools-carousel"
+         role="region"
+         aria-roledescription="carousel"
+         aria-label="Four ideas about investigating a delivery system"
+         tabindex="0"
+         @onkeydown="HandleKeyDown"
+         @onpointerdown="StartSwipe"
+         @onpointerup="CompleteSwipe"
+         @onpointercancel="CancelSwipe">
+        @if (SlideIndex == 0)
+        {
+            <article class="tools-carousel-slide" role="group" aria-roledescription="slide" aria-label="1 of 4: One observation is useful">
+                <div class="tools-carousel-copy">
+                    <h2>One observation<br /><em>is useful.</em></h2>
+                    <p>A single investigation gives you another perspective.</p>
+                </div>
+                <div class="tools-slide-visual tools-one-observation" aria-label="Backlog Health gives one useful perspective">
+                    <span>BACKLOG HEALTH MONITOR</span>
+                    <i></i>
+                    <strong>One useful perspective</strong>
+                </div>
+            </article>
+        }
+        else if (SlideIndex == 1)
+        {
+            <article class="tools-carousel-slide" role="group" aria-roledescription="slide" aria-label="2 of 4: More context changes the picture">
+                <div class="tools-carousel-copy">
+                    <h2>More context<br /><em>changes the picture.</em></h2>
+                    <p>Add another perspective when you need more context.</p>
+                </div>
+                <div class="tools-slide-visual tools-context-visual" aria-label="Backlog and team perspectives provide more useful context">
+                    <div><span>BACKLOG</span><strong>See the work</strong></div>
+                    <i aria-hidden="true">+</i>
+                    <div><span>TEAM</span><strong>See the team</strong></div>
+                    <b>More useful context</b>
+                </div>
+            </article>
+        }
+        else if (SlideIndex == 2)
+        {
+            <article class="tools-carousel-slide" role="group" aria-roledescription="slide" aria-label="3 of 4: Bring the picture together">
+                <div class="tools-carousel-copy">
+                    <h2>Bring the picture<br /><em>together.</em></h2>
+                    <p><strong>Operational MRI</strong> connects what you've learned across the system.</p>
+                </div>
+                <div class="tools-slide-visual tools-mri-progression" aria-label="One observation is useful, two add context, and multiple observations build a richer system picture">
+                    <div><span>1 OBSERVATION</span><strong>Useful</strong></div>
+                    <i></i>
+                    <div><span>2 OBSERVATIONS</span><strong>More context</strong></div>
+                    <i></i>
+                    <div><span>MULTIPLE OBSERVATIONS</span><strong>Richer system picture</strong></div>
+                </div>
+            </article>
+        }
+        else
+        {
+            <article class="tools-carousel-slide tools-carousel-conclusion" role="group" aria-roledescription="slide" aria-label="4 of 4: Start anywhere. Build the picture.">
+                <div class="tools-carousel-copy">
+                    <h2>Start anywhere.<br /><em>Build the picture.</em></h2>
+                    <p>Use the tools independently. Connect what you learn when you need the wider view.</p>
+                </div>
+                <div class="tools-slide-visual tools-principle-steps">
+                    <div><strong>INVESTIGATE</strong><span>Ask a question.</span></div>
+                    <i aria-hidden="true"></i>
+                    <div><strong>OBSERVE</strong><span>Learn something useful.</span></div>
+                    <i aria-hidden="true"></i>
+                    <div><strong>CONNECT</strong><span>Build a richer picture.</span></div>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div class="tools-carousel-footer">
+        <div class="tools-carousel-indicators" role="group" aria-label="Choose a slide">
+            @for (var index = 0; index < 4; index++)
+            {
+                var slideIndex = index;
+                <button type="button"
+                        class="@(SlideIndex == slideIndex ? "is-active" : string.Empty)"
+                        aria-label="@($"Go to slide {slideIndex + 1}")"
+                        aria-pressed="@(SlideIndex == slideIndex ? "true" : "false")"
+                        @onclick="() => GoToSlide(slideIndex)">
+                    <span></span>
+                </button>
+            }
+        </div>
+        <span class="tools-carousel-hint">USE ARROW KEYS OR SWIPE</span>
+    </div>
+</section>
+
+@code {
+    private int SlideIndex;
+    private double? _swipeStartX;
+
+    private void GoToSlide(int slideIndex) => SlideIndex = Math.Clamp(slideIndex, 0, 3);
+    private void PreviousSlide() => GoToSlide((SlideIndex + 3) % 4);
+    private void NextSlide() => GoToSlide((SlideIndex + 1) % 4);
+
+    private void HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "ArrowLeft")
+        {
+            PreviousSlide();
+        }
+        else if (args.Key == "ArrowRight")
+        {
+            NextSlide();
+        }
+    }
+
+    private void StartSwipe(PointerEventArgs args) => _swipeStartX = args.ClientX;
+
+    private void CompleteSwipe(PointerEventArgs args)
+    {
+        if (_swipeStartX is not double startX)
+        {
+            return;
+        }
+
+        var distance = args.ClientX - startX;
+        _swipeStartX = null;
+        if (Math.Abs(distance) < 55)
+        {
+            return;
+        }
+
+        if (distance < 0)
+        {
+            NextSlide();
+        }
+        else
+        {
+            PreviousSlide();
+        }
+    }
+
+    private void CancelSwipe(PointerEventArgs args) => _swipeStartX = null;
+}

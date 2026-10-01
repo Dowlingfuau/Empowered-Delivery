@@ -1,0 +1,405 @@
+.tools-insight-carousel {
+    background: var(--ed-ink, #111315);
+    border-top: 1px solid var(--ed-line, #4a4d4a);
+    color: var(--ed-cream, #f2eadb);
+    padding: clamp(34px, 5vw, 56px) clamp(22px, 8vw, 120px) clamp(40px, 5vw, 60px);
+}
+
+.tools-carousel-header,
+.tools-carousel-footer,
+.tools-carousel {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1120px;
+}
+
+.tools-carousel-header,
+.tools-carousel-footer {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.tools-carousel-controls {
+    align-items: center;
+    display: flex;
+    gap: 13px;
+}
+
+.tools-carousel-controls > button {
+    align-items: center;
+    background: transparent;
+    border: 1px solid #465052;
+    color: var(--ed-cream, #f2eadb);
+    cursor: pointer;
+    display: inline-flex;
+    height: 40px;
+    justify-content: center;
+    padding: 0;
+    width: 40px;
+}
+
+.tools-carousel-controls > button:hover,
+.tools-carousel-controls > button:focus-visible {
+    border-color: var(--ed-red, #d5523d);
+    color: #e07c69;
+}
+
+.tools-carousel-controls svg {
+    fill: none;
+    height: 19px;
+    stroke: currentColor;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    stroke-width: 1.2;
+    width: 19px;
+}
+
+.tools-carousel-position {
+    color: var(--ed-cream, #f2eadb);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    min-width: 43px;
+    text-align: center;
+}
+
+.tools-carousel-position > i {
+    color: #b2b9b4;
+    font-style: normal;
+    margin: 0 4px;
+}
+
+.tools-carousel {
+    outline-offset: 8px;
+    touch-action: pan-y pinch-zoom;
+}
+
+.tools-insight-carousel :focus-visible {
+    outline: 2px solid var(--ed-red, #d5523d);
+    outline-offset: 4px;
+}
+
+.tools-carousel-slide {
+    align-items: center;
+    animation: tools-carousel-arrive 220ms ease-out both;
+    display: grid;
+    gap: clamp(32px, 8vw, 112px);
+    grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+    min-height: 228px;
+    padding: 24px 0;
+}
+
+.tools-carousel-copy {
+    min-width: 0;
+}
+
+.tools-carousel-copy h2 {
+    color: var(--ed-cream, #f2eadb);
+    font: 400 clamp(34px, 4.4vw, 58px)/.98 Georgia, serif;
+    letter-spacing: -.045em;
+    margin: 0;
+}
+
+.tools-carousel-copy h2 em {
+    color: var(--ed-red, #d5523d);
+    font-style: normal;
+}
+
+.tools-carousel-copy > p {
+    color: #c2c9c4;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 15px 0 0;
+    max-width: 38ch;
+}
+
+.tools-carousel-copy > p strong {
+    color: var(--ed-cream, #f2eadb);
+    font-weight: 600;
+}
+
+.tools-slide-visual {
+    align-items: center;
+    border-bottom: 1px solid #465052;
+    border-top: 1px solid #465052;
+    display: flex;
+    min-height: 136px;
+    padding: 22px 6px;
+}
+
+.tools-slide-visual span {
+    color: #e07c69;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+
+.tools-one-observation {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.tools-one-observation > i {
+    background: var(--tools-petrol, #78929a);
+    height: 1px;
+    margin: 13px 0;
+    width: 72%;
+}
+
+.tools-one-observation > strong {
+    color: var(--ed-cream, #f2eadb);
+    font: 400 22px Georgia, serif;
+}
+
+.tools-context-visual {
+    gap: 18px;
+    position: relative;
+}
+
+.tools-context-visual > div {
+    border-top: 1px solid var(--tools-petrol, #78929a);
+    display: grid;
+    flex: 1;
+    gap: 9px;
+    padding-top: 12px;
+}
+
+.tools-context-visual > div > strong,
+.tools-mri-progression > div > strong {
+    color: var(--ed-cream, #f2eadb);
+    font: 400 18px/1.1 Georgia, serif;
+}
+
+.tools-context-visual > i {
+    color: #e07c69;
+    font: 400 20px Georgia, serif;
+    font-style: normal;
+}
+
+.tools-context-visual > b {
+    bottom: -26px;
+    color: #c2c9c4;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: .1em;
+    position: absolute;
+    right: 0;
+    text-transform: uppercase;
+}
+
+.tools-mri-progression {
+    gap: 13px;
+}
+
+.tools-mri-progression > div {
+    align-self: stretch;
+    border-top: 1px solid var(--tools-petrol, #78929a);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 11px;
+    padding-top: 12px;
+}
+
+.tools-mri-progression > div > span {
+    line-height: 1.4;
+}
+
+.tools-mri-progression > i,
+.tools-principle-steps > i {
+    background: var(--ed-red, #d5523d);
+    flex: 0 0 24px;
+    height: 1px;
+    margin-top: 20px;
+}
+
+.tools-mri-progression > div:last-child > strong {
+    font-size: 17px;
+}
+
+.tools-principle-steps {
+    border: 0;
+    gap: 14px;
+}
+
+.tools-principle-steps > div {
+    border-top: 1px solid var(--tools-petrol, #78929a);
+    display: grid;
+    flex: 1;
+    gap: 10px;
+    padding-top: 12px;
+}
+
+.tools-principle-steps > div > strong {
+    color: #e07c69;
+    font-size: 9px;
+    letter-spacing: .12em;
+}
+
+.tools-principle-steps > div > span {
+    color: #c2c9c4;
+    font: 400 17px/1.2 Georgia, serif;
+}
+
+.tools-principle-steps > i {
+    flex-basis: 20px;
+}
+
+.tools-carousel-footer {
+    border-top: 1px solid #465052;
+    padding-top: 14px;
+}
+
+.tools-carousel-indicators {
+    display: flex;
+    gap: 8px;
+}
+
+.tools-carousel-indicators > button {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: flex;
+    height: 28px;
+    justify-content: center;
+    padding: 0;
+    width: 32px;
+}
+
+.tools-carousel-indicators > button > span {
+    background: #69716e;
+    display: block;
+    height: 2px;
+    transition: background 200ms ease, width 200ms ease;
+    width: 20px;
+}
+
+.tools-carousel-indicators > button.is-active > span {
+    background: var(--ed-red, #d5523d);
+    width: 30px;
+}
+
+.tools-carousel-hint {
+    color: #b2b9b4;
+    font-size: 8px;
+    letter-spacing: .12em;
+}
+
+@keyframes tools-carousel-arrive {
+    from { opacity: .45; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 760px) {
+    .tools-insight-carousel {
+        padding: 32px 22px 40px;
+    }
+
+    .tools-carousel-slide {
+        gap: 25px;
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+        padding: 23px 0 29px;
+    }
+
+    .tools-carousel-copy h2 {
+        font-size: clamp(38px, 8vw, 54px);
+    }
+
+    .tools-slide-visual {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 520px) {
+    .tools-insight-carousel {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .tools-carousel-header > .tools-home-kicker {
+        max-width: 140px;
+    }
+
+    .tools-carousel-controls {
+        gap: 7px;
+    }
+
+    .tools-carousel-controls > button {
+        height: 38px;
+        width: 38px;
+    }
+
+    .tools-carousel-copy h2 {
+        font-size: clamp(34px, 8.5vw, 46px);
+    }
+
+    .tools-context-visual {
+        gap: 11px;
+    }
+
+    .tools-context-visual > div > strong {
+        font-size: 15px;
+    }
+
+    .tools-context-visual > b {
+        font-size: 8px;
+    }
+
+    .tools-mri-progression {
+        gap: 8px;
+    }
+
+    .tools-mri-progression > i {
+        flex-basis: 12px;
+    }
+
+    .tools-mri-progression > div > span {
+        font-size: 8px;
+    }
+
+    .tools-mri-progression > div > strong {
+        font-size: 15px;
+    }
+
+    .tools-mri-progression > div:last-child > strong {
+        font-size: 14px;
+    }
+
+    .tools-carousel-hint {
+        display: none;
+    }
+
+    .tools-principle-steps {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tools-principle-steps > div {
+        align-items: baseline;
+        grid-template-columns: minmax(94px, .7fr) 1fr;
+    }
+
+    .tools-principle-steps > i {
+        display: none;
+    }
+}
+
+@media (max-width: 350px) {
+    .tools-carousel-copy h2 {
+        font-size: clamp(28px, 8.8vw, 34px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tools-insight-carousel *,
+    .tools-insight-carousel *::before,
+    .tools-insight-carousel *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}

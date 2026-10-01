@@ -1,0 +1,104 @@
+.tools-home {
+    --tools-ink: var(--ed-ink, #111315);
+    --tools-charcoal: var(--ed-charcoal, #191c1d);
+    --tools-cream: var(--ed-cream, #f2eadb);
+    --tools-muted: #b2b9b4;
+    --tools-line: #465052;
+    --tools-petrol: #78929a;
+    --tools-red: var(--ed-red, #d5523d);
+    background: var(--tools-ink);
+    color: var(--tools-cream);
+    font-family: var(--font-family-primary, "Inter", "Segoe UI", sans-serif);
+    isolation: isolate;
+    overflow: hidden;
+    width: 100%;
+}
+
+.tools-home *,
+.tools-home *::before,
+.tools-home *::after {
+    box-sizing: border-box;
+}
+
+.tools-home :focus-visible {
+    outline: 2px solid var(--tools-red);
+    outline-offset: 4px;
+}
+
+.tools-intro {
+    align-items: end;
+    display: grid;
+    gap: clamp(34px, 8vw, 124px);
+    grid-template-columns: minmax(0, 1fr) minmax(220px, .62fr);
+    margin: 0 auto;
+    max-width: 1440px;
+    padding: clamp(58px, 8vw, 116px) clamp(22px, 8vw, 120px) clamp(44px, 6vw, 72px);
+}
+
+.tools-home-kicker {
+    color: #e07c69;
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    line-height: 1.3;
+}
+
+.tools-intro h1 {
+    color: var(--tools-cream);
+    font: 400 clamp(54px, 7.5vw, 104px)/.91 Georgia, serif;
+    letter-spacing: -.055em;
+    margin: 20px 0 22px;
+}
+
+.tools-intro h1 em {
+    color: var(--tools-red);
+    font-style: normal;
+}
+
+.tools-intro-copy > p,
+.tools-intro-principle > p {
+    color: #c2c9c4;
+    font-size: 16px;
+    line-height: 1.55;
+    margin: 0;
+    max-width: 42ch;
+}
+
+.tools-intro-principle {
+    border-top: 1px solid var(--tools-line);
+    padding-top: 16px;
+}
+
+.tools-intro-principle > span {
+    color: #e07c69;
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .15em;
+}
+
+.tools-intro-principle > strong {
+    color: var(--tools-cream);
+    display: block;
+    font: 400 clamp(24px, 2.5vw, 32px)/1.08 Georgia, serif;
+    margin: 14px 0 10px;
+}
+
+.tools-intro-principle > p {
+    color: var(--tools-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+    .tools-intro {
+        gap: 28px;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 56px 22px 42px;
+    }
+
+    .tools-intro h1 {
+        font-size: clamp(52px, 11vw, 78px);
+    }
+}

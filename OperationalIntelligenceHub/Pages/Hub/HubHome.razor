@@ -1,114 +1,105 @@
 @page "/hub"
 @layout HubLayout
+@using OperationalIntelligenceHub.Components.Tools
+@implements IDisposable
+@inject AssessmentRepositoryService Assessments
+@inject WorkspaceRepositoryService WorkspaceRepository
 
-<div class="container">
+<PageTitle>Tools | Empowered Delivery</PageTitle>
 
-    <Hero>
-
-    <h1>Operational Intelligence Hub</h1>
-
-    <p class="accent-text">
-    Understand how your teams really deliver work.
-    </p>
-
-    <p>
-    Run lightweight diagnostics that reveal the hidden dynamics
-    of your delivery system.
-    </p>
-
-    <a class="button button-primary" href="/hub/backlog-health">
-    Run Backlog Health
-    </a>
-
-    </Hero>
-
-
-    <section class="section">
-
-    <h2>
-    Start with a quick diagnostic
-    </h2>
-
-    <ToolCard
-    Title="Backlog Health Monitor"
-    Description="Backlogs often reveal the earliest delivery system problems."
-    Link="/hub/backlog-health"
-    Icon="📋"
-    />
-
+<div class="tools-home">
+    <section class="tools-intro" aria-labelledby="tools-home-title">
+        <div class="tools-intro-copy">
+            <span class="tools-home-kicker">TOOLS / INTELLIGENCE SYSTEM</span>
+            <h1 id="tools-home-title">What are you<br /><em>trying to see?</em></h1>
+            <p>There isn't one view of a delivery system. Start with the question in front of you.</p>
+        </div>
+        <div class="tools-intro-principle">
+            <span>START ANYWHERE</span>
+            <strong>Every investigation gives you something useful.</strong>
+            <p>More investigations create more context. Operational MRI helps bring the picture together.</p>
+        </div>
     </section>
 
+    <ToolsSystemMap IsLoading="@IsLoadingObservations"
+                    HasWorkingContext="@HasWorkingContext"
+                    HasBacklogObservation="@HasBacklogObservation"
+                    HasTeamObservation="@HasTeamObservation"
+                    HasMaturityObservation="@HasMaturityObservation" />
 
-    <section class="section">
-
-    <h2>
-    Core Diagnostics
-    </h2>
-
-    <FeatureGrid Columns="3">
-
-    <ToolCard
-    Title="Backlog Health Monitor"
-    Description="Assess backlog readiness and prioritisation."
-    Link="/hub/backlog-health"
-    Icon="📋"
-    />
-
-    <ToolCard
-    Title="Team Health Check"
-    Description="Measure collaboration and delivery effectiveness."
-    Link="/hub/team-health-check"
-    Icon="💬"
-    />
-
-    <ToolCard
-    Title="Operational MRI"
-    Description="Visualise trends and insights across teams."
-    Link="/hub/coach-hub"
-    Icon="📊"
-    />
-
-    </FeatureGrid>
-
-    </section>
-
-
-    <section class="section">
-
-    <h2>
-    From diagnostics to insight
-    </h2>
-
-    <FeatureGrid Columns="3">
-
-    <div class="card">
-    <h3>Run diagnostics</h3>
-    <p>Capture real delivery signals.</p>
-    </div>
-
-    <div class="card">
-    <h3>Reveal patterns</h3>
-    <p>Identify structural delivery problems.</p>
-    </div>
-
-    <div class="card">
-    <h3>Guide improvement</h3>
-    <p>Use insights to focus coaching and improvement.</p>
-    </div>
-
-    </FeatureGrid>
-
-    </section>
-
-
-    <CTASection>
-
-    <h2>Start uncovering real delivery insights</h2>
-
-    <a class="button button-primary" href="/hub/backlog-health">
-    Run Backlog Health
-    </a>
-
-    </CTASection>
-
+    <ToolInsightCarousel />
 </div>
+
+@code {
+    private bool IsLoadingObservations = true;
+    private bool HasWorkingContext;
+    private bool HasBacklogObservation;
+    private bool HasTeamObservation;
+    private bool HasMaturityObservation;
+    private bool _disposed;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Assessments.OnAssessmentChanged += RefreshAfterDataChanged;
+        WorkspaceRepository.OnWorkspaceChanged += RefreshAfterDataChanged;
+        await RefreshObservationsAsync();
+    }
+
+    private async Task RefreshAfterDataChanged()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        await InvokeAsync(async () =>
+        {
+            await RefreshObservationsAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task RefreshObservationsAsync()
+    {
+        var workspaceId = WorkspaceRepository.ActiveWorkspaceId;
+        var backlogResults = await Assessments.GetBacklogHealthAsync(workspaceId);
+        var teamResults = await Assessments.GetTeamHealthAsync(workspaceId);
+        var maturitySessions = await Assessments.GetMaturitySessionsAsync(workspaceId);
+
+        HasWorkingContext = WorkspaceRepository.ActiveWorkspace is not null;
+        HasBacklogObservation = backlogResults.Any(HasBacklogData);
+        HasTeamObservation = teamResults.Any(HasTeamData);
+        HasMaturityObservation = maturitySessions.Any(HasMaturityData);
+        IsLoadingObservations = false;
+    }
+
+    private static bool HasBacklogData(AssessmentResult result) =>
+        result.BacklogHealthScore.HasValue ||
+        result.BacklogSize.HasValue ||
+        result.BacklogAge.HasValue ||
+        result.BacklogVolatility.HasValue ||
+        result.BacklogPriority.HasValue ||
+        result.BacklogPredictability.HasValue;
+
+    private static bool HasTeamData(AssessmentResult result) =>
+        result.TeamHealthScore.HasValue ||
+        result.ClarityScore.HasValue ||
+        result.SafetyScore.HasValue ||
+        result.FlowScore.HasValue ||
+        result.CollaborationScore.HasValue ||
+        result.FocusScore.HasValue ||
+        result.StakeholderScore.HasValue ||
+        result.ImprovementScore.HasValue ||
+        result.MoraleScore.HasValue;
+
+    private static bool HasMaturityData(AssessmentSession session) =>
+        session.LensAssessments?.Any(lens =>
+            lens.Themes?.Any(theme => theme.Level > 0) == true) == true;
+
+    public void Dispose()
+    {
+        _disposed = true;
+        Assessments.OnAssessmentChanged -= RefreshAfterDataChanged;
+        WorkspaceRepository.OnWorkspaceChanged -= RefreshAfterDataChanged;
+    }
+}
