@@ -1,0 +1,33 @@
+<button type="button"
+        class="backlog-signal @(Selected ? "is-selected" : string.Empty)"
+        aria-haspopup="dialog"
+        aria-label="@($"Open {Reading.Title} Deep Dive")"
+        @ref="_button"
+        @onclick="() => OnOpen.InvokeAsync(Reading.Id)">
+    <span class="backlog-signal-title">@Reading.Title</span>
+    <ContinuumBar Title=""
+                  Value="@Reading.Value"
+                  Label="@Reading.Label"
+                  Direction="@Reading.Direction"
+                  Zones="@Reading.Zones" />
+    <span class="backlog-signal-instruction">Inspect reading</span>
+</button>
+
+@code {
+    private ElementReference _button;
+
+    [Parameter, EditorRequired] public BacklogHealthSignalReading Reading { get; set; } = null!;
+    [Parameter] public bool Selected { get; set; }
+    [Parameter] public bool RestoreFocus { get; set; }
+    [Parameter] public EventCallback<string> OnOpen { get; set; }
+    [Parameter] public EventCallback FocusRestored { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (RestoreFocus)
+        {
+            await _button.FocusAsync();
+            await FocusRestored.InvokeAsync();
+        }
+    }
+}

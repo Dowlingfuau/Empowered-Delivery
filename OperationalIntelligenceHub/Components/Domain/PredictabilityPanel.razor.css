@@ -1,0 +1,147 @@
+.predictability-wrap {
+    display: grid;
+}
+
+/* A bracket spanning the whole signal row: a shared relationship, not a per-signal claim */
+.predictability-connector {
+    block-size: var(--space-lg);
+    border: 1px solid var(--diagnostic-rule);
+    border-top: 0;
+    margin-bottom: var(--space-lg);
+    margin-inline: var(--space-lg);
+    position: relative;
+    pointer-events: none;
+}
+
+.predictability-connector::after {
+    background: var(--diagnostic-accent-reference);
+    block-size: var(--space-lg);
+    content: "";
+    inline-size: 1px;
+    inset-block-start: 100%;
+    inset-inline-start: 50%;
+    position: absolute;
+}
+
+.predictability .predictability-relation {
+    color: var(--diagnostic-accent-reference);
+    font-size: 12px;
+}
+
+.predictability {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text);
+    display: grid;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+.predictability header {
+    border-bottom: 1px solid var(--diagnostic-rule);
+    padding-bottom: var(--space-sm);
+}
+
+.predictability h2 {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.predictability header p,
+.predictability-empty,
+.predictability-evidence,
+.predictability-impact {
+    color: var(--diagnostic-text-muted);
+    margin: var(--space-xs) 0 0;
+}
+
+.predictability-reading {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.predictability-reading > div {
+    border-left: 2px solid var(--diagnostic-accent-reference);
+    padding-left: var(--space-md);
+}
+
+.predictability-reading span,
+.predictability-period,
+.predictability figcaption {
+    color: var(--diagnostic-text-muted);
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.predictability-reading strong {
+    color: var(--diagnostic-text);
+    display: block;
+    font-family: var(--diagnostic-font-display);
+    font-size: 22px;
+    font-weight: 400;
+    margin-top: var(--space-xs);
+}
+
+.predictability-reading > div:first-child strong {
+    color: var(--diagnostic-accent-signal);
+}
+
+.predictability-throughput {
+    margin: 0;
+}
+
+.predictability-throughput ol {
+    display: flex;
+    gap: var(--space-sm);
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+}
+
+.predictability-throughput li {
+    display: grid;
+    flex: 1;
+    gap: var(--space-xs);
+    grid-template-rows: auto 80px auto;
+    justify-items: center;
+    max-width: 72px;
+    min-width: 0;
+}
+
+.predictability-value {
+    color: var(--diagnostic-text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.predictability-track {
+    align-items: flex-end;
+    display: flex;
+    height: 80px;
+    width: 100%;
+}
+
+.predictability-bar {
+    background: linear-gradient(180deg, var(--diagnostic-accent-reference), var(--diagnostic-track-optimal));
+    min-height: 2px;
+    width: 100%;
+}
+
+.predictability-period {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+@media (max-width: 520px) {
+    .predictability-reading {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

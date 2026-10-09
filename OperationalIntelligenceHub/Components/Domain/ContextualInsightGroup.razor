@@ -1,0 +1,55 @@
+@using System.Text.RegularExpressions
+
+@if (Placements.Count > 0)
+{
+    <section class="contextual-insights" aria-label="@($"Insights for {AreaLabel}")">
+        <h3 class="contextual-insights-label"><span aria-hidden="true">↳ </span>@(Placements.Count == 1 ? "Insight" : "Insights") · @AreaLabel</h3>
+        <ul class="contextual-insights-list">
+            @foreach (var placement in Placements)
+            {
+                <li>
+                    <ContextualInsight Emphasised="@ReferenceEquals(placement, PriorityPlacement)"
+                                       Title="@Humanise(placement.Insight.Name)"
+                                       Summary="@placement.Insight.Interpretation"
+                                       Category="@placement.Category"
+                                       Note="@(ShowReason ? ReasonText(placement.Reason) : null)"
+                                       Description="@placement.Insight.Description"
+                                       Intensity="@placement.Insight.Intensity"
+                                       Source="@placement.Insight.Source"
+                                       ContributingSignals="@placement.Insight.ContributingSignals"
+                                       Evidence="@EvidenceFor(placement)"
+                                       ActionHref="@ActionHref"
+                                       ActionLabel="@ActionLabel" />
+                </li>
+            }
+        </ul>
+    </section>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<InsightPlacement> Placements { get; set; } = Array.Empty<InsightPlacement>();
+    [Parameter, EditorRequired] public string AreaLabel { get; set; } = string.Empty;
+    [Parameter] public bool ShowReason { get; set; }
+
+    // The placement the caller has identified (from engine order) for visual emphasis only.
+    [Parameter] public InsightPlacement? PriorityPlacement { get; set; }
+    [Parameter] public string? ActionHref { get; set; }
+    [Parameter] public string ActionLabel { get; set; } = "Explore Plays";
+
+    private static string Humanise(string name) => Regex.Replace(name, "(?<=[a-z])(?=[A-Z])", " ");
+
+    private static IReadOnlyList<ContextualInsightEvidence> EvidenceFor(InsightPlacement placement) =>
+        placement.Insight.Reasons
+            .Select(r => new ContextualInsightEvidence(r.SignalName, r.Condition, r.Result))
+            .ToList();
+
+    // The interim overall fallback is stated to the reader rather than implied.
+    private static string? ReasonText(InsightPlacementReason reason) => reason switch
+    {
+        InsightPlacementReason.SystemLevel => "System-level observation",
+        InsightPlacementReason.Compound => "Spans several signals",
+        InsightPlacementReason.UnmappedSignal => "Not tied to a single signal",
+        InsightPlacementReason.NoContributingSignals => "Not tied to a single signal",
+        _ => null
+    };
+}

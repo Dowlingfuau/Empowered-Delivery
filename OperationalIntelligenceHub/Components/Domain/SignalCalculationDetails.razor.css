@@ -1,0 +1,86 @@
+.calculation-details {
+    border-top: 1px solid var(--diagnostic-rule);
+    margin-top: var(--space-md);
+    padding-top: var(--space-sm);
+}
+
+.calculation-details summary {
+    color: var(--diagnostic-accent-reference);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.calculation-details h4 {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    margin: var(--space-md) 0 var(--space-xs);
+    text-transform: uppercase;
+}
+
+.calculation-equations {
+    display: grid;
+    gap: var(--space-sm);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.calculation-equations li {
+    border-left: 2px solid var(--diagnostic-accent-reference);
+    display: grid;
+    gap: 2px;
+    padding-left: var(--space-sm);
+}
+
+.calculation-equation-name {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.calculation-equations code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.calculation-equation-formula {
+    color: var(--diagnostic-text-muted);
+}
+
+.calculation-equation-working {
+    color: var(--diagnostic-text);
+}
+
+.calculation-details dl {
+    display: grid;
+    gap: var(--space-xs);
+    margin: 0;
+}
+
+.calculation-details dl > div {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: space-between;
+}
+
+.calculation-details dt,
+.calculation-details dd {
+    font-size: 11px;
+    margin: 0;
+}
+
+.calculation-details dt {
+    color: var(--diagnostic-text-muted);
+}
+
+.calculation-details dd {
+    color: var(--diagnostic-text);
+    overflow-wrap: anywhere;
+    text-align: right;
+}

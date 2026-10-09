@@ -1,0 +1,28 @@
+.contextual-insights {
+    border-left: 2px solid var(--diagnostic-accent-reference);
+    display: grid;
+    gap: var(--space-sm);
+    padding-left: var(--space-md);
+}
+
+.contextual-insights-label {
+    color: var(--diagnostic-accent-reference);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.contextual-insights-list {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.contextual-insights-list > li + li {
+    border-top: 1px solid var(--diagnostic-rule);
+    padding-top: var(--space-md);
+}

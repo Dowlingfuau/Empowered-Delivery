@@ -1,0 +1,84 @@
+<div class="predictability-wrap">
+@if (Available)
+{
+    <div class="predictability-connector" aria-hidden="true"></div>
+}
+<section class="predictability" aria-labelledby="predictability-title" aria-describedby="@(Available ? "predictability-relation" : null)">
+    <header>
+        <h2 id="predictability-title">Predictability</h2>
+        <p>Are we delivering consistently enough to trust what we’re seeing?</p>
+        @if (Available)
+        {
+            <p id="predictability-relation" class="predictability-relation">Underpins how confidently the system signals above can be interpreted.</p>
+        }
+    </header>
+
+    @if (Available)
+    {
+        <div class="predictability-reading">
+            <div>
+                <span>Delivery predictability</span>
+                <strong>@Headline</strong>
+            </div>
+            <div>
+                <span>Delivery rhythm</span>
+                <strong>@Rhythm</strong>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Evidence))
+        {
+            <p class="predictability-evidence">@Evidence</p>
+        }
+
+        <figure class="predictability-throughput" aria-labelledby="predictability-throughput-title">
+            <figcaption id="predictability-throughput-title">Throughput sequence</figcaption>
+            <ol>
+                @for (var index = 0; index < Throughput.Count; index++)
+                {
+                    var value = Throughput[index];
+                    <li>
+                        <strong class="predictability-value">@value</strong>
+                        <span class="predictability-track" aria-hidden="true">
+                            <span class="predictability-bar" style="@($"height:{BarHeight(value)}%")"></span>
+                        </span>
+                        <span class="predictability-period">Sprint -@(index + 1)</span>
+                    </li>
+                }
+            </ol>
+        </figure>
+
+        @if (!string.IsNullOrWhiteSpace(Impact))
+        {
+            <p class="predictability-impact">@Impact</p>
+        }
+
+        @if (Trace is not null)
+        {
+            <SignalCalculationDetails Trace="@Trace" />
+        }
+    }
+    else
+    {
+        <p class="predictability-empty">Enter throughput data to assess delivery predictability and its pattern.</p>
+    }
+
+    @Insights
+</section>
+</div>
+
+@code {
+    [Parameter] public bool Available { get; set; }
+    [Parameter] public string Headline { get; set; } = string.Empty;
+    [Parameter] public string Rhythm { get; set; } = string.Empty;
+    [Parameter] public string Evidence { get; set; } = string.Empty;
+    [Parameter] public string Impact { get; set; } = string.Empty;
+    [Parameter] public List<int> Throughput { get; set; } = new();
+    [Parameter] public SignalTrace? Trace { get; set; }
+    [Parameter] public RenderFragment? Insights { get; set; }
+
+    private int Maximum => Throughput.Count == 0 ? 0 : Throughput.Max();
+
+    private double BarHeight(int value) =>
+        Maximum == 0 ? 0 : Math.Clamp(value / (double)Maximum * 100, 0, 100);
+}

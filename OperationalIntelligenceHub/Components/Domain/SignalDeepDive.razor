@@ -1,0 +1,119 @@
+@if (Current is not null)
+{
+    <div class="deep-dive-scrim" @onclick="Close">
+        <section class="deep-dive"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="deep-dive-title"
+                 tabindex="-1"
+                 @onclick:stopPropagation="true"
+                 @onkeydown="HandleKeyDown">
+            <button type="button" class="deep-dive-sentinel" aria-label="Return to the last Deep Dive control" @onfocus="FocusNext"></button>
+            <header class="deep-dive-heading">
+                <button type="button" class="deep-dive-close" @ref="_closeButton" @onclick="Close">Close</button>
+                <span class="deep-dive-position">@Position</span>
+                <div class="deep-dive-title-line">
+                    <h2 id="deep-dive-title">@Current.Title</h2>
+                    <span class="deep-dive-explainer">
+                        <button type="button"
+                                class="deep-dive-explainer-trigger"
+                                aria-label="@($"What is {Current.Title}?")"
+                                aria-describedby="deep-dive-definition">
+                            <span aria-hidden="true">?</span>
+                        </button>
+                        <span id="deep-dive-definition" class="deep-dive-explainer-tooltip" role="tooltip">@Current.Explanation</span>
+                    </span>
+                </div>
+            </header>
+
+            <div class="deep-dive-content" @key="Current.Id">
+                @if (Current.Available)
+                {
+                    <ContinuumBar Title=""
+                                  Value="@Current.Value"
+                                  Label="@Current.Label"
+                                  Direction="@Current.Direction"
+                                  Zones="@Current.Zones" />
+
+                    <section aria-labelledby="deep-dive-evidence-title">
+                        <h3 id="deep-dive-evidence-title">@Current.EvidenceTitle</h3>
+                        <dl>
+                            @foreach (var item in Current.Evidence)
+                            {
+                                <div><dt>@item.Key</dt><dd>@item.Value</dd></div>
+                            }
+                        </dl>
+                    </section>
+
+                    @if (!string.IsNullOrWhiteSpace(Current.Interpretation))
+                    {
+                        <section aria-labelledby="deep-dive-reading-title">
+                            <h3 id="deep-dive-reading-title">What this reading tells us</h3>
+                            <p>@Current.Interpretation</p>
+                        </section>
+                    }
+
+                    @if (Current.Trace is not null)
+                    {
+                        <SignalCalculationDetails Trace="@Current.Trace" />
+                    }
+                }
+                else
+                {
+                    <p class="deep-dive-empty">Enter the inputs for this signal to inspect its reading and evidence.</p>
+                }
+            </div>
+
+            <nav class="deep-dive-navigation" aria-label="Signal Deep Dive navigation">
+                <button type="button" @onclick="ShowPrevious">← Previous</button>
+                <span aria-hidden="true">@Position</span>
+                <button type="button" @ref="_nextButton" @onclick="ShowNext">Next →</button>
+            </nav>
+            <button type="button" class="deep-dive-sentinel" aria-label="Return to the first Deep Dive control" @onfocus="FocusClose"></button>
+        </section>
+    </div>
+}
+
+@code {
+    private ElementReference _closeButton;
+    private ElementReference _nextButton;
+    private string? _lastFocusedId;
+
+    [Parameter, EditorRequired] public IReadOnlyList<BacklogHealthSignalReading> Readings { get; set; } = Array.Empty<BacklogHealthSignalReading>();
+    [Parameter] public string? SelectedId { get; set; }
+    [Parameter] public EventCallback<string?> SelectedIdChanged { get; set; }
+    [Parameter] public EventCallback Closed { get; set; }
+
+    private BacklogHealthSignalReading? Current => Readings.FirstOrDefault(r => r.Id == SelectedId);
+    private int CurrentIndex => Readings.ToList().FindIndex(r => r.Id == SelectedId);
+    private string Position => $"{CurrentIndex + 1:00} / {Readings.Count:00}";
+
+    private Task Close() => Closed.InvokeAsync();
+
+    private Task ShowPrevious() => Step(-1);
+    private Task ShowNext() => Step(1);
+
+    private Task Step(int offset)
+    {
+        var next = (CurrentIndex + offset + Readings.Count) % Readings.Count;
+        return SelectedIdChanged.InvokeAsync(Readings[next].Id);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape") await Close();
+        else if (args.Key == "ArrowLeft") await ShowPrevious();
+        else if (args.Key == "ArrowRight") await ShowNext();
+    }
+
+    private async Task FocusNext() => await _nextButton.FocusAsync();
+    private async Task FocusClose() => await _closeButton.FocusAsync();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Current is not null && _lastFocusedId is null)
+            await _closeButton.FocusAsync();
+
+        _lastFocusedId = Current?.Id;
+    }
+}

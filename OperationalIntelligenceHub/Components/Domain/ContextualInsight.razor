@@ -1,0 +1,133 @@
+<article class="@(Emphasised ? "contextual-insight contextual-insight--emphasised" : "contextual-insight")" aria-labelledby="@_titleId">
+    @if (IsPrimary.HasValue)
+    {
+        <p class="contextual-insight-rank">@(IsPrimary.Value ? "Primary insight" : "Related insight")</p>
+    }
+
+    <header class="contextual-insight-header">
+        <h4 id="@_titleId" class="contextual-insight-title">@Title</h4>
+        @if (!string.IsNullOrWhiteSpace(Category))
+        {
+            <span class="contextual-insight-category"><span class="visually-hidden">Category: </span>@Category</span>
+        }
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Note))
+    {
+        <p class="contextual-insight-note">@Note</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Summary))
+    {
+        <p class="contextual-insight-summary">@Summary</p>
+    }
+
+    @if (HasDetails || HasActions)
+    {
+        <div class="contextual-insight-footer">
+            @if (HasDetails)
+            {
+                <button type="button"
+                        class="contextual-insight-toggle"
+                        aria-expanded="@(_expanded ? "true" : "false")"
+                        aria-controls="@_detailsId"
+                        @onclick="Toggle">
+                    @(_expanded ? "Hide context" : "More context")
+                </button>
+            }
+            @if (!string.IsNullOrWhiteSpace(ActionHref))
+            {
+                <a class="contextual-insight-link" href="@ActionHref">@ActionLabel</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(PlayHref))
+            {
+                <a class="contextual-insight-link" href="@PlayHref">@PlayLabel</a>
+            }
+        </div>
+    }
+
+    @if (HasDetails)
+    {
+        <div id="@_detailsId" class="contextual-insight-details" hidden="@(!_expanded)">
+            @if (!string.IsNullOrWhiteSpace(Description))
+            {
+                <p>@Description</p>
+            }
+
+            <dl>
+                @if (!string.IsNullOrWhiteSpace(Intensity))
+                {
+                    <dt>Intensity</dt>
+                    <dd>@Intensity</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Source))
+                {
+                    <dt>Source</dt>
+                    <dd>@Source</dd>
+                }
+                @if (ContributingSignals.Count > 0)
+                {
+                    <dt>Contributing signals</dt>
+                    <dd>@string.Join(", ", ContributingSignals)</dd>
+                }
+            </dl>
+
+            @if (Evidence.Count > 0)
+            {
+                <h5>Evidence</h5>
+                <ul class="contextual-insight-evidence">
+                    @foreach (var item in Evidence)
+                    {
+                        <li><strong>@item.Signal</strong> <span>@item.Condition</span> <span>→ @item.Result</span></li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+</article>
+
+@code {
+    private static int _sequence;
+
+    private readonly string _titleId;
+    private readonly string _detailsId;
+    private bool _expanded;
+
+    public ContextualInsight()
+    {
+        var id = Interlocked.Increment(ref _sequence);
+        _titleId = $"contextual-insight-title-{id}";
+        _detailsId = $"contextual-insight-details-{id}";
+    }
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Summary { get; set; }
+    [Parameter] public string? Category { get; set; }
+    [Parameter] public string? Note { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Intensity { get; set; }
+    [Parameter] public string? Source { get; set; }
+    [Parameter] public IReadOnlyList<string> ContributingSignals { get; set; } = Array.Empty<string>();
+    [Parameter] public IReadOnlyList<ContextualInsightEvidence> Evidence { get; set; } = Array.Empty<ContextualInsightEvidence>();
+    [Parameter] public string? ActionHref { get; set; }
+    [Parameter] public string ActionLabel { get; set; } = "Explore Plays";
+    [Parameter] public string? PlayHref { get; set; }
+    [Parameter] public string PlayLabel { get; set; } = "Related Play";
+
+    // Presentation only: stronger visual weight, no semantic label.
+    [Parameter] public bool Emphasised { get; set; }
+
+    // Only set when the source data explicitly designates a primary insight.
+    [Parameter] public bool? IsPrimary { get; set; }
+
+    private bool HasDetails =>
+        !string.IsNullOrWhiteSpace(Description)
+        || !string.IsNullOrWhiteSpace(Intensity)
+        || !string.IsNullOrWhiteSpace(Source)
+        || ContributingSignals.Count > 0
+        || Evidence.Count > 0;
+
+    private bool HasActions => !string.IsNullOrWhiteSpace(ActionHref) || !string.IsNullOrWhiteSpace(PlayHref);
+
+    private void Toggle() => _expanded = !_expanded;
+}

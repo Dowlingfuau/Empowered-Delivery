@@ -1,0 +1,164 @@
+@if (Trace.Inputs.Count > 0 || Trace.CalculationSteps.Count > 0)
+{
+    var equations = BuildEquations();
+    <details class="calculation-details">
+        <summary>Show calculation</summary>
+        @if (equations.Count > 0)
+        {
+            <h4>Equation</h4>
+            <ol class="calculation-equations">
+                @foreach (var equation in equations)
+                {
+                    <li>
+                        <span class="calculation-equation-name">@equation.Name</span>
+                        <code class="calculation-equation-formula">@equation.Formula</code>
+                        <code class="calculation-equation-working">@equation.Working</code>
+                    </li>
+                }
+            </ol>
+        }
+        @if (Trace.Inputs.Count > 0)
+        {
+            <h4>Inputs</h4>
+            <dl>
+                @foreach (var input in Trace.Inputs)
+                {
+                    <div><dt>@input.Name</dt><dd>@Format(input.Value)</dd></div>
+                }
+            </dl>
+        }
+        @if (Trace.CalculationSteps.Count > 0)
+        {
+            <h4>Calculation</h4>
+            <dl>
+                @foreach (var step in Trace.CalculationSteps)
+                {
+                    <div><dt>@step.StepName</dt><dd>@step.Description <strong>@Format(step.Value)</strong></dd></div>
+                }
+            </dl>
+        }
+    </details>
+}
+
+@code {
+    [Parameter, EditorRequired] public SignalTrace Trace { get; set; } = null!;
+
+    private sealed record Equation(string Name, string Formula, string Working);
+
+    // Display-only: restates the builder's formulas with the traced values substituted in.
+    private List<Equation> BuildEquations()
+    {
+        var values = new Dictionary<string, object?>();
+        foreach (var input in Trace.Inputs) values[input.Name] = input.Value;
+        foreach (var step in Trace.CalculationSteps) values[step.StepName] = step.Value;
+
+        double? N(string name) => values.TryGetValue(name, out var v) && v is not null
+            ? Convert.ToDouble(v, System.Globalization.CultureInfo.InvariantCulture)
+            : null;
+        static string F(double v) => v.ToString("0.###");
+
+        var list = new List<Equation>();
+
+        switch (Trace.SignalName)
+        {
+            case "BacklogSize":
+                if (N("TotalItems") is double total && N("AverageThroughput") is double avg && avg > 0)
+                {
+                    list.Add(new("Weeks of work", "total items ÷ average throughput",
+                        $"{F(total)} ÷ {F(avg)} = {F(total / avg)}"));
+                }
+                break;
+
+            case "BacklogAge":
+                if (N("FreshItems") is double fresh && N("MidAgeItems") is double mid && N("OldItems") is double old
+                    && N("TotalAgeItems") is double ageTotal && ageTotal > 0)
+                {
+                    double fp = fresh / ageTotal, mp = mid / ageTotal, op = old / ageTotal;
+                    double distance = Math.Abs(fp - 0.2) + Math.Abs(mp - 0.6) + Math.Abs(op - 0.2);
+                    list.Add(new("Share of each age band", "band items ÷ total age items",
+                        $"fresh {F(fresh)} ÷ {F(ageTotal)} = {F(fp)}; mid {F(mid)} ÷ {F(ageTotal)} = {F(mp)}; old {F(old)} ÷ {F(ageTotal)} = {F(op)}"));
+                    list.Add(new("Distance from ideal", "|fresh − 0.2| + |mid − 0.6| + |old − 0.2|",
+                        $"|{F(fp)} − 0.2| + |{F(mp)} − 0.6| + |{F(op)} − 0.2| = {F(distance)}"));
+                    list.Add(new("Age score", "1 − distance ÷ 1.6",
+                        $"1 − {F(distance)} ÷ 1.6 = {F(1 - distance / 1.6)}"));
+                    list.Add(new("Bias", "fresh share − old share",
+                        $"{F(fp)} − {F(op)} = {F(fp - op)}"));
+                }
+                break;
+
+            case "BacklogVolatility":
+                if (N("ItemsAdded") is double added && N("ItemsCompleted") is double done)
+                {
+                    if (done > 0)
+                    {
+                        list.Add(new("Ratio", "items added ÷ items completed",
+                            $"{F(added)} ÷ {F(done)} = {F(added / done)}"));
+                        var hi = Math.Max(added, done);
+                        var lo = Math.Min(added, done);
+                        if (hi > 0 && lo > 0)
+                        {
+                            list.Add(new("Balance score", "smaller of added and completed ÷ larger",
+                                $"{F(lo)} ÷ {F(hi)} = {F(lo / hi)}"));
+                        }
+                    }
+                    if (N("TotalItems") is double backlog && backlog > 0)
+                    {
+                        var delta = (added - done) / backlog;
+                        list.Add(new("Relative change", "(added − completed) ÷ total items",
+                            $"({F(added)} − {F(done)}) ÷ {F(backlog)} = {F(delta)}"));
+                        list.Add(new("Continuum position", "1 − min(|relative change|, 1)",
+                            $"1 − min({F(Math.Abs(delta))}, 1) = {F(1 - Math.Min(Math.Abs(delta), 1))}"));
+                    }
+                }
+                break;
+
+            case "BacklogPrioritisation":
+                if (N("HighPercent") is double hp && N("MediumPercent") is double mp2 && N("LowPercent") is double lp
+                    && N("UnprioritisedPercent") is double up)
+                {
+                    double third = 1.0 / 3.0;
+                    double deviation = Math.Abs(hp - third) + Math.Abs(mp2 - third) + Math.Abs(lp - third);
+                    double distribution = Math.Clamp(1 - deviation / 1.33, 0, 1);
+                    list.Add(new("Coverage", "1 − unprioritised share",
+                        $"1 − {F(up)} = {F(1 - up)}"));
+                    list.Add(new("Deviation from even split", "|high − ⅓| + |medium − ⅓| + |low − ⅓|",
+                        $"|{F(hp)} − 0.333| + |{F(mp2)} − 0.333| + |{F(lp)} − 0.333| = {F(deviation)}"));
+                    list.Add(new("Distribution score", "1 − deviation ÷ 1.33 (kept between 0 and 1)",
+                        $"1 − {F(deviation)} ÷ 1.33 = {F(distribution)}"));
+                    list.Add(new("Prioritisation score", "0.5 × coverage + 0.5 × distribution score",
+                        $"0.5 × {F(1 - up)} + 0.5 × {F(distribution)} = {F(0.5 * (1 - up) + 0.5 * distribution)}"));
+                }
+                break;
+
+            case "Predictability":
+                if (N("AverageThroughput") is double mean && N("Variance") is double variance && mean > 0)
+                {
+                    var history = values.TryGetValue("ThroughputHistory", out var h) ? h as IEnumerable<int> : null;
+                    var terms = history is null ? null : string.Join(" + ", history.Select(v => $"({v} − {F(mean)})²"));
+                    var count = history?.Count();
+                    list.Add(new("Average throughput", "Σ throughput ÷ number of periods",
+                        history is null ? $"= {F(mean)}" : $"({string.Join(" + ", history)}) ÷ {count} = {F(mean)}"));
+                    list.Add(new("Variance", "Σ (throughput − average)² ÷ number of periods",
+                        terms is null ? $"= {F(variance)}" : $"({terms}) ÷ {count} = {F(variance)}"));
+                    var sd = Math.Sqrt(variance);
+                    list.Add(new("Standard deviation", "√variance",
+                        $"√{F(variance)} = {F(sd)}"));
+                    list.Add(new("Coefficient of variation", "standard deviation ÷ average",
+                        $"{F(sd)} ÷ {F(mean)} = {F(sd / mean)}"));
+                    list.Add(new("Predictability", "max(0, 1 − coefficient of variation)",
+                        $"max(0, 1 − {F(sd / mean)}) = {F(Math.Max(0, 1 - sd / mean))}"));
+                }
+                break;
+        }
+
+        return list;
+    }
+
+    private static string Format(object? value) => value switch
+    {
+        null => "—",
+        IEnumerable<int> values => string.Join(", ", values),
+        double number => number.ToString("0.###"),
+        _ => value.ToString() ?? "—"
+    };
+}

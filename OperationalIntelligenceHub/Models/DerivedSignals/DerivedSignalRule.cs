@@ -8,6 +8,9 @@ namespace OperationalIntelligenceHub.Models
         public string Name { get; set; } = "";
         public string Domain { get; set; } = "";
 
+        // Authored in the rule JSON ("category"); read for presentation only.
+        public string Category { get; set; } = "";
+
         public List<string> SourceSignals { get; set; } = new();
         public List<RuleCondition> Rules { get; set; } = new();
 

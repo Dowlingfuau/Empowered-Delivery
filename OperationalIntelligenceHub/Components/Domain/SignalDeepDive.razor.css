@@ -1,0 +1,197 @@
+.deep-dive-scrim {
+    align-items: center;
+    animation: deep-dive-scrim-in 220ms ease-out;
+    background: var(--diagnostic-scrim);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: var(--space-md);
+    position: fixed;
+    z-index: var(--z-overlay);
+}
+
+.deep-dive {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: 0 24px 80px rgb(0 0 0 / 60%);
+    color: var(--diagnostic-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    max-height: calc(100vh - 2 * var(--space-md));
+    max-width: 920px;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    scrollbar-color: var(--diagnostic-rule) var(--diagnostic-panel);
+    width: 100%;
+}
+
+.deep-dive:focus {
+    outline: none;
+}
+
+.deep-dive-heading {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    justify-content: space-between;
+}
+
+.deep-dive-close,
+.deep-dive-navigation button {
+    background: transparent;
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: var(--space-xs) var(--space-md);
+    text-transform: uppercase;
+}
+
+.deep-dive-close:hover,
+.deep-dive-navigation button:hover {
+    border-color: var(--diagnostic-accent-reference);
+}
+
+.deep-dive-position {
+    color: var(--diagnostic-accent-reference);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    margin-left: auto;
+}
+
+.deep-dive-title-line {
+    align-items: center;
+    display: flex;
+    flex: 1 1 100%;
+    gap: var(--space-sm);
+}
+
+.deep-dive-title-line h2 {
+    color: var(--diagnostic-text);
+    font-family: var(--diagnostic-font-display);
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.deep-dive-explainer {
+    position: relative;
+}
+
+.deep-dive-explainer-trigger {
+    background: transparent;
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: 50%;
+    color: var(--diagnostic-text-muted);
+    cursor: help;
+    font-size: 11px;
+    height: 24px;
+    width: 24px;
+}
+
+.deep-dive-explainer-tooltip {
+    background: var(--diagnostic-surface);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text-muted);
+    display: none;
+    font-size: 12px;
+    left: 0;
+    line-height: var(--line-height-body);
+    padding: var(--space-sm) var(--space-md);
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    width: min(320px, 70vw);
+    z-index: var(--z-focus);
+}
+
+.deep-dive-explainer:hover .deep-dive-explainer-tooltip,
+.deep-dive-explainer:focus-within .deep-dive-explainer-tooltip {
+    display: block;
+}
+
+.deep-dive-content {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.deep-dive-content h3 {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-xs);
+    text-transform: uppercase;
+}
+
+.deep-dive-content p {
+    color: var(--diagnostic-text-muted);
+    margin: 0;
+}
+
+.deep-dive-content dl {
+    display: grid;
+    gap: var(--space-xs);
+    margin: 0;
+}
+
+.deep-dive-content dl > div {
+    border-bottom: 1px solid var(--diagnostic-track);
+    display: flex;
+    gap: var(--space-md);
+    justify-content: space-between;
+    padding-bottom: var(--space-xs);
+}
+
+.deep-dive-content dt {
+    color: var(--diagnostic-text-muted);
+}
+
+.deep-dive-content dd {
+    color: var(--diagnostic-text);
+    margin: 0;
+    text-align: right;
+}
+
+.deep-dive-navigation {
+    align-items: center;
+    border-top: 1px solid var(--diagnostic-rule);
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--space-md);
+}
+
+.deep-dive-navigation span {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+}
+
+.deep-dive-sentinel {
+    height: 0;
+    opacity: 0;
+    padding: 0;
+    position: absolute;
+    width: 0;
+}
+
+.deep-dive button:focus-visible {
+    outline: 2px solid var(--diagnostic-accent-signal);
+    outline-offset: 3px;
+}
+
+@keyframes deep-dive-scrim-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .deep-dive-scrim {
+        animation: none;
+    }
+}

@@ -1,0 +1,38 @@
+{
+  "diagnostics": {
+    "BacklogHealth": {
+      "anchors": [
+        {
+          "id": "size",
+          "label": "Backlog Size",
+          "canonicalSignal": "BacklogSize",
+          "aliases": ["WorkHorizon", "weeksofWork"]
+        },
+        {
+          "id": "age",
+          "label": "Backlog Age",
+          "canonicalSignal": "BacklogAge",
+          "aliases": ["OldWorkPercentage"]
+        },
+        {
+          "id": "volatility",
+          "label": "Backlog Volatility",
+          "canonicalSignal": "BacklogVolatility",
+          "aliases": ["FlowBalance"]
+        },
+        {
+          "id": "priority",
+          "label": "Prioritisation Clarity",
+          "canonicalSignal": "BacklogPrioritisation",
+          "aliases": []
+        },
+        {
+          "id": "predictability",
+          "label": "Predictability",
+          "canonicalSignal": "DeliveryPredictability",
+          "aliases": ["BacklogPredictability"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,319 @@
+/* Backlog Health: Signal Deep Dive diagnostic surface.
+   Shared components (ContinuumBar, ControlSurface, chips) are restyled here for this page only via ::deep. */
+
+.backlog-health {
+    background: var(--diagnostic-surface);
+    flex: 1 0 auto;
+    padding-block: var(--space-lg) var(--space-xl);
+}
+
+.backlog-health-page {
+    display: grid;
+    gap: var(--space-lg);
+}
+
+.visually-hidden {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+}
+
+/* Heading */
+.backlog-health-heading {
+    border-bottom: 1px solid var(--diagnostic-rule);
+    padding-bottom: var(--space-md);
+}
+
+.backlog-health-heading h1 {
+    color: var(--diagnostic-text);
+    font-family: var(--diagnostic-font-display);
+    font-size: clamp(38px, 4.2vw, 54px);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin: 0;
+}
+
+.backlog-health-heading p {
+    color: var(--diagnostic-text-muted);
+    margin: var(--space-xs) 0 0;
+}
+
+.backlog-section-label,
+.backlog-section-heading {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-sm);
+    text-transform: uppercase;
+}
+
+/* Panels */
+.backlog-panel {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    padding: var(--space-md) var(--space-lg);
+}
+
+/* Inputs */
+.backlog-health ::deep .control-surface {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    display: block;
+    padding: 12px;
+    position: static;
+}
+
+.backlog-health ::deep .control-surface-inner {
+    backdrop-filter: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: block;
+    padding: 0;
+    width: 100%;
+}
+
+.backlog-control-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.backlog-control-inputs {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    min-width: 0;
+}
+
+.backlog-health ::deep .squad-select-compact {
+    background: var(--diagnostic-panel-raised);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: none;
+    color: var(--diagnostic-text);
+    font-size: 11px;
+    height: 42px;
+    max-width: 100%;
+    padding: 0 var(--space-sm);
+}
+
+.backlog-health ::deep .input-chip {
+    background: var(--diagnostic-panel-raised);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: none;
+    color: var(--diagnostic-text);
+    height: 42px;
+    transition: border-color var(--motion-speed-fast);
+}
+
+.backlog-health ::deep .input-chip:hover,
+.backlog-health ::deep .input-chip.editing {
+    border-color: var(--diagnostic-accent-reference);
+    box-shadow: none;
+}
+
+.backlog-health ::deep .chip-display,
+.backlog-health ::deep .chip-input {
+    color: var(--diagnostic-text);
+    font-size: 11px;
+}
+
+.backlog-health ::deep .chip-placeholder,
+.backlog-health ::deep .group-label {
+    color: var(--diagnostic-text-muted);
+}
+
+.backlog-health ::deep .group-dropdown {
+    backdrop-filter: none;
+    background: var(--diagnostic-panel-raised);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+    max-width: calc(100vw - 2 * var(--space-md));
+}
+
+.backlog-health ::deep .group-dropdown .input-chip {
+    background: var(--diagnostic-panel);
+}
+
+.backlog-save {
+    background: var(--diagnostic-text);
+    border: 1px solid var(--diagnostic-text);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-surface);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    height: 42px;
+    letter-spacing: 0.08em;
+    padding: 0 var(--space-lg);
+    text-transform: uppercase;
+}
+
+.backlog-save:hover {
+    background: var(--diagnostic-text-muted);
+    border-color: var(--diagnostic-text-muted);
+}
+
+/* Visible keyboard focus for every interactive control on the surface */
+.backlog-health :is(button, select, input, summary, [tabindex]:not([tabindex="-1"])):focus-visible,
+.backlog-health ::deep :is(button, select, input, summary, [tabindex]:not([tabindex="-1"])):focus-visible,
+.backlog-health ::deep .input-chip:focus-within {
+    outline: 2px solid var(--diagnostic-accent-signal);
+    outline-offset: 3px;
+}
+
+.backlog-health ::deep .chip-input:focus-visible {
+    outline: none;
+}
+
+/* Continuum: instrument-style track */
+.backlog-health ::deep .continuum-container {
+    padding: 0;
+}
+
+.backlog-health ::deep .continuum-title {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--space-sm);
+    text-transform: uppercase;
+}
+
+.backlog-health ::deep .continuum-bar {
+    height: 5px;
+    margin-top: var(--space-sm);
+}
+
+.backlog-health ::deep .continuum-track {
+    background: var(--diagnostic-track);
+    border-radius: 0;
+    box-shadow: none;
+    gap: 2px;
+    height: 5px;
+}
+
+.backlog-health ::deep .continuum-track::after,
+.backlog-health ::deep .continuum-centre-line {
+    display: none;
+}
+
+.backlog-health ::deep .continuum-segment {
+    background: var(--diagnostic-track-zone);
+}
+
+.backlog-health ::deep .continuum-segment.optimal {
+    background: var(--diagnostic-track-optimal);
+}
+
+.backlog-health ::deep .continuum-segment.active {
+    background: var(--diagnostic-accent-signal);
+}
+
+.backlog-health ::deep .continuum-marker {
+    background: var(--diagnostic-text);
+    border: 2px solid var(--diagnostic-surface);
+    border-radius: 0;
+    box-shadow: none;
+    height: 13px;
+    top: -4px;
+    width: 13px;
+}
+
+.backlog-health ::deep .continuum-labels {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    margin-top: var(--space-sm);
+}
+
+.backlog-health ::deep .continuum-label {
+    color: var(--diagnostic-text);
+    font-size: 14px;
+    margin-top: var(--space-xs);
+}
+
+/* Contextual insights sit with the area they describe */
+.backlog-overall ::deep .contextual-insights {
+    margin-top: var(--space-md);
+}
+
+.backlog-signals {
+    display: grid;
+    gap: var(--space-md);
+}
+
+/* Separate annotation layer: columns mirror the signal grid so each insight stays under its signal */
+.backlog-annotation-grid {
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.backlog-annotation-cell {
+    min-width: 0;
+    padding-inline: var(--space-lg);
+}
+
+/* Narrow layouts reflow, so empty columns must not leave gaps */
+@media (max-width: 1100px) {
+    .backlog-annotation-cell:empty {
+        display: none;
+    }
+}
+
+/* Signals */
+.backlog-signal-grid {
+    background: var(--diagnostic-rule);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+    .backlog-signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .backlog-panel {
+        padding: var(--space-md);
+    }
+
+    .backlog-control-save,
+    .backlog-control-squad {
+        flex: 1 1 100%;
+    }
+
+    .backlog-health ::deep .squad-select-compact,
+    .backlog-save {
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .backlog-signal-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

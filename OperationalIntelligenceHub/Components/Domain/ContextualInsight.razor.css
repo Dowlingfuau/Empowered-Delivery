@@ -1,0 +1,161 @@
+.contextual-insight {
+    display: grid;
+    gap: var(--space-xs);
+}
+
+.contextual-insight--emphasised {
+    border-left: 3px solid var(--diagnostic-accent-signal);
+    margin-left: calc(-1 * var(--space-sm));
+    padding-left: calc(var(--space-sm) - 1px);
+}
+
+.contextual-insight--emphasised .contextual-insight-title {
+    font-size: 17px;
+    line-height: 1.25;
+}
+
+.contextual-insight--emphasised .contextual-insight-summary {
+    color: var(--diagnostic-text);
+}
+
+.contextual-insight-rank,
+.contextual-insight-note {
+    color: var(--diagnostic-accent-reference);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.contextual-insight-header {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs) var(--space-sm);
+}
+
+.contextual-insight-title {
+    color: var(--diagnostic-text);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.contextual-insight-category {
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    padding: 0 6px;
+}
+
+.contextual-insight-category .visually-hidden {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    position: absolute;
+}
+
+.contextual-insight-summary {
+    color: var(--diagnostic-text-muted);
+    margin: 0;
+}
+
+.contextual-insight-footer {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-md);
+    margin-top: var(--space-xs);
+}
+
+.contextual-insight-toggle,
+.contextual-insight-link {
+    appearance: none;
+    background: none;
+    border: 0;
+    color: var(--diagnostic-text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    min-height: 32px;
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: var(--diagnostic-accent-reference);
+    text-underline-offset: 3px;
+}
+
+.contextual-insight-link {
+    align-items: center;
+    display: inline-flex;
+}
+
+.contextual-insight-toggle:hover,
+.contextual-insight-link:hover {
+    text-decoration-color: var(--diagnostic-text);
+}
+
+.contextual-insight-toggle:focus-visible,
+.contextual-insight-link:focus-visible {
+    outline: 2px solid var(--diagnostic-accent-signal);
+    outline-offset: 2px;
+}
+
+.contextual-insight-details {
+    border-top: 1px solid var(--diagnostic-rule);
+    color: var(--diagnostic-text-muted);
+    display: grid;
+    font-size: 13px;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+    padding-top: var(--space-sm);
+}
+
+.contextual-insight-details[hidden] {
+    display: none;
+}
+
+.contextual-insight-details p,
+.contextual-insight-details dl,
+.contextual-insight-details h5 {
+    margin: 0;
+}
+
+.contextual-insight-details dl {
+    display: grid;
+    gap: 2px var(--space-md);
+    grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.contextual-insight-details dt,
+.contextual-insight-details h5 {
+    color: var(--diagnostic-accent-reference);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.contextual-insight-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.contextual-insight-evidence {
+    display: grid;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.contextual-insight-evidence li {
+    overflow-wrap: anywhere;
+}
+
+.contextual-insight-evidence strong {
+    color: var(--diagnostic-text);
+    font-weight: 600;
+}

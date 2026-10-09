@@ -396,4 +396,42 @@
     
 }
 
+/* =========================================
+   DIAGNOSTIC SURFACE
+   Scoped semantic tokens for the Backlog Health diagnostic reading experience.
+   Defined on a scope class (not :root) so no other page is affected.
+========================================= */
+.diagnostic-surface {
+    /* Surfaces */
+    --diagnostic-surface: #111315;
+    --diagnostic-panel: #17191a;
+    --diagnostic-panel-raised: #202323;
+    --diagnostic-panel-hover: #1d2020;
+    --diagnostic-scrim: rgb(9 11 11 / 82%);
+
+    /* Text */
+    --diagnostic-text: #f2eadb;
+    --diagnostic-text-muted: #b7b8b0;
+
+    /* Structure */
+    --diagnostic-rule: #4a4d4a;
+    --diagnostic-radius: 2px;
+
+    /* Accents: signal marks the reading under attention, reference marks supporting structure */
+    --diagnostic-accent-signal: #d5523d;
+    --diagnostic-accent-reference: #78929a;
+
+    /* Instrument track */
+    --diagnostic-track: #303433;
+    --diagnostic-track-zone: #383431;
+    --diagnostic-track-optimal: #405054;
+
+    /* Type */
+    --diagnostic-font-display: Georgia, "Times New Roman", serif;
+    --diagnostic-font-body: var(--font-family-primary);
+
+    color: var(--diagnostic-text);
+    font-family: var(--diagnostic-font-body);
+}
+
 

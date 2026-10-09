@@ -725,5 +725,41 @@ namespace OperationalIntelligenceHub.Services
             };
         }
 
+        // Delivery rhythm classification, moved verbatim from the Backlog Health page so the page consumes the result.
+        public string ClassifyDeliveryRhythm(IReadOnlyList<int>? throughputHistory)
+        {
+            if (throughputHistory == null || throughputHistory.Count < 3)
+                return "Insufficient data";
+
+            var diffs = throughputHistory
+                .Zip(throughputHistory.Skip(1), (a, b) => b - a)
+                .ToList();
+
+            if (diffs.Count < 2)
+                return "Insufficient data";
+
+            // --- Step 1: detect alternating pattern
+            bool alternating = diffs.Zip(diffs.Skip(1), (a, b) => a * b < 0).All(x => x);
+
+            // --- Step 2: measure magnitude
+            double avg = throughputHistory.Average();
+            double avgDiff = diffs.Average(d => Math.Abs(d));
+
+            // magnitude threshold relative to system size
+            bool significantSwing = avg > 0 && (avgDiff / avg) > 0.4;
+
+            if (alternating && significantSwing)
+                return "Cyclical";
+
+            // fallback to CV-based classification
+            double std = Math.Sqrt(throughputHistory.Sum(x => Math.Pow(x - avg, 2)) / throughputHistory.Count);
+            double cv = avg == 0 ? 0 : std / avg;
+
+            if (cv < 0.2)
+                return "Stable";
+
+            return "Chaotic";
+        }
+
     }
 }

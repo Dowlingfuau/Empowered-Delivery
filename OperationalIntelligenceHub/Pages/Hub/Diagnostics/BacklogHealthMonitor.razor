@@ -8,36 +8,31 @@
 @inject WorkspaceRepositoryService WorkspaceRepository
 @inject BacklogHealthSignalBuilderService SignalBuilder
 @inject SignalPipelineService SignalPipeline
+@inject InsightPlacementService InsightPlacements
 
-<div class="surface-base">
-    <div class="container">
+<div class="diagnostic-surface backlog-health">
+    <div class="container backlog-health-page">
 
     <!-- HEADER -->
-    <div class="grid grid-auto">
-        <div class="hero">
+    <header class="backlog-health-heading">
         <h1>Backlog Health</h1>
-        <p class="subtle">Understand what your backlog is telling you</p>
-        </div>
-
-        <div class="grid grid-auto">
-            
-            
-        </div>
-    </div>
+        <p>Understand what your backlog is telling you</p>
+    </header>
 
     <!-- INPUT PANEL -->
-    <div class="stack">
-        <h3>What is the state of your backlog?</h3>
-        <p class="input-guidance">
+    <section class="backlog-health-inputs" aria-labelledby="backlog-input-title">
+        <h2 id="backlog-input-title" class="backlog-section-label">What is the state of your backlog?</h2>
+        <p class="input-guidance visually-hidden">
             Enter your backlog data — signals will update instantly
         </p>
 
         <ControlSurface>
-            <div class="control-group">
+            <div class="backlog-control-row">
+            <div class="backlog-control-squad">
             <SquadInput SelectedSquad="@SelectedSquad" SelectedSquadChanged="OnSquadSelected" Compact="true"/>
             </div>
 
-                <div class="control-group">
+                <div class="backlog-control-inputs">
                 <!-- Single Inputs -->
                 <InputChip  Value="@TotalItems"
                             ValueChanged="@(v => { TotalItems = v; _ = Recalculate(); })"
@@ -77,202 +72,83 @@
                                     Value3="@LowPriority"
                                     Value3Changed="@(v => { LowPriority = v; _ = Recalculate(); })" />
                 </div>
-            <div class="control-group">
-                <div class="button button-primary" @onclick="SaveBacklogHealth">
+            <div class="backlog-control-save">
+                <button type="button" class="backlog-save" @onclick="SaveBacklogHealth">
                     Save
-                </div>
+                </button>
+            </div>
             </div>
             
         </ControlSurface>
-    </div>
+    </section>
 
-    
-            
-        <!-- RIGHT: INSIGHTS -->
-        <div class="stack">
-            <h3>What story is our backlog telling people?</h3>
-            <div class="surface-focus">
-                <div class="grid grid-2">
-                <!-- OVERALL -->
-                    <div class="surface-elevated">
-                    <ContinuumBar 
-                        Title="Overall System State"
-                        Value="@Health.Position"
-                        Label="@Health.State"
-                        Zones="@(new List<string> { "Unhealthy", "Needs Attention", "Healthy" })" />
-                    </div>
+    <!-- OVERALL SYSTEM STATE -->
+    <section class="backlog-panel backlog-overall" aria-label="Overall system state">
+        <ContinuumBar 
+            Title="Overall System State"
+            Value="@Health.Position"
+            Label="@Health.State"
+            Zones="@(new List<string> { "Unhealthy", "Needs Attention", "Healthy" })" />
+        <ContextualInsightGroup Placements="@PlacementsFor(null)"
+                                AreaLabel="Overall System State"
+                                PriorityPlacement="@PriorityPlacement"
+                                ShowReason="true"
+                                ActionHref="/plays" />
+    </section>
 
-                    <div class="insight-block">
-                        @if (!HasAnyData)
-                        {
-                            <div class="observation">Start by entering backlog data</div>
-                            <div class="why">As you add information, the system will show how your backlog is behaving</div>
-                        }
-                        else if (Insights == null || !Insights.Any())
-                        {
-                            <div class="observation">No insights detected yet</div>
-                            <div class="why">Try adjusting your inputs to explore system behaviour</div>
-                        }
-                        else
-                        {
-                            var flowInsights = Insights
-                                .Where(i => i.Source == "FlowRuleEngine")
-                                .OrderByDescending(i => i.Score)
-                                .ToList();
-                            var risks = flowInsights
-                                .Where(i => i.Source == "FlowRuleEngine")
-                                .ToList();
-                            var positives = flowInsights
-                                .Where(i => i.Category == "Positive")
-                                .OrderByDescending(i => i.Score)
-                                .ToList();
-                            var orderedInsights = new List<OperationalInsight>();
+    <!-- SYSTEM SIGNALS -->
+    <section class="backlog-signals" aria-labelledby="backlog-signals-title">
+        <h2 id="backlog-signals-title" class="backlog-section-heading">System Signals</h2>
 
-                            // Primary Risk
-                            if (risks.Any())
-                                orderedInsights.Add(risks[0]);
-                            // Secondary risk
-                            if (risks.Count > 1)
-                                orderedInsights.Add(risks[1]);
-                            // Positive (if exists)
-                            if (positives.Any())
-                            {
-                                // Only include if it doesn't dominate everything
-                                if (!risks.Any() || positives[0].Score < risks[0].Score * 1.5)
-                                    orderedInsights.Add(positives[0]);
-                            }
-                            // Fallback if no positive
-                            while (orderedInsights.Count < 3 && risks.Count > orderedInsights.Count)
-                            {
-                                orderedInsights.Add(risks[orderedInsights.Count]);
-                            }
-                            var topInsights = orderedInsights.Take(3).ToList();
-                                @foreach (var insight in topInsights)
-                                {
-                                    <span class="text-muted">What?</span>
-                                    <div class="observation">
-                                        @FormatHeadline(insight)
-                                    </div>
-
-                                    <span class="text-muted">So What?</span>
-                                    <div class="why">
-                                        @insight.Interpretation
-                                    </div>
-
-                                    <span class="text-muted">Now What?</span>
-                                    <div class="direction">
-                                        @FormatAction(insight)
-                                    </div>
-                                }
-                        }
-                    </div>
-                </div>
-            </div>
+        <div class="backlog-signal-grid">
+            @foreach (var reading in SignalReadings)
+            {
+                <BacklogHealthSignal @key="reading.Id"
+                                     Reading="@reading"
+                                     Selected="@(SelectedSignalId == reading.Id)"
+                                     RestoreFocus="@(_focusRestoreId == reading.Id)"
+                                     FocusRestored="@(() => _focusRestoreId = null)"
+                                     OnOpen="OpenSignal" />
+            }
         </div>
-        <!-- BOTTOM: Signals -->
-        <div class="stack">
-            <h3>System Signals</h3>
 
-            <div class="grid grid-4">
-                <!-- SIZE -->
-                <div class="surface-elevated">
-                    <!-- TODO: update label for weeks worth of work (currently only sprints) -->
-                    <ContinuumBar 
-                        Title="Backlog Size"
-                        TooltipText="Backlog Size reflects how much work exists relative to delivery capacity.
-                                    Too little work can interrupt flow.
-                                    Too much work creates drag and delays feedback."
-                        Value="@(HasAnyData ? BacklogSizeSignal?.ContinuumValue ?? 0.5 : 0.5)"
-                        Label="@SizeLabel"
-                        Direction="@(HasAnyData ? BacklogSizeSignal?.Direction ?? 0: 0)"
-                        Zones="@(new List<string> { "Starvation", "", "Overload" })" />
+        @if (SignalReadings.Any(r => PlacementsFor(r.Id).Count > 0))
+        {
+        <div class="backlog-annotation-grid">
+            @foreach (var reading in SignalReadings)
+            {
+                <div class="backlog-annotation-cell" @key="reading.Id">
+                    <ContextualInsightGroup Placements="@PlacementsFor(reading.Id)"
+                                            AreaLabel="@reading.Title"
+                                            PriorityPlacement="@PriorityPlacement"
+                                            ActionHref="/plays" />
                 </div>
-                <!-- AGE -->
-                <div class="surface-elevated">
-                    <!-- TODO: Add to label Average age: X days | % items > 30 days | % not updated in 30 days -->
-                    <!-- TODO: Age could change to distribution spread graph / histogram -->
-                    <ContinuumBar 
-                        Title="Backlog Age"
-                        TooltipText="Backlog Age reflects how mature and maintained backlog items are over time.
-                                    Very new work may lack sufficient understanding, 
-                                    while older work may lose relevance if not actively maintained."
-                        Value="@(AgeSignal?.ContinuumValue ?? AgeSignal?.NormalisedValue ?? 0.5)"
-                        Label="@AgeLabel" 
-                        Direction="@(AgeSignal?.Direction ?? 0)"
-                        Zones="@(new List<string> { "Under-ripe", "", "Over-ripe" })" />
-                </div>
-                <!-- VOLATILITY -->
-                <div class="surface-elevated">
-                    <!-- TODO: Update label Net +/-xx items (+/-xx% change) -->
-                    <ContinuumBar 
-                        Title="Backlog Volatility"
-                        TooltipText="Backlog Volatility reflects how the size of the backlog changes over time.
-                                    A growing backlog means work is entering faster than it is being completed.
-                                    A shrinking backlog means work is being completed faster than it is entering."
-                        Value="@(VolatilitySignal?.ContinuumValue ?? VolatilitySignal?.NormalisedValue ?? 0.5)"
-                        Label="@VolatilityLabel"
-                        Direction="@(VolatilitySignal?.Direction ?? 0)"
-                        Zones="@(new List<string> { "Shrinking", "", "Growing" })" />
-                </div>
-                <!-- PRIORITY -->
-                <div class="surface-elevated">
-                    <!-- TODO: Update label xx% prioritised | Priority distribution High: xx%| Medium: xx%| Low: xx% -->
-                    <ContinuumBar 
-                        Title="Prioritisation Clarity"
-                        TooltipText="Prioritisation reflects how clearly work is ordered and differentiated within the backlog.
-                                    When work is not prioritised, it may be unclear what should be worked on next.
-                                    When everything is prioritised similarly, prioritisation loses meaning and does not guide decisions."
-                        Value="@(PrioritisationSignal?.ContinuumValue ?? 0.5)"
-                        Label="@PriorityLabel"
-                        Direction="@(PrioritisationSignal?.Direction ?? 0)"
-                        Zones="@(new List<string> { "No Priorities", "", "No Distinction" })" />
-                </div>
-                
-            </div>
-
-            <!-- Header -->
-        <div class="surface-elevated">
-            <div class="card-header">
-                Predictability
-                    <Tooltip Mode="overlay" Placement="right" Text="@PredictabilityTooltipHtml" />
-            </div>
-
-            <div class="card-body">
-
-                <!-- ROW 1: Headline -->
-                <div class="observation">
-                    @GetPredictabilityHeadline()
-                </div>
-                <div class="grid grid-2">
-                <!-- ROW 2: Pattern + Evidence (horizontal) -->
-                <div class="d-flex justify-content-between">
-
-                    <div>
-                        <div class="text-muted">Pattern</div>
-                        <div>@GetPattern()</div>
-                    </div>
-
-                    <div>
-                        <div class="text-muted">@PredictabilityLabel</div>
-                    </div>
-
-                </div>
-
-                <!-- ROW 3: Impact -->
-                <div class="mt-2">
-                    <div class="text-muted">Impact</div>
-                    <div class="direction">
-                    @GetPredictabilityImpact()
-                    </div>
-                </div>
-
-                </div>
-            </div>
+            }
         </div>
-        <DiagnosticsConsolePortal>
-            <DiagnosticsConsole Signals="@Signals" Insights="@Insights" SignalTraces="@SignalTraces" />
-        </DiagnosticsConsolePortal>
-        </div>
+        }
+    </section>
+    <PredictabilityPanel Available="@(PredictabilitySignal != null && ThroughputHistory.Any())"
+                         Headline="@GetPredictabilityHeadline()"
+                         Rhythm="@GetPattern()"
+                         Evidence="@PredictabilityLabel"
+                         Impact="@GetPredictabilityImpact()"
+                         Throughput="@ThroughputHistory"
+                         Trace="@SignalTraces.FirstOrDefault(t => t.SignalName == "Predictability")">
+        <Insights>
+            <ContextualInsightGroup Placements="@PlacementsFor("predictability")"
+                                    AreaLabel="Predictability"
+                                    PriorityPlacement="@PriorityPlacement"
+                                    ActionHref="/plays" />
+        </Insights>
+    </PredictabilityPanel>
+
+    <SignalDeepDive Readings="@SignalReadings"
+                    SelectedId="@SelectedSignalId"
+                    SelectedIdChanged="@(id => SelectedSignalId = id)"
+                    Closed="CloseDeepDive" />
+    <DiagnosticsConsolePortal>
+        <DiagnosticsConsole Signals="@Signals" Insights="@Insights" SignalTraces="@SignalTraces" />
+    </DiagnosticsConsolePortal>
     </div>
 </div>
 
@@ -282,6 +158,19 @@
     private List<Signal> Signals = new();
     private List<OperationalIntelligenceHub.Models.SignalTrace> SignalTraces = new();
     private List<OperationalInsight> Insights = new();
+    private IReadOnlyList<InsightPlacement> Placements = Array.Empty<InsightPlacement>();
+    private const string DiagnosticId = "BacklogHealth";
+
+    // Placement only filters the engine's existing order; a null anchor selects the overall area.
+    private IReadOnlyList<InsightPlacement> PlacementsFor(string? anchorId) =>
+        HasAnyData
+            ? Placements.Where(p => p.AnchorId == anchorId).ToList()
+            : Array.Empty<InsightPlacement>();
+
+    // The engine returns insights ordered by Score; the first one is emphasised, never re-ranked here.
+    // Emphasis is meaningless for a single insight, so it needs at least one other to stand out from.
+    private InsightPlacement? PriorityPlacement =>
+        HasAnyData && Placements.Count > 1 ? Placements[0] : null;
     private SystemHealth Health = new();
     private async Task RunPipeline()
     {
@@ -293,6 +182,7 @@
         BehaviourSignals = behaviour;
         SystemSignals = system;
         Insights = insights;
+        Placements = InsightPlacements.Resolve(DiagnosticId, insights);
         Health = health;
 
         Console.WriteLine($">>> Backlog Pipeline Complete: {Insights.Count} insights");
@@ -329,6 +219,121 @@
             Console.WriteLine($">>> {signal.Name} = {signal.NormalisedValue:F2}");
         }
     }
+
+    // ================================
+    // Signal Deep Dive (presentation only; all values come from the calculations above)
+    // ================================
+
+    string? SelectedSignalId;
+    string? _focusRestoreId;
+
+    void OpenSignal(string id) => SelectedSignalId = id;
+
+    void CloseDeepDive()
+    {
+        _focusRestoreId = SelectedSignalId;
+        SelectedSignalId = null;
+    }
+
+    SignalTrace? TraceFor(string signalName) => SignalTraces.FirstOrDefault(t => t.SignalName == signalName);
+
+    static string FirstLine(string label) => label.Split('\n')[0];
+
+    static string Input(int? value) => value?.ToString() ?? "—";
+
+    IReadOnlyList<BacklogHealthSignalReading> SignalReadings => new List<BacklogHealthSignalReading>
+    {
+        new()
+        {
+            Id = "size",
+            Title = "Backlog Size",
+            Explanation = "Backlog Size reflects how much work exists relative to delivery capacity. Too little work can interrupt flow. Too much work creates drag and delays feedback.",
+            Available = BacklogSizeSignal != null && HasAnyData,
+            Value = HasAnyData ? BacklogSizeSignal?.ContinuumValue ?? 0.5 : 0.5,
+            Label = SizeLabel,
+            Direction = HasAnyData ? BacklogSizeSignal?.Direction ?? 0 : 0,
+            Zones = new List<string> { "Starvation", "", "Overload" },
+            EvidenceTitle = "Backlog and throughput",
+            Evidence = new()
+            {
+                new("Backlog", Input(TotalItems)),
+                new("Throughput · Sprint -1", Input(Velocity1)),
+                new("Throughput · Sprint -2", Input(Velocity2)),
+                new("Throughput · Sprint -3", Input(Velocity3))
+            },
+            Interpretation = BacklogSizeSignal == null ? string.Empty : BacklogSizeSignal.Direction switch
+            {
+                < 0 => $"At {FirstLine(SizeLabel)}, the current backlog size reading sits toward the starvation side of the continuum.",
+                > 0 => $"At {FirstLine(SizeLabel)}, the current backlog size reading sits toward the overload side of the continuum.",
+                _ => $"At {FirstLine(SizeLabel)}, the current backlog size reading sits near the balance point of the continuum."
+            },
+            Trace = TraceFor("BacklogSize")
+        },
+        new()
+        {
+            Id = "age",
+            Title = "Backlog Age",
+            Explanation = "Backlog Age reflects how mature and maintained backlog items are over time. Very new work may lack sufficient understanding, while older work may lose relevance if not actively maintained.",
+            Available = AgeSignal != null && AgeLabel != "No age data",
+            Value = AgeSignal?.ContinuumValue ?? AgeSignal?.NormalisedValue ?? 0.5,
+            Label = AgeLabel,
+            Direction = AgeSignal?.Direction ?? 0,
+            Zones = new List<string> { "Under-ripe", "", "Over-ripe" },
+            EvidenceTitle = "Age profile",
+            Evidence = new()
+            {
+                new("Fresh", Input(FreshItems)),
+                new("Mid-age", Input(MidAgeItems)),
+                new("Old", Input(OldItems))
+            },
+            Interpretation = FirstLine(AgeLabel),
+            Trace = TraceFor("BacklogAge")
+        },
+        new()
+        {
+            Id = "volatility",
+            Title = "Backlog Volatility",
+            Explanation = "Backlog Volatility reflects how the size of the backlog changes over time. A growing backlog means work is entering faster than it is being completed. A shrinking backlog means work is being completed faster than it is entering.",
+            Available = VolatilitySignal != null && HasAnyData,
+            Value = VolatilitySignal?.ContinuumValue ?? VolatilitySignal?.NormalisedValue ?? 0.5,
+            Label = VolatilityLabel,
+            Direction = VolatilitySignal?.Direction ?? 0,
+            Zones = new List<string> { "Shrinking", "", "Growing" },
+            EvidenceTitle = "Items added and completed",
+            Evidence = new()
+            {
+                new("Added · <2w", Input(Added1)),
+                new("Added · 2–4w", Input(Added2)),
+                new("Added · >4w", Input(Added3)),
+                new("Throughput · Sprint -1", Input(Velocity1)),
+                new("Throughput · Sprint -2", Input(Velocity2)),
+                new("Throughput · Sprint -3", Input(Velocity3))
+            },
+            Interpretation = FirstLine(VolatilityLabel),
+            Trace = TraceFor("BacklogVolatility")
+        },
+        new()
+        {
+            Id = "priority",
+            Title = "Prioritisation Clarity",
+            Explanation = "Prioritisation reflects how clearly work is ordered and differentiated within the backlog. When work is not prioritised, it may be unclear what should be worked on next. When everything is prioritised similarly, prioritisation loses meaning and does not guide decisions.",
+            Available = PrioritisationSignal != null && PriorityLabel != "-",
+            Value = PrioritisationSignal?.ContinuumValue ?? 0.5,
+            Label = PriorityLabel,
+            Direction = PrioritisationSignal?.Direction ?? 0,
+            Zones = new List<string> { "No Priorities", "", "No Distinction" },
+            EvidenceTitle = "Priority distribution",
+            Evidence = new()
+            {
+                new("High", Input(HighPriority)),
+                new("Medium", Input(MediumPriority)),
+                new("Low", Input(LowPriority)),
+                new("Total backlog", Input(TotalItems))
+            },
+            Interpretation = FirstLine(PriorityLabel),
+            Trace = TraceFor("BacklogPrioritisation")
+        }
+    };
 
     // ================================
     // Inputs
@@ -558,40 +563,7 @@
     }
 
     // Pattern
-    string GetPattern()
-    {
-        if (ThroughputHistory == null || ThroughputHistory.Count < 3)
-            return "Insufficient data";
-
-        var diffs = ThroughputHistory
-            .Zip(ThroughputHistory.Skip(1), (a, b) => b - a)
-            .ToList();
-
-        if (diffs.Count < 2)
-            return "Insufficient data";
-
-        // --- Step 1: detect alternating pattern
-        bool alternating = diffs.Zip(diffs.Skip(1), (a, b) => a * b < 0).All(x => x);
-
-        // --- Step 2: measure magnitude
-        double avg = ThroughputHistory.Average();
-        double avgDiff = diffs.Average(d => Math.Abs(d));
-
-        // magnitude threshold relative to system size
-        bool significantSwing = avg > 0 && (avgDiff / avg) > 0.4;
-
-        if (alternating && significantSwing)
-            return "Cyclical";
-
-        // fallback to CV-based classification
-        double std = Math.Sqrt(ThroughputHistory.Sum(x => Math.Pow(x - avg, 2)) / ThroughputHistory.Count);
-        double cv = avg == 0 ? 0 : std / avg;
-
-        if (cv < 0.2)
-            return "Stable";
-
-        return "Chaotic";
-    }
+    string GetPattern() => SignalBuilder.ClassifyDeliveryRhythm(ThroughputHistory);
 
     // Predictability Impact
     string GetPredictabilityImpact()
@@ -627,77 +599,6 @@
         if (cv > 1.0) return 1;    // chaotic
 
         return 0;
-    }
-
-    // ================================
-    // INSIGHT PANEL HELPERS
-    // ================================
-    string FormatHeadline(OperationalInsight insight)
-    {
-        // Clean user-facing phrasing - These need to be updated to json interpretations
-        return insight.Name switch
-        {
-            "BacklogAgingRisk" => "Work is aging in the backlog",
-            "IntakePressure" => "Work is entering faster than it is delivered",
-            "BacklogVolatility" => "Backlog is changing rapidly",
-            "BacklogPressure" => "Backlog is overloaded",
-            "StrongPrioritisation" => "Work is clearly prioritised",
-            "PrioritisationClarity" => "Priorities are well defined",
-            _ => insight.Name
-        };
-    }
-
-    string FormatAction(OperationalInsight insight)
-    {
-        return insight.Name switch
-        {
-            "BacklogAgingRisk" =>
-                "Review and refresh older backlog items to ensure relevance → Open Plays",
-
-            "IntakePressure" =>
-                "Align intake with delivery capacity and reduce incoming work → Open Plays",
-
-            "BacklogVolatility" =>
-                "Stabilise intake and planning cadence to reduce disruption → Open Plays",
-
-            "BacklogPressure" =>
-                "Reduce backlog size and focus on near-term work → Open Plays",
-
-            "StrongPrioritisation" =>
-                "Maintain prioritisation discipline and reinforce decision clarity → Explore MRI",
-
-            "PrioritisationClarity" =>
-                "Keep priorities visible and ensure clear differentiation → Explore MRI",
-
-            _ =>
-                "Investigate contributing signals → Explore MRI"
-        };
-    }
-    (string action, string link) GetActionAndLink(OperationalInsight insight)
-    {
-        return insight.Name switch
-        {
-            "BacklogAgingRisk" =>
-                ("Review and refresh older backlog items", "Plays"),
-
-            "IntakePressure" =>
-                ("Align intake with delivery capacity", "Plays"),
-
-            "BacklogVolatility" =>
-                ("Stabilise intake and planning cadence", "Plays"),
-
-            "BacklogPressure" =>
-                ("Reduce backlog size", "Plays"),
-
-            "StrongPrioritisation" =>
-                ("Maintain prioritisation discipline", "MRI"),
-
-            "PrioritisationClarity" =>
-                ("Ensure priorities are clear and visible", "MRI"),
-
-            _ =>
-                ("Investigate contributing signals", "MRI")
-        };
     }
 
     // ================================

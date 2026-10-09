@@ -22,7 +22,18 @@ main {
 .hub-layout {
     display: flex;
     flex-direction: row;
-    min-height: 100vh;
+    flex: 1 0 auto;
+}
+
+/* Backlog Health fills the space below the header so the page does not scroll when content is short */
+.hub-layout main:has(.backlog-health) {
+    display: flex;
+    flex-direction: column;
+}
+.hub-layout main:has(.backlog-health) > article {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
 }
 
 /* -----------------------------------------

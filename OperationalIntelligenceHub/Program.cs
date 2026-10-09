@@ -38,6 +38,7 @@ builder.Services.AddScoped<SignalValidationService>();
 builder.Services.AddScoped<OperationalInsightEngine>();
 builder.Services.AddScoped<BacklogHealthSignalBuilderService>();
 builder.Services.AddScoped<HealthAggregationService>();
+builder.Services.AddSingleton<InsightPlacementService>();
 
 var host = builder.Build();
 
@@ -45,6 +46,7 @@ try
 {
 	var ruleRepo = host.Services.GetRequiredService<RuleRepositoryService>();
 	await ruleRepo.InitializeAsync();
+	await host.Services.GetRequiredService<InsightPlacementService>().InitializeAsync();
 
 	// Try to capture .NET-side unhandled exceptions and report to window.__logBlazorError
 	var jsRuntime = host.Services.GetService<IJSRuntime>();
