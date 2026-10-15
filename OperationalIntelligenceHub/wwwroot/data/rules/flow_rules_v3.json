@@ -7,12 +7,12 @@
       "domain": "Flow",
       "priority": 9,
       "confidence_weight": 0.85,
-      "source_signals": ["weeksofWork"],
+      "source_signals": ["WorkHorizon"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
-        { "condition": "weeksofWork < 2", "result": "Low" },
-        { "condition": "weeksofWork >= 2 AND weeksofWork <= 5", "result": "Moderate" },
-        { "condition": "weeksofWork > 5", "result": "High" }
+        { "condition": "WorkHorizon < 2", "result": "Low" },
+        { "condition": "WorkHorizon >= 2 AND WorkHorizon <= 5", "result": "Moderate" },
+        { "condition": "WorkHorizon > 5", "result": "High" }
       ],
       "interpretation": "The backlog is larger than the team can sustainably deliver."
     },
@@ -23,12 +23,12 @@
       "domain": "Flow",
       "priority": 9,
       "confidence_weight": 0.85,
-      "source_signals": ["weeksofWork"],
+      "source_signals": ["WorkHorizon"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
-        { "condition": "weeksofWork >= 2", "result": "Low" },
-        { "condition": "weeksofWork >= 1 AND weeksofWork < 2", "result": "Moderate" },
-        { "condition": "weeksofWork < 1", "result": "High" }
+        { "condition": "WorkHorizon >= 2", "result": "Low" },
+        { "condition": "WorkHorizon >= 1 AND WorkHorizon < 2", "result": "Moderate" },
+        { "condition": "WorkHorizon < 1", "result": "High" }
       ],
       "interpretation": "There is insufficient work prepared to sustain predictable delivery."
     },
@@ -55,12 +55,12 @@
       "domain": "Flow",
       "priority": 10,
       "confidence_weight": 0.95,
-      "source_signals": ["BacklogPredictability"],
+      "source_signals": ["DeliveryPredictability"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
-        { "condition": "BacklogPredictability <= 0.3", "result": "Low" },
-        { "condition": "BacklogPredictability > 0.3 AND BacklogPredictability <= 0.6", "result": "Moderate" },
-        { "condition": "BacklogPredictability > 0.6", "result": "High" }
+        { "condition": "DeliveryPredictability >= 0.7", "result": "Low" },
+        { "condition": "DeliveryPredictability >= 0.4 AND DeliveryPredictability < 0.7", "result": "Moderate" },
+        { "condition": "DeliveryPredictability < 0.4", "result": "High" }
       ],
       "interpretation": "Delivery output is inconsistent and difficult to predict."
     },
@@ -71,19 +71,19 @@
       "domain": "Flow",
       "priority": 8,
       "confidence_weight": 0.8,
-      "source_signals": ["BacklogAge", "weeksofWork", "FlowBalance"],
+      "source_signals": ["BacklogAge", "WorkHorizon", "FlowBalance"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
         {
-          "condition": "BacklogAge > 0.7 AND weeksofWork <= 4 AND FlowBalance <= 1.5",
+          "condition": "BacklogAge < 0.3 AND WorkHorizon <= 4 AND FlowBalance <= 1.5",
           "result": "High"
         },
         {
-          "condition": "BacklogAge > 0.5",
+          "condition": "BacklogAge < 0.5",
           "result": "Moderate"
         },
         {
-          "condition": "BacklogAge <= 0.5",
+          "condition": "BacklogAge >= 0.5",
           "result": "Low"
         }
       ],
@@ -96,11 +96,11 @@
       "domain": "Flow",
       "priority": 7,
       "confidence_weight": 0.8,
-      "source_signals": ["BacklogAge", "weeksofWork"],
+      "source_signals": ["BacklogAge", "WorkHorizon"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
         {
-          "condition": "BacklogAge > 0.7 AND weeksofWork < 2",
+          "condition": "BacklogAge < 0.3 AND WorkHorizon < 2",
           "result": "High"
         }
       ],
@@ -132,9 +132,9 @@
       "source_signals": ["BacklogVolatility"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
-        { "condition": "BacklogVolatility > 0.7", "result": "High" },
-        { "condition": "BacklogVolatility > 0.4 AND BacklogVolatility <= 0.7", "result": "Moderate" },
-        { "condition": "BacklogVolatility <= 0.4", "result": "Low" }
+        { "condition": "BacklogVolatility < 0.3", "result": "High" },
+        { "condition": "BacklogVolatility >= 0.3 AND BacklogVolatility < 0.6", "result": "Moderate" },
+        { "condition": "BacklogVolatility >= 0.6", "result": "Low" }
       ],
       "interpretation": "Backlog composition is changing unpredictably over time."
     },
@@ -166,19 +166,19 @@
       "domain": "Flow",
       "priority": 6,
       "confidence_weight": 0.75,
-      "source_signals": ["BacklogPredictability", "BacklogVolatility", "BacklogAge"],
+      "source_signals": ["DeliveryPredictability", "BacklogVolatility", "BacklogAge"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
         {
-          "condition": "BacklogPredictability <= 0.3 AND BacklogVolatility <= 0.3 AND BacklogAge <= 0.3",
+          "condition": "DeliveryPredictability >= 0.7 AND BacklogVolatility >= 0.7 AND BacklogAge >= 0.7",
           "result": "High"
         },
         {
-          "condition": "BacklogPredictability <= 0.5 AND BacklogVolatility <= 0.5",
+          "condition": "DeliveryPredictability >= 0.5 AND BacklogVolatility >= 0.5",
           "result": "Moderate"
         },
         {
-          "condition": "BacklogPredictability > 0.5 OR BacklogVolatility > 0.5",
+          "condition": "DeliveryPredictability < 0.5 OR BacklogVolatility < 0.5",
           "result": "Low"
         }
       ],
@@ -191,11 +191,11 @@
       "domain": "Flow",
       "priority": 7,
       "confidence_weight": 0.8,
-      "source_signals": ["weeksofWork"],
+      "source_signals": ["WorkHorizon"],
       "intensity_model": ["Low", "Moderate", "High"],
       "rules": [
         {
-          "condition": "weeksofWork >= 2 AND weeksofWork <= 4",
+          "condition": "WorkHorizon >= 2 AND WorkHorizon <= 4",
           "result": "High"
         }
       ],
