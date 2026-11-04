@@ -15,70 +15,59 @@ namespace OperationalIntelligenceHub.Services
             Signal? age,
             Signal? volatility,
             Signal? prioritisation,
-            Signal? predictability,
-            List<OperationalInsight> insights)
+            Signal? predictability)
         {
-            // ----------------------------
-            // 1. BASELINE (continuum-driven)
-            // ----------------------------
-            double baseline =
-                (size?.ContinuumValue ?? 0.5) * 0.2 +
-                (age?.ContinuumValue ?? 0.5) * 0.3 +
-                (volatility?.ContinuumValue ?? 0.5) * 0.3 +
-                (prioritisation?.ContinuumValue ?? 0.5) * 0.2;
+            var weightedSignals = new[]
+            {
+                (Value: size?.ContinuumValue, Weight: 0.10, Available: IsAvailable(size, "sizeDataAvailable")),
+                (Value: age?.ContinuumValue, Weight: 0.20, Available: IsAvailable(age, "ageDataAvailable")),
+                (Value: volatility?.ContinuumValue, Weight: 0.25, Available: IsAvailable(volatility, "volatilityDataAvailable")),
+                (Value: prioritisation?.ContinuumValue, Weight: 0.15, Available: IsAvailable(prioritisation, "prioritisationDataAvailable")),
+                (Value: (double?)predictability?.NormalisedValue, Weight: 0.30, Available: HasPredictabilityData(predictability))
+            };
 
-            // ----------------------------
-            // 2. INSIGHT MODIFIER
-            // ----------------------------
-            var risk = insights
-                .Where(i => i.Category == "Risk")
-                .Sum(i => i.Score);
-
-            var positive = insights
-                .Where(i => i.Category == "Positive")
-                .Sum(i => i.Score);
-
-            var constraint = insights
-                .Where(i => i.Category == "Constraint")
-                .Sum(i => i.Score);
-
-            double modifier = (risk * 0.6 + constraint * 0.4) - positive;
-
-            double adjusted = baseline + (modifier / 20.0);
-
-            adjusted = Math.Clamp(adjusted, 0, 1);
-
-            // ----------------------------
-            // 3. PREDICTABILITY OVERRIDE
-            // ----------------------------
-            var predictabilityValue = predictability?.NormalisedValue ?? 0;
-
-            if (predictabilityValue > 0.9)
+            var availableSignals = weightedSignals.Where(item => item.Available).ToList();
+            if (availableSignals.Count == 0)
             {
                 return new SystemHealth
                 {
-                    Position = 1.0,
-                    State = "Unhealthy"
+                    Position = 0.5,
+                    State = "Insufficient Data"
                 };
             }
 
-            // soft influence
-            adjusted += predictabilityValue * 0.2;
-            adjusted = Math.Clamp(adjusted, 0, 1);
+            double availableWeight = availableSignals.Sum(item => item.Weight);
+            double position = Math.Clamp(
+                availableSignals.Sum(item => item.Value!.Value * item.Weight) / availableWeight,
+                0,
+                1);
+            position = Math.Round(position, 12);
 
-            // ----------------------------
-            // 4. STATE MAPPING
-            // ----------------------------
             string state =
-                adjusted < 0.4 ? "Healthy" :
-                adjusted < 0.7 ? "Needs Attention" :
-                "Unhealthy";
+                position < 0.4 ? "Unhealthy" :
+                position < 0.7 ? "Needs Attention" :
+                "Healthy";
 
             return new SystemHealth
             {
-                Position = adjusted,
+                Position = position,
                 State = state
             };
         }
+
+        private static bool IsAvailable(Signal? signal, string metadataKey) =>
+            signal?.ContinuumValue.HasValue == true &&
+            signal?.Metadata?.TryGetValue(metadataKey, out var value) == true &&
+            value is true;
+
+        private static bool HasPredictabilityData(Signal? signal) =>
+            signal?.Metadata?.TryGetValue("predictabilityDataAvailable", out var availableValue) == true &&
+            availableValue is true &&
+            signal.Metadata.TryGetValue("historyLength", out var historyValue) &&
+            historyValue is int historyLength &&
+            historyLength >= 2 &&
+            signal.Metadata.TryGetValue("averageThroughput", out var averageValue) &&
+            averageValue is double averageThroughput &&
+            averageThroughput > 0;
     }
 }

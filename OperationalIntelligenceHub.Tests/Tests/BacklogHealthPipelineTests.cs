@@ -16,7 +16,7 @@ public class BacklogHealthPipelineTests
     }
 
     [Fact]
-    public async Task HighPredictability_ShouldTriggerDeliveryInstabilityHigh()
+    public async Task LowDeliveryPredictability_ShouldTriggerDeliveryInstabilityHigh()
     {
         // Arrange
         var repo = new TestRuleRepositoryService();
@@ -31,7 +31,7 @@ public class BacklogHealthPipelineTests
             {
                 new RuleCondition
                 {
-                    Condition = "BacklogPredictability > 0.6",
+                    Condition = "DeliveryPredictability < 0.4",
                     Result = "High"
                 }
             },
@@ -44,8 +44,8 @@ public class BacklogHealthPipelineTests
         {
             new Signal
             {
-                Name = "BacklogPredictability",
-                NormalisedValue = 0.8
+                Name = "DeliveryPredictability",
+                NormalisedValue = 0.2
             }
         };
 
@@ -316,4 +316,3 @@ public class BacklogHealthPipelineTests
         );
     }
 }
-

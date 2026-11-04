@@ -111,8 +111,7 @@ namespace OperationalIntelligenceHub.Services
                 age,
                 volatility,
                 prioritisation,
-                predictability,
-                insights
+                predictability
             );
 
             return (behaviourSignals, systemSignals, insights, allEvaluations, health);

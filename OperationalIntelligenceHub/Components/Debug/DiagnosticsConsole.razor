@@ -86,7 +86,7 @@
 
                         <div class="card stack">
                             <div class="grid grid-4" @onclick="() => ToggleItem(itemKey)" style="cursor:pointer">
-                                <span>@signal.Name</span>
+                                <span>@GetSignalDisplayName(signal.Name)</span>
                                 <span>@signal.NormalisedValue.ToString("0.00")</span>
                                 <span>@signal.RawValue.ToString("0.00")</span>
                                 <span>@GetItemMarker(itemKey)</span>
@@ -477,6 +477,9 @@
     private string GetItemMarker(string key) => IsItemExpanded(key) ? "v" : ">";
 
     private static string GetItemKey(string section, string name) => $"{section}:{name}";
+
+    private static string GetSignalDisplayName(string signalName) =>
+        signalName == "DeliveryPredictability" ? "Predictability" : signalName;
 
     private SignalTrace? GetTraceFor(string signalName)
     {

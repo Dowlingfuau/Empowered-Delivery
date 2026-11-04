@@ -9,17 +9,19 @@ namespace OperationalIntelligenceHub.Services
         public (List<Signal> Signals, List<SignalTrace> SignalTraces) BuildSignals(
             Guid workspaceId,
             Guid squadId,
-            int totalItems,
+            int? totalItems,
             int itemsAdded,
             int itemsCompleted,
             List<int> throughputHistory,
-            int freshItems,
-            int midAgeItems,
-            int oldItems,
+            int? freshItems,
+            int? midAgeItems,
+            int? oldItems,
             int highPriority,
             int mediumPriority,
             int lowPriority,
-            int unprioritisedItems
+            int unprioritisedItems,
+            int matchedVolatilityPeriodCount,
+            bool prioritisationDataAvailable
         )
         {
             var signals = new List<Signal>();
@@ -30,7 +32,8 @@ namespace OperationalIntelligenceHub.Services
             // ================================
 
             double avgThroughput = throughputHistory.Any() ? throughputHistory.Average() : 0;
-            double weeksofWork = avgThroughput == 0 ? 0 : totalItems / avgThroughput;
+            bool hasBacklogSizeData = avgThroughput > 0 && totalItems.HasValue;
+            double weeksofWork = hasBacklogSizeData ? totalItems.GetValueOrDefault() / avgThroughput : 0;
 
             // Normalised score
             double sizeNormalised =
@@ -49,7 +52,11 @@ namespace OperationalIntelligenceHub.Services
             double sizeMagnitude = Math.Abs(weeksofWork - centre);
 
             double sizeContinuumValue;
-            if (weeksofWork <= centre)
+            if (!hasBacklogSizeData)
+            {
+                sizeContinuumValue = 0.5;
+            }
+            else if (weeksofWork <= centre)
             {
                 // LEFT side (0 - 5)
                 double leftMax = centre;
@@ -64,7 +71,9 @@ namespace OperationalIntelligenceHub.Services
 
             // Direction
             int sizeDirection;
-            if (weeksofWork < centre)
+            if (!hasBacklogSizeData)
+                sizeDirection = 0;
+            else if (weeksofWork < centre)
                 sizeDirection = -1;
             else if (weeksofWork > centre)
                 sizeDirection = 1;
@@ -79,10 +88,12 @@ namespace OperationalIntelligenceHub.Services
             sizeSignal.Direction = sizeDirection;
             sizeSignal.Metadata = new Dictionary<string, object>
             {
+                { "sizeDataAvailable", hasBacklogSizeData },
                 { "weeksofWork", weeksofWork},
-                { "averageThroughput", avgThroughput },
-                { "totalItems", totalItems }
+                { "averageThroughput", avgThroughput }
             };
+            if (totalItems.HasValue)
+                sizeSignal.Metadata.Add("totalItems", totalItems.Value);
 
             signals.Add(sizeSignal);
             signalTraces.Add(new SignalTrace
@@ -126,24 +137,53 @@ namespace OperationalIntelligenceHub.Services
             // BACKLOG AGE
             // ================================
 
-            int totalAgeItems = freshItems + midAgeItems + oldItems;
+            bool hasCompleteAgeDistribution =
+                freshItems.HasValue && midAgeItems.HasValue && oldItems.HasValue;
+            int freshCount = freshItems ?? 0;
+            int midAgeCount = midAgeItems ?? 0;
+            int oldCount = oldItems ?? 0;
+            int? totalAgeItems = hasCompleteAgeDistribution
+                ? freshCount + midAgeCount + oldCount
+                : null;
 
             double freshPercent = 0;
             double midPercent = 0;
             double oldPercent = 0;
             
-            //Avoid divide by zero
-            if (totalAgeItems == 0)
+            if (!totalAgeItems.HasValue || totalAgeItems.Value == 0)
             {
                 var neutral = CreateSignal("BacklogAge", "Flow", 0.5, 0.5);
                 neutral.Shape = "Symmetric";
+                neutral.ContinuumValue = 0.5;
+                neutral.Metadata = new Dictionary<string, object>
+                {
+                    { "ageDataAvailable", false }
+                };
                 signals.Add(neutral);
+                signalTraces.Add(new SignalTrace
+                {
+                    SignalName = "BacklogAge",
+                    WorkspaceId = workspaceId,
+                    SquadId = squadId,
+                    Inputs = new List<TraceInput>
+                    {
+                        new TraceInput { Name = "FreshItems", Value = freshItems, Source = "BacklogInput" },
+                        new TraceInput { Name = "MidAgeItems", Value = midAgeItems, Source = "BacklogInput" },
+                        new TraceInput { Name = "OldItems", Value = oldItems, Source = "BacklogInput" },
+                        new TraceInput { Name = "TotalAgeItems", Value = totalAgeItems, Source = "Calculation" }
+                    },
+                    CalculationSteps = new List<CalculationStep>
+                    {
+                        new CalculationStep { StepName = "AgeDataAvailable", Description = "A complete, non-empty age distribution is required", Value = false }
+                    }
+                });
             }
             else
             {
-                freshPercent = (double)freshItems / totalAgeItems;
-                midPercent = (double)midAgeItems / totalAgeItems;
-                oldPercent = (double)oldItems / totalAgeItems; 
+                int ageItemTotal = totalAgeItems.Value;
+                freshPercent = (double)freshCount / ageItemTotal;
+                midPercent = (double)midAgeCount / ageItemTotal;
+                oldPercent = (double)oldCount / ageItemTotal;
 
             // Calculate Score
             // Actual distribution
@@ -225,6 +265,7 @@ namespace OperationalIntelligenceHub.Services
             ageSignal.ContinuumValue = ageContinuumValue;
             ageSignal.Metadata = new Dictionary<string, object>
             {
+                { "ageDataAvailable", true },
                 { "freshPercent", freshPercent },
                 { "midPercent", midPercent },
                 { "oldPercent", oldPercent },
@@ -303,26 +344,27 @@ namespace OperationalIntelligenceHub.Services
             int volatilityDirection =
                 itemsAdded == itemsCompleted ? 0 :
                 itemsAdded > itemsCompleted ? 1 : -1;
-            // Relative delta (sclae-aware)
-            double relativeDelta = 0;
-
-            if (totalItems >0)
-            {
-                relativeDelta = (double)(itemsAdded - itemsCompleted) / totalItems;
-            }
+            int netChange = itemsAdded - itemsCompleted;
+            int? startingBacklog = totalItems.HasValue
+                ? totalItems.Value - netChange
+                : null;
+            double? relativeDelta = startingBacklog.HasValue && startingBacklog.Value > 0
+                ? (double)netChange / startingBacklog.Value
+                : null;
             // Continuum (UX only - magnitude of change vs backlog size)
             double volatilityContinuumValue;
-            //Handle empty backlog case
-            if (totalItems == 0)
+            if (matchedVolatilityPeriodCount == 0 || !totalItems.HasValue)
             {
-                volatilityContinuumValue = itemsAdded > 0 ? 0.0 : 1.0;
+                volatilityContinuumValue = 0.5;
+            }
+            else if (relativeDelta.HasValue)
+            {
+                double normalisedMagnitude = Math.Min(Math.Abs(relativeDelta.Value), 1.0);
+                volatilityContinuumValue = 1 - normalisedMagnitude;
             }
             else
             {
-                double volatilityMagnitude = Math.Abs(relativeDelta);
-                double maxExpectedChange = 1.0; // 100% change = extreme
-                double normalisedMagnitude = Math.Min(volatilityMagnitude / maxExpectedChange, 1.0);
-                volatilityContinuumValue = 1 - normalisedMagnitude;
+                volatilityContinuumValue = netChange == 0 ? 1.0 : 0.0;
             }
             // Activity (for flat detection)
 
@@ -337,13 +379,32 @@ namespace OperationalIntelligenceHub.Services
             volatilitySignal.Direction = volatilityDirection;
             volatilitySignal.Metadata = new Dictionary<string, object>
             {
-                { "relativeDelta", relativeDelta },
+                { "volatilityDataAvailable", matchedVolatilityPeriodCount > 0 },
+                { "matchedPeriodCount", matchedVolatilityPeriodCount },
+                { "netChange", netChange },
                 { "pattern", pattern },
                 { "ratio", ratio },
                 { "balanceScore", balanceRatio },
                 { "itemsAdded", itemsAdded },
                 { "itemsCompleted", itemsCompleted }
             };
+            if (startingBacklog.HasValue)
+                volatilitySignal.Metadata.Add("startingBacklog", startingBacklog.Value);
+            if (relativeDelta.HasValue)
+            {
+                volatilitySignal.Metadata.Add("relativeDelta", relativeDelta.Value);
+                volatilitySignal.Metadata.Add("percentageChange", relativeDelta.Value);
+            }
+            else
+            {
+                string unavailableReason = startingBacklog switch
+                {
+                    null => "Cannot calculate percentage change without the current backlog count.",
+                    0 => "Percentage change is undefined from a zero starting backlog.",
+                    _ => "The derived starting backlog is negative; check the inputs."
+                };
+                volatilitySignal.Metadata.Add("percentageChangeUnavailable", unavailableReason);
+            }
             
             signals.Add(volatilitySignal);
 
@@ -357,13 +418,18 @@ namespace OperationalIntelligenceHub.Services
                 {
                     new TraceInput { Name = "ItemsAdded", Value = itemsAdded, Source = "BacklogInput" },
                     new TraceInput { Name = "ItemsCompleted", Value = itemsCompleted, Source = "BacklogInput" },
-                    new TraceInput { Name = "TotalItems", Value = totalItems, Source = "BacklogInput" }
+                    new TraceInput { Name = "TotalItems", Value = totalItems, Source = "BacklogInput" },
+                    new TraceInput { Name = "StartingBacklog", Value = startingBacklog, Source = "Calculation" },
+                    new TraceInput { Name = "MatchedPeriodCount", Value = matchedVolatilityPeriodCount, Source = "BacklogInput" }
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
+                    new CalculationStep { StepName = "MatchedPeriods", Description = "Added and completed counts are compared only for periods with both values", Value = matchedVolatilityPeriodCount },
                     new CalculationStep { StepName = "Ratio", Description = "Items added divided by items completed", Value = ratio },
                     new CalculationStep { StepName = "BalanceRatio", Description = "Symmetric balance score (0-1)", Value = balanceRatio },
-                    new CalculationStep { StepName = "RelativeDelta", Description = "Relative change scaled by backlog size", Value = relativeDelta },
+                    new CalculationStep { StepName = "NetChange", Description = "Items added minus items completed", Value = netChange },
+                    new CalculationStep { StepName = "StartingBacklog", Description = "Current backlog minus net change", Value = startingBacklog },
+                    new CalculationStep { StepName = "PercentageChange", Description = "Net change divided by starting backlog", Value = relativeDelta },
                     new CalculationStep { StepName = "VolatilityContinuum", Description = "Continuum value for volatility UX", Value = volatilityContinuumValue },
                     new CalculationStep { StepName = "Pattern", Description = "Detected pattern", Value = pattern }
                 }
@@ -378,7 +444,7 @@ namespace OperationalIntelligenceHub.Services
 
             int prioritisedTotal = highPriority + mediumPriority + lowPriority;
             // derive unprioritised from totalItems
-            int derivedUnprioritised = Math.Max(0, totalItems - prioritisedTotal);
+            int derivedUnprioritised = Math.Max(0, (totalItems ?? 0) - prioritisedTotal);
             // recompute total safely
             int totalPriorityItems = prioritisedTotal + derivedUnprioritised;
             // percentages
@@ -414,7 +480,12 @@ namespace OperationalIntelligenceHub.Services
             prioritisationContinuumValue = Math.Max(0, Math.Min(1, prioritisationContinuumValue));
             // Direction
             int prioritisationDirection;
-            if (unprioritisedPercent > 0.2)
+            if (!prioritisationDataAvailable || !totalItems.HasValue || totalItems.Value == 0)
+            {
+                prioritisationContinuumValue = 0.5;
+                prioritisationDirection = 0;
+            }
+            else if (unprioritisedPercent > 0.2)
             {
                 prioritisationDirection = -1; // no priorities
             }
@@ -429,6 +500,7 @@ namespace OperationalIntelligenceHub.Services
             prioritisationSignal.Direction = prioritisationDirection;
             prioritisationSignal.Metadata = new Dictionary<string, object>
             {
+                { "prioritisationDataAvailable", prioritisationDataAvailable && totalItems.HasValue && totalItems.Value > 0 },
                 { "highPercent", highPercent },
                 { "mediumPercent", mediumPercent },
                 { "lowPercent", lowPercent },
@@ -472,18 +544,20 @@ namespace OperationalIntelligenceHub.Services
             double stdDev = 0;
             double variance = 0;
 
-            if (throughputHistory.Any() && avg > 0)
+            if (throughputHistory.Count >= 2 && avg > 0)
             {
                 variance = throughputHistory.Sum(v => Math.Pow(v - avg, 2)) / throughputHistory.Count;
                 stdDev = Math.Sqrt(variance);
             }
 
             double cv = avg == 0 ? 1 : stdDev / avg;
-            double predictability = avg == 0 ? 0 : Math.Max(0, 1 - cv);
+            bool hasPredictabilityData = throughputHistory.Count >= 2 && avg > 0;
+            double predictability = !hasPredictabilityData ? 0.5 : Math.Max(0, 1 - cv);
 
             var predictabilitySignal = CreateSignal("DeliveryPredictability", "Flow", cv, predictability);
             predictabilitySignal.Metadata = new Dictionary<string, object>
             {
+                { "predictabilityDataAvailable", hasPredictabilityData },
                 { "averageThroughput", avg},
                 { "standardDeviation", stdDev },
                 { "coefficientOfVariation", cv },
@@ -494,7 +568,7 @@ namespace OperationalIntelligenceHub.Services
 
             // Build trace for Predictability
             var predictabilityCalculationSteps = new List<CalculationStep>();
-            if (throughputHistory.Any() && avg > 0)
+            if (throughputHistory.Count >= 2 && avg > 0)
             {
                 predictabilityCalculationSteps.Add(new CalculationStep
                 {
@@ -527,7 +601,7 @@ namespace OperationalIntelligenceHub.Services
 
             signalTraces.Add(new SignalTrace
             {
-                SignalName = "Predictability",
+                SignalName = "DeliveryPredictability",
                 WorkspaceId = workspaceId,
                 SquadId = squadId,
                 Inputs = new List<TraceInput>

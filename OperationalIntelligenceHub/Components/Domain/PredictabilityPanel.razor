@@ -20,10 +20,13 @@
                 <span>Delivery predictability</span>
                 <strong>@Headline</strong>
             </div>
-            <div>
-                <span>Delivery rhythm</span>
-                <strong>@Rhythm</strong>
-            </div>
+            @if (HasPatternData)
+            {
+                <div>
+                    <span>Delivery pattern</span>
+                    <strong>@Rhythm</strong>
+                </div>
+            }
         </div>
 
         @if (!string.IsNullOrWhiteSpace(Evidence))
@@ -32,18 +35,21 @@
         }
 
         <figure class="predictability-throughput" aria-labelledby="predictability-throughput-title">
-            <figcaption id="predictability-throughput-title">Throughput sequence</figcaption>
+            <figcaption id="predictability-throughput-title">Completed items by period</figcaption>
             <ol>
                 @for (var index = 0; index < Throughput.Count; index++)
                 {
                     var value = Throughput[index];
                     <li>
-                        <strong class="predictability-value">@value</strong>
+                    <strong class="predictability-value">@(value?.ToString() ?? "—")</strong>
                         <span class="predictability-track" aria-hidden="true">
-                            <span class="predictability-bar" style="@($"height:{BarHeight(value)}%")"></span>
-                        </span>
-                        <span class="predictability-period">Sprint -@(index + 1)</span>
-                    </li>
+                        @if (value.HasValue)
+                        {
+                            <span class="predictability-bar" style="@($"height:{BarHeight(value.Value)}%")"></span>
+                        }
+                    </span>
+                    <span class="predictability-period">@PeriodLabels[index]</span>
+                </li>
                 }
             </ol>
         </figure>
@@ -60,7 +66,7 @@
     }
     else
     {
-        <p class="predictability-empty">Enter throughput data to assess delivery predictability and its pattern.</p>
+        <p class="predictability-empty">Enter completed-item counts to assess delivery variation and identify patterns.</p>
     }
 
     @Insights
@@ -73,11 +79,18 @@
     [Parameter] public string Rhythm { get; set; } = string.Empty;
     [Parameter] public string Evidence { get; set; } = string.Empty;
     [Parameter] public string Impact { get; set; } = string.Empty;
-    [Parameter] public List<int> Throughput { get; set; } = new();
+    [Parameter] public List<int?> Throughput { get; set; } = new();
     [Parameter] public SignalTrace? Trace { get; set; }
     [Parameter] public RenderFragment? Insights { get; set; }
 
-    private int Maximum => Throughput.Count == 0 ? 0 : Throughput.Max();
+    private static readonly string[] PeriodLabels =
+    {
+        "Under 2 weeks",
+        "2–4 weeks",
+        "Over 4 weeks"
+    };
+    private bool HasPatternData => Throughput.Count(value => value.HasValue) >= 3;
+    private int Maximum => Throughput.Where(value => value.HasValue).Select(value => value.GetValueOrDefault()).DefaultIfEmpty().Max();
 
     private double BarHeight(int value) =>
         Maximum == 0 ? 0 : Math.Clamp(value / (double)Maximum * 100, 0, 100);

@@ -132,8 +132,8 @@
                          Rhythm="@GetPattern()"
                          Evidence="@PredictabilityLabel"
                          Impact="@GetPredictabilityImpact()"
-                         Throughput="@ThroughputHistory"
-                         Trace="@SignalTraces.FirstOrDefault(t => t.SignalName == "Predictability")">
+                         Throughput="@ThroughputSequence"
+                         Trace="@SignalTraces.FirstOrDefault(t => t.SignalName == "DeliveryPredictability")">
         <Insights>
             <ContextualInsightGroup Placements="@PlacementsFor("predictability")"
                                     AreaLabel="Predictability"
@@ -190,20 +190,23 @@
     }
     private void RefreshSignals()
     {
+        var matchedVolatilityPeriods = MatchedVolatilityPeriods;
         var result = SignalBuilder.BuildSignals(
             WorkspaceRepository.ActiveWorkspaceId ?? Guid.Empty,
             string.IsNullOrEmpty(SelectedSquad) ? Guid.Empty : Guid.Parse(SelectedSquad),
-            TotalItems ?? 0,
-            (Added1 ?? 0) + (Added2 ?? 0) + (Added3 ?? 0),
-            ThroughputHistory.Sum(),
+            TotalItems,
+            matchedVolatilityPeriods.Sum(period => period.Added),
+            matchedVolatilityPeriods.Sum(period => period.Completed),
             ThroughputHistory,
-            FreshItems ?? 0,
-            MidAgeItems ?? 0,
-            OldItems ?? 0,
+            FreshItems,
+            MidAgeItems,
+            OldItems,
             HighPriority ?? 0,
             MediumPriority ?? 0,
             LowPriority ?? 0,
-            0 // TODO: Unprioritised (not yet in UI)
+            0, // TODO: Unprioritised (not yet in UI)
+            matchedVolatilityPeriods.Count,
+            HasPrioritisationData
         );
 
         Signals = result.Item1;
@@ -248,20 +251,20 @@
             Id = "size",
             Title = "Backlog Size",
             Explanation = "Backlog Size reflects how much work exists relative to delivery capacity. Too little work can interrupt flow. Too much work creates drag and delays feedback.",
-            Available = BacklogSizeSignal != null && HasAnyData,
-            Value = HasAnyData ? BacklogSizeSignal?.ContinuumValue ?? 0.5 : 0.5,
+            Available = BacklogSizeAvailable,
+            Value = BacklogSizeSignal?.ContinuumValue ?? 0.5,
             Label = SizeLabel,
-            Direction = HasAnyData ? BacklogSizeSignal?.Direction ?? 0 : 0,
+            Direction = BacklogSizeSignal?.Direction ?? 0,
             Zones = new List<string> { "Starvation", "", "Overload" },
             EvidenceTitle = "Backlog and throughput",
             Evidence = new()
             {
                 new("Backlog", Input(TotalItems)),
-                new("Throughput · Sprint -1", Input(Velocity1)),
-                new("Throughput · Sprint -2", Input(Velocity2)),
-                new("Throughput · Sprint -3", Input(Velocity3))
+                new("Throughput · Under 2 weeks", Input(Velocity1)),
+                new("Throughput · 2–4 weeks", Input(Velocity2)),
+                new("Throughput · Over 4 weeks", Input(Velocity3))
             },
-            Interpretation = BacklogSizeSignal == null ? string.Empty : BacklogSizeSignal.Direction switch
+            Interpretation = !BacklogSizeAvailable ? string.Empty : BacklogSizeSignal!.Direction switch
             {
                 < 0 => $"At {FirstLine(SizeLabel)}, the current backlog size reading sits toward the starvation side of the continuum.",
                 > 0 => $"At {FirstLine(SizeLabel)}, the current backlog size reading sits toward the overload side of the continuum.",
@@ -274,7 +277,7 @@
             Id = "age",
             Title = "Backlog Age",
             Explanation = "Backlog Age reflects how mature and maintained backlog items are over time. Very new work may lack sufficient understanding, while older work may lose relevance if not actively maintained.",
-            Available = AgeSignal != null && AgeLabel != "No age data",
+            Available = AgeSignal != null && AgeDataComplete && AgeLabel != "No age data",
             Value = AgeSignal?.ContinuumValue ?? AgeSignal?.NormalisedValue ?? 0.5,
             Label = AgeLabel,
             Direction = AgeSignal?.Direction ?? 0,
@@ -286,7 +289,7 @@
                 new("Mid-age", Input(MidAgeItems)),
                 new("Old", Input(OldItems))
             },
-            Interpretation = FirstLine(AgeLabel),
+            Interpretation = AgeDataComplete && AgeLabel != "No age data" ? FirstLine(AgeLabel) : string.Empty,
             Trace = TraceFor("BacklogAge")
         },
         new()
@@ -294,20 +297,20 @@
             Id = "volatility",
             Title = "Backlog Volatility",
             Explanation = "Backlog Volatility reflects how the size of the backlog changes over time. A growing backlog means work is entering faster than it is being completed. A shrinking backlog means work is being completed faster than it is entering.",
-            Available = VolatilitySignal != null && HasAnyData,
+            Available = VolatilitySignal != null && HasVolatilityData,
             Value = VolatilitySignal?.ContinuumValue ?? VolatilitySignal?.NormalisedValue ?? 0.5,
             Label = VolatilityLabel,
             Direction = VolatilitySignal?.Direction ?? 0,
             Zones = new List<string> { "Shrinking", "", "Growing" },
-            EvidenceTitle = "Items added and completed",
+            EvidenceTitle = "Work added and completed",
             Evidence = new()
             {
-                new("Added · <2w", Input(Added1)),
-                new("Added · 2–4w", Input(Added2)),
-                new("Added · >4w", Input(Added3)),
-                new("Throughput · Sprint -1", Input(Velocity1)),
-                new("Throughput · Sprint -2", Input(Velocity2)),
-                new("Throughput · Sprint -3", Input(Velocity3))
+                new("Added · Under 2 weeks", Input(Added1)),
+                new("Added · 2–4 weeks", Input(Added2)),
+                new("Added · Over 4 weeks", Input(Added3)),
+                new("Completed · Under 2 weeks", Input(Velocity1)),
+                new("Completed · 2–4 weeks", Input(Velocity2)),
+                new("Completed · Over 4 weeks", Input(Velocity3))
             },
             Interpretation = FirstLine(VolatilityLabel),
             Trace = TraceFor("BacklogVolatility")
@@ -317,7 +320,7 @@
             Id = "priority",
             Title = "Prioritisation Clarity",
             Explanation = "Prioritisation reflects how clearly work is ordered and differentiated within the backlog. When work is not prioritised, it may be unclear what should be worked on next. When everything is prioritised similarly, prioritisation loses meaning and does not guide decisions.",
-            Available = PrioritisationSignal != null && PriorityLabel != "-",
+            Available = PrioritisationSignal != null && HasPrioritisationData,
             Value = PrioritisationSignal?.ContinuumValue ?? 0.5,
             Label = PriorityLabel,
             Direction = PrioritisationSignal?.Direction ?? 0,
@@ -355,8 +358,20 @@
             return list;
         }
     }
+    List<int?> ThroughputSequence => new() { Velocity1, Velocity2, Velocity3 };
+    List<(int Added, int Completed)> MatchedVolatilityPeriods =>
+        new[] { (Added: Added1, Completed: Velocity1), (Added: Added2, Completed: Velocity2), (Added: Added3, Completed: Velocity3) }
+            .Where(period => period.Added.HasValue && period.Completed.HasValue)
+            .Select(period => (period.Added.GetValueOrDefault(), period.Completed.GetValueOrDefault()))
+            .ToList();
+    bool HasVolatilityData => MatchedVolatilityPeriods.Count > 0;
+    bool HasPrioritisationData =>
+        TotalItems.HasValue && TotalItems.Value > 0 &&
+        HighPriority.HasValue && MediumPriority.HasValue && LowPriority.HasValue;
     bool HasAnyData => TotalItems.HasValue || Added1.HasValue || Added2.HasValue || Added3.HasValue || FreshItems.HasValue || MidAgeItems.HasValue ||
     OldItems.HasValue || HighPriority.HasValue || MediumPriority.HasValue || LowPriority.HasValue || Velocity1.HasValue || Velocity2.HasValue || Velocity3.HasValue;
+    bool AgeDataComplete => FreshItems.HasValue && MidAgeItems.HasValue && OldItems.HasValue;
+    bool BacklogSizeAvailable => BacklogSizeSignal != null && TotalItems.HasValue && AverageThroughput > 0;
     Signal? BacklogSizeSignal => Signals.FirstOrDefault(s => s.Name == "BacklogSize");
     Signal? PredictabilitySignal => Signals.FirstOrDefault(s => s.Name == "DeliveryPredictability");
     Signal? VolatilitySignal => Signals.FirstOrDefault(s => s.Name == "BacklogVolatility");
@@ -398,6 +413,12 @@
             if (BacklogSizeSignal == null)
                 return "-";
 
+            if (!TotalItems.HasValue)
+                return "Enter the current backlog count";
+
+            if (AverageThroughput <= 0)
+                return "Enter positive throughput";
+
             double weeks = BacklogSizeSignal.RawValue;
             double avgThroughput = ThroughputHistory.Any() ? ThroughputHistory.Average() : 0;
 
@@ -405,7 +426,7 @@
             string workHorizon = $"{weeks:F1} weeks of work";
             // Line 2: WHAT
             string context = avgThroughput > 0
-                ? $"{TotalItems ?? 0} items | {avgThroughput:F1}/2 weeks"
+                ? $"{TotalItems ?? 0} items | {avgThroughput:F1} items per entered period"
                 : $"{TotalItems ?? 0} items";
 
             return $"{workHorizon}\n{context}";
@@ -420,8 +441,12 @@
             if (AgeSignal == null)
                 return "-";
             
-            if (!FreshItems.HasValue && !MidAgeItems.HasValue && !OldItems.HasValue)
-                return "No age data";
+            if (!AgeDataComplete)
+            {
+                return FreshItems.HasValue || MidAgeItems.HasValue || OldItems.HasValue
+                    ? "Incomplete age data"
+                    : "No age data";
+            }
 
             int fresh = FreshItems.GetValueOrDefault(0);
             int mid = MidAgeItems.GetValueOrDefault(0);
@@ -438,12 +463,12 @@
 
             string interpretation = AgeSignal.Shape switch
             {
-                "SkewLeft" => "Work is being created too early",
-                "SkewRight" => "Work is aging before delivery",
-                "Bimodal" => "Work is split between very new and very old",
-                "BimodalLeft" => "Work is clustered early with aging spillover",
-                "BimodalRight" => "Work is aging with some new inflow",
-                _ => "Work is flowing evenly"
+                "SkewLeft" => "Age profile is fresh-heavy",
+                "SkewRight" => "Age profile is old-heavy",
+                "Bimodal" => "Age profile is bimodal",
+                "BimodalLeft" => "Age profile is bimodal with a fresh skew",
+                "BimodalRight" => "Age profile is bimodal with an old skew",
+                _ => "Age profile is balanced"
             };
             return $"{interpretation}\n({freshPct:P0} fresh | {midPct:P0} mid | {oldPct:P0} old)";
         }
@@ -454,38 +479,57 @@
     {
         get
         {
-            if (VolatilitySignal == null)
+            var signal = VolatilitySignal;
+            if (signal == null)
                 return "-";
 
-            int totalAdded = (Added1 ?? 0) + (Added2 ?? 0) + (Added3 ?? 0);
-            int totalCompleted = ThroughputHistory.Sum();
+            if (!HasVolatilityData)
+                return "Enter added and completed counts for at least one matching week range";
+
+            var matchedPeriods = MatchedVolatilityPeriods;
+            int totalAdded = matchedPeriods.Sum(period => period.Added);
+            int totalCompleted = matchedPeriods.Sum(period => period.Completed);
 
             int net = totalAdded - totalCompleted;
 
-            if (!TotalItems.HasValue || TotalItems.Value == 0)
-                return $"{net:+#;-#;0} items";
+            double? pct = null;
+            string? percentageUnavailableReason = null;
+            if (signal.Metadata?.TryGetValue("percentageChange", out var percentageValue) == true &&
+                percentageValue is double percentage)
+            {
+                pct = percentage;
+            }
+            else if (signal.Metadata?.TryGetValue("percentageChangeUnavailable", out var unavailableValue) == true)
+            {
+                percentageUnavailableReason = unavailableValue?.ToString();
+            }
 
-            double pct = (double)net / TotalItems.Value;
-            // SO WHAT
             string interpretation;
-            if (Math.Abs(pct) < 0.05)
+            if (!pct.HasValue)
+            {
+                interpretation = net == 0
+                    ? "Backlog is unchanged"
+                    : net > 0 ? "Backlog is growing" : "Backlog is shrinking";
+            }
+            else if (Math.Abs(pct.Value) < 0.05)
             {
                 interpretation = "Backlog is stable";
             }
-            else if (pct > 0)
+            else if (pct.Value > 0)
             {
-                interpretation = pct > 0.3
+                interpretation = pct.Value > 0.3
                     ? "Backlog is growing rapidly"
                     : "Backlog is growing steadily";
             }
             else
             {
-                interpretation = pct < -0.3
+                interpretation = pct.Value < -0.3
                     ? "Backlog is shrinking rapidly"
                     : "Backlog is shrinking";
             }
-            // WHAT (Raw Data)
-            string raw = $"Net {net:+#;-#;0} items ({pct:+0%;-0%;0%} change) over time";
+            string raw = pct.HasValue
+                ? $"Net {net:+#;-#;0} items ({pct.Value:+0%;-0%;0%} change) over time"
+                : $"Net {net:+#;-#;0} items (percentage change unavailable: {percentageUnavailableReason ?? "starting backlog is zero"})";
 
             return $"{interpretation}\n{raw}";
         }
@@ -495,7 +539,10 @@
     string PriorityLabel {
         get
         {
-            if (PrioritisationSignal == null || !TotalItems.HasValue || TotalItems.Value == 0)
+            if (!HasPrioritisationData)
+                return TotalItems.HasValue ? "Enter high, medium, and low priority counts" : "-";
+
+            if (PrioritisationSignal == null || TotalItems!.Value == 0)
                 return "-";
 
             int prioritisedTotal = (HighPriority ?? 0) + (MediumPriority ?? 0) + (LowPriority ?? 0);
@@ -553,6 +600,12 @@
     // Headline
     string GetPredictabilityHeadline()
     {
+        if (ThroughputHistory.Count < 2)
+            return "Not enough observations to assess variation";
+
+        if (AverageThroughput <= 0)
+            return "Throughput variation is unavailable";
+
         if (CV < 0.2)
             return "Delivery output is predictable";
 
@@ -568,6 +621,12 @@
     // Predictability Impact
     string GetPredictabilityImpact()
     {
+        if (ThroughputHistory.Count < 2)
+            return "Enter at least two throughput observations to measure delivery variation.";
+
+        if (AverageThroughput <= 0)
+            return "Enter positive throughput observations to measure delivery variation.";
+
         if (CV < 0.2)
             return "Stable delivery increases confidence in backlog projections and planning.";
 
@@ -578,9 +637,13 @@
     }
 
     // Label
-    string PredictabilityLabel => PredictabilitySignal == null 
-    ? "-" 
-    : $"{AverageThroughput:F0} avg | ±{StandardDeviation:F1} variation | CV {CV:F2}";
+    string PredictabilityLabel => PredictabilitySignal == null
+        ? "-"
+        : ThroughputHistory.Count < 2
+            ? $"{ThroughputHistory.Count} observation | variation not available"
+            : AverageThroughput <= 0
+                ? "No positive throughput | variation not available"
+                : $"{AverageThroughput:F0} avg | ±{StandardDeviation:F1} variation | CV {CV:F2}";
 
     private string PredictabilityTooltipHtml =>
         "Predictability reflects how stable delivery is over time.\n" +
