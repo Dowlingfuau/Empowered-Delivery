@@ -37,6 +37,108 @@ main {
 }
 
 /* -----------------------------------------
+    DIAGNOSTIC SURFACE (Backlog Health)
+    Dark instrument surface: page shell, panels, grids
+----------------------------------------- */
+.backlog-health {
+    background: var(--diagnostic-surface);
+    flex: 1 0 auto;
+    padding-block: var(--space-lg) var(--space-xl);
+}
+
+.backlog-health-page {
+    display: grid;
+    gap: var(--space-lg);
+}
+
+.backlog-health-heading {
+    border-bottom: 1px solid var(--diagnostic-rule);
+    padding-bottom: var(--space-md);
+}
+
+.backlog-health-heading h1 {
+    color: var(--diagnostic-text);
+    font-family: var(--diagnostic-font-display);
+    font-size: clamp(38px, 4.2vw, 54px);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin: 0;
+}
+
+.backlog-health-heading p {
+    color: var(--diagnostic-text-muted);
+    margin: var(--space-xs) 0 0;
+}
+
+.backlog-section-label,
+.backlog-section-heading {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-sm);
+    text-transform: uppercase;
+}
+
+.backlog-panel {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    padding: var(--space-md) var(--space-lg);
+}
+
+.backlog-signals {
+    display: grid;
+    gap: var(--space-md);
+}
+
+/* Separate annotation layer: columns mirror the signal grid so each insight stays under its signal */
+.backlog-annotation-grid {
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.backlog-annotation-cell {
+    min-width: 0;
+    padding-inline: var(--space-lg);
+}
+
+.backlog-signal-grid {
+    background: var(--diagnostic-rule);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: hidden;
+}
+
+/* Narrow layouts reflow, so empty columns must not leave gaps */
+@media (max-width: 1100px) {
+    .backlog-annotation-cell:empty {
+        display: none;
+    }
+
+    .backlog-signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .backlog-panel {
+        padding: var(--space-md);
+    }
+}
+
+@media (max-width: 520px) {
+    .backlog-signal-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* -----------------------------------------
     SECTION (SYSTEM)
     Top-Level grouping of content blocks
 ----------------------------------------- */
@@ -44,18 +146,6 @@ main {
     position: relative;
     padding-top: var(--space-xl);
     padding-bottom: var(--space-xl);
-}
-.section-large {
-    padding-top: var(--space-xxl);
-    padding-bottom: var(--space-xxl);
-}
-.section-tight {
-    padding-top: var(--space-lg);
-    padding-bottom: var(--space-lg);
-}
-.section-break {
-    padding-top: calc(var(--space-xxl) * 2);
-    padding-bottom: calc(var(--space-xxl) * 2);
 }
 
 /* -----------------------------------------
@@ -72,12 +162,6 @@ main {
     margin-right: auto;
     padding-left: var(--space-sm); 
     padding-right: var(--space-sm);
-}
-.container-wide {
-    max-width: var(--container-wide);
-}
-.container-narrow {
-    max-width: var(--content-width);
 }
 /* Tablet Breakpoint 640px */
 @media (min-width: 640px) {
@@ -112,23 +196,8 @@ main {
     flex-direction: column;
     gap: var(--space-md);
 }
-.stack-xs {
-    gap: var(--space-xs);
-}
 .stack-sm {
     gap: var(--space-sm);
-}
-/* Structure Stack */
-.stack-lg {
-    gap: var(--space-lg);
-}
-/* Flow Stack */
-.stack-xl {
-    gap: var(--space-xl);
-}
-/* Focus Stack */
-.stack-xxl {
-    gap: var(--space-xxl);
 }
 
 /* -----------------------------------------
@@ -138,15 +207,6 @@ main {
 .group {
     padding: var(--space-md);
 }
-.group-sm {
-    padding: var(--space-sm);
-}
-.group-lg {
-    padding: var(--space-lg);
-}
-.group-xl {
-    padding: var(--space-xl);
-}
 
 /* -----------------------------------------
    FLOW (SYSTEM)
@@ -154,12 +214,6 @@ main {
 ----------------------------------------- */
 .flow > * + * {
     margin-top: var(--space-xl);
-}
-.flow-tight > * + * {
-    margin-top: var(--space-lg);
-}
-.flow-loose > * + * {
-    margin-top: var(--space-xxl);
 }
 
 /* -----------------------------------------
@@ -172,12 +226,6 @@ main {
 }
 .grid-auto {
     grid-template-columns: repeat(auto-fit, minmax(var(--grid-column-min), 1fr));
-}
-.grid-sm {
-    gap: var(--space-sm);
-}
-.grid-lg {
-    gap: var(--space-lg);
 }
 .grid-2 { 
     grid-template-columns: repeat(2, 1fr); 

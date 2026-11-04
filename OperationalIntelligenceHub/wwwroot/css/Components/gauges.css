@@ -20,10 +20,6 @@
     border-radius: var(--radius-medium) 0 0 var(--radius-medium);
     transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
 }
-.gauge-empty .gauge-fill {
-    width: 0% !important;
-    background: var(--color-border) !important;
-}
 /* Gauge Colors */
 .gauge-success { 
     background: var(--color-success); 
@@ -33,9 +29,6 @@
 }
 .gauge-danger { 
     background: var(--color-danger); 
-}
-.gauge-info { 
-    background: var(--color-info); 
 }
 /* Gauge Title */
 .gauge-title {
@@ -47,12 +40,6 @@
     font-size: var(--font-size-sm);
     margin-top: calc(var(--spacing-unit) * 0.5);
     color: var(--text-secondary);
-}
-.gauge-label-row {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--spacing-unit) * 0.75);
-    margin-bottom: calc(var(--spacing-unit) * 0.5);
 }
 /* Signal Context */
 .signal-context {
@@ -147,3 +134,71 @@
     margin-top: 4px;
     color: var(--text-secondary);
 }
+
+/* Continuum: instrument-style track on the diagnostic surface (Backlog Health) */
+.backlog-health .continuum-container {
+    padding: 0;
+}
+
+.backlog-health .continuum-title {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--space-sm);
+    text-transform: uppercase;
+}
+
+.backlog-health .continuum-bar {
+    height: 5px;
+    margin-top: var(--space-sm);
+}
+
+.backlog-health .continuum-track {
+    background: var(--diagnostic-track);
+    border-radius: 0;
+    box-shadow: none;
+    gap: 2px;
+    height: 5px;
+}
+
+.backlog-health .continuum-track::after,
+.backlog-health .continuum-centre-line {
+    display: none;
+}
+
+.backlog-health .continuum-segment {
+    background: var(--diagnostic-track-zone);
+}
+
+.backlog-health .continuum-segment.optimal {
+    background: var(--diagnostic-track-optimal);
+}
+
+.backlog-health .continuum-segment.active {
+    background: var(--diagnostic-accent-signal);
+}
+
+.backlog-health .continuum-marker {
+    background: var(--diagnostic-text);
+    border: 2px solid var(--diagnostic-surface);
+    border-radius: 0;
+    box-shadow: none;
+    height: 13px;
+    top: -4px;
+    width: 13px;
+}
+
+.backlog-health .continuum-labels {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    margin-top: var(--space-sm);
+}
+
+.backlog-health .continuum-label {
+    color: var(--diagnostic-text);
+    font-size: 14px;
+    margin-top: var(--space-xs);
+}
+

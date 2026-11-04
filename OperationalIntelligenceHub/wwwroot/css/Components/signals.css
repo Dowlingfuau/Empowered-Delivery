@@ -1,0 +1,491 @@
+/* =========================================
+   SIGNALS
+   Signal card, calculation details, predictability panel and signal deep dive.
+   Built on the --diagnostic-* tokens.
+========================================= */
+
+/* Signal card */
+.backlog-signal {
+    appearance: none;
+    background: var(--diagnostic-panel);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--diagnostic-text);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    font: inherit;
+    gap: var(--space-md);
+    height: 100%;
+    min-width: 0;
+    padding: var(--space-md) var(--space-lg);
+    text-align: left;
+    transition: background-color var(--motion-speed-fast);
+    width: 100%;
+}
+
+.backlog-signal:hover {
+    background: var(--diagnostic-panel-hover);
+}
+
+.backlog-signal.is-selected {
+    box-shadow: inset 0 -2px 0 var(--diagnostic-accent-signal);
+}
+
+.backlog-signal:focus-visible {
+    outline: 2px solid var(--diagnostic-accent-signal);
+    outline-offset: -3px;
+}
+
+.backlog-signal-title {
+    color: var(--diagnostic-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.backlog-signal-instruction {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    margin-top: auto;
+}
+
+/* Calculation details */
+.calculation-details {
+    border-top: 1px solid var(--diagnostic-rule);
+    margin-top: var(--space-md);
+    padding-top: var(--space-sm);
+}
+
+.calculation-details summary {
+    color: var(--diagnostic-accent-reference);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.calculation-details h4 {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    margin: var(--space-md) 0 var(--space-xs);
+    text-transform: uppercase;
+}
+
+.calculation-equations {
+    display: grid;
+    gap: var(--space-sm);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.calculation-equations li {
+    border-left: 2px solid var(--diagnostic-accent-reference);
+    display: grid;
+    gap: 2px;
+    padding-left: var(--space-sm);
+}
+
+.calculation-equation-name {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.calculation-equations code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.calculation-equation-formula {
+    color: var(--diagnostic-text-muted);
+}
+
+.calculation-equation-working {
+    color: var(--diagnostic-text);
+}
+
+.calculation-details dl {
+    display: grid;
+    gap: var(--space-xs);
+    margin: 0;
+}
+
+.calculation-details dl > div {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: space-between;
+}
+
+.calculation-details dt,
+.calculation-details dd {
+    font-size: 11px;
+    margin: 0;
+}
+
+.calculation-details dt {
+    color: var(--diagnostic-text-muted);
+}
+
+.calculation-details dd {
+    color: var(--diagnostic-text);
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+/* Predictability */
+.predictability-wrap {
+    display: grid;
+}
+
+/* A bracket spanning the whole signal row: a shared relationship, not a per-signal claim */
+.predictability-connector {
+    block-size: var(--space-lg);
+    border: 1px solid var(--diagnostic-rule);
+    border-top: 0;
+    margin-bottom: var(--space-lg);
+    margin-inline: var(--space-lg);
+    position: relative;
+    pointer-events: none;
+}
+
+.predictability-connector::after {
+    background: var(--diagnostic-accent-reference);
+    block-size: var(--space-lg);
+    content: "";
+    inline-size: 1px;
+    inset-block-start: 100%;
+    inset-inline-start: 50%;
+    position: absolute;
+}
+
+.predictability .predictability-relation {
+    color: var(--diagnostic-accent-reference);
+    font-size: 12px;
+}
+
+.predictability {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text);
+    display: grid;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+.predictability header {
+    border-bottom: 1px solid var(--diagnostic-rule);
+    padding-bottom: var(--space-sm);
+}
+
+.predictability h2 {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.predictability header p,
+.predictability-empty,
+.predictability-evidence,
+.predictability-impact {
+    color: var(--diagnostic-text-muted);
+    margin: var(--space-xs) 0 0;
+}
+
+.predictability-reading {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.predictability-reading > div {
+    border-left: 2px solid var(--diagnostic-accent-reference);
+    padding-left: var(--space-md);
+}
+
+.predictability-reading span,
+.predictability-period,
+.predictability figcaption {
+    color: var(--diagnostic-text-muted);
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.predictability-reading strong {
+    color: var(--diagnostic-text);
+    display: block;
+    font-family: var(--diagnostic-font-display);
+    font-size: 22px;
+    font-weight: 400;
+    margin-top: var(--space-xs);
+}
+
+.predictability-reading > div:first-child strong {
+    color: var(--diagnostic-accent-signal);
+}
+
+.predictability-throughput {
+    margin: 0;
+}
+
+.predictability-throughput ol {
+    display: flex;
+    gap: var(--space-sm);
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+}
+
+.predictability-throughput li {
+    display: grid;
+    flex: 1;
+    gap: var(--space-xs);
+    grid-template-rows: auto 80px auto;
+    justify-items: center;
+    max-width: 72px;
+    min-width: 0;
+}
+
+.predictability-value {
+    color: var(--diagnostic-text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.predictability-track {
+    align-items: flex-end;
+    display: flex;
+    height: 80px;
+    width: 100%;
+}
+
+.predictability-bar {
+    background: linear-gradient(180deg, var(--diagnostic-accent-reference), var(--diagnostic-track-optimal));
+    min-height: 2px;
+    width: 100%;
+}
+
+.predictability-period {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+@media (max-width: 520px) {
+    .predictability-reading {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Signal deep dive overlay */
+.deep-dive-scrim {
+    align-items: center;
+    animation: deep-dive-scrim-in 220ms ease-out;
+    background: var(--diagnostic-scrim);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: var(--space-md);
+    position: fixed;
+    z-index: var(--z-overlay);
+}
+
+.deep-dive {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: 0 24px 80px rgb(0 0 0 / 60%);
+    color: var(--diagnostic-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    max-height: calc(100vh - 2 * var(--space-md));
+    max-width: 920px;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    scrollbar-color: var(--diagnostic-rule) var(--diagnostic-panel);
+    width: 100%;
+}
+
+.deep-dive:focus {
+    outline: none;
+}
+
+.deep-dive-heading {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    justify-content: space-between;
+}
+
+.deep-dive-close,
+.deep-dive-navigation button {
+    background: transparent;
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: var(--space-xs) var(--space-md);
+    text-transform: uppercase;
+}
+
+.deep-dive-close:hover,
+.deep-dive-navigation button:hover {
+    border-color: var(--diagnostic-accent-reference);
+}
+
+.deep-dive-position {
+    color: var(--diagnostic-accent-reference);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    margin-left: auto;
+}
+
+.deep-dive-title-line {
+    align-items: center;
+    display: flex;
+    flex: 1 1 100%;
+    gap: var(--space-sm);
+}
+
+.deep-dive-title-line h2 {
+    color: var(--diagnostic-text);
+    font-family: var(--diagnostic-font-display);
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.deep-dive-explainer {
+    position: relative;
+}
+
+.deep-dive-explainer-trigger {
+    background: transparent;
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: 50%;
+    color: var(--diagnostic-text-muted);
+    cursor: help;
+    font-size: 11px;
+    height: 24px;
+    width: 24px;
+}
+
+.deep-dive-explainer-tooltip {
+    background: var(--diagnostic-surface);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-text-muted);
+    display: none;
+    font-size: 12px;
+    left: 0;
+    line-height: var(--line-height-body);
+    padding: var(--space-sm) var(--space-md);
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    width: min(320px, 70vw);
+    z-index: var(--z-focus);
+}
+
+.deep-dive-explainer:hover .deep-dive-explainer-tooltip,
+.deep-dive-explainer:focus-within .deep-dive-explainer-tooltip {
+    display: block;
+}
+
+.deep-dive-content {
+    display: grid;
+    gap: var(--space-md);
+}
+
+.deep-dive-content h3 {
+    color: var(--diagnostic-text-muted);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    margin: 0 0 var(--space-xs);
+    text-transform: uppercase;
+}
+
+.deep-dive-content p {
+    color: var(--diagnostic-text-muted);
+    margin: 0;
+}
+
+.deep-dive-content dl {
+    display: grid;
+    gap: var(--space-xs);
+    margin: 0;
+}
+
+.deep-dive-content dl > div {
+    border-bottom: 1px solid var(--diagnostic-track);
+    display: flex;
+    gap: var(--space-md);
+    justify-content: space-between;
+    padding-bottom: var(--space-xs);
+}
+
+.deep-dive-content dt {
+    color: var(--diagnostic-text-muted);
+}
+
+.deep-dive-content dd {
+    color: var(--diagnostic-text);
+    margin: 0;
+    text-align: right;
+}
+
+.deep-dive-navigation {
+    align-items: center;
+    border-top: 1px solid var(--diagnostic-rule);
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--space-md);
+}
+
+.deep-dive-navigation span {
+    color: var(--diagnostic-text-muted);
+    font-size: 11px;
+}
+
+.deep-dive-sentinel {
+    height: 0;
+    opacity: 0;
+    padding: 0;
+    position: absolute;
+    width: 0;
+}
+
+.deep-dive button:focus-visible {
+    outline: 2px solid var(--diagnostic-accent-signal);
+    outline-offset: 3px;
+}
+
+@keyframes deep-dive-scrim-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .backlog-signal {
+        transition: none;
+    }
+
+    .deep-dive-scrim {
+        animation: none;
+    }
+}

@@ -20,16 +20,6 @@ textarea:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 2px var(--color-focus);
 }
-.input.highlight {
-    border: 2px solid var(--color-accent);
-}
-/* Validation States */
-.input-success { 
-    border-color: var(--color-success); 
-}
-.input-error { 
-    border-color: var(--color-danger); 
-}
 /* Diasbled Inputs */
 .input:disabled,
 select:disabled,
@@ -129,13 +119,6 @@ input::-webkit-inner-spin-button {
     color: var(--text-secondary);
     margin-bottom: calc(var(--spacing-unit) * 1);
 }
-/* Control Surface */
-.control-row {
-    display: flex;
-    align-items: center;
-    gap: calc(var(--spacing-unit) * 1);
-    flex-wrap: nowrap;
-}
 /* Squad Selector */
 .squad-select-compact {
     appearance: none;
@@ -156,4 +139,139 @@ input::-webkit-inner-spin-button {
     max-width: 220px;
 
     cursor: pointer;
+}
+
+/* -----------------------------------------
+    DIAGNOSTIC SURFACE INPUTS (Backlog Health)
+    Restyles shared control surface, chips and squad select for the dark instrument surface
+----------------------------------------- */
+.backlog-health .control-surface {
+    background: var(--diagnostic-panel);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    display: block;
+    padding: 12px;
+    position: static;
+}
+
+.backlog-health .control-surface-inner {
+    backdrop-filter: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: block;
+    padding: 0;
+    width: 100%;
+}
+
+.backlog-control-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.backlog-control-inputs {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    min-width: 0;
+}
+
+.backlog-health .squad-select-compact {
+    background: var(--diagnostic-panel-raised);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: none;
+    color: var(--diagnostic-text);
+    font-size: 11px;
+    height: 42px;
+    max-width: 100%;
+    padding: 0 var(--space-sm);
+}
+
+.backlog-health .input-chip {
+    background: var(--diagnostic-panel-raised);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: none;
+    color: var(--diagnostic-text);
+    height: 42px;
+    transition: border-color var(--motion-speed-fast);
+}
+
+.backlog-health .input-chip:hover,
+.backlog-health .input-chip.editing {
+    border-color: var(--diagnostic-accent-reference);
+    box-shadow: none;
+}
+
+.backlog-health .chip-display,
+.backlog-health .chip-input {
+    color: var(--diagnostic-text);
+    font-size: 11px;
+}
+
+.backlog-health .chip-placeholder,
+.backlog-health .group-label {
+    color: var(--diagnostic-text-muted);
+}
+
+.backlog-health .group-dropdown {
+    backdrop-filter: none;
+    background: var(--diagnostic-panel-raised);
+    border: 1px solid var(--diagnostic-rule);
+    border-radius: var(--diagnostic-radius);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
+    max-width: calc(100vw - 2 * var(--space-md));
+}
+
+.backlog-health .group-dropdown .input-chip {
+    background: var(--diagnostic-panel);
+}
+
+.backlog-save {
+    background: var(--diagnostic-text);
+    border: 1px solid var(--diagnostic-text);
+    border-radius: var(--diagnostic-radius);
+    color: var(--diagnostic-surface);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    height: 42px;
+    letter-spacing: 0.08em;
+    padding: 0 var(--space-lg);
+    text-transform: uppercase;
+}
+
+.backlog-save:hover {
+    background: var(--diagnostic-text-muted);
+    border-color: var(--diagnostic-text-muted);
+}
+
+/* Visible keyboard focus for every interactive control on the surface */
+.backlog-health :is(button, select, input, summary, [tabindex]:not([tabindex="-1"])):focus-visible,
+.backlog-health .input-chip:focus-within {
+    outline: 2px solid var(--diagnostic-accent-signal);
+    outline-offset: 3px;
+}
+
+.backlog-health .chip-input:focus-visible {
+    outline: none;
+}
+
+@media (max-width: 760px) {
+    .backlog-control-save,
+    .backlog-control-squad {
+        flex: 1 1 100%;
+    }
+
+    .backlog-health .squad-select-compact,
+    .backlog-save {
+        width: 100%;
+    }
 }

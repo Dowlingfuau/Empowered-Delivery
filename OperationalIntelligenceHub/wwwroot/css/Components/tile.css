@@ -70,20 +70,3 @@
         0 10px 30px rgba(var(--color-absolute-black-rgb), 0.24),
         inset 0 1px 0 rgba(var(--color-absolute-white-rgb), 0.04);
 }
-
-.tile-flat {
-    background: rgba(var(--color-core-light-rgb), 0.02);
-    border: 1px solid rgba(var(--color-absolute-white-rgb), 0.04);
-    border-radius: var(--radius-lg);
-    box-shadow: none;
-}
-
-.tile-elevated {
-    background: rgba(var(--color-core-surface-rgb), 0.48);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-lg);
-    box-shadow:
-        0 16px 44px rgba(var(--color-absolute-black-rgb), 0.32),
-        0 0 28px rgba(var(--color-secondary-cyan-rgb), 0.08),
-        inset 0 1px 0 rgba(var(--color-absolute-white-rgb), 0.06);
-}

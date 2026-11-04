@@ -32,9 +32,6 @@
                 font-size: 28px;
                 margin-bottom: calc(var(--spacing-unit) * 1);
             }
-.card-header {
-    font-weight: var(--font-weight-bold);
-}
 .card h3 {
     margin-top: 0;
 }
@@ -64,36 +61,4 @@
     width: 100%;
     background: var(--color-accent);
     opacity: 0.6;
-}
-
-/* =========================================
-   LEGACY (TO BE REMOVED OR UPDATED)
-   DO NOT USE
-========================================= */
-
-/* Insights Panel */
-.insight-panel {
-    background: var(--surface-focus-bg);
-    border: 1px solid var(--surface-focus-border);
-}
-.insight-block {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.insight-block .observation {
-    font-weight: 600;
-}
-.insight-block .why {
-    opacity: 0.85;
-}
-.insight-block .direction {
-    margin-top: 6px;
-    font-style: italic;
-}
-.insight-hero {
-    background: var(--color-nav-bg);
-    color: var(--color-bg-panel);
-    padding: 20px;
-    border-radius: 12px;
 }

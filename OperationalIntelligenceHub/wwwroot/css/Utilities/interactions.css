@@ -1,7 +1,14 @@
 /* Interaction States*/
-/* Hover Utility */
-.hoverable:hover { 
-    text-decoration: underline;
+/* Visually hidden, still available to assistive technology */
+.visually-hidden {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
 }
 /* Overlay */
 /*.overlay {}*/
@@ -53,10 +60,6 @@
 /* Focus Accessibility */
 :focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-.focusable:focus { 
-    outline: 2px solid var(--color-accent); 
     outline-offset: 2px;
 }
 h1:focus-visible,
@@ -132,9 +135,5 @@ h3:focus-visible {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-}
-.nav-link:hover + .nav-tooltip {
-    opacity: 1;
-    visibility: visible;
 }
 

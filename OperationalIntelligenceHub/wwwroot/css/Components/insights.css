@@ -1,3 +1,42 @@
+/* =========================================
+   CONTEXTUAL INSIGHTS
+   Insight groups and single insights placed beside the area they describe.
+   Built on the --diagnostic-* tokens.
+========================================= */
+
+.contextual-insights {
+    border-left: 2px solid var(--diagnostic-accent-reference);
+    display: grid;
+    gap: var(--space-sm);
+    padding-left: var(--space-md);
+}
+
+.backlog-overall .contextual-insights {
+    margin-top: var(--space-md);
+}
+
+.contextual-insights-label {
+    color: var(--diagnostic-accent-reference);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.contextual-insights-list {
+    display: grid;
+    gap: var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.contextual-insights-list > li + li {
+    border-top: 1px solid var(--diagnostic-rule);
+    padding-top: var(--space-md);
+}
+
 .contextual-insight {
     display: grid;
     gap: var(--space-xs);
@@ -47,15 +86,6 @@
     color: var(--diagnostic-text-muted);
     font-size: 11px;
     padding: 0 6px;
-}
-
-.contextual-insight-category .visually-hidden {
-    block-size: 1px;
-    clip-path: inset(50%);
-    inline-size: 1px;
-    margin: -1px;
-    overflow: hidden;
-    position: absolute;
 }
 
 .contextual-insight-summary {
