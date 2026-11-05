@@ -80,7 +80,7 @@
         </div>
         
         <DiagnosticsConsolePortal>
-            <DiagnosticsConsole Signals="@Signals" DerivedSignals="@DerivedSignals" Insights="@Insights" RuleEvaluations="@Evaluations" />
+            <DiagnosticsConsole Signals="@Signals" DerivedSignals="@DerivedSignals" Insights="@Insights" RuleEvaluations="@Evaluations" SignalTraces="@SignalTraces" InsightEvaluation="@InsightEvaluation" />
         </DiagnosticsConsolePortal>
         }
 </div>
@@ -97,6 +97,8 @@
     private List<DerivedSignal> DerivedSignals = new();
     private List<RuleEvaluation> Evaluations = new();
     private List<OperationalInsight> Insights = new();
+    private List<SignalTrace> SignalTraces = new();
+    private InsightEvaluationTrace? InsightEvaluation;
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,11 +116,13 @@
         {
             CurrentSession = await SessionService.GetSession(SelectedSessionId);
             
-            var (signals, behaviour, system, insights, evaluations) = await SignalPipeline.BuildSignalsAndDerived(CurrentSession);
+            var (signals, behaviour, system, insights, evaluations, traces, insightEvaluation) = await SignalPipeline.BuildSignalsAndDerivedDetailed(CurrentSession);
             Signals = signals;
             DerivedSignals = behaviour.Concat(system).ToList();
             Insights = insights;
             Evaluations = evaluations; 
+            SignalTraces = traces;
+            InsightEvaluation = insightEvaluation;
             
             RenderRadarChart = true;
             StateHasChanged();
@@ -163,11 +167,13 @@
         );
 
         // Build signals and derived signals
-        var (signals, behaviour, system, insights, evaluations) = await SignalPipeline.BuildSignalsAndDerived(CurrentSession);
+        var (signals, behaviour, system, insights, evaluations, traces, insightEvaluation) = await SignalPipeline.BuildSignalsAndDerivedDetailed(CurrentSession);
         Signals = signals;
         DerivedSignals = behaviour.Concat(system).ToList();
         Insights = insights;
         Evaluations = evaluations;
+        SignalTraces = traces;
+        InsightEvaluation = insightEvaluation;
 
         StateHasChanged();
     }

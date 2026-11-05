@@ -34,13 +34,14 @@
 
                 <div class="backlog-control-inputs">
                 <!-- Single Inputs -->
-                <InputChip  Value="@TotalItems"
+                <InputChip  Caption="Total backlog items"
+                            Value="@TotalItems"
                             ValueChanged="@(v => { TotalItems = v; _ = Recalculate(); })"
                             Placeholder="Backlog"
                             Formatter="@(v => $"{v} backlog items")" />
                 
                 <!-- Grouped Inputs -->
-                <GroupedInputChip  Label="Added"
+                <GroupedInputChip  Caption="Items added per period" Label="Added"
                             Value1="@Added1"
                             Value1Changed="@(v => { Added1 = v; _ = Recalculate(); })"
                             Value2="@Added2"
@@ -48,7 +49,7 @@
                             Value3="@Added3"
                             Value3Changed="@(v => { Added3 = v; _ = Recalculate(); })" />
 
-                <GroupedInputChip   Label="Throughput"
+                <GroupedInputChip   Caption="Items completed per period" Label="Throughput"
                             Value1="@Velocity1"
                             Value1Changed="@(v => { Velocity1 = v; _ = Recalculate(); })"
                             Value2="@Velocity2"
@@ -56,7 +57,7 @@
                             Value3="@Velocity3"
                             Value3Changed="@(v => { Velocity3 = v; _ = Recalculate(); })" />
                 
-                <GroupedInputChip   Label="Age"
+                <GroupedInputChip   Caption="Backlog item age" Label="Age"
                                     Value1="@FreshItems"
                                     Value1Changed="@(v => { FreshItems = v; _ = Recalculate(); })"
                                     Value2="@MidAgeItems"
@@ -64,7 +65,7 @@
                                     Value3="@OldItems"
                                     Value3Changed="@(v => { OldItems = v; _ = Recalculate(); })" />
 
-                <GroupedInputChip   Label="Priority"
+                <GroupedInputChip   Caption="Backlog item priority" Label="Priority"
                                     Value1="@HighPriority"
                                     Value1Changed="@(v => { HighPriority = v; _ = Recalculate(); })"
                                     Value2="@MediumPriority"
@@ -147,7 +148,7 @@
                     SelectedIdChanged="@(id => SelectedSignalId = id)"
                     Closed="CloseDeepDive" />
     <DiagnosticsConsolePortal>
-        <DiagnosticsConsole Signals="@Signals" Insights="@Insights" SignalTraces="@SignalTraces" />
+        <DiagnosticsConsole Signals="@Signals" DerivedSignals="@(BehaviourSignals.Concat(SystemSignals).ToList())" Insights="@Insights" RuleEvaluations="@Evaluations" InsightEvaluation="@InsightEvaluation" SignalTraces="@SignalTraces" />
     </DiagnosticsConsolePortal>
     </div>
 </div>
@@ -172,18 +173,44 @@
     private InsightPlacement? PriorityPlacement =>
         HasAnyData && Placements.Count > 1 ? Placements[0] : null;
     private SystemHealth Health = new();
+    private List<RuleEvaluation> Evaluations = new();
+    private InsightEvaluationTrace? InsightEvaluation;
+
+    // Rendering is decided by the placements and the page layout above; this only reports what they did.
+    private Dictionary<string, string?> DescribeRendering()
+    {
+        var result = new Dictionary<string, string?>();
+        var readingIds = SignalReadings.Select(r => r.Id).ToHashSet();
+
+        foreach (var placement in Placements)
+        {
+            var name = placement.Insight.Name;
+            if (!HasAnyData)
+                result[name] = "No diagnostic input has been entered, so insights are hidden.";
+            else if (placement.AnchorId == null || placement.AnchorId == "predictability" || readingIds.Contains(placement.AnchorId))
+                result[name] = null;
+            else
+                result[name] = $"Placed in area '{placement.AnchorId}', which this page does not display.";
+        }
+
+        return result;
+    }
+
     private async Task RunPipeline()
     {
         var rawSignals = Signals;
 
-        var (behaviour, system, insights, evaluations, health) =
-            await SignalPipeline.ProcessSignals(rawSignals);
+        var (behaviour, system, insights, evaluations, health, insightEvaluation) =
+            await SignalPipeline.ProcessSignalsDetailed(rawSignals);
 
         BehaviourSignals = behaviour;
         SystemSignals = system;
         Insights = insights;
+        Evaluations = evaluations;
         Placements = InsightPlacements.Resolve(DiagnosticId, insights);
         Health = health;
+        InsightEvaluation = insightEvaluation;
+        InsightEvaluation.ApplyRendering(DescribeRendering());
 
         Console.WriteLine($">>> Backlog Pipeline Complete: {Insights.Count} insights");
 
@@ -206,7 +233,8 @@
             LowPriority ?? 0,
             0, // TODO: Unprioritised (not yet in UI)
             matchedVolatilityPeriods.Count,
-            HasPrioritisationData
+            HasPrioritisationData,
+            MatchedVolatilityPeriodsLabelled
         );
 
         Signals = result.Item1;
@@ -260,9 +288,9 @@
             Evidence = new()
             {
                 new("Backlog", Input(TotalItems)),
-                new("Throughput · Under 2 weeks", Input(Velocity1)),
+                new("Throughput · <2 weeks", Input(Velocity1)),
                 new("Throughput · 2–4 weeks", Input(Velocity2)),
-                new("Throughput · Over 4 weeks", Input(Velocity3))
+                new("Throughput · >4 weeks", Input(Velocity3))
             },
             Interpretation = !BacklogSizeAvailable ? string.Empty : BacklogSizeSignal!.Direction switch
             {
@@ -305,12 +333,12 @@
             EvidenceTitle = "Work added and completed",
             Evidence = new()
             {
-                new("Added · Under 2 weeks", Input(Added1)),
+                new("Added · <2 weeks", Input(Added1)),
                 new("Added · 2–4 weeks", Input(Added2)),
-                new("Added · Over 4 weeks", Input(Added3)),
-                new("Completed · Under 2 weeks", Input(Velocity1)),
+                new("Added · >4 weeks", Input(Added3)),
+                new("Completed · <2 weeks", Input(Velocity1)),
                 new("Completed · 2–4 weeks", Input(Velocity2)),
-                new("Completed · Over 4 weeks", Input(Velocity3))
+                new("Completed · >4 weeks", Input(Velocity3))
             },
             Interpretation = FirstLine(VolatilityLabel),
             Trace = TraceFor("BacklogVolatility")
@@ -365,6 +393,16 @@
             .Select(period => (period.Added.GetValueOrDefault(), period.Completed.GetValueOrDefault()))
             .ToList();
     bool HasVolatilityData => MatchedVolatilityPeriods.Count > 0;
+    List<(string Label, int Added, int Completed)> MatchedVolatilityPeriodsLabelled =>
+        new[]
+        {
+            (Label: "<2 weeks", Added: Added1, Completed: Velocity1),
+            (Label: "2–4 weeks", Added: Added2, Completed: Velocity2),
+            (Label: ">4 weeks", Added: Added3, Completed: Velocity3)
+        }
+            .Where(period => period.Added.HasValue && period.Completed.HasValue)
+            .Select(period => (period.Label, period.Added.GetValueOrDefault(), period.Completed.GetValueOrDefault()))
+            .ToList();
     bool HasPrioritisationData =>
         TotalItems.HasValue && TotalItems.Value > 0 &&
         HighPriority.HasValue && MediumPriority.HasValue && LowPriority.HasValue;
@@ -394,11 +432,11 @@
     
     //Backlog Age
     int AgeScore => AgeSignal == null ? 0 : (int)(AgeSignal.NormalisedValue * 100);
-    
+
     // Backlog Volatility
     int VolatilityHealth => VolatilitySignal == null ? 0 : (int)(VolatilitySignal.NormalisedValue * 100);
-    
-    // Backlog Priority
+
+    // Keep the existing combined score for saved assessment snapshots.
     int PriorityScore => PrioritisationSignal == null ? 0 : (int)(PrioritisationSignal.NormalisedValue * 100);
 
     // ================================
@@ -535,7 +573,7 @@
         }
     }
 
-    //Backlog Prioritisation
+    // Backlog Prioritisation
     string PriorityLabel {
         get
         {
@@ -546,18 +584,17 @@
                 return "-";
 
             int prioritisedTotal = (HighPriority ?? 0) + (MediumPriority ?? 0) + (LowPriority ?? 0);
-            int unprioritised = Math.Max(0, TotalItems.Value - prioritisedTotal);
 
             double coverage = (double)prioritisedTotal / TotalItems.Value;
 
             double highPct = (double)(HighPriority ?? 0) / TotalItems.Value;
             double mediumPct = (double)(MediumPriority ?? 0) / TotalItems.Value;
             double lowPct = (double)(LowPriority ?? 0) / TotalItems.Value;
-            // SO WHAT
+
             string interpretation;
             if (coverage < 0.7)
-             {
-            interpretation = "A significant portion of work is not prioritised, making sequencing unclear";
+            {
+                interpretation = "A significant portion of work is not prioritised, making sequencing unclear";
             }
             else if (highPct > 0.6)
             {
@@ -575,7 +612,7 @@
             {
                 interpretation = "Prioritisation is spread, work can be clearly differentiated";
             }
-            // WHAT
+
             string raw = $"{coverage:P0} prioritised | High {highPct:P0} | Med {mediumPct:P0} | Low {lowPct:P0}";
             return $"{interpretation}\n{raw}";
         }

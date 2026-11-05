@@ -8,6 +8,7 @@ namespace OperationalIntelligenceHub.Models
         public double Score { get; set; }
         public string Source { get; set; } = "";
         public string Intensity { get; set; } = "";
+        public string Interpretation { get; set; } = "";
         
         public Guid WorkspaceId { get; set; }
         public Guid SquadId { get; set; }

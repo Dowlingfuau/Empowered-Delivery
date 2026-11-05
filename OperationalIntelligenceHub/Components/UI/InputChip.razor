@@ -1,3 +1,8 @@
+<div class="chip-field">
+@if (!string.IsNullOrWhiteSpace(Caption))
+{
+    <span class="chip-caption">@Caption</span>
+}
 <div class="input-chip @(IsEditing ? "editing" : "")" @onclick="EnterEditMode">
     
     @if (!IsEditing)
@@ -25,8 +30,10 @@
     }
 
 </div>
+</div>
 
 @code {
+    [Parameter] public string? Caption { get; set; }
     [Parameter] public int? Value { get; set; }
     [Parameter] public EventCallback<int?> ValueChanged { get; set; }
 

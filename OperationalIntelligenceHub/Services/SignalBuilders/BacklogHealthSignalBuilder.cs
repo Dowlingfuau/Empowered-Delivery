@@ -21,7 +21,8 @@ namespace OperationalIntelligenceHub.Services
             int lowPriority,
             int unprioritisedItems,
             int matchedVolatilityPeriodCount,
-            bool prioritisationDataAvailable
+            bool prioritisationDataAvailable,
+            IReadOnlyList<(string Label, int Added, int Completed)>? matchedPeriods = null
         )
         {
             var signals = new List<Signal>();
@@ -36,13 +37,13 @@ namespace OperationalIntelligenceHub.Services
             double weeksofWork = hasBacklogSizeData ? totalItems.GetValueOrDefault() / avgThroughput : 0;
 
             // Normalised score
-            double sizeNormalised =
-                weeksofWork <= 0 ? 0.0:
-                weeksofWork < 1 ? 0.3 :
-                weeksofWork < 3 ? 0.6 :
-                weeksofWork <= 5 ? 1.0 :
-                weeksofWork <= 8 ? 0.6 :
-                weeksofWork <= 12 ? 0.3 : 0.0;
+            var (sizeNormalised, sizeBand) =
+                weeksofWork <= 0 ? (0.0, "≤ 0") :
+                weeksofWork < 1 ? (0.3, "(0, 1)") :
+                weeksofWork < 3 ? (0.6, "[1, 3)") :
+                weeksofWork <= 5 ? (1.0, "[3, 5]") :
+                weeksofWork <= 8 ? (0.6, "(5, 8]") :
+                weeksofWork <= 12 ? (0.3, "(8, 12]") : (0.0, "> 12");
 
 
             // CONTINUUM CALCULATION
@@ -126,9 +127,61 @@ namespace OperationalIntelligenceHub.Services
                 {
                     new CalculationStep
                     {
+                        StepName = "AverageThroughput",
+                        Description = "Mean of the throughput values entered. Each entered period counts equally; no conversion between period lengths is applied.",
+                        Stage = TraceStage.Intermediate,
+                        Value = avgThroughput,
+                        Formula = AverageFormula(throughputHistory, avgThroughput)
+                    },
+                    new CalculationStep
+                    {
                         StepName = "WeeksOfWork",
-                        Description = "TotalItems divided by throughput",
-                        Value = weeksofWork
+                        Description = hasBacklogSizeData
+                            ? "Total items divided by average throughput (items per period); the result is read as weeks of work"
+                            : "Needs total items and an average throughput above 0, so the result is 0",
+                        Stage = TraceStage.Output,
+                        Value = weeksofWork,
+                        Formula = hasBacklogSizeData
+                            ? FormulaTrace.Fraction("TotalItems ÷ AverageThroughput",
+                                $"{totalItems.GetValueOrDefault()} backlog items",
+                                $"{TraceNumber.Format(avgThroughput)} items per period",
+                                weeksofWork, "weeks")
+                            : null
+                    },
+                    new CalculationStep
+                    {
+                        StepName = "Normalisation",
+                        Description = $"Weeks of work is looked up in a band table (0 → 0.3 → 0.6 → 1.0 for 3-5 weeks → 0.6 → 0.3 → 0), then clamped to 0-1",
+                        Stage = TraceStage.Normalisation,
+                        Value = sizeSignal.NormalisedValue,
+                        Formula = FormulaTrace.Expr("Band(WeeksOfWork)",
+                            $"{TraceNumber.Format(weeksofWork)} falls in {sizeBand}",
+                            sizeSignal.NormalisedValue)
+                    },
+                    new CalculationStep
+                    {
+                        StepName = "ContinuumValue",
+                        Description = !hasBacklogSizeData
+                            ? "No size data, so the continuum sits at the neutral 0.5"
+                            : weeksofWork <= centre
+                                ? "At or left of the 5-week centre: weeks ÷ 5"
+                                : "Right of the 5-week centre: 1 − (weeks − 5) ÷ 7",
+                        Stage = TraceStage.Derived,
+                        Value = sizeContinuumValue,
+                        Formula = !hasBacklogSizeData
+                            ? null
+                            : weeksofWork <= centre
+                                ? FormulaTrace.Fraction("WeeksOfWork ÷ Centre", TraceNumber.Format(weeksofWork), TraceNumber.Format(centre), sizeContinuumValue)
+                                : FormulaTrace.Expr("1 − (WeeksOfWork − Centre) ÷ (Max − Centre)",
+                                    $"1 − ({TraceNumber.Format(weeksofWork)} − {TraceNumber.Format(centre)}) ÷ ({TraceNumber.Format(max)} − {TraceNumber.Format(centre)})",
+                                    sizeContinuumValue)
+                    },
+                    new CalculationStep
+                    {
+                        StepName = "Direction",
+                        Description = "−1 below the 5-week centre, +1 above it, 0 at it or without data",
+                        Stage = TraceStage.Derived,
+                        Value = sizeDirection
                     }
                 }
             });
@@ -174,7 +227,14 @@ namespace OperationalIntelligenceHub.Services
                     },
                     CalculationSteps = new List<CalculationStep>
                     {
-                        new CalculationStep { StepName = "AgeDataAvailable", Description = "A complete, non-empty age distribution is required", Value = false }
+                        new CalculationStep { StepName = "AgeDataAvailable", Description = "A complete, non-empty age distribution is required", Value = false },
+                        new CalculationStep
+                        {
+                            StepName = "Normalisation",
+                            Description = "Without age data the signal is set to the neutral value 0.5",
+                            Stage = TraceStage.Normalisation,
+                            Value = neutral.NormalisedValue
+                        }
                     }
                 });
             }
@@ -289,17 +349,42 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "FreshPercent", Description = "Fresh items / total age items", Value = freshPercent },
-                    new CalculationStep { StepName = "MidPercent", Description = "Mid-age items / total age items", Value = midPercent },
-                    new CalculationStep { StepName = "OldPercent", Description = "Old items / total age items", Value = oldPercent },
-                    new CalculationStep { StepName = "DistributionDistance", Description = "Sum absolute differences between actual and ideal distribution", Value = distributionDistance },
-                    new CalculationStep { StepName = "AgeScore", Description = "Converted score from distribution distance", Value = ageScore },
-                    new CalculationStep { StepName = "Bias", Description = "Fresh percent minus old percent", Value = bias },
-                    new CalculationStep { StepName = "Shape", Description = "Shape classification of age distribution", Value = shape }
+                    new CalculationStep { StepName = "TotalAgeItems", Description = "Fresh + mid-age + old items", Stage = TraceStage.Intermediate, Value = ageItemTotal,
+                        Formula = FormulaTrace.Expr("Fresh + MidAge + Old", $"{freshCount} + {midAgeCount} + {oldCount}", ageItemTotal, "items") },
+                    new CalculationStep { StepName = "FreshPercent", Description = "Fresh items / total age items", Stage = TraceStage.Intermediate, Value = freshPercent,
+                        Formula = FormulaTrace.Fraction("Fresh ÷ TotalAgeItems", $"{freshCount}", $"{ageItemTotal}", freshPercent) },
+                    new CalculationStep { StepName = "MidPercent", Description = "Mid-age items / total age items", Stage = TraceStage.Intermediate, Value = midPercent,
+                        Formula = FormulaTrace.Fraction("MidAge ÷ TotalAgeItems", $"{midAgeCount}", $"{ageItemTotal}", midPercent) },
+                    new CalculationStep { StepName = "OldPercent", Description = "Old items / total age items", Stage = TraceStage.Intermediate, Value = oldPercent,
+                        Formula = FormulaTrace.Fraction("Old ÷ TotalAgeItems", $"{oldCount}", $"{ageItemTotal}", oldPercent) },
+                    new CalculationStep { StepName = "DistributionDistance", Description = "Sum absolute differences between actual and ideal distribution (ideal = 0.2 / 0.6 / 0.2)", Stage = TraceStage.Intermediate, Value = distributionDistance,
+                        Formula = FormulaTrace.Expr("Σ |Actual − Ideal|",
+                            $"|{TraceNumber.Format(freshPercent)} − 0.2| + |{TraceNumber.Format(midPercent)} − 0.6| + |{TraceNumber.Format(oldPercent)} − 0.2|",
+                            distributionDistance) },
+                    new CalculationStep { StepName = "AgeScore", Description = "Converted score from distribution distance (1 = ideal, 0 = worst)", Stage = TraceStage.Output, Value = ageScore,
+                        Formula = FormulaTrace.Expr("1 − DistributionDistance ÷ MaxDistance",
+                            $"1 − {TraceNumber.Format(distributionDistance)} ÷ {TraceNumber.Format(maxDistance)}", ageScore) },
+                    new CalculationStep { StepName = "Normalisation", Description = "The age score is already 0-1; it is clamped to 0-1 and used as the signal value", Stage = TraceStage.Normalisation, Value = ageSignal.NormalisedValue,
+                        Formula = FormulaTrace.Expr("Clamp(AgeScore, 0, 1)", $"Clamp({TraceNumber.Format(ageScore)}, 0, 1)", ageSignal.NormalisedValue) },
+                    new CalculationStep { StepName = "Bias", Description = "Fresh percent minus old percent", Stage = TraceStage.Derived, Value = bias,
+                        Formula = FormulaTrace.Expr("FreshPercent − OldPercent", $"{TraceNumber.Format(freshPercent)} − {TraceNumber.Format(oldPercent)}", bias) },
+                    new CalculationStep { StepName = "Direction", Description = "−1 when fresh work dominates, +1 when old work dominates, 0 when balanced", Stage = TraceStage.Derived, Value = ageDirection },
+                    new CalculationStep { StepName = "ContinuumValue", Description = "Age score reduced by the strength of the bias", Stage = TraceStage.Derived, Value = ageContinuumValue,
+                        Formula = FormulaTrace.Expr("AgeScore × (1 − |Bias|)", $"{TraceNumber.Format(ageScore)} × (1 − {TraceNumber.Format(directionalStrength)})", ageContinuumValue) },
+                    new CalculationStep { StepName = "Shape", Description = "Shape classification of age distribution", Stage = TraceStage.Derived, Value = shape }
                 }
             });
             }
                 
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "FreshWorkPercentage",
+                freshPercent,
+                "Share of the backlog in the fresh (<2 weeks) age bucket.");
+
             // TODO: Add recency 
 
             // ================================
@@ -351,6 +436,41 @@ namespace OperationalIntelligenceHub.Services
             double? relativeDelta = startingBacklog.HasValue && startingBacklog.Value > 0
                 ? (double)netChange / startingBacklog.Value
                 : null;
+            double backlogGrowthWeeks = matchedVolatilityPeriodCount > 0 && avgThroughput > 0
+                ? Math.Max(0, netChange / avgThroughput)
+                : 0;
+            double backlogGrowthPercentage = relativeDelta.HasValue
+                ? Math.Max(0, relativeDelta.Value)
+                : 0;
+            double backlogShrinkagePercentage = relativeDelta.HasValue
+                ? Math.Max(0, -relativeDelta.Value)
+                : 0;
+
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "BacklogGrowthWeeks",
+                backlogGrowthWeeks,
+                "Positive net backlog growth divided by average throughput, expressed as weeks of delivery capacity.");
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "BacklogGrowthPercentage",
+                backlogGrowthPercentage,
+                "Positive backlog growth divided by the starting backlog; zero when the backlog is shrinking or the percentage is unavailable.");
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "BacklogShrinkagePercentage",
+                backlogShrinkagePercentage,
+                "Positive backlog shrinkage divided by the starting backlog; zero when the backlog is growing or the percentage is unavailable.");
+
             // Continuum (UX only - magnitude of change vs backlog size)
             double volatilityContinuumValue;
             if (matchedVolatilityPeriodCount == 0 || !totalItems.HasValue)
@@ -408,6 +528,29 @@ namespace OperationalIntelligenceHub.Services
             
             signals.Add(volatilitySignal);
 
+            // Formula text for the trace, built from the same values and branches used above.
+            string ratioDescription =
+                itemsCompleted == 0 && itemsAdded == 0 ? "Nothing added or completed, so the ratio is the neutral 1" :
+                itemsCompleted == 0 ? "Nothing completed, so growth is unbounded (∞)" :
+                "Items added divided by items completed";
+            FormulaTrace? ratioFormula = itemsCompleted == 0
+                ? null
+                : FormulaTrace.Fraction("ItemsAdded ÷ ItemsCompleted", $"{itemsAdded}", $"{itemsCompleted}", ratio);
+            FormulaTrace? balanceFormula =
+                itemsAdded == 0 || itemsCompleted == 0
+                    ? null
+                    : ratio >= 1
+                        ? FormulaTrace.Fraction("ItemsCompleted ÷ ItemsAdded (ratio ≥ 1)", $"{itemsCompleted}", $"{itemsAdded}", balanceRatio)
+                        : FormulaTrace.Fraction("ItemsAdded ÷ ItemsCompleted (ratio < 1)", $"{itemsAdded}", $"{itemsCompleted}", balanceRatio);
+            string volatilityContinuumDescription =
+                matchedVolatilityPeriodCount == 0 || !totalItems.HasValue ? "No matched periods or no backlog count, so the continuum sits at the neutral 0.5" :
+                relativeDelta.HasValue ? "1 minus the size of the change relative to the starting backlog (capped at 1)" :
+                "Percentage change is unavailable: 1 when there is no net change, otherwise 0";
+            FormulaTrace? volatilityContinuumFormula = relativeDelta.HasValue && matchedVolatilityPeriodCount > 0 && totalItems.HasValue
+                ? FormulaTrace.Expr("1 − min(|PercentageChange|, 1)",
+                    $"1 − min(|{TraceNumber.Format(relativeDelta.Value)}|, 1)", volatilityContinuumValue)
+                : null;
+
             // Trace for BacklogVolatility
             signalTraces.Add(new SignalTrace
             {
@@ -424,14 +567,36 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "MatchedPeriods", Description = "Added and completed counts are compared only for periods with both values", Value = matchedVolatilityPeriodCount },
-                    new CalculationStep { StepName = "Ratio", Description = "Items added divided by items completed", Value = ratio },
-                    new CalculationStep { StepName = "BalanceRatio", Description = "Symmetric balance score (0-1)", Value = balanceRatio },
-                    new CalculationStep { StepName = "NetChange", Description = "Items added minus items completed", Value = netChange },
-                    new CalculationStep { StepName = "StartingBacklog", Description = "Current backlog minus net change", Value = startingBacklog },
-                    new CalculationStep { StepName = "PercentageChange", Description = "Net change divided by starting backlog", Value = relativeDelta },
-                    new CalculationStep { StepName = "VolatilityContinuum", Description = "Continuum value for volatility UX", Value = volatilityContinuumValue },
-                    new CalculationStep { StepName = "Pattern", Description = "Detected pattern", Value = pattern }
+                    new CalculationStep { StepName = "MatchedPeriods", Description = "Added and completed counts are compared only for periods with both values", Stage = TraceStage.Intermediate, Value = matchedVolatilityPeriodCount },
+                    new CalculationStep { StepName = "ItemsAdded", Description = "Items added across matched periods", Stage = TraceStage.Intermediate, Value = itemsAdded,
+                        Formula = SumFormula("Σ Added", matchedPeriods?.Select(p => p.Added).ToList(), itemsAdded) },
+                    new CalculationStep { StepName = "ItemsCompleted", Description = "Items completed across matched periods", Stage = TraceStage.Intermediate, Value = itemsCompleted,
+                        Formula = SumFormula("Σ Completed", matchedPeriods?.Select(p => p.Completed).ToList(), itemsCompleted) },
+                    new CalculationStep { StepName = "Ratio", Description = ratioDescription, Stage = TraceStage.Output, Value = ratio,
+                        Formula = ratioFormula },
+                    new CalculationStep { StepName = "BalanceRatio", Description = "Symmetric balance score (0-1): the smaller of added and completed divided by the larger", Stage = TraceStage.Output, Value = balanceRatio,
+                        Formula = balanceFormula },
+                    new CalculationStep { StepName = "Normalisation", Description = "The balance ratio is already 0-1; it is clamped to 0-1 and used as the signal value. The raw value is the ratio.", Stage = TraceStage.Normalisation, Value = volatilitySignal.NormalisedValue,
+                        Formula = FormulaTrace.Expr("Clamp(BalanceRatio, 0, 1)", $"Clamp({TraceNumber.Format(balanceRatio)}, 0, 1)", volatilitySignal.NormalisedValue) },
+                    new CalculationStep { StepName = "NetChange", Description = "Items added minus items completed", Stage = TraceStage.Derived, Value = netChange,
+                        Formula = FormulaTrace.Expr("ItemsAdded − ItemsCompleted", $"{itemsAdded} − {itemsCompleted}", netChange, "items") },
+                    new CalculationStep { StepName = "StartingBacklog", Description = "Current backlog minus net change", Stage = TraceStage.Derived, Value = startingBacklog,
+                        Formula = startingBacklog.HasValue
+                            ? FormulaTrace.Expr("TotalItems − NetChange", $"{totalItems.GetValueOrDefault()} − ({netChange})", startingBacklog.Value, "items")
+                            : null },
+                    new CalculationStep { StepName = "PercentageChange", Description = "Net change divided by starting backlog", Stage = TraceStage.Derived, Value = relativeDelta,
+                        Formula = relativeDelta.HasValue
+                            ? FormulaTrace.Fraction("NetChange ÷ StartingBacklog", $"{netChange}", $"{startingBacklog.GetValueOrDefault()}", relativeDelta.Value)
+                            : null },
+                    new CalculationStep { StepName = "VolatilityContinuum", Description = volatilityContinuumDescription, Stage = TraceStage.Derived, Value = volatilityContinuumValue,
+                        Formula = volatilityContinuumFormula },
+                    new CalculationStep { StepName = "Direction", Description = "+1 when more was added than completed, −1 when more was completed, 0 when equal", Stage = TraceStage.Derived, Value = volatilityDirection },
+                    new CalculationStep { StepName = "Pattern", Description = "Flat when total flow is below half the average throughput", Stage = TraceStage.Derived, Value = pattern,
+                        Formula = avgThroughput > 0
+                            ? FormulaTrace.Expr("(Added + Completed) < 0.5 × AverageThroughput",
+                                $"({itemsAdded} + {itemsCompleted}) = {TraceNumber.Format(totalFlow)} vs 0.5 × {TraceNumber.Format(avgThroughput)} = {TraceNumber.Format(0.5 * avgThroughput)}",
+                                isFlat ? "Flat" : "None")
+                            : null }
                 }
             });
 
@@ -474,6 +639,32 @@ namespace OperationalIntelligenceHub.Services
             double prioritisationScore =
                 (coverage * 0.5) +
                 (distributionScore * 0.5);
+            bool hasPrioritisationMetrics =
+                prioritisationDataAvailable && totalItems.HasValue && totalItems.Value > 0;
+            double unprioritisedWorkPercentage = hasPrioritisationMetrics
+                ? unprioritisedPercent
+                : 0;
+            double priorityBandConcentration = hasPrioritisationMetrics
+                ? Math.Max(highPercent, Math.Max(mediumPercent, lowPercent))
+                : 0;
+
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "UnprioritisedWorkPercentage",
+                unprioritisedWorkPercentage,
+                "Share of the backlog with no priority, or zero when priority data is unavailable.");
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "PriorityBandConcentration",
+                priorityBandConcentration,
+                "Share of the backlog in its largest priority band, or zero when priority data is unavailable.");
+
             // Continuum Value
             double prioritisationContinuumValue =
                 1 - distributionDeviation; // closer to 1 = more balanced
@@ -525,14 +716,36 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "HighPercent", Description = "High priority percentage", Value = highPercent },
-                    new CalculationStep { StepName = "MediumPercent", Description = "Medium priority percentage", Value = mediumPercent },
-                    new CalculationStep { StepName = "LowPercent", Description = "Low priority percentage", Value = lowPercent },
-                    new CalculationStep { StepName = "UnprioritisedPercent", Description = "Unprioritised percentage", Value = unprioritisedPercent },
-                    new CalculationStep { StepName = "Coverage", Description = "Coverage (1 - unprioritised percent)", Value = coverage },
-                    new CalculationStep { StepName = "DistributionScore", Description = "Balance score for distribution", Value = distributionScore },
-                    new CalculationStep { StepName = "PrioritisationScore", Description = "Combined prioritisation score", Value = prioritisationScore },
-                    new CalculationStep { StepName = "Direction", Description = "Direction indicator (-1,0,1)", Value = prioritisationDirection }
+                    new CalculationStep { StepName = "PrioritisedTotal", Description = "High + medium + low priority items", Stage = TraceStage.Intermediate, Value = prioritisedTotal,
+                        Formula = FormulaTrace.Expr("High + Medium + Low", $"{highPriority} + {mediumPriority} + {lowPriority}", prioritisedTotal, "items") },
+                    new CalculationStep { StepName = "UnprioritisedItems", Description = "Total items not covered by a priority (never below 0). The unprioritised input is not used; this is derived from the backlog total.", Stage = TraceStage.Intermediate, Value = derivedUnprioritised,
+                        Formula = FormulaTrace.Expr("max(0, TotalItems − PrioritisedTotal)", $"max(0, {totalItems ?? 0} − {prioritisedTotal})", derivedUnprioritised, "items") },
+                    new CalculationStep { StepName = "TotalPriorityItems", Description = "Prioritised plus unprioritised items", Stage = TraceStage.Intermediate, Value = totalPriorityItems,
+                        Formula = FormulaTrace.Expr("PrioritisedTotal + Unprioritised", $"{prioritisedTotal} + {derivedUnprioritised}", totalPriorityItems, "items") },
+                    new CalculationStep { StepName = "HighPercent", Description = "High priority percentage", Stage = TraceStage.Intermediate, Value = highPercent,
+                        Formula = FormulaTrace.Fraction("High ÷ TotalPriorityItems", $"{highPriority}", $"{totalPriorityItems}", highPercent) },
+                    new CalculationStep { StepName = "MediumPercent", Description = "Medium priority percentage", Stage = TraceStage.Intermediate, Value = mediumPercent,
+                        Formula = FormulaTrace.Fraction("Medium ÷ TotalPriorityItems", $"{mediumPriority}", $"{totalPriorityItems}", mediumPercent) },
+                    new CalculationStep { StepName = "LowPercent", Description = "Low priority percentage", Stage = TraceStage.Intermediate, Value = lowPercent,
+                        Formula = FormulaTrace.Fraction("Low ÷ TotalPriorityItems", $"{lowPriority}", $"{totalPriorityItems}", lowPercent) },
+                    new CalculationStep { StepName = "UnprioritisedPercent", Description = "Unprioritised percentage", Stage = TraceStage.Intermediate, Value = unprioritisedPercent,
+                        Formula = FormulaTrace.Fraction("Unprioritised ÷ TotalPriorityItems", $"{derivedUnprioritised}", $"{totalPriorityItems}", unprioritisedPercent) },
+                    new CalculationStep { StepName = "Coverage", Description = "Coverage (1 - unprioritised percent)", Stage = TraceStage.Output, Value = coverage,
+                        Formula = FormulaTrace.Expr("1 − UnprioritisedPercent", $"1 − {TraceNumber.Format(unprioritisedPercent)}", coverage) },
+                    new CalculationStep { StepName = "DistributionDeviation", Description = "Distance of each priority share from an even third", Stage = TraceStage.Intermediate, Value = distributionDeviation,
+                        Formula = FormulaTrace.Expr("Σ |Share − 1/3|",
+                            $"|{TraceNumber.Format(highPercent)} − 0.3333| + |{TraceNumber.Format(mediumPercent)} − 0.3333| + |{TraceNumber.Format(lowPercent)} − 0.3333|",
+                            distributionDeviation) },
+                    new CalculationStep { StepName = "DistributionScore", Description = "Balance score for distribution, clamped to 0-1", Stage = TraceStage.Output, Value = distributionScore,
+                        Formula = FormulaTrace.Expr("1 − DistributionDeviation ÷ MaxDeviation",
+                            $"1 − {TraceNumber.Format(distributionDeviation)} ÷ {TraceNumber.Format(maxDeviation)}", distributionScore) },
+                    new CalculationStep { StepName = "PrioritisationScore", Description = "Combined prioritisation score: half coverage, half distribution", Stage = TraceStage.Output, Value = prioritisationScore,
+                        Formula = FormulaTrace.Expr("Coverage × 0.5 + DistributionScore × 0.5",
+                            $"{TraceNumber.Format(coverage)} × 0.5 + {TraceNumber.Format(distributionScore)} × 0.5", prioritisationScore) },
+                    new CalculationStep { StepName = "Normalisation", Description = "The combined score is already 0-1; it is clamped to 0-1 and used as the signal value. The raw value is the coverage.", Stage = TraceStage.Normalisation, Value = prioritisationSignal.NormalisedValue,
+                        Formula = FormulaTrace.Expr("Clamp(PrioritisationScore, 0, 1)", $"Clamp({TraceNumber.Format(prioritisationScore)}, 0, 1)", prioritisationSignal.NormalisedValue) },
+                    new CalculationStep { StepName = "ContinuumValue", Description = "1 − deviation, clamped to 0-1; 0.5 when there is no prioritisation data", Stage = TraceStage.Derived, Value = prioritisationContinuumValue },
+                    new CalculationStep { StepName = "Direction", Description = "Direction indicator (-1,0,1): −1 when more than 20% is unprioritised, +1 when the deviation exceeds 0.2", Stage = TraceStage.Derived, Value = prioritisationDirection }
                 }
             });
 
@@ -565,6 +778,14 @@ namespace OperationalIntelligenceHub.Services
             };
 
             signals.Add(predictabilitySignal);
+            AddCalculatedSignal(
+                signals,
+                signalTraces,
+                workspaceId,
+                squadId,
+                "DeliveryPredictabilityDataAvailable",
+                hasPredictabilityData ? 1 : 0,
+                "1 when at least two throughput observations are available; otherwise 0.");
 
             // Build trace for Predictability
             var predictabilityCalculationSteps = new List<CalculationStep>();
@@ -574,19 +795,43 @@ namespace OperationalIntelligenceHub.Services
                 {
                     StepName = "AverageThroughput",
                     Description = "Average of throughput history",
-                    Value = avg
+                    Stage = TraceStage.Intermediate,
+                    Value = avg,
+                    Formula = AverageFormula(throughputHistory, avg)
                 });
                 predictabilityCalculationSteps.Add(new CalculationStep
                 {
                     StepName = "Variance",
-                    Description = "Variance of throughput values",
-                    Value = variance
+                    Description = "Variance of throughput values (population variance: mean of squared differences from the average)",
+                    Stage = TraceStage.Intermediate,
+                    Value = variance,
+                    Formula = FormulaTrace.Fraction("Σ (x − Average)² ÷ n",
+                        string.Join(" + ", throughputHistory.Select(v => $"({v} − {TraceNumber.Format(avg)})²")),
+                        $"{throughputHistory.Count}", variance)
+                });
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "StandardDeviation",
+                    Description = "Square root of the variance",
+                    Stage = TraceStage.Intermediate,
+                    Value = stdDev,
+                    Formula = FormulaTrace.Expr("√Variance", $"√{TraceNumber.Format(variance)}", stdDev)
                 });
                 predictabilityCalculationSteps.Add(new CalculationStep
                 {
                     StepName = "CoefficientOfVariation",
-                    Description = "Standard deviation divided by mean",
-                    Value = cv
+                    Description = "Standard deviation divided by mean. This is the raw value of the signal.",
+                    Stage = TraceStage.Output,
+                    Value = cv,
+                    Formula = FormulaTrace.Fraction("StandardDeviation ÷ Average", TraceNumber.Format(stdDev), TraceNumber.Format(avg), cv)
+                });
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "Normalisation",
+                    Description = "Predictability is 1 minus the coefficient of variation, floored at 0, then clamped to 0-1",
+                    Stage = TraceStage.Normalisation,
+                    Value = predictabilitySignal.NormalisedValue,
+                    Formula = FormulaTrace.Expr("max(0, 1 − CoefficientOfVariation)", $"max(0, 1 − {TraceNumber.Format(cv)})", predictabilitySignal.NormalisedValue)
                 });
             }
             else
@@ -596,6 +841,13 @@ namespace OperationalIntelligenceHub.Services
                     StepName = "InsufficientData",
                     Description = "Insufficient data for predictability calculation",
                     Value = null
+                });
+                predictabilityCalculationSteps.Add(new CalculationStep
+                {
+                    StepName = "Normalisation",
+                    Description = "Needs at least two throughput values and an average above 0; otherwise the signal is the neutral 0.5",
+                    Stage = TraceStage.Normalisation,
+                    Value = predictabilitySignal.NormalisedValue
                 });
             }
 
@@ -666,7 +918,9 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "RawValue", Description = "Raw input value", Value = itemsAdded }
+                    new CalculationStep { StepName = "RawValue", Description = "Sum of the added counts for matched periods", Stage = TraceStage.Output, Value = itemsAdded,
+                        Formula = SumFormula("Σ Added", matchedPeriods?.Select(p => p.Added).ToList(), itemsAdded) },
+                    PassThrough(itemsAdded)
                 }
             });
 
@@ -692,7 +946,9 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "RawValue", Description = "Raw input value", Value = itemsCompleted }
+                    new CalculationStep { StepName = "RawValue", Description = "Sum of the completed counts for matched periods", Stage = TraceStage.Output, Value = itemsCompleted,
+                        Formula = SumFormula("Σ Completed", matchedPeriods?.Select(p => p.Completed).ToList(), itemsCompleted) },
+                    PassThrough(itemsCompleted)
                 }
             });
             // TODO: Split WorkHorizon into:
@@ -722,7 +978,30 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "WeeksOfWork", Description = "Total items divided by average throughput", Value = weeksofWork }
+                    new CalculationStep
+                    {
+                        StepName = "AverageThroughput",
+                        Description = "Mean of the throughput values entered. Each entered period counts equally; no conversion between period lengths is applied.",
+                        Stage = TraceStage.Intermediate,
+                        Value = avgThroughput,
+                        Formula = AverageFormula(throughputHistory, avgThroughput)
+                    },
+                    new CalculationStep
+                    {
+                        StepName = "WeeksOfWork",
+                        Description = hasBacklogSizeData
+                            ? "Total items divided by average throughput. The rule engine reads this value as WorkHorizon."
+                            : "Needs total items and an average throughput above 0, so the result is 0",
+                        Stage = TraceStage.Output,
+                        Value = weeksofWork,
+                        Formula = hasBacklogSizeData
+                            ? FormulaTrace.Fraction("TotalItems ÷ AverageThroughput",
+                                $"{totalItems.GetValueOrDefault()} backlog items",
+                                $"{TraceNumber.Format(avgThroughput)} items per period",
+                                weeksofWork, "weeks")
+                            : null
+                    },
+                    PassThrough(weeksofWork)
                 }
             });
             signals.Add(new Signal
@@ -748,8 +1027,9 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "Ratio", Description = "Items added / items completed", Value = ratio },
-                    new CalculationStep { StepName = "BalanceScore", Description = "Balance score derived from ratio", Value = balanceRatio }
+                    new CalculationStep { StepName = "Ratio", Description = ratioDescription, Stage = TraceStage.Output, Value = ratio, Formula = ratioFormula },
+                    new CalculationStep { StepName = "BalanceScore", Description = "Balance score derived from ratio", Stage = TraceStage.Intermediate, Value = balanceRatio, Formula = balanceFormula },
+                    PassThrough(ratio)
                 }
             });
             signals.Add(new Signal
@@ -775,13 +1055,76 @@ namespace OperationalIntelligenceHub.Services
                 },
                 CalculationSteps = new List<CalculationStep>
                 {
-                    new CalculationStep { StepName = "OldPercent", Description = "Old items / total age items", Value = oldPercent }
+                    new CalculationStep { StepName = "OldPercent", Description = "Old items / total age items", Stage = TraceStage.Output, Value = oldPercent,
+                        Formula = totalAgeItems.HasValue && totalAgeItems.Value > 0
+                            ? FormulaTrace.Fraction("Old ÷ TotalAgeItems", $"{oldCount}", $"{totalAgeItems.Value}", oldPercent)
+                            : null },
+                    PassThrough(oldPercent)
                 }
             });
 
 
             return (signals, signalTraces);
         }
+
+        private static FormulaTrace AverageFormula(IReadOnlyList<int> values, double average) =>
+            values.Count == 0
+                ? FormulaTrace.Expr("Σ x ÷ n", "no throughput values entered", 0)
+                : FormulaTrace.Fraction("Σ x ÷ n", string.Join(" + ", values), $"{values.Count}", average, "items per period");
+
+        private static FormulaTrace? SumFormula(string symbolic, IReadOnlyList<int>? values, int total) =>
+            values == null
+                ? null
+                : FormulaTrace.Expr(symbolic, values.Count == 0 ? "0" : string.Join(" + ", values), total);
+
+        private static void AddCalculatedSignal(
+            List<Signal> signals,
+            List<SignalTrace> signalTraces,
+            Guid workspaceId,
+            Guid squadId,
+            string name,
+            double value,
+            string description)
+        {
+            signals.Add(new Signal
+            {
+                Name = name,
+                Domain = "Flow",
+                RawValue = value,
+                NormalisedValue = value,
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                SourceDiagnostic = "BacklogHealth",
+                Timestamp = DateTime.UtcNow,
+                Category = "Calculation",
+                Type = Signal.SignalType.Derived
+            });
+
+            signalTraces.Add(new SignalTrace
+            {
+                SignalName = name,
+                WorkspaceId = workspaceId,
+                SquadId = squadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = name, Value = value, Source = "Calculation" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep { StepName = "Value", Description = description, Stage = TraceStage.Output, Value = value },
+                    PassThrough(value)
+                }
+            });
+        }
+
+        // Signals created without scaling or clamping carry their raw value straight through.
+        private static CalculationStep PassThrough(double value) => new()
+        {
+            StepName = "Normalisation",
+            Description = "Used unchanged: no scaling or clamping is applied to this signal",
+            Stage = TraceStage.Normalisation,
+            Value = value
+        };
 
         private Signal CreateSignal(string name, string domain, double rawValue, double normalisedValue)
         {
@@ -829,7 +1172,7 @@ namespace OperationalIntelligenceHub.Services
             double std = Math.Sqrt(throughputHistory.Sum(x => Math.Pow(x - avg, 2)) / throughputHistory.Count);
             double cv = avg == 0 ? 0 : std / avg;
 
-            if (cv < 0.2)
+            if (cv <= 0.2)
                 return "Stable";
 
             return "Chaotic";

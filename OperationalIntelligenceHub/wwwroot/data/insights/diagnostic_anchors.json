@@ -12,25 +12,25 @@
           "id": "age",
           "label": "Backlog Age",
           "canonicalSignal": "BacklogAge",
-          "aliases": ["OldWorkPercentage"]
+          "aliases": ["OldWorkPercentage", "FreshWorkPercentage"]
         },
         {
           "id": "volatility",
           "label": "Backlog Volatility",
           "canonicalSignal": "BacklogVolatility",
-          "aliases": ["FlowBalance"]
+          "aliases": ["FlowBalance", "BacklogGrowthWeeks", "BacklogGrowthPercentage", "BacklogShrinkagePercentage"]
         },
         {
           "id": "priority",
           "label": "Prioritisation Clarity",
           "canonicalSignal": "BacklogPrioritisation",
-          "aliases": []
+          "aliases": ["UnprioritisedWorkPercentage", "PriorityBandConcentration"]
         },
         {
           "id": "predictability",
           "label": "Predictability",
           "canonicalSignal": "DeliveryPredictability",
-          "aliases": ["BacklogPredictability"]
+          "aliases": ["BacklogPredictability", "DeliveryPredictabilityDataAvailable"]
         }
       ]
     }

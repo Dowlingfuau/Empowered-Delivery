@@ -1,6 +1,10 @@
 @using System.Text.RegularExpressions
 
 <div class="grouped-wrapper">
+    @if (!string.IsNullOrWhiteSpace(Caption))
+    {
+        <span class="chip-caption">@Caption</span>
+    }
     <div class="input-chip" @onclick="Toggle" @onclick:stopPropagation="true">
         <div class="chip-display">
             @if (!IsEmpty)
@@ -37,6 +41,7 @@
 
 @code {
     [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? Caption { get; set; }
 
     [Parameter] public int? Value1 { get; set; }
     [Parameter] public EventCallback<int?> Value1Changed { get; set; }
@@ -72,19 +77,19 @@
     private string DisplayText =>
     Label switch
     {
-        "Age" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} under 2 weeks, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4 weeks, {(Value3.HasValue ? Value3.Value.ToString() : "-")} over 4 weeks",
+        "Age" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} <2 weeks, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4 weeks, {(Value3.HasValue ? Value3.Value.ToString() : "-")} >4 weeks",
         "Priority" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} high, {(Value2.HasValue ? Value2.Value.ToString() : "-")} med, {(Value3.HasValue ? Value3.Value.ToString() : "-")} low",
-        "Throughput" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} under 2 weeks, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4 weeks, {(Value3.HasValue ? Value3.Value.ToString() : "-")} over 4 weeks",
-        "Added" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} under 2 weeks, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4 weeks, {(Value3.HasValue ? Value3.Value.ToString() : "-")} over 4 weeks",
+        "Throughput" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} <2 weeks, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4 weeks, {(Value3.HasValue ? Value3.Value.ToString() : "-")} >4 weeks",
+        "Added" => $"{(Value1.HasValue ? Value1.Value.ToString() : "-")} <2 weeks, {(Value2.HasValue ? Value2.Value.ToString() : "-")} 2–4 weeks, {(Value3.HasValue ? Value3.Value.ToString() : "-")} >4 weeks",
         _ => Label
     };
     private (string, string, string) Labels =>
         Label switch
         {
-            "Age" => ("Under 2 weeks", "2–4 weeks", "Over 4 weeks"),
+            "Age" => ("<2 weeks", "2–4 weeks", ">4 weeks"),
             "Priority" => ("High", "Medium", "Low"),
-            "Throughput" => ("Under 2 weeks", "2–4 weeks", "Over 4 weeks"),
-            "Added" => ("Under 2 weeks", "2–4 weeks", "Over 4 weeks"),
+            "Throughput" => ("<2 weeks", "2–4 weeks", ">4 weeks"),
+            "Added" => ("<2 weeks", "2–4 weeks", ">4 weeks"),
             _ => ("1", "2", "3")
         };
 

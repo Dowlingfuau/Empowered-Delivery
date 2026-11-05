@@ -100,6 +100,66 @@ public class BacklogHealthSignalBuilderTests
         Assert.Contains(trace.CalculationSteps, step => step.StepName == "InsufficientData");
     }
 
+    [Fact]
+    public void BuildSignals_SeparatesBacklogGrowthFromShrinkageAndExpressesGrowthInCapacityWeeks()
+    {
+        var (growthSignals, _) = BuildSignals(
+            currentBacklog: 120,
+            itemsAdded: 60,
+            itemsCompleted: 0,
+            throughputHistory: new List<int> { 10, 10 });
+        var (shrinkageSignals, _) = BuildSignals(
+            currentBacklog: 80,
+            itemsAdded: 0,
+            itemsCompleted: 40,
+            throughputHistory: new List<int> { 10, 10 });
+
+        Assert.Equal(6, Assert.Single(growthSignals, signal => signal.Name == "BacklogGrowthWeeks").NormalisedValue);
+        Assert.Equal(1, Assert.Single(growthSignals, signal => signal.Name == "BacklogGrowthPercentage").NormalisedValue);
+        Assert.Equal(0, Assert.Single(growthSignals, signal => signal.Name == "BacklogShrinkagePercentage").NormalisedValue);
+        Assert.Equal(0, Assert.Single(shrinkageSignals, signal => signal.Name == "BacklogGrowthPercentage").NormalisedValue);
+        Assert.Equal(1.0 / 3, Assert.Single(shrinkageSignals, signal => signal.Name == "BacklogShrinkagePercentage").NormalisedValue, 5);
+    }
+
+    [Fact]
+    public void BuildSignals_ExposesFreshWorkAndOnlyCountsPriorityMetricsWhenAvailable()
+    {
+        var (signals, _) = BuildSignals(
+            currentBacklog: 10,
+            itemsAdded: 0,
+            itemsCompleted: 0,
+            freshItems: 6,
+            midAgeItems: 2,
+            oldItems: 2,
+            highPriority: 2,
+            mediumPriority: 1,
+            lowPriority: 1);
+        var (unavailablePrioritySignals, _) = BuildSignals(
+            currentBacklog: 10,
+            itemsAdded: 0,
+            itemsCompleted: 0,
+            highPriority: 2,
+            mediumPriority: 1,
+            lowPriority: 1,
+            prioritisationDataAvailable: false);
+
+        Assert.Equal(0.6, Assert.Single(signals, signal => signal.Name == "FreshWorkPercentage").NormalisedValue);
+        Assert.Equal(0.2, Assert.Single(signals, signal => signal.Name == "OldWorkPercentage").NormalisedValue);
+        Assert.Equal(0.6, Assert.Single(signals, signal => signal.Name == "UnprioritisedWorkPercentage").NormalisedValue);
+        Assert.Equal(0.2, Assert.Single(signals, signal => signal.Name == "PriorityBandConcentration").NormalisedValue);
+        Assert.Equal(0, Assert.Single(unavailablePrioritySignals, signal => signal.Name == "UnprioritisedWorkPercentage").NormalisedValue);
+        Assert.Equal(0, Assert.Single(unavailablePrioritySignals, signal => signal.Name == "PriorityBandConcentration").NormalisedValue);
+    }
+
+    [Fact]
+    public void ClassifyDeliveryRhythm_TreatsExactlyTwentyPercentVariationAsStable()
+    {
+        var rhythm = new BacklogHealthSignalBuilderService()
+            .ClassifyDeliveryRhythm(new List<int> { 8, 8, 12, 12 });
+
+        Assert.Equal("Stable", rhythm);
+    }
+
     private static (List<Signal> Signals, List<SignalTrace> Traces) BuildSignals(
         int? currentBacklog,
         int itemsAdded,
@@ -108,7 +168,11 @@ public class BacklogHealthSignalBuilderTests
         int? midAgeItems = 0,
         int? oldItems = 0,
         int matchedVolatilityPeriodCount = 1,
-        List<int>? throughputHistory = null) =>
+        List<int>? throughputHistory = null,
+        int highPriority = 0,
+        int mediumPriority = 0,
+        int lowPriority = 0,
+        bool prioritisationDataAvailable = true) =>
         new BacklogHealthSignalBuilderService().BuildSignals(
             Guid.Empty,
             Guid.Empty,
@@ -119,10 +183,10 @@ public class BacklogHealthSignalBuilderTests
             freshItems: freshItems,
             midAgeItems: midAgeItems,
             oldItems: oldItems,
-            highPriority: 0,
-            mediumPriority: 0,
-            lowPriority: 0,
+            highPriority: highPriority,
+            mediumPriority: mediumPriority,
+            lowPriority: lowPriority,
             unprioritisedItems: 0,
             matchedVolatilityPeriodCount: matchedVolatilityPeriodCount,
-            prioritisationDataAvailable: true);
+            prioritisationDataAvailable: prioritisationDataAvailable);
 }

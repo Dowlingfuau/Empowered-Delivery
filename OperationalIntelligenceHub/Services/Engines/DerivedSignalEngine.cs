@@ -44,6 +44,7 @@ namespace OperationalIntelligenceHub.Services
             {
                 string? matchedResult = null;
                 string? matchedCondition = null;
+                string? matchedInterpretation = null;
 
                 var source = rule.Domain == "Flow"
                     ? "FlowRuleEngine"
@@ -52,7 +53,8 @@ namespace OperationalIntelligenceHub.Services
 
                 foreach (var ruleItem in rule.Rules)
                 {
-                    var evalResult = EvaluateExpression(ruleItem.Condition, signals);
+                    var clauses = new List<ConditionClause>();
+                    var evalResult = EvaluateExpression(ruleItem.Condition, signals, clauses);
 
                     Console.WriteLine($">>> Rule: {rule.Name} | Condition: {ruleItem.Condition} | ReadResult: {evalResult}");
 
@@ -61,13 +63,16 @@ namespace OperationalIntelligenceHub.Services
                         RuleName = rule.Name,
                         Condition = ruleItem.Condition,
                         Result = evalResult,
-                        Output = ruleItem.Result
+                        Output = ruleItem.Result,
+                        Layer = rule.Domain == "Flow" ? "Flow" : "Behaviour",
+                        Clauses = clauses
                     });
 
                     if (evalResult)
                     {
                         matchedResult = ruleItem.Result;
                         matchedCondition = ruleItem.Condition;
+                        matchedInterpretation = ruleItem.Interpretation;
                         break;
                     }
                 }
@@ -102,6 +107,7 @@ namespace OperationalIntelligenceHub.Services
                                 derivedSignals[rule.Name].Score = score;
                                 derivedSignals[rule.Name].Intensity = matchedResult;
                                 derivedSignals[rule.Name].Reasons = reasons;
+                                derivedSignals[rule.Name].Interpretation = matchedInterpretation ?? "";
                             }
                     }
                     else
@@ -112,6 +118,7 @@ namespace OperationalIntelligenceHub.Services
                             Domain = rule.Domain,
                             Score = score,
                             Intensity = matchedResult,
+                            Interpretation = matchedInterpretation ?? "",
                             Source = source,
                             WorkspaceId = signals.First().WorkspaceId,
                             SquadId = signals.First().SquadId,
@@ -134,11 +141,12 @@ namespace OperationalIntelligenceHub.Services
                 .Distinct()
                 .ToList();
         }
-        private bool EvaluateExpression(string expression, List<Signal> signals)
+        private bool EvaluateExpression(string expression, List<Signal> signals, List<ConditionClause>? clauses = null)
         {
             var orGroups = expression.Split("OR", StringSplitOptions.TrimEntries);
-            foreach (var group in orGroups)
+            for (int groupIndex = 0; groupIndex < orGroups.Length; groupIndex++)
                 {
+                    var group = orGroups[groupIndex];
                     var conditions = group.Split("AND", StringSplitOptions.TrimEntries);
 
                     bool allTrue = true;
@@ -157,6 +165,16 @@ namespace OperationalIntelligenceHub.Services
                             catch
                             {
                                 Console.WriteLine($">>> INVALID RULE: {expression}");
+                                clauses?.Add(new ConditionClause
+                                {
+                                    Subject = signalName,
+                                    Operator = op,
+                                    Threshold = parts[2],
+                                    Actual = "n/a",
+                                    Matched = false,
+                                    GroupIndex = groupIndex,
+                                    Note = "Threshold is not a number; the rule is invalid."
+                                });
                                 return false;
                             }
                         
@@ -164,6 +182,16 @@ namespace OperationalIntelligenceHub.Services
 
                         if (signal == null)
                         {
+                            clauses?.Add(new ConditionClause
+                            {
+                                Subject = signalName,
+                                Operator = op,
+                                Threshold = TraceNumber.Format(value),
+                                Actual = "missing",
+                                Matched = false,
+                                GroupIndex = groupIndex,
+                                Note = "Signal was not produced, so the clause cannot match."
+                            });
                             allTrue = false;
                             break;
                         }
@@ -175,6 +203,16 @@ namespace OperationalIntelligenceHub.Services
                             ">=" => signal.NormalisedValue >= value,
                             _ => false
                         };
+
+                        clauses?.Add(new ConditionClause
+                        {
+                            Subject = signalName,
+                            Operator = op,
+                            Threshold = TraceNumber.Format(value),
+                            Actual = TraceNumber.Format(signal.NormalisedValue),
+                            Matched = result,
+                            GroupIndex = groupIndex
+                        });
 
                         if (!result)
                         {

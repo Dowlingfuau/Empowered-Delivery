@@ -116,17 +116,7 @@
                                     <h5>Calculation / Formation</h5>
                                     @if (trace?.CalculationSteps?.Any() == true)
                                     {
-                                        @foreach (var step in trace.CalculationSteps)
-                                        {
-                                            <div>
-                                                <strong>@step.StepName</strong>
-                                                @if (!string.IsNullOrWhiteSpace(step.Description))
-                                                {
-                                                    <div class="text-muted small">@step.Description</div>
-                                                }
-                                                <div>Value: @FormatObject(step.Value)</div>
-                                            </div>
-                                        }
+                                        @StepList(trace.CalculationSteps)
                                     }
                                     else
                                     {
@@ -134,16 +124,14 @@
                                     }
 
                                     <h5>Rule Evaluation</h5>
-                                    @if (trace?.RuleEvaluations?.Any() == true)
+                                    @{
+                                        var ruleEvals = GetRuleEvaluationsFor(signal.Name, trace);
+                                    }
+                                    @if (ruleEvals.Any())
                                     {
-                                        @foreach (var evaluation in trace.RuleEvaluations)
+                                        @foreach (var evaluation in ruleEvals)
                                         {
-                                            <div class="grid grid-4">
-                                                <span>@evaluation.RuleName</span>
-                                                <span class="text-muted">@evaluation.Condition</span>
-                                                <span>@evaluation.Output</span>
-                                                <span>@FormatBoolean(evaluation.Result)</span>
-                                            </div>
+                                            @EvaluationView(evaluation, signal.Name)
                                         }
                                     }
                                     else
@@ -435,11 +423,189 @@
             }
         </div>
 
+        @if (InsightEvaluation != null)
+        {
+            @InsightEvaluationSection()
+        }
+
     </div>
 
 </div>
 
 @code {
+    private const string SectionInsightEvaluation = "Insight Evaluation";
+
+    [Parameter] public InsightEvaluationTrace? InsightEvaluation { get; set; }
+
+    private static string StageTitle(TraceStage stage) => stage switch
+    {
+        TraceStage.Intermediate => "Intermediate calculations",
+        TraceStage.Output => "Calculated outputs",
+        TraceStage.Normalisation => "Normalisation",
+        TraceStage.Derived => "Derived signals",
+        _ => stage.ToString()
+    };
+
+    // Rule evaluations are only read from engine output; nothing is evaluated here.
+    private List<RuleEvaluation> GetRuleEvaluationsFor(string signalName, SignalTrace? trace)
+    {
+        var result = new List<RuleEvaluation>();
+        if (trace?.RuleEvaluations != null) result.AddRange(trace.RuleEvaluations);
+        if (RuleEvaluations != null)
+        {
+            result.AddRange(RuleEvaluations.Where(e => e.Clauses.Any(c =>
+                string.Equals(c.Subject, signalName, StringComparison.OrdinalIgnoreCase))));
+        }
+        return result;
+    }
+
+    private RenderFragment FormulaView(FormulaTrace f) => @<div class="trace-formula">
+        @if (!string.IsNullOrWhiteSpace(f.Symbolic)) { <div class="text-muted small">@f.Symbolic</div> }
+        <div class="trace-formula-line">
+            @if (f.Numerator != null && f.Denominator != null)
+            {
+                <span class="trace-fraction">
+                    <span class="trace-num">@f.Numerator</span>
+                    <span class="trace-den">@f.Denominator</span>
+                </span>
+            }
+            else
+            {
+                <span>@f.Expression</span>
+            }
+            <span> = <strong>@f.Result</strong>@(string.IsNullOrWhiteSpace(f.Unit) ? "" : " " + f.Unit)</span>
+        </div>
+    </div>;
+
+    private RenderFragment StepList(IEnumerable<CalculationStep> steps) => @<div class="stack">
+        @foreach (var group in steps.GroupBy(s => s.Stage).OrderBy(g => g.Key))
+        {
+            <div class="trace-stage">@StageTitle(group.Key)</div>
+            @foreach (var step in group)
+            {
+                <div>
+                    <strong>@step.StepName</strong>
+                    @if (!string.IsNullOrWhiteSpace(step.Description))
+                    {
+                        <div class="text-muted small">@step.Description</div>
+                    }
+                    @if (step.Formula != null)
+                    {
+                        @FormulaView(step.Formula)
+                    }
+                    else
+                    {
+                        <div>Value: @FormatObject(step.Value)</div>
+                    }
+                </div>
+            }
+        }
+    </div>;
+
+    private RenderFragment ClauseRows(IEnumerable<ConditionClause> clauses) => @<div class="stack">
+        @foreach (var c in clauses)
+        {
+            <div class="grid grid-4">
+                <span><code>@c.Subject @c.Operator @c.Threshold</code></span>
+                <span>Actual: @c.Actual</span>
+                <span>Threshold: @c.Threshold</span>
+                <span>@(c.Matched ? "Matched" : "Not matched")</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(c.Note))
+            {
+                <div class="text-muted small">@c.Note</div>
+            }
+        }
+    </div>;
+
+    private RenderFragment EvaluationView(RuleEvaluation e, string? subject) => @<div class="stack">
+        <div class="grid grid-4">
+            <span>@e.RuleName</span>
+            <span class="text-muted">@e.Condition</span>
+            <span>@e.Output</span>
+            <span>@FormatBoolean(e.Result)</span>
+        </div>
+        @if (e.Clauses.Any())
+        {
+            @ClauseRows(subject == null ? e.Clauses : e.Clauses.Where(c => string.Equals(c.Subject, subject, StringComparison.OrdinalIgnoreCase)))
+        }
+    </div>;
+
+    private RenderFragment InsightEvaluationSection() => @<div class="card stack">
+        <div class="grid grid-3" @onclick="() => ToggleSection(SectionInsightEvaluation)" style="cursor:pointer">
+            <strong>Insight Evaluation</strong>
+            <span class="text-muted small">@FormatCount(InsightEvaluation!.RulesTriggered, "triggered insight")</span>
+            <span>@GetSectionMarker(SectionInsightEvaluation)</span>
+        </div>
+
+        @if (IsSectionExpanded(SectionInsightEvaluation))
+        {
+            var ev = InsightEvaluation!;
+            <div class="text-muted small">Ordered by the engine's actual ranking score (intensity score × priority × confidence weight), highest first. Prioritisation keeps the top @ev.SelectionLimit.</div>
+            <div class="grid grid-3">
+                <span>Rules evaluated: <strong>@ev.RulesEvaluated</strong></span>
+                <span>Rules triggered: <strong>@ev.RulesTriggered</strong></span>
+                <span>Eligible for prioritisation: <strong>@ev.EligibleForPrioritisation</strong></span>
+                <span>Selected for rendering: <strong>@ev.SelectedForRendering</strong></span>
+                <span>Suppressed or excluded: <strong>@ev.SuppressedOrExcluded</strong></span>
+                <span>Rendered: <strong>@(ev.RenderStageReported ? ev.RenderedCount.ToString() : "not reported")</strong></span>
+            </div>
+
+            @if (!ev.Entries.Any())
+            {
+                <div class="text-muted small">No insights triggered</div>
+            }
+
+            @foreach (var entry in ev.Entries)
+            {
+                var key = GetItemKey(SectionInsightEvaluation, entry.Name);
+                <div class="card stack">
+                    <div class="grid grid-4" @onclick="() => ToggleItem(key)" style="cursor:pointer">
+                        <span>#@entry.Rank @entry.Name</span>
+                        <span class="text-muted">@entry.Category · @entry.Domain</span>
+                        <span>Priority @entry.Priority · @entry.Intensity intensity</span>
+                        <span>@GetItemMarker(key)</span>
+                    </div>
+                    <div class="small">
+                        <strong>Triggered:</strong> @(entry.RuleFound ? "Matched" : "No rule found") ·
+                        <strong>Prioritised:</strong> @(entry.Selected ? "Selected" : "Not selected") ·
+                        <strong>Rendered:</strong> @(entry.Rendered == null ? "Not reported" : entry.Rendered == true ? "Rendered" : "Not rendered")
+                    </div>
+                    @if (entry.Rendered == false && !string.IsNullOrWhiteSpace(entry.NotRenderedReason))
+                    {
+                        <div class="text-muted small">Why not rendered: @entry.NotRenderedReason</div>
+                    }
+                    @if (IsItemExpanded(key))
+                    {
+                        <div class="card stack">
+                            <h5>Triggered</h5>
+                            <div>@entry.MatchedRuleName: <span class="text-muted">@entry.MatchedCondition</span></div>
+                            @if (entry.MatchedClauses.Any()) { @ClauseRows(entry.MatchedClauses) }
+
+                            <h5>Prioritisation</h5>
+                            @if (entry.ScoreFormula != null) { @FormulaView(entry.ScoreFormula) }
+                            <div>Eligible: @(entry.EligibleForPrioritisation ? "Yes" : "No") · Rank @entry.Rank · Score @TraceNumber.Format(entry.Score)</div>
+                            @if (!string.IsNullOrWhiteSpace(entry.NotSelectedReason))
+                            {
+                                <div class="text-muted small">@entry.NotSelectedReason</div>
+                            }
+
+                            <h5>Rendering</h5>
+                            @if (!ev.RenderStageReported)
+                            {
+                                <div class="text-muted small">This page does not report the rendering stage.</div>
+                            }
+                            else
+                            {
+                                <div>@(entry.Rendered == true ? "Rendered" : "Not rendered")@(string.IsNullOrWhiteSpace(entry.NotRenderedReason) ? "" : ": " + entry.NotRenderedReason)</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>;
+
     private const string SectionInputs = "Inputs";
     private const string SectionSignals = "Signals";
     private const string SectionDerivedSignals = "Derived Signals";

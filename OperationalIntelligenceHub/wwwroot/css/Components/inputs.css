@@ -89,6 +89,21 @@ input::-webkit-inner-spin-button {
 .grouped-wrapper {
     position: relative;
     display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.chip-field {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.chip-caption {
+    font-size: var(--font-size-xs);
+    color: var(--text-light);
+    line-height: 1.2;
+}
+.backlog-health .chip-caption {
+    color: var(--diagnostic-text-muted);
 }
 .group-dropdown {
     position: absolute;

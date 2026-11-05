@@ -85,9 +85,9 @@
 
     private static readonly string[] PeriodLabels =
     {
-        "Under 2 weeks",
+        "<2 weeks",
         "2–4 weeks",
-        "Over 4 weeks"
+        ">4 weeks"
     };
     private bool HasPatternData => Throughput.Count(value => value.HasValue) >= 3;
     private int Maximum => Throughput.Where(value => value.HasValue).Select(value => value.GetValueOrDefault()).DefaultIfEmpty().Max();

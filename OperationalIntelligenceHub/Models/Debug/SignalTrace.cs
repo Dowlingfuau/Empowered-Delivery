@@ -11,11 +11,71 @@ namespace OperationalIntelligenceHub.Models
 		public DateTime? Timestamp { get; set; }
 	}
 
+	// Where a step sits in the chain from user input to rule evaluation.
+	public enum TraceStage
+	{
+		Intermediate,
+		Output,
+		Normalisation,
+		Derived
+	}
+
+	// The formula a step actually used, with the entered values substituted.
+	// Symbolic uses names (TotalItems / AverageThroughput); Numerator/Denominator or Expression hold the substituted values.
+	public class FormulaTrace
+	{
+		public string? Symbolic { get; set; }
+		public string? Numerator { get; set; }
+		public string? Denominator { get; set; }
+		public string? Expression { get; set; }
+		public string Result { get; set; } = "";
+		public string? Unit { get; set; }
+
+		public static FormulaTrace Fraction(string symbolic, string numerator, string denominator, double result, string? unit = null) => new()
+		{
+			Symbolic = symbolic,
+			Numerator = numerator,
+			Denominator = denominator,
+			Result = TraceNumber.Format(result),
+			Unit = unit
+		};
+
+		public static FormulaTrace Expr(string symbolic, string expression, string result, string? unit = null) => new()
+		{
+			Symbolic = symbolic,
+			Expression = expression,
+			Result = result,
+			Unit = unit
+		};
+
+		public static FormulaTrace Expr(string symbolic, string expression, double result, string? unit = null) =>
+			Expr(symbolic, expression, TraceNumber.Format(result), unit);
+	}
+
+	public static class TraceNumber
+	{
+		// Invariant, trimmed formatting so substituted values read like the numbers a user typed.
+		public static string Format(double value)
+		{
+			if (double.IsPositiveInfinity(value) || value >= double.MaxValue) return "∞";
+			if (double.IsNegativeInfinity(value) || value <= double.MinValue) return "-∞";
+			if (double.IsNaN(value)) return "undefined";
+			return Math.Round(value, 4).ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
+		}
+
+		public static string Format(double? value) => value.HasValue ? Format(value.Value) : "n/a";
+
+		public static string Join(string separator, IEnumerable<double> values) =>
+			string.Join(separator, values.Select(Format));
+	}
+
 	public class CalculationStep
 	{
 		public string StepName { get; set; } = "";
 		public string? Description { get; set; }
 		public object? Value { get; set; }
+		public TraceStage Stage { get; set; } = TraceStage.Intermediate;
+		public FormulaTrace? Formula { get; set; }
 	}
 
 	public class PatternDetection

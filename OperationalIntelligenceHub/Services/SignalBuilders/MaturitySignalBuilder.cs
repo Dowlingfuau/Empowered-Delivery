@@ -14,9 +14,13 @@ public class MaturitySignalBuilderService : SignalBuilderBaseService
             _registry = registry;
         }
 
-    public async Task <List<Signal>> BuildSignals(AssessmentSession session)
+    public async Task<List<Signal>> BuildSignals(AssessmentSession session) =>
+        (await BuildSignalsWithTrace(session)).Signals;
+
+    public async Task<(List<Signal> Signals, List<SignalTrace> Traces)> BuildSignalsWithTrace(AssessmentSession session)
     {
         var signals = new List<Signal>();
+        var traces = new List<SignalTrace>();
         
         var mappings = await _mappingLoader.GetMappings("maturity");
 
@@ -49,19 +53,54 @@ public class MaturitySignalBuilderService : SignalBuilderBaseService
 
             var definition = _registry.Get(signal.Name);
 
+            var normalisation = new CalculationStep
+            {
+                StepName = "Normalisation",
+                Stage = TraceStage.Normalisation
+            };
+
             if (definition != null)
             {
-                signal.NormalisedValue = _normaliser.Normalise(definition, signal.RawValue);
+                var (value, formula) = _normaliser.NormaliseTraced(definition, signal.RawValue);
+                signal.NormalisedValue = value;
+                normalisation.Description = $"Registry rule '{definition.NormalisationRule}'";
+                normalisation.Formula = formula;
+                normalisation.Value = value;
             }
             else
             {
                 signal.NormalisedValue = _normaliser.Clamp(signal.RawValue);
                 Console.WriteLine($"[WARN] No registry definition for signal: {signal.Name}");
+                normalisation.Description = "No registry definition; the raw value is clamped to 0-1.";
+                normalisation.Formula = FormulaTrace.Expr("Clamp(Value, 0, 1)", $"Clamp({TraceNumber.Format(signal.RawValue)}, 0, 1)", signal.NormalisedValue);
+                normalisation.Value = signal.NormalisedValue;
             }
             signals.Add(signal);
+
+            traces.Add(new SignalTrace
+            {
+                SignalName = signal.Name,
+                WorkspaceId = signal.WorkspaceId,
+                SquadId = signal.SquadId,
+                Inputs = new List<TraceInput>
+                {
+                    new TraceInput { Name = $"{lens.Lens} · {theme.Theme} · behaviour level", Value = theme.Level, Source = "MaturityAssessment" }
+                },
+                CalculationSteps = new List<CalculationStep>
+                {
+                    new CalculationStep
+                    {
+                        StepName = "SignalMapping",
+                        Description = $"Mapping for {lens.Lens} / {theme.Theme} / level {theme.Level} selects signal {mapping.SignalName}; the level becomes the raw value",
+                        Stage = TraceStage.Output,
+                        Value = signal.RawValue
+                    },
+                    normalisation
+                }
+            });
             }
         }
-        return signals;
+        return (signals, traces);
     }
 }
 }

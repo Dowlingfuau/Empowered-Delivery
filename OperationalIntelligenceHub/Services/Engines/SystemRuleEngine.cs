@@ -20,14 +20,17 @@ namespace OperationalIntelligenceHub.Services
             {
                 foreach (var condition in rule.Rules)
                 {
-                    var matched = EvaluateCondition(condition.Condition, inputs);
+                    var clauses = new List<ConditionClause>();
+                    var matched = EvaluateCondition(condition.Condition, inputs, clauses);
 
                     evaluations.Add(new RuleEvaluation
                     {
                         RuleName = rule.Name,
                         Condition = condition.Condition,
                         Result = matched,
-                        Output = condition.Result
+                        Output = condition.Result,
+                        Layer = "System",
+                        Clauses = clauses
                     });
 
                     if (matched)
@@ -54,7 +57,7 @@ namespace OperationalIntelligenceHub.Services
             return (results, evaluations);
         }
 
-        private bool EvaluateCondition(string condition, List<DerivedSignal> signals)
+        private bool EvaluateCondition(string condition, List<DerivedSignal> signals, List<ConditionClause>? clauses = null)
         {
             Console.WriteLine($"Evaluating: {condition}");
             var parts = condition.Split("AND", StringSplitOptions.TrimEntries);
@@ -63,14 +66,36 @@ namespace OperationalIntelligenceHub.Services
             {
                 var tokens = part.Split("=", StringSplitOptions.TrimEntries);
                 if (tokens.Length != 2)
+                {
+                    clauses?.Add(new ConditionClause
+                    {
+                        Subject = part,
+                        Operator = "=",
+                        Threshold = "",
+                        Actual = "n/a",
+                        Matched = false,
+                        Note = "Clause is not in the form Signal = Intensity."
+                    });
                     return false;
+                }
 
                 var signalName = tokens[0];
                 var expectedIntensity = tokens[1];
 
                 var signal = signals.FirstOrDefault(s => s.Name == signalName);
 
-                if (signal == null || signal.Intensity != expectedIntensity)
+                bool clauseMatched = signal != null && signal.Intensity == expectedIntensity;
+                clauses?.Add(new ConditionClause
+                {
+                    Subject = signalName,
+                    Operator = "=",
+                    Threshold = expectedIntensity,
+                    Actual = signal == null ? "not triggered" : signal.Intensity,
+                    Matched = clauseMatched,
+                    Note = signal == null ? "This behaviour signal did not trigger." : null
+                });
+
+                if (!clauseMatched)
                     return false;
             }
 

@@ -29,10 +29,17 @@ namespace OperationalIntelligenceHub.Services
 
         public async Task<(List<Signal> signals, List<DerivedSignal> behaviour, List<DerivedSignal> system, List<OperationalInsight> insights, List<RuleEvaluation> evaluations)> BuildSignalsAndDerived(AssessmentSession session)
         {
+            var r = await BuildSignalsAndDerivedDetailed(session);
+            return (r.signals, r.behaviour, r.system, r.insights, r.evaluations);
+        }
+
+        // Same pipeline as BuildSignalsAndDerived, plus the calculation traces and insight evaluation for the diagnostics console.
+        public async Task<(List<Signal> signals, List<DerivedSignal> behaviour, List<DerivedSignal> system, List<OperationalInsight> insights, List<RuleEvaluation> evaluations, List<SignalTrace> traces, InsightEvaluationTrace insightEvaluation)> BuildSignalsAndDerivedDetailed(AssessmentSession session)
+        {
             Console.WriteLine(">>> PIPELINE: BuildSignalsAndDerived CALLED");
 
             // 1. Build base signals
-            var signals = await _maturityBuilder.BuildSignals(session);
+            var (signals, traces) = await _maturityBuilder.BuildSignalsWithTrace(session);
 
             Console.WriteLine(">>> PIPELINE: Calling DerivedSignalEngine");
 
@@ -46,16 +53,17 @@ namespace OperationalIntelligenceHub.Services
 
             Console.WriteLine($">>> SignalPipelineService: System signals = {systemSignals.Count}");
 
-            // 4. Insight layer
-            var insights = _insightEngine.GenerateInsights(behaviourSignals, systemSignals);
-
-            Console.WriteLine($">>> PIPELINE: Insights = {insights.Count}");
-
             // 5. Combine evaluations (for diagnostics)
             var allEvaluations = behaviourEvaluations.Concat(systemEvaluations).ToList();
 
-            return (signals, behaviourSignals, systemSignals, insights, allEvaluations);
+            // 4. Insight layer
+            var (insights, insightEvaluation) = _insightEngine.GenerateInsightsWithTrace(behaviourSignals, systemSignals, allEvaluations);
+
+            Console.WriteLine($">>> PIPELINE: Insights = {insights.Count}");
+
+            return (signals, behaviourSignals, systemSignals, insights, allEvaluations, traces, insightEvaluation);
         }
+
         public async Task<(
             List<DerivedSignal> behaviour,
             List<DerivedSignal> system,
@@ -63,6 +71,19 @@ namespace OperationalIntelligenceHub.Services
             List<RuleEvaluation> evaluations,
             SystemHealth health)>
         ProcessSignals(List<Signal> signals)
+        {
+            var r = await ProcessSignalsDetailed(signals);
+            return (r.behaviour, r.system, r.insights, r.evaluations, r.health);
+        }
+
+        public async Task<(
+            List<DerivedSignal> behaviour,
+            List<DerivedSignal> system,
+            List<OperationalInsight> insights,
+            List<RuleEvaluation> evaluations,
+            SystemHealth health,
+            InsightEvaluationTrace insightEvaluation)>
+        ProcessSignalsDetailed(List<Signal> signals)
         {
             var predictabilitySignal = signals.FirstOrDefault(s => s.Name == "DeliveryPredictability");
             
@@ -89,15 +110,15 @@ namespace OperationalIntelligenceHub.Services
 
             Console.WriteLine($">>> PIPELINE: System signals = {systemSignals.Count}");
 
-            // 3. Insight layer
-            var insights =
-                _insightEngine.GenerateInsights(behaviourSignals, systemSignals);
-
-            Console.WriteLine($">>> PIPELINE: Insights = {insights.Count}");
-
-            // 4. Combine evaluations
+            // 3. Combine evaluations (needed by the insight trace)
             var allEvaluations =
                 behaviourEvaluations.Concat(systemEvaluations).ToList();
+
+            // 4. Insight layer
+            var (insights, insightEvaluation) =
+                _insightEngine.GenerateInsightsWithTrace(behaviourSignals, systemSignals, allEvaluations);
+
+            Console.WriteLine($">>> PIPELINE: Insights = {insights.Count}");
 
             // Compute Health
             var size = signals.FirstOrDefault(s => s.Name == "BacklogSize");
@@ -114,12 +135,12 @@ namespace OperationalIntelligenceHub.Services
                 predictability
             );
 
-            return (behaviourSignals, systemSignals, insights, allEvaluations, health);
+            return (behaviourSignals, systemSignals, insights, allEvaluations, health, insightEvaluation);
         }
         // Debug helper (replaces old SignalService.DebugSignals)
         public async Task<(List<Signal>, List<RuleEvaluation>)> DebugSignals(AssessmentSession session)
         {
-            var signals = await _maturityBuilder.BuildSignals(session);
+            var (signals, _) = await _maturityBuilder.BuildSignalsWithTrace(session);
             var (_, evaluations) = await _derivedSignalEngine.EvaluateSignals(signals);
 
             return (signals, evaluations);

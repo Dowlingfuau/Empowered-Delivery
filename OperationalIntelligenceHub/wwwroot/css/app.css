@@ -21,3 +21,10 @@
 @import "Components/tools.css";
 @import "Components/icons.css";
 @import "Components/play-template.css";
+
+/* Diagnostics console: calculation trace */
+.trace-stage{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-top:.5rem}
+.trace-formula-line{display:flex;align-items:center;gap:.5rem}
+.trace-fraction{display:inline-flex;flex-direction:column;align-items:center;text-align:center}
+.trace-num{padding:0 .4rem;border-bottom:1px solid currentColor}
+.trace-den{padding:0 .4rem}

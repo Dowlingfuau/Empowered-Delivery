@@ -25,5 +25,6 @@ namespace OperationalIntelligenceHub.Models
     {
         public string Condition { get; set; } = "";
         public string Result { get; set; } = "";
+        public string Interpretation { get; set; } = "";
     }
 }
