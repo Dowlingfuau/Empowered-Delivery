@@ -26,6 +26,9 @@ Insights can connect users to relevant Plays, Perspectives, articles or other re
 ### 6. Available evidence
 The engine can use currently entered, unsaved diagnostic data as well as saved and historical evidence. Unsaved inputs must remain distinguishable from completed assessments and retained history.
 
+### 7. Rule-driven triggering
+Backlog Health insights come from numeric rules in `flow_rules_v3.json`; system-level insights come from `system_rules.json`. A rule can carry different interpretation text per condition, and the engine prefers that text over the rule-level text. Each insight condition should have one rule, so duplicate representations (such as the removed `FlowDisruption`) are avoided. See [backlog-health-flow-rules.md](./backlog-health-flow-rules.md).
+
 ## Core principle
 
 **The Insight Engine determines what the evidence means. Prioritisation determines what matters most. Contextual rendering determines what the user sees, where and when.**

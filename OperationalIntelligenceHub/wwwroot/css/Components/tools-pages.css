@@ -1,0 +1,428 @@
+.operational-mri-page,
+.structure-studio-page {
+    --tools-page-ink: #111315;
+    --tools-page-surface: #171d1e;
+    --tools-page-line: #465052;
+    --tools-page-cream: #f2eadb;
+    --tools-page-muted: #b2b9b4;
+    --tools-page-red: #d5523d;
+    background: var(--tools-page-ink);
+    color: var(--tools-page-cream);
+    color-scheme: dark;
+    font-family: var(--font-family-primary, "Inter", "Segoe UI", sans-serif);
+    width: 100%;
+}
+
+.operational-mri-page *,
+.structure-studio-page *,
+.operational-mri-page *::before,
+.structure-studio-page *::before,
+.operational-mri-page *::after,
+.structure-studio-page *::after {
+    box-sizing: border-box;
+}
+
+.operational-mri-page :focus-visible,
+.structure-studio-page :focus-visible {
+    outline: 2px solid var(--tools-page-red);
+    outline-offset: 3px;
+}
+
+.operational-mri-page {
+    max-width: 100vw;
+    min-width: 0;
+    padding: clamp(34px, 5vw, 68px) clamp(22px, 6vw, 88px) 96px;
+}
+
+.operational-mri-page > * {
+    margin-inline: auto;
+    max-width: 1280px;
+    min-width: 0;
+    width: 100%;
+}
+
+.operational-mri-page .hero {
+    border-bottom: 1px solid var(--tools-page-line);
+    padding: 0 0 clamp(28px, 4vw, 48px);
+}
+
+.operational-mri-page .hero h1 {
+    color: var(--tools-page-cream);
+    font: 400 clamp(46px, 6vw, 76px)/.96 Georgia, serif;
+    letter-spacing: -.045em;
+    margin: 0 0 16px;
+}
+
+.operational-mri-page .hero p {
+    color: #c2c9c4;
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+    max-width: 58ch;
+}
+
+.operational-mri-page .section {
+    padding: clamp(22px, 3vw, 38px) 0;
+}
+
+.operational-mri-page .section > h2 {
+    border-bottom: 1px solid var(--tools-page-line);
+    color: var(--tools-page-cream);
+    font: 400 clamp(27px, 3vw, 36px)/1.1 Georgia, serif;
+    letter-spacing: -.025em;
+    margin: 0 0 22px;
+    padding-bottom: 14px;
+}
+
+.operational-mri-page .grid {
+    gap: clamp(14px, 2vw, 22px);
+}
+
+.operational-mri-page .grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.operational-mri-page .grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+.operational-mri-page .card {
+    background: var(--tools-page-surface);
+    border: 1px solid var(--tools-page-line);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--tools-page-cream);
+    padding: clamp(18px, 2.2vw, 28px);
+    min-width: 0;
+    transition: border-color 160ms ease;
+}
+
+.operational-mri-page .card > * {
+    min-width: 0;
+}
+
+.operational-mri-page .card:hover {
+    border-color: #687578;
+    box-shadow: none;
+    transform: none;
+    z-index: auto;
+}
+
+.operational-mri-page .card h3,
+.operational-mri-page .card h5,
+.operational-mri-page .card h6 {
+    color: var(--tools-page-cream);
+}
+
+.operational-mri-page .grid-3 > h3,
+.operational-mri-page .grid-3 > h6 {
+    grid-column: 1 / -1;
+}
+
+.operational-mri-page .stack {
+    gap: 20px;
+}
+
+.operational-mri-page .stack > .grid:first-child {
+    align-items: center;
+}
+
+.operational-mri-page .metric-value {
+    color: var(--tools-page-cream);
+    font: 400 clamp(32px, 4vw, 48px)/1 Georgia, serif;
+    font-variant-numeric: tabular-nums;
+    margin-top: 8px;
+}
+
+.operational-mri-page .text-muted,
+.operational-mri-page .small {
+    color: var(--tools-page-muted);
+}
+
+.operational-mri-page label {
+    color: #e07c69;
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.operational-mri-page select,
+.operational-mri-page input {
+    background: #111719;
+    border: 1px solid #596365;
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--tools-page-cream);
+    font: inherit;
+    min-height: 44px;
+    padding: 10px 12px;
+}
+
+.operational-mri-page .button {
+    background: transparent;
+    border: 1px solid var(--tools-page-line);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--tools-page-cream);
+    font: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    min-height: 40px;
+    padding: 10px 14px;
+    text-transform: uppercase;
+    transition: border-color 160ms ease, color 160ms ease;
+}
+
+.operational-mri-page .button:hover {
+    border-color: #e07c69;
+    box-shadow: none;
+    color: #e07c69;
+    transform: none;
+}
+
+.operational-mri-page .button-primary,
+.operational-mri-page .button-secondary {
+    background: transparent;
+}
+
+.operational-mri-page .button-destructive,
+.operational-mri-page .button-danger {
+    border-color: #9c4d42;
+    color: #f08a76;
+}
+
+.operational-mri-page .button:disabled {
+    border-color: var(--tools-page-line);
+    color: #818a86;
+    opacity: .65;
+}
+
+.operational-mri-page .operational-mri-table-wrap {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    width: 100%;
+}
+
+.operational-mri-page .table {
+    border-collapse: collapse;
+    min-width: 680px;
+    width: 100%;
+}
+
+.operational-mri-page .table th,
+.operational-mri-page .table td {
+    border-bottom: 1px solid var(--tools-page-line);
+    color: var(--tools-page-muted);
+    font-size: 12px;
+    padding: 12px 10px;
+    text-align: left;
+}
+
+.operational-mri-page .table th {
+    color: #e07c69;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.operational-mri-page hr {
+    border: 0;
+    border-top: 1px solid var(--tools-page-line);
+    margin: 24px 0;
+}
+
+.structure-studio-page {
+    margin-inline: auto;
+    max-width: 1320px;
+    min-height: 100vh;
+    padding: clamp(34px, 5vw, 68px) clamp(22px, 6vw, 88px) 96px;
+}
+
+.structure-studio-page h1 {
+    border-bottom: 1px solid var(--tools-page-line);
+    color: var(--tools-page-cream);
+    font: 400 clamp(46px, 6vw, 76px)/.96 Georgia, serif;
+    letter-spacing: -.045em;
+    margin: 0 0 34px;
+    padding-bottom: clamp(24px, 3vw, 38px);
+}
+
+.structure-studio-page .section {
+    padding: 0 0 clamp(26px, 4vw, 46px);
+}
+
+.structure-studio-page .section > h3 {
+    color: #e07c69;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    margin: 0 0 16px;
+    text-transform: uppercase;
+}
+
+.structure-studio-page .structure-studio-workspace-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+
+.structure-studio-page .structure-studio-workspace-card,
+.structure-studio-page .hierarchy-card {
+    background: var(--tools-page-surface);
+    border: 1px solid var(--tools-page-line);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--tools-page-cream);
+    padding: clamp(16px, 2vw, 24px);
+    transition: border-color 160ms ease;
+}
+
+.structure-studio-page .structure-studio-workspace-card:hover,
+.structure-studio-page .hierarchy-card:hover {
+    border-color: #687578;
+    box-shadow: none;
+    transform: none;
+    z-index: auto;
+}
+
+.structure-studio-page .structure-studio-workspace-card > span,
+.structure-studio-page .hierarchy-card span {
+    color: var(--tools-page-cream);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.structure-studio-page .structure-studio-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.structure-studio-page .structure-studio-workspace-card > .structure-studio-actions {
+    margin-top: 14px;
+}
+
+.structure-studio-page .hierarchy-section {
+    border-top: 1px solid var(--tools-page-line);
+    padding-top: clamp(24px, 3vw, 38px);
+}
+
+.structure-studio-page .hierarchy-section > h4 {
+    color: var(--tools-page-cream);
+    font: 400 clamp(26px, 3vw, 36px)/1.1 Georgia, serif;
+    letter-spacing: -.025em;
+    margin: 0 0 20px;
+}
+
+.structure-studio-page .hierarchy-card {
+    margin-bottom: 14px;
+}
+
+.structure-studio-page .company-card > .card {
+    background: #141a1b;
+    border: 0;
+    border-top: 1px solid #394445;
+    border-radius: 0;
+    box-shadow: none;
+    margin-top: 18px;
+    padding: 18px 0 0 18px;
+}
+
+.structure-studio-page .company-card > .card .card {
+    background: transparent;
+    border: 0;
+    border-top: 1px solid #394445;
+    border-radius: 0;
+    box-shadow: none;
+    margin-top: 16px;
+    padding: 16px 0 0 18px;
+}
+
+.structure-studio-page .grid-auto {
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+}
+
+.structure-studio-page .grid-auto > div {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.structure-studio-page input {
+    background: #111719;
+    border: 1px solid #596365;
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--tools-page-cream);
+    font: inherit;
+    min-height: 42px;
+    padding: 9px 12px;
+}
+
+.structure-studio-page .button {
+    background: transparent;
+    border: 1px solid var(--tools-page-line);
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--tools-page-cream);
+    cursor: pointer;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    min-height: 40px;
+    padding: 9px 13px;
+    text-transform: uppercase;
+    transition: border-color 160ms ease, color 160ms ease;
+}
+
+.structure-studio-page .button:hover {
+    border-color: #e07c69;
+    box-shadow: none;
+    color: #e07c69;
+    transform: none;
+}
+
+.structure-studio-page .button-primary,
+.structure-studio-page .button-secondary,
+.structure-studio-page .button.primary {
+    background: transparent;
+}
+
+.structure-studio-page .button-danger {
+    border-color: #9c4d42;
+    color: #f08a76;
+}
+
+@media (max-width: 760px) {
+    .operational-mri-page {
+        padding: 38px 20px 72px;
+    }
+
+    .operational-mri-page .grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .operational-mri-page .grid-2 > .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .structure-studio-page {
+        padding: 38px 20px 72px;
+    }
+
+    .structure-studio-page .grid-auto {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .structure-studio-page .grid-auto > div {
+        justify-content: flex-start;
+    }
+}

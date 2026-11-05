@@ -19,6 +19,7 @@
 @import "Components/signals.css";
 @import "Components/insights.css";
 @import "Components/tools.css";
+@import "Components/tools-pages.css?v=tools-pages";
 @import "Components/icons.css";
 @import "Components/play-template.css";
 

@@ -1,4 +1,4 @@
-@page "/hub/coach-hub"
+@page "/hub/operational-mri"
 @layout HubLayout
 @inject WorkspaceRepositoryService Repository
 @inject AssessmentRepositoryService Assessments
@@ -13,7 +13,7 @@
 @using OperationalIntelligenceHub.Shared
 @using OperationalIntelligenceHub.Components
 
-<div class="container">
+<div class="operational-mri-page">
 <Hero>
 <h1>Intelligence Hub</h1>
 <p>
@@ -151,7 +151,9 @@
             Delete All (Current Workspace)
         </div>
 
-        @RenderTable(BacklogView, "Backlog")
+        <div class="operational-mri-table-wrap">
+            @RenderTable(BacklogView, "Backlog")
+        </div>
 
         <hr />
 
@@ -163,7 +165,9 @@
             Delete All (Current Workspace)
         </div>
 
-        @RenderTable(TeamView, "Team")
+        <div class="operational-mri-table-wrap">
+            @RenderTable(TeamView, "Team")
+        </div>
 
     </div>
 }

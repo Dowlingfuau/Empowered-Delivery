@@ -424,6 +424,8 @@ In particular:
 - Backlog Size must preserve its calculated weeks of work and throughput basis.
 The Insight Engine can then use these signals in combination with other diagnostic evidence.
 
+The builder also emits auxiliary numeric signals used only by insight rules (for example `FreshWorkPercentage`, `BacklogGrowthWeeks`, `UnprioritisedWorkPercentage`, `PriorityBandConcentration`). They do not affect gauges or overall health. See [backlog-health-flow-rules.md](./backlog-health-flow-rules.md) for the full list and the rules that use them.
+
 ---
 
 ## 8. Deferred capabilities
@@ -464,4 +466,5 @@ The alignment plan was approved. The current implementation follows these confir
 
 - Confirm the duration represented by throughput observations so the weeks-of-work estimate has a defensible time basis.
 - Keep the three original range labels until the observation-period wording is revisited.
-- Continue to leave the auxiliary derived signals unchanged in this phase.
+- The gauge and continuum calculations are unchanged. Auxiliary signals were added for insight rules only; see [backlog-health-flow-rules.md](./backlog-health-flow-rules.md).
+- The Stable delivery rhythm boundary is now a coefficient of variation of 0.2 or less (previously below 0.2).

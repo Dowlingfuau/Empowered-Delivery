@@ -5,22 +5,22 @@
 @using OperationalIntelligenceHub.Components
 @inject WorkspaceRepositoryService Repository
 
-<div class="container">
+<div class="structure-studio-page">
 <h1>Structure Studio</h1>
 
 <!-- WORKSPACE SELECTION & EDIT -->
 <div class="section stack">
     <h3>Workspaces</h3>
 
-    <div class="grid grid-3">
+    <div class="grid grid-3 structure-studio-workspace-grid">
     @foreach (var ws in Workspaces)
     {
-        <div class="card container">
+        <div class="card structure-studio-workspace-card">
             @if (EditingWorkspaces.Contains(ws))
             {
                 <input class="input" @bind="ws.Name" />
 
-                <div class="container">
+                <div class="structure-studio-actions">
                     <div class="button button-primary" @onclick="() => SaveWorkspace(ws)">Save</div>
                     <div class="button button-secondary" @onclick="() => CancelEditWorkspace(ws)">Cancel</div>
                 </div>
@@ -28,7 +28,7 @@
             else
             {
                 <span>@ws.Name</span>
-                <div class="container">
+                <div class="structure-studio-actions">
                     <div class="button button-secondary" @onclick="() => EditWorkspace(ws)">Edit</div>
                     <div class="button button-primary" @onclick="() => AddCompany(ws)">+ Company</div>
                     <div class="button button-danger" @onclick="() => DeleteWorkspace(ws)">Delete</div>
@@ -76,7 +76,7 @@
                         {
                             <input class="input" @bind="bu.Name" />
                             <div>
-                                <button class="button button primary" @onclick="() => SaveBusinessUnit(bu)">Save</button>
+                                <button class="button button-primary" @onclick="() => SaveBusinessUnit(bu)">Save</button>
                                 <button class="button button-secondary" @onclick="() => CancelEditBusinessUnit(bu)">Cancel</button>
                             </div>
                         }
