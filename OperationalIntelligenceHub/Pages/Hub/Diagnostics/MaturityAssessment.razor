@@ -1,238 +1,1754 @@
 @page "/hub/maturity-assessment"
 @layout HubLayout
-@inject SessionService SessionService
-@inject WorkspaceRepositoryService WorkspaceRepository
-@inject BehaviourCatalogueService BehaviourCatalogue
-@inject ChartDefinitionService ChartDefinitions
-@inject SignalPipelineService SignalPipeline
-@inject SignalRegistryService SignalRegistry
-@inject ChartService ChartService
-@inject RuleRepositoryService RuleRepository
-@inject SignalValidationService SignalValidator
+@implements IAsyncDisposable
+@using System.Globalization
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.Extensions.Logging
+@using Microsoft.JSInterop
 @using OperationalIntelligenceHub.Models
-@using OperationalIntelligenceHub.Components
 @using OperationalIntelligenceHub.Services
+@inject BehaviourCatalogueService BehaviourCatalogue
+@inject SignalMappingLoaderService MappingLoader
+@inject SignalRegistryService SignalRegistry
+@inject SignalPipelineService SignalPipeline
+@inject RuleRepositoryService RuleRepository
+@inject SessionService SessionService
+@inject AssessmentRepositoryService AssessmentRepository
+@inject WorkspaceRepositoryService WorkspaceRepository
+@inject SignalValidationService SignalValidator
+@inject ILogger<MaturityAssessment> Logger
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<div class="container">
-    <div class="section">
-        <h1>Maturity Assessment</h1>
-    </div>
-
-    <div class="section stack">
-        <SquadInput
-            Label="Select Squad"
-            @bind-SelectedSquad="SelectedSquadId" />
-    </div>
-
-    <div class="section stack">
-        <h3>Select Session</h3>
-        <select value="@SelectedSessionId" @onchange="async e => await LoadSession(e)">
-            <option value="">-- Select Session --</option>
-            @foreach (var s in Sessions)
-            {
-                <option value="@s.AssessmentId">@GetSessionLabel(s)</option>
-            }
-        </select>
-        <div class="button button-primary" @onclick="async () => await CreateNewSession()"
-        disabled="@(string.IsNullOrEmpty(SelectedSquadId))">
-            New Session
+<HeadContent>
+    <link rel="stylesheet" href="css/Components/maturity-assessment.css" />
+</HeadContent>
+<NavigationLock ConfirmExternalNavigation="@(HasUnsavedSelections || (isSwitching && !IsDraft))" OnBeforeInternalNavigation="BeforeNavigation" />
+<section class="maturity-final" aria-labelledby="mf-title">
+    <div inert="@(showLeavePrompt || pendingSession is not null || showAssignmentPrompt ? "" : null)">
+    <header class="mf-heading">
+        <div>
+            <h1 id="mf-title">Maturity Assessment</h1>
+            <p>One shared assessment canvas. Move between perspectives and themes as evidence emerges.</p>
         </div>
-    </div>
-
-        @if (CurrentSession != null)
-        {
-            <div class="section">
-            <h2>Lens Assessments</h2>
-            </div> 
-            <div class="section">
-        
-            </div>
-            <ProgressNavigator
-            Items="LensProgress"
-            SelectedId="SelectedLens"
-            OnSelected="SelectLens" />
-            <div class="stack" @key="SelectedLens">
-            @foreach (var lensAssessment in CurrentSession.LensAssessments.Where(l => l.Lens == SelectedLens))
-            {
-                <div class="card stack">
-                <h3>@lensAssessment.Lens</h3>
-                <div class="table-container">
-                    <div class="stack">
-                        @foreach (var theme in lensAssessment.Themes)
-                        {
-                        <div class="card stack">
-                            <h3>@theme.Theme</h3>
-                            <BehaviourSelector 
-                            Theme="theme" 
-                            Lens="@lensAssessment.Lens"
-                            OnBehaviourSelected="async level => await UpdateScore(lensAssessment.Lens, theme.Theme, level, theme.BehaviouralNote)" />
-                        </div>   
-                        }
+        <div class="mf-heading-context">
+            <span>Five themes · perspectives remain open</span>
+            <section class="mf-session-preview" aria-label="Squad and session controls">
+                <div class="mf-session-controls">
+                    <div class="mf-session-group">
+                        <label for="mf-squad">Squad</label>
+                        <div class="mf-session-actions">
+                            <select id="mf-squad" value="@selectedSquadId" @onchange="SelectSquadAsync" disabled="@isSwitching">
+                                <option value="">Select squad</option>
+                                @foreach (var squad in WorkspaceRepository.ActiveWorkspace?.Structure.GetAllSquads() ?? Enumerable.Empty<Squad>())
+                                {
+                                    <option value="@squad.Id">@squad.Name</option>
+                                }
+                            </select>
+                            <button type="button" disabled="@(isSwitching || WorkspaceRepository.ActiveWorkspace is null)" @onclick="OpenCreateSquad">Create squad</button>
+                        </div>
+                    </div>
+                    <div class="mf-session-group">
+                        <label for="mf-session">Session</label>
+                        <div class="mf-session-actions">
+                            <select @key="(selectedSessionId, contextError, pendingSession?.AssessmentId, selectorVersion)" id="mf-session" value="@selectedSessionId" @onchange="SelectSessionAsync" disabled="@isSwitching">
+                                <option value="">Select session</option>
+                                @foreach (var session in sessions)
+                                {
+                                    <option value="@session.AssessmentId">@SessionOptionLabel(session)</option>
+                                }
+                            </select>
+                            <button type="button" disabled="@(isSwitching || string.IsNullOrEmpty(selectedSquadId))" @onclick="CreateSessionAsync">New session</button>
+                        </div>
                     </div>
                 </div>
+                <p>@(WorkspaceRepository.ActiveWorkspace is null ? "Select a workspace to begin." : $"Workspace: {WorkspaceRepository.ActiveWorkspace.Name}")</p>
+            </section>
+        </div>
+    </header>
+
+    @if (IsDraft)
+    {
+        <p class="mf-draft-notice" role="status"><strong>Unsaved assessment</strong> · Select a squad and create a session, or select an existing session.</p>
+    }
+
+    @if (showCreateSquad)
+    {
+        <div class="modal-backdrop">
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="mf-create-squad-title">
+                <h2 id="mf-create-squad-title">Create squad</h2>
+                <label for="mf-new-squad-name">Squad name</label>
+                <input id="mf-new-squad-name" @bind="newSquadName" />
+                <div class="mf-session-actions">
+                    <button type="button" @onclick="CreateSquadAsync">Save</button>
+                    <button type="button" @onclick="() => showCreateSquad = false">Cancel</button>
                 </div>
-            }
-            </div>
-        <div class="section">
-            <div class="chart-container">
-            <canvas id="maturity-radar"></canvas>
             </div>
         </div>
-        
-        <DiagnosticsConsolePortal>
-            <DiagnosticsConsole Signals="@Signals" DerivedSignals="@DerivedSignals" Insights="@Insights" RuleEvaluations="@Evaluations" SignalTraces="@SignalTraces" InsightEvaluation="@InsightEvaluation" />
-        </DiagnosticsConsolePortal>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(contextError))
+    {
+        <div class="mf-alert" role="alert"><p>@contextError</p></div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(loadError))
+    {
+        <div class="mf-alert" role="alert">
+            <strong>The assessment could not be opened.</strong>
+            <p>@loadError</p>
+        </div>
+    }
+    else if (!isReady)
+    {
+        <div class="mf-skeleton" role="status" aria-label="Loading assessment data">
+            <span></span><span></span><span></span>
+        </div>
+    }
+    else if (sessionState is not null)
+    {
+        var state = sessionState!;
+        @if (!string.IsNullOrWhiteSpace(state.ErrorMessage))
+        {
+            <div class="mf-alert" role="alert">
+                <strong>@state.ErrorTitle</strong>
+                <p>@state.ErrorMessage</p>
+                @if (state.Session.IsComplete)
+                {
+                    <button type="button" class="mf-text-button" @onclick="() => BuildResultsAsync(state)">
+                        Retry results
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="mf-text-button" @onclick="() => RefreshResultsAsync(state, false)">
+                        Retry diagnostics
+                    </button>
+                }
+            </div>
         }
-</div>
+
+        @if (state.IsBusy)
+        {
+            <p class="mf-busy" role="status">@(busyMessage ?? "Recalculating the existing assessment interpretation…")</p>
+        }
+
+        @if (state.ShowResults)
+        {
+            <section class="mf-results" aria-labelledby="mf-results-title">
+                <header class="mf-results-heading">
+                    <div>
+                        <h2 id="mf-results-title" tabindex="-1" @ref="resultsHeading">Observed behaviour by theme</h2>
+                        <p>Selections are assessment evidence. Insight Engine interpretations remain separately identified and anchored to their supporting evidence.</p>
+                    </div>
+                    <button type="button" class="mf-secondary-button" @onclick="() => ReturnToAssessment(state)">
+                        Return to assessment
+                    </button>
+                </header>
+
+                <div class="mf-results-layout">
+                    <main class="mf-comparison" aria-label="Theme-by-theme perspective comparison">
+                        @for (var themeIndex = 0; themeIndex < MaturityTheme.Themes.Length; themeIndex++)
+                        {
+                            var targetThemeIndex = themeIndex;
+                            var themeName = MaturityTheme.Themes[themeIndex];
+                            var themeInsights = InsightsForTheme(state, themeName);
+                            <section class="mf-result-theme" aria-labelledby="@($"mf-result-theme-{themeIndex}")">
+                                <header>
+                                    <div class="mf-result-theme-heading">
+                                        <h3 id="@($"mf-result-theme-{themeIndex}")">@themeName</h3>
+                                        <span>@ThemeContinuums[themeName]</span>
+                                    </div>
+                                    @if (themeInsights.Count > 0)
+                                    {
+                                        <div class="mf-result-insights">
+                                            @foreach (var placement in themeInsights)
+                                            {
+                                                @RenderInsight(placement)
+                                            }
+                                        </div>
+                                    }
+                                </header>
+
+                                @for (var lensIndex = 0; lensIndex < state.Session.LensAssessments.Count; lensIndex++)
+                                {
+                                    var targetLensIndex = lensIndex;
+                                    var theme = ThemeAt(state.Session.LensAssessments[lensIndex], targetThemeIndex);
+                                    var isSelected = state.ResultLensIndex == lensIndex && state.ResultThemeIndex == targetThemeIndex;
+                                    var cellInsights = InsightsForCell(state, state.Session.LensAssessments[lensIndex].Lens, themeName);
+                                    <div class="mf-result-reading">
+                                        <button type="button"
+                                                class="mf-reading-button @(isSelected ? "is-selected" : string.Empty)"
+                                                aria-pressed="@isSelected"
+                                                aria-label="@($"{FormatLens(state.Session.LensAssessments[lensIndex].Lens)}, {themeName}, level {theme.Level}, {GetBehaviour(state.Session.LensAssessments[lensIndex].Lens, themeName, theme.Level)?.Headline}")"
+                                                disabled="@state.IsBusy"
+                                                @onclick="() => SelectResultCell(state, targetLensIndex, targetThemeIndex)">
+                                            <span class="mf-reading-lens">@FormatLens(state.Session.LensAssessments[lensIndex].Lens)</span>
+                                            <span class="mf-reading-meter" aria-hidden="true">
+                                                @for (var level = 1; level <= 5; level++)
+                                                {
+                                                    <i class="@(theme.Level == level ? "is-level" : string.Empty)"></i>
+                                                }
+                                            </span>
+                                            <strong><span>Level @theme.Level</span> @GetBehaviour(state.Session.LensAssessments[lensIndex].Lens, themeName, theme.Level)?.Headline</strong>
+                                        </button>
+
+                                        @if (cellInsights.Count > 0)
+                                        {
+                                            <div class="mf-result-insights">
+                                                @foreach (var placement in cellInsights)
+                                                {
+                                                    @RenderInsight(placement)
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </section>
+                        }
+                    </main>
+
+                    <aside class="mf-system-rail" aria-label="Whole-system summary and Insight Engine">
+                        <section class="mf-system-summary" aria-labelledby="mf-summary-title">
+                            <h3 id="mf-summary-title">Whole-system summary</h3>
+                            <p>All observed selections are shown below without combining them into a new score.</p>
+                            <dl>
+                                <div><dt>Recorded behaviours</dt><dd>@CountCompleted(state.Session) / @TotalObservations(state.Session)</dd></div>
+                                <div><dt>Themes</dt><dd>@MaturityTheme.Themes.Length</dd></div>
+                                <div><dt>Perspectives</dt><dd>@state.Session.LensAssessments.Count</dd></div>
+                            </dl>
+                            @if (IsDraft)
+                            {
+                                <p>Insight Engine interpretations and diagnostics become available after connecting this assessment to a squad and session.</p>
+                            }
+                        </section>
+
+                        <figure class="mf-radar">
+                            <figcaption>
+                                <strong>Perspective profile</strong>
+                                <span>Recorded levels · 1–5</span>
+                            </figcaption>
+                            <svg viewBox="0 0 600 560" role="img" aria-labelledby="mf-radar-title mf-radar-description">
+                                <title id="mf-radar-title">Recorded behaviour levels by perspective</title>
+                                <desc id="mf-radar-description">Each line represents a perspective across the five themes. The profile compares recorded behaviour levels and does not rank performance.</desc>
+                                @for (var level = 1; level <= 5; level++)
+                                {
+                                    <polygon class="mf-radar-ring" points="@GetRadarRing(level)"></polygon>
+                                }
+                                @for (var themeIndex = 0; themeIndex < MaturityTheme.Themes.Length; themeIndex++)
+                                {
+                                    var point = GetRadarPoint(themeIndex, 5);
+                                    <line class="mf-radar-axis" x1="280" y1="260" x2="@Coordinate(point.X)" y2="@Coordinate(point.Y)"></line>
+                                }
+                                @RenderRadarLabels()
+                                @for (var lensIndex = 0; lensIndex < state.Session.LensAssessments.Count; lensIndex++)
+                                {
+                                    <polygon class="mf-radar-series mf-radar-series-@(lensIndex % 6)"
+                                             points="@GetRadarSeries(state, lensIndex)"></polygon>
+                                }
+                            </svg>
+                            <div class="mf-radar-legend" aria-label="Perspective key">
+                                @for (var lensIndex = 0; lensIndex < state.Session.LensAssessments.Count; lensIndex++)
+                                {
+                                    <span class="mf-legend-item mf-legend-item-@(lensIndex % 6)">
+                                        <i aria-hidden="true"></i>@FormatLens(state.Session.LensAssessments[lensIndex].Lens)
+                                    </span>
+                                }
+                            </div>
+                            <p>Shape shows perspective differences, not performance rank.</p>
+                        </figure>
+
+                        <section class="mf-selected-reading" aria-labelledby="mf-selected-title">
+                            @{
+                                var selectedLens = state.Session.LensAssessments[state.ResultLensIndex];
+                                var selectedTheme = ThemeAt(selectedLens, state.ResultThemeIndex);
+                                var selectedBehaviour = GetBehaviour(selectedLens.Lens, selectedTheme.Theme, selectedTheme.Level);
+                                var selectedOptions = BehaviourCatalogue.GetBehaviours(selectedLens.Lens, selectedTheme.Theme);
+                            }
+                            <div class="mf-selected-heading">
+                                <div>
+                                    <span>Observed evidence</span>
+                                    <h3 id="mf-selected-title">@FormatLens(selectedLens.Lens) / @selectedTheme.Theme</h3>
+                                </div>
+                                <button type="button"
+                                        class="mf-secondary-button"
+                                        aria-expanded="@state.IsAdjusting"
+                                        disabled="@state.IsBusy"
+                                        @onclick="() => state.IsAdjusting = !state.IsAdjusting">
+                                    @(state.IsAdjusting ? "Close" : "Adjust selection")
+                                </button>
+                            </div>
+                            @if (selectedBehaviour is not null)
+                            {
+                                <p class="mf-selected-level">Level @selectedTheme.Level · @selectedBehaviour.Headline</p>
+                                <div class="mf-evidence">
+                                    @if (selectedBehaviour.Signals.Count > 0)
+                                    {
+                                        <div><strong>Signals</strong><ul>@foreach (var signal in selectedBehaviour.Signals) { <li>@signal</li> }</ul></div>
+                                    }
+                                    @if (selectedBehaviour.Examples.Count > 0)
+                                    {
+                                        <div><strong>Examples</strong><ul>@foreach (var example in selectedBehaviour.Examples) { <li>@example</li> }</ul></div>
+                                    }
+                                </div>
+                            }
+
+                            @if (state.IsAdjusting)
+                            {
+                                <fieldset class="mf-adjustment" disabled="@state.IsBusy">
+                                    <legend>Choose the behaviour for @FormatLens(selectedLens.Lens) / @selectedTheme.Theme</legend>
+                                    <div class="mf-adjustment-options" @key="(state.ResultLensIndex, state.ResultThemeIndex)">
+                                        @foreach (var option in selectedOptions)
+                                        {
+                                            <div class="mf-adjustment-option @(selectedTheme.Level == option.Level ? "is-current" : string.Empty)">
+                                                <label class="mf-adjustment-control">
+                                                    <input type="radio"
+                                                           name="@($"mf-adjust-{state.Session.AssessmentId}-{state.ResultLensIndex}-{state.ResultThemeIndex}")"
+                                                           checked="@(selectedTheme.Level == option.Level)"
+                                                           @onchange="() => AdjustResultAsync(state, state.ResultLensIndex, state.ResultThemeIndex, option.Level)" />
+                                                    <span>Level @option.Level</span>
+                                                    <strong>@option.Headline</strong>
+                                                    @if (selectedTheme.Level == option.Level)
+                                                    {
+                                                        <small>Current selection</small>
+                                                    }
+                                                </label>
+                                                <details @onclick:stopPropagation="true">
+                                                    <summary>Signals and examples</summary>
+                                                    <div class="mf-evidence">
+                                                        @if (option.Signals.Count > 0)
+                                                        {
+                                                            <div><strong>Signals</strong><ul>@foreach (var signal in option.Signals) { <li>@signal</li> }</ul></div>
+                                                        }
+                                                        @if (option.Examples.Count > 0)
+                                                        {
+                                                            <div><strong>Examples</strong><ul>@foreach (var example in option.Examples) { <li>@example</li> }</ul></div>
+                                                        }
+                                                    </div>
+                                                </details>
+                                            </div>
+                                        }
+                                    </div>
+                                </fieldset>
+                            }
+                        </section>
+
+                        @foreach (var placement in InsightsForSystem(state))
+                        {
+                            @RenderInsight(placement)
+                        }
+                    </aside>
+                </div>
+            </section>
+        }
+        else
+        {
+            var lens = state.Session.LensAssessments[state.LensIndex];
+            var theme = ThemeAt(lens, state.ThemeIndex);
+            var options = BehaviourCatalogue.GetBehaviours(lens.Lens, theme.Theme);
+
+            <section class="mf-assessment" aria-labelledby="mf-assessment-title">
+                <header class="mf-assessment-heading">
+                    <div>
+                        <h2 id="mf-assessment-title" tabindex="-1" @ref="assessmentHeading">
+                            @FormatLens(lens.Lens) <span>/</span> @theme.Theme
+                        </h2>
+                        <p>@ThemeContinuums[theme.Theme]</p>
+                    </div>
+                    <dl class="mf-progress-snapshot" aria-label="Assessment progress">
+                        <div><dt>Completed</dt><dd>@CountCompleted(state.Session)</dd></div>
+                        <div><dt>Current</dt><dd>@(theme.Level > 0 ? $"Level {theme.Level}" : "Awaiting observation")</dd></div>
+                        <div><dt>Remaining</dt><dd>@(TotalObservations(state.Session) - CountCompleted(state.Session))</dd></div>
+                    </dl>
+                </header>
+
+                <nav class="mf-navigation mf-theme-navigation" aria-label="Choose a theme">
+                    @for (var themeIndex = 0; themeIndex < MaturityTheme.Themes.Length; themeIndex++)
+                    {
+                        var targetThemeIndex = themeIndex;
+                        var themeName = MaturityTheme.Themes[themeIndex];
+                        var completeForTheme = CountCompletedForTheme(state.Session, themeName);
+                        <button type="button"
+                                class="@(state.ThemeIndex == themeIndex ? "is-current" : string.Empty) @(completeForTheme == state.Session.LensAssessments.Count ? "is-complete" : string.Empty)"
+                                aria-pressed="@(state.ThemeIndex == themeIndex)"
+                                disabled="@state.IsBusy"
+                                @onclick="() => SelectTheme(state, targetThemeIndex)">
+                            <strong>@themeName</strong>
+                            <span>@completeForTheme / @state.Session.LensAssessments.Count</span>
+                        </button>
+                    }
+                </nav>
+
+                <nav class="mf-navigation mf-perspective-navigation" aria-label="Choose a perspective">
+                    @for (var lensIndex = 0; lensIndex < state.Session.LensAssessments.Count; lensIndex++)
+                    {
+                        var targetLensIndex = lensIndex;
+                        var lensAssessment = state.Session.LensAssessments[lensIndex];
+                        var selectedTheme = ThemeAt(lensAssessment, state.ThemeIndex);
+                        <button type="button"
+                                class="@(state.LensIndex == lensIndex ? "is-current" : string.Empty) @(selectedTheme.Level > 0 ? "is-complete" : string.Empty)"
+                                aria-pressed="@(state.LensIndex == lensIndex)"
+                                disabled="@state.IsBusy"
+                                @onclick="() => SelectPerspective(state, targetLensIndex)">
+                            <strong>@FormatLens(lensAssessment.Lens)</strong>
+                            <span>@(selectedTheme.Level > 0 ? $"Level {selectedTheme.Level} recorded" : "Not yet observed")</span>
+                        </button>
+                    }
+                </nav>
+
+                <section class="mf-behaviour-workspace" aria-labelledby="mf-choices-title">
+                    <header class="mf-choices-heading">
+                        <div>
+                            <h3 id="mf-choices-title">Choose the behaviour that best fits this observation</h3>
+                            <p>All five choices remain visible. Expand signals and examples before or after recording.</p>
+                        </div>
+                        <span>@(theme.Level > 0 ? "Selection recorded" : "Choose one behaviour")</span>
+                    </header>
+
+                    <div class="mf-behaviour-grid" role="group" aria-label="@($"{FormatLens(lens.Lens)} · {theme.Theme} behaviours")">
+                        @foreach (var option in options)
+                        {
+                            var targetLevel = option.Level;
+                            var isCurrent = theme.Level == option.Level;
+                            <article class="mf-behaviour-option @(isCurrent ? "is-current" : string.Empty) @(theme.Level > 0 ? "has-recorded" : string.Empty)">
+                                <button type="button"
+                                        class="mf-choice-button"
+                                        aria-pressed="@isCurrent"
+                                        disabled="@state.IsBusy"
+                                        @onclick="() => RecordBehaviourAsync(state, state.LensIndex, state.ThemeIndex, targetLevel)">
+                                    <span class="mf-choice-level">Level @option.Level</span>
+                                    <strong>@option.Headline</strong>
+                                    <span class="mf-choice-state">
+                                        @(isCurrent ? "Current selection" : theme.Level > 0 ? "Change to this behaviour" : "Select this behaviour")
+                                    </span>
+                                </button>
+                                <details class="mf-choice-details">
+                                    <summary>Signals and examples</summary>
+                                    <div class="mf-evidence">
+                                        @if (option.Signals.Count > 0)
+                                        {
+                                            <div><strong>Signals</strong><ul>@foreach (var signal in option.Signals) { <li>@signal</li> }</ul></div>
+                                        }
+                                        @if (option.Examples.Count > 0)
+                                        {
+                                            <div><strong>Examples</strong><ul>@foreach (var example in option.Examples) { <li>@example</li> }</ul></div>
+                                        }
+                                    </div>
+                                </details>
+                            </article>
+                        }
+                    </div>
+                </section>
+
+                @if (!string.IsNullOrWhiteSpace(state.FeedbackMessage))
+                {
+                    <p class="mf-feedback" role="status" aria-live="polite">@state.FeedbackMessage</p>
+                }
+                @if (state.Session.IsComplete)
+                {
+                    <div class="mf-complete">
+                        <p>Every perspective and theme has a recorded behaviour. You can still revisit any selection above.</p>
+                        <button type="button" class="mf-primary-button" disabled="@state.IsBusy" @onclick="() => BuildResultsAsync(state)">
+                            View results
+                        </button>
+                    </div>
+                }
+            </section>
+        }
+        @if (!IsDraft)
+        {
+            <DiagnosticsConsolePortal>
+                <DiagnosticsConsole Signals="@signals" DerivedSignals="@derivedSignals" Insights="@insights" RuleEvaluations="@evaluations" SignalTraces="@signalTraces" InsightEvaluation="@insightEvaluation" />
+            </DiagnosticsConsolePortal>
+        }
+    }
+
+    </div>
+    @if (showLeavePrompt)
+    {
+        <dialog @ref="dialogElement" class="mf-dialog" role="alertdialog" aria-labelledby="mf-leave-title" aria-describedby="mf-leave-description" @onkeydown="HandleDialogKey">
+                <h2 id="mf-leave-title">Leave without saving?</h2>
+                <p id="mf-leave-description">This assessment will not be saved without a squad and session. Stay to select them, or leave and lose the unsaved assessment.</p>
+                <div class="mf-dialog-actions">
+                    <button type="button" class="mf-secondary-button" @ref="dialogFocus" @onclick="StayOnPage">Stay in assessment</button>
+                    <button type="button" class="mf-primary-button" @onclick="LeaveWithoutSaving">Leave without saving</button>
+                </div>
+        </dialog>
+    }
+    else if (pendingSession is not null)
+    {
+        <dialog @ref="dialogElement" class="mf-dialog" role="alertdialog" aria-labelledby="mf-apply-title" aria-describedby="mf-apply-description" @onkeydown="HandleDialogKey">
+                <h2 id="mf-apply-title">Open existing session</h2>
+                <p id="mf-apply-description">Apply your draft to @SessionLabel(pendingSession)? Recorded draft selections will overwrite matching selections and their notes in this session. Other selections will remain unchanged.</p>
+                <div class="mf-dialog-actions">
+                    <button type="button" class="mf-secondary-button" @ref="dialogFocus" @onclick="CancelSessionSelection">Cancel</button>
+                    <button type="button" class="mf-secondary-button" @onclick="DiscardDraftAndOpenAsync">Discard draft and open unchanged</button>
+                    <button type="button" class="mf-primary-button" @onclick="ApplyDraftAndOpenAsync">Apply draft</button>
+                </div>
+        </dialog>
+    }
+    else if (showAssignmentPrompt)
+    {
+        <dialog @ref="dialogElement" class="mf-dialog mf-assignment-dialog" aria-labelledby="mf-assign-title" aria-describedby="mf-assign-description" @onkeydown="HandleDialogKey">
+            <h2 id="mf-assign-title" tabindex="-1" @ref="dialogFocus">Assign your assessment</h2>
+            <p id="mf-assign-description">Choose a squad and create a session, or select an existing session, to save your assessment and view the results.</p>
+            @if (workspaces.Count == 0)
+            {
+                <p>Create a workspace in Structure Studio in another tab, then refresh the workspace list here.</p>
+            }
+            else if (WorkspaceRepository.ActiveWorkspace is null)
+            {
+                <p>Select a workspace before assigning this assessment. Your selections remain here until you leave.</p>
+            }
+            else if (!WorkspaceRepository.ActiveWorkspace.Structure.GetAllSquads().Any())
+            {
+                <p>There are no squads in this workspace. Return to the assessment to create one, or create one in Structure Studio in another tab and refresh the workspace list.</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(contextError))
+            {
+                <div class="mf-alert" role="alert"><p>@contextError</p></div>
+            }
+            <div class="mf-assignment-controls">
+                <div class="mf-session-group">
+                    <label for="mf-assign-workspace">Workspace</label>
+                    <div class="mf-session-actions">
+                        <select id="mf-assign-workspace" value="@WorkspaceRepository.ActiveWorkspaceId" @onchange="SelectWorkspaceAsync" disabled="@isSwitching">
+                            <option value="">Select workspace</option>
+                            @foreach (var workspace in workspaces)
+                            {
+                                <option value="@workspace.Id">@workspace.Name</option>
+                            }
+                        </select>
+                        <button type="button" disabled="@isSwitching" @onclick="RefreshWorkspacesAsync">Refresh list</button>
+                    </div>
+                </div>
+                <div class="mf-session-group">
+                    <label for="mf-assign-squad">Squad</label>
+                    <div class="mf-session-actions">
+                        <select id="mf-assign-squad" value="@selectedSquadId" @onchange="SelectSquadAsync" disabled="@isSwitching">
+                            <option value="">Select squad</option>
+                            @foreach (var squad in WorkspaceRepository.ActiveWorkspace?.Structure.GetAllSquads() ?? Enumerable.Empty<Squad>())
+                            {
+                                <option value="@squad.Id">@squad.Name</option>
+                            }
+                        </select>
+                        <button type="button" disabled="@(isSwitching || string.IsNullOrEmpty(selectedSquadId))" @onclick="CreateSessionAsync">New session</button>
+                    </div>
+                </div>
+                <div class="mf-session-group">
+                    <label for="mf-assign-session">Existing session</label>
+                    <div class="mf-session-actions">
+                        <select @key="(selectedSessionId, contextError, pendingSession?.AssessmentId, selectorVersion)" id="mf-assign-session" value="@selectedSessionId" @onchange="SelectSessionAsync" disabled="@isSwitching">
+                            <option value="">Select existing session</option>
+                            @foreach (var session in sessions)
+                            {
+                                <option value="@session.AssessmentId">@SessionOptionLabel(session)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            @if (isSwitching)
+            {
+                <p class="mf-assignment-saving" role="status" aria-live="polite">@(busyMessage ?? "Opening session…")</p>
+            }
+            <div class="mf-dialog-actions">
+                <button type="button" class="mf-secondary-button" disabled="@isSwitching" @onclick="CloseAssignmentPrompt">Return to assessment</button>
+            </div>
+        </dialog>
+    }
+</section>
 
 @code {
-    private List<AssessmentSession> Sessions = new();
-    private AssessmentSession? CurrentSession;
-    private bool RenderRadarChart;
-    private string SelectedSquadId = "";
-    private string? SelectedSessionId;
-    private string SelectedLens = "Squad";
-    private string[] AvailableLenses = new[] { "Squad", "ScrumMaster", "ProductOwner", "Leader" };
-    private List<Signal> Signals = new();
-    private List<DerivedSignal> DerivedSignals = new();
-    private List<RuleEvaluation> Evaluations = new();
-    private List<OperationalInsight> Insights = new();
-    private List<SignalTrace> SignalTraces = new();
-    private InsightEvaluationTrace? InsightEvaluation;
+    private static readonly Dictionary<string, string> ThemeContinuums = new(StringComparer.Ordinal)
+    {
+        ["Ownership"] = "Individual → Team → System Ownership",
+        ["Trust"] = "Control → Collaboration → Autonomy",
+        ["Value"] = "Output → Outcome → Value",
+        ["Learning"] = "Compliance → Reflection → Evolution",
+        ["System"] = "Local → Cross-team → Organisational"
+    };
+
+    private List<SignalMapping> maturityMappings = new();
+    private List<string> availableLenses = new();
+    private List<OrgWorkspace> workspaces = new();
+    private List<AssessmentSession> sessions = new();
+    private List<Signal> signals = new();
+    private List<DerivedSignal> derivedSignals = new();
+    private List<OperationalInsight> insights = new();
+    private List<RuleEvaluation> evaluations = new();
+    private List<SignalTrace> signalTraces = new();
+    private InsightEvaluationTrace? insightEvaluation;
+    private ConceptState? sessionState;
+    private bool isReady;
+    private bool isSwitching;
+    private string? busyMessage;
+    private bool showCreateSquad;
+    private string newSquadName = "";
+    private string selectedSquadId = "";
+    private string selectedSessionId = "";
+    private string? retrySessionId;
+    private string? contextError;
+    private Guid? activeWorkspaceId;
+    private bool focusPending;
+    private int transitionVersion;
+    private string? loadError;
+    private ElementReference assessmentHeading;
+    private ElementReference resultsHeading;
+    private ElementReference dialogFocus;
+    private ElementReference dialogElement;
+    private IJSObjectReference? dialogModule;
+    private AssessmentSession? pendingSession;
+    private bool showLeavePrompt;
+    private bool showAssignmentPrompt;
+    private bool dialogFocusPending;
+    private bool allowNavigation;
+    private string? pendingLocation;
+    private string? pendingHistoryState;
+    private int selectorVersion;
+    private bool IsDraft => sessionState is not null && string.IsNullOrEmpty(sessionState.Session.AssessmentId);
+    private bool HasUnsavedSelections => IsDraft && CountCompleted(sessionState!.Session) > 0;
 
     protected override async Task OnInitializedAsync()
     {
-        await BehaviourCatalogue.InitializeAsync();
-        await SignalRegistry.InitializeAsync();
-        await RuleRepository.InitializeAsync();
-        await SignalValidator.ValidateAsync();
-        Sessions = await SessionService.ListSessions(null, null);
-    }
-
-    private async Task LoadSession(ChangeEventArgs e)
-    {
-        SelectedSessionId = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(SelectedSessionId))
+        activeWorkspaceId = WorkspaceRepository.ActiveWorkspaceId;
+        WorkspaceRepository.OnWorkspaceChanged += OnWorkspaceChangedAsync;
+        try
         {
-            CurrentSession = await SessionService.GetSession(SelectedSessionId);
-            
-            var (signals, behaviour, system, insights, evaluations, traces, insightEvaluation) = await SignalPipeline.BuildSignalsAndDerivedDetailed(CurrentSession);
-            Signals = signals;
-            DerivedSignals = behaviour.Concat(system).ToList();
-            Insights = insights;
-            Evaluations = evaluations; 
-            SignalTraces = traces;
-            InsightEvaluation = insightEvaluation;
-            
-            RenderRadarChart = true;
-            StateHasChanged();
-        }          
-    }
+            await BehaviourCatalogue.InitializeAsync();
+            await SignalRegistry.InitializeAsync();
+            maturityMappings = await MappingLoader.GetMappings("maturity");
+            await SignalValidator.ValidateAsync();
+            sessions = await SessionService.ListSessions(null!, null!);
+            workspaces = await WorkspaceRepository.GetWorkspacesAsync();
 
-    private string GetSessionLabel(AssessmentSession session)
-    {
-        if (WorkspaceRepository.ActiveWorkspaceId == null)
-            return $"{session.SquadId} ({session.DateCreated:d})";
-
-        var squadName = WorkspaceRepository.GetSquadName(
-            WorkspaceRepository.ActiveWorkspaceId.Value,
-            Guid.TryParse(session.SquadId, out var squadId) ? squadId : null
-        );
-
-        return $"{squadName} — {session.DateCreated:dd MMM yyyy}";
-    }
-
-    private async Task CreateNewSession()
-    {
-        if (string.IsNullOrEmpty(SelectedSquadId))
-            return;
-        var workspace = WorkspaceRepository.ActiveWorkspace;
-        CurrentSession = await SessionService.CreateSessionAsync(
-            workspace.Id.ToString(),
-            SelectedSquadId,
-            DateTime.Now
-        );
-        Sessions.Add(CurrentSession);
-        SelectedSessionId = CurrentSession.AssessmentId;
-    }
-
-    private async Task UpdateScore(string lens, string theme, int level, string note = null)
-    {
-        await SessionService.UpdateThemeScoreAsync(CurrentSession.AssessmentId, lens, theme, level, note);
-        var chart = ChartDefinitions.BuildMaturityRadarChart(CurrentSession);
-        await ChartService.CreateRadarChart(
-            chart.CanvasId,
-            chart.Labels,
-            chart.Datasets ?? Array.Empty<object>()
-        );
-
-        // Build signals and derived signals
-        var (signals, behaviour, system, insights, evaluations, traces, insightEvaluation) = await SignalPipeline.BuildSignalsAndDerivedDetailed(CurrentSession);
-        Signals = signals;
-        DerivedSignals = behaviour.Concat(system).ToList();
-        Insights = insights;
-        Evaluations = evaluations;
-        SignalTraces = traces;
-        InsightEvaluation = insightEvaluation;
-
-        StateHasChanged();
-    }
-
-    private List<ProgressItem> LensProgress =>
-        AvailableLenses.Select(lens =>
-        {
-            var lensAssessment = CurrentSession?.LensAssessments
-                .FirstOrDefault(l => l.Lens == lens);
-
-            if (lensAssessment == null)
-                return new ProgressItem
-                {
-                    Id = lens,
-                    Title = FormatLens(lens),
-                    PercentComplete = 0,
-                    IsComplete = false
-                };
-
-            var completed = lensAssessment.Themes.Count(t => t.Level > 0);
-            var total = lensAssessment.Themes.Count;
-
-            var percent = total == 0 ? 0 : (completed * 100 / total);
-
-            return new ProgressItem
+            if (RuleRepository.BehaviourRules.Count == 0 && RuleRepository.SystemRules.Count == 0)
             {
-                Id = lens,
-                Title = FormatLens(lens),
-                PercentComplete = percent,
-                IsComplete = lensAssessment.IsComplete
-            };
-        }).ToList();
-    private string FormatLens(string lens)
-    {
-        return lens switch
+                await RuleRepository.InitializeAsync();
+            }
+        }
+        catch (Exception exception) when (exception is HttpRequestException or JsonException)
         {
-            "ScrumMaster" => "Scrum Master",
-            "ProductOwner" => "Product Owner",
-            _ => lens
-        };
+            Logger.LogWarning(exception, "Unable to load maturity assessment data");
+            loadError = $"The existing behaviour, signal, or rule data could not be loaded: {ErrorSummary(exception)}";
+            return;
+        }
+
+        availableLenses = maturityMappings
+            .Select(mapping => mapping.Lens)
+            .Where(lens => !string.IsNullOrWhiteSpace(lens))
+            .Select(lens => lens!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (availableLenses.Count == 0)
+        {
+            loadError = "The production maturity mappings do not include any perspectives.";
+            return;
+        }
+
+        var expectedMappingCount = availableLenses.Count * MaturityTheme.Themes.Length * 5;
+        if (maturityMappings.Count != expectedMappingCount)
+        {
+            loadError = $"The production maturity mappings contain {maturityMappings.Count} entries; {expectedMappingCount} are required for the available perspectives and themes.";
+            return;
+        }
+
+        var missingBehaviours = availableLenses
+            .SelectMany(lens => MaturityTheme.Themes.Select(theme => (lens, theme)))
+            .Where(item =>
+            {
+                var options = BehaviourCatalogue.GetBehaviours(item.lens, item.theme);
+                return options.Count != 5 || !options.Select(option => option.Level).Order().SequenceEqual(new[] { 1, 2, 3, 4, 5 });
+            })
+            .Select(item => $"{FormatLens(item.lens)} / {item.theme}")
+            .ToList();
+
+        if (missingBehaviours.Count > 0)
+        {
+            loadError = $"The existing behaviour catalogue is incomplete for: {string.Join(", ", missingBehaviours)}.";
+            return;
+        }
+
+        var missingSignals = maturityMappings
+            .Select(mapping => mapping.SignalName)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(signalName => SignalRegistry.Get(signalName) is null)
+            .ToList();
+
+        if (missingSignals.Count > 0)
+        {
+            loadError = $"The existing signal registry is missing definitions for: {string.Join(", ", missingSignals)}.";
+            return;
+        }
+
+        if (RuleRepository.BehaviourRules.Count == 0 || RuleRepository.SystemRules.Count == 0)
+        {
+            loadError = "The existing Insight Engine rules are unavailable.";
+            return;
+        }
+
+        isReady = true;
+        sessionState = CreateDraft();
     }
-    private Task SelectLens(string lens)
-    {
-        SelectedLens = lens;
-        return Task.CompletedTask;
-    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!RenderRadarChart || CurrentSession == null)
+        if (dialogFocusPending)
+        {
+            dialogFocusPending = false;
+            if (showLeavePrompt || pendingSession is not null || showAssignmentPrompt)
+            {
+                dialogModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/maturity-assessment-dialog.js");
+                await dialogModule.InvokeVoidAsync("show", dialogElement);
+                await dialogFocus.FocusAsync();
+                return;
+            }
+        }
+        if (!focusPending || !isReady || sessionState is null)
+        {
             return;
+        }
 
-        RenderRadarChart = false;
-        
-        var chart = ChartDefinitions.BuildMaturityRadarChart(CurrentSession);
+        focusPending = false;
+        await (sessionState.ShowResults ? resultsHeading : assessmentHeading).FocusAsync();
+    }
 
-        await ChartService.CreateRadarChart(
-            chart.CanvasId,
-            chart.Labels,
-            chart.Datasets ?? Array.Empty<object>()
-        );
+    private string SessionLabel(AssessmentSession session)
+    {
+        var workspaceId = Guid.TryParse(session.WorkspaceId, out var workspace) ? workspace : Guid.Empty;
+        var squadId = Guid.TryParse(session.SquadId, out var squad) ? squad : (Guid?)null;
+        return $"{WorkspaceRepository.GetWorkspaceName(workspaceId)} / {WorkspaceRepository.GetSquadName(workspaceId, squadId)} — {session.DateCreated:dd MMM yyyy}";
+    }
+
+    private string SessionOptionLabel(AssessmentSession session) =>
+        SessionLabel(session) + (session.AssessmentId == retrySessionId ? " · Draft transfer interrupted" : "");
+
+    private async Task OnWorkspaceChangedAsync()
+    {
+        await InvokeAsync(async () =>
+        {
+            try
+            {
+                if (activeWorkspaceId != WorkspaceRepository.ActiveWorkspaceId)
+                {
+                    activeWorkspaceId = WorkspaceRepository.ActiveWorkspaceId;
+                    if (IsDraft)
+                    {
+                        transitionVersion++;
+                    }
+                    else
+                    {
+                        ClearSession();
+                    }
+                    pendingSession = null;
+                    if (showAssignmentPrompt) dialogFocusPending = true;
+                    selectedSquadId = "";
+                    contextError = null;
+                }
+                sessions = await SessionService.ListSessions(null!, null!);
+                workspaces = await WorkspaceRepository.GetWorkspacesAsync();
+            }
+            catch (Exception exception)
+            {
+                Logger.LogWarning(exception, "Unable to refresh maturity sessions");
+                contextError = $"The session list could not be refreshed: {ErrorSummary(exception)}";
+            }
+            StateHasChanged();
+        });
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        WorkspaceRepository.OnWorkspaceChanged -= OnWorkspaceChangedAsync;
+        transitionVersion++;
+        if (dialogModule is not null)
+        {
+            await dialogModule.DisposeAsync();
+        }
+    }
+
+    private void ClearSession()
+    {
+        transitionVersion++;
+        selectedSessionId = "";
+        sessionState = isReady ? CreateDraft() : null;
+        signals.Clear();
+        derivedSignals.Clear();
+        insights.Clear();
+        evaluations.Clear();
+        signalTraces.Clear();
+        insightEvaluation = null;
+    }
+
+    private Task SelectSquadAsync(ChangeEventArgs args)
+    {
+        if (isSwitching) return Task.CompletedTask;
+        var squadId = args.Value?.ToString() ?? "";
+        if (!string.Equals(selectedSquadId, squadId, StringComparison.OrdinalIgnoreCase))
+        {
+            if (IsDraft)
+            {
+                transitionVersion++;
+            }
+            else
+            {
+                ClearSession();
+            }
+            selectedSquadId = squadId;
+        }
+        contextError = null;
+        return Task.CompletedTask;
+    }
+
+    private async Task SelectWorkspaceAsync(ChangeEventArgs args)
+    {
+        if (isSwitching) return;
+        var value = args.Value?.ToString();
+        Guid? workspaceId = null;
+        if (!string.IsNullOrEmpty(value))
+        {
+            if (!Guid.TryParse(value, out var parsed) || !workspaces.Any(workspace => workspace.Id == parsed))
+            {
+                contextError = "This workspace is no longer available. Refresh the workspace list and try again.";
+                return;
+            }
+            workspaceId = parsed;
+        }
+
+        isSwitching = true;
+        busyMessage = "Loading workspace…";
+        contextError = null;
+        try
+        {
+            await WorkspaceRepository.SetActiveWorkspaceAsync(workspaceId);
+            await OnWorkspaceChangedAsync();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to select maturity workspace");
+            contextError = $"The workspace could not be selected: {ErrorSummary(exception)}";
+        }
+        finally
+        {
+            busyMessage = null;
+            isSwitching = false;
+        }
+    }
+
+    private async Task RefreshWorkspacesAsync()
+    {
+        if (isSwitching) return;
+        isSwitching = true;
+        busyMessage = "Refreshing workspaces…";
+        contextError = null;
+        try
+        {
+            await WorkspaceRepository.InitializeAsync();
+            await OnWorkspaceChangedAsync();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to refresh maturity workspaces");
+            contextError = $"The workspace list could not be refreshed: {ErrorSummary(exception)}";
+        }
+        finally
+        {
+            busyMessage = null;
+            isSwitching = false;
+        }
+    }
+
+    private ConceptState CreateDraft()
+    {
+        var session = new AssessmentSession();
+        foreach (var name in availableLenses)
+        {
+            var lens = new MaturityLensAssessment { Lens = name };
+            lens.InitializeThemes();
+            session.LensAssessments.Add(lens);
+        }
+        return new ConceptState(session);
+    }
+
+    private void BeforeNavigation(LocationChangingContext context)
+    {
+        if (allowNavigation)
+        {
+            allowNavigation = false;
+            return;
+        }
+        if (isSwitching)
+        {
+            context.PreventNavigation();
+            contextError = "Please wait for the session operation to finish before leaving.";
+            return;
+        }
+        if (!HasUnsavedSelections)
+        {
+            return;
+        }
+        context.PreventNavigation();
+        pendingLocation = context.TargetLocation;
+        pendingHistoryState = context.HistoryEntryState;
+        pendingSession = null;
+        selectorVersion++;
+        showLeavePrompt = true;
+        dialogFocusPending = true;
+    }
+
+    private void StayOnPage()
+    {
+        showLeavePrompt = false;
+        pendingLocation = null;
+        if (showAssignmentPrompt) dialogFocusPending = true;
+        else focusPending = true;
+    }
+
+    private void LeaveWithoutSaving()
+    {
+        if (pendingLocation is null)
+        {
+            return;
+        }
+        var location = pendingLocation;
+        var historyState = pendingHistoryState;
+        showLeavePrompt = false;
+        pendingLocation = null;
+        allowNavigation = true;
+        Navigation.NavigateTo(location, new NavigationOptions { HistoryEntryState = historyState });
+    }
+
+    private void HandleDialogKey(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape" && !isSwitching)
+        {
+            if (showLeavePrompt) StayOnPage();
+            else if (pendingSession is not null) CancelSessionSelection();
+            else CloseAssignmentPrompt();
+        }
+    }
+
+    private void CancelSessionSelection()
+    {
+        if (isSwitching) return;
+        pendingSession = null;
+        selectorVersion++;
+        if (showAssignmentPrompt) dialogFocusPending = true;
+        else focusPending = true;
+    }
+
+    private void CloseAssignmentPrompt()
+    {
+        if (isSwitching) return;
+        showAssignmentPrompt = false;
+        contextError = null;
+        focusPending = true;
+    }
+
+    private void OpenCreateSquad()
+    {
+        contextError = null;
+        newSquadName = "";
+        showCreateSquad = true;
+    }
+
+    private async Task CreateSquadAsync()
+    {
+        var tribe = WorkspaceRepository.ActiveWorkspace?.Structure.Companies
+            .SelectMany(company => company.BusinessUnits)
+            .SelectMany(unit => unit.Tribes)
+            .FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(newSquadName) || tribe is null)
+        {
+            contextError = tribe is null
+                ? "Create a tribe in the active workspace before adding a squad."
+                : "Enter a squad name.";
+            return;
+        }
+
+        try
+        {
+            await WorkspaceRepository.AddSquadAsync(tribe, newSquadName.Trim());
+            showCreateSquad = false;
+            contextError = null;
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to create squad");
+            contextError = $"The squad could not be created: {ErrorSummary(exception)}";
+        }
+    }
+
+    private async Task SelectSessionAsync(ChangeEventArgs args)
+    {
+        if (isSwitching) return;
+        var id = args.Value?.ToString() ?? "";
+        contextError = null;
+        if (string.IsNullOrEmpty(id))
+        {
+            if (!IsDraft) ClearSession();
+            selectorVersion++;
+            return;
+        }
+
+        var listedSession = sessions.FirstOrDefault(session => session.AssessmentId == id);
+        if (listedSession is null)
+        {
+            contextError = "This session is no longer available. Refresh the page and try again.";
+            return;
+        }
+        if (!Guid.TryParse(listedSession.WorkspaceId, out var workspaceId) ||
+            workspaceId != WorkspaceRepository.ActiveWorkspaceId)
+        {
+            contextError = $"Switch to {WorkspaceRepository.GetWorkspaceName(workspaceId)} before opening this session.";
+            return;
+        }
+
+        isSwitching = true;
+        busyMessage = "Opening session…";
+        var version = ++transitionVersion;
+        try
+        {
+            var session = await AssessmentRepository.GetMaturitySessionAsync(id);
+            if (version != transitionVersion || workspaceId != WorkspaceRepository.ActiveWorkspaceId)
+            {
+                return;
+            }
+            if (session is null)
+            {
+                contextError = "This session is no longer available. Refresh the page and try again.";
+                return;
+            }
+            if (!ValidateSession(session, out var error))
+            {
+                contextError = error;
+                return;
+            }
+            if (!(WorkspaceRepository.ActiveWorkspace?.Structure.GetAllSquads()
+                .Any(squad => squad.Id.ToString().Equals(session.SquadId, StringComparison.OrdinalIgnoreCase)) ?? false))
+            {
+                contextError = "The session's squad is not present in the active workspace; the session cannot be opened safely.";
+                return;
+            }
+
+            if (IsDraft && CountCompleted(sessionState!.Session) > 0)
+            {
+                pendingSession = session;
+                dialogFocusPending = true;
+                return;
+            }
+            await OpenSessionAsync(session, null);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to open maturity session {AssessmentId}", id);
+            contextError = $"The session could not be opened: {ErrorSummary(exception)}";
+        }
+        finally
+        {
+            busyMessage = null;
+            isSwitching = false;
+        }
+    }
+
+    private async Task DiscardDraftAndOpenAsync()
+    {
+        if (isSwitching) return;
+        var target = pendingSession;
+        var draft = sessionState;
+        pendingSession = null;
+        if (target is null || draft is null || !IsDraft) return;
+        isSwitching = true;
+        busyMessage = "Opening session…";
+        draft.IsBusy = true;
+        if (showAssignmentPrompt) dialogFocusPending = true;
+        var version = ++transitionVersion;
+        try
+        {
+            await ShowSavingStateAsync();
+            var fresh = await AssessmentRepository.GetMaturitySessionAsync(target.AssessmentId);
+            if (fresh is null || !ValidateSession(fresh, out _) ||
+                version != transitionVersion || !ReferenceEquals(sessionState, draft) ||
+                !string.Equals(fresh.WorkspaceId, WorkspaceRepository.ActiveWorkspaceId?.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                contextError = "The session changed or is no longer available in the active workspace. Your draft has not been discarded.";
+                return;
+            }
+            await OpenSessionAsync(fresh, null);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to open maturity session {AssessmentId}", target.AssessmentId);
+            contextError = $"The session could not be opened; your draft is unchanged: {ErrorSummary(exception)}";
+        }
+        finally
+        {
+            draft.IsBusy = false;
+            selectorVersion++;
+            busyMessage = null;
+            isSwitching = false;
+        }
+    }
+
+    private async Task ApplyDraftAndOpenAsync()
+    {
+        if (isSwitching) return;
+        var target = pendingSession;
+        var draft = sessionState;
+        pendingSession = null;
+        if (target is null || draft is null || !IsDraft) return;
+        isSwitching = true;
+        busyMessage = draft.Session.IsComplete ? "Saving your assessment and preparing results…" : "Saving your assessment…";
+        draft.IsBusy = true;
+        if (showAssignmentPrompt) dialogFocusPending = true;
+        var version = ++transitionVersion;
+        try
+        {
+            await ShowSavingStateAsync();
+            var fresh = await AssessmentRepository.GetMaturitySessionAsync(target.AssessmentId);
+            if (fresh is null || !ValidateSession(fresh, out _))
+                throw new InvalidOperationException("The selected session is no longer available or valid.");
+            await TransferDraftAsync(draft, fresh, version);
+            var saved = await AssessmentRepository.GetMaturitySessionAsync(fresh.AssessmentId);
+            if (saved is null || !ValidateSession(saved, out _))
+                throw new InvalidOperationException("The updated session could not be reloaded safely.");
+            EnsureTransferContext(draft, fresh, version);
+            await OpenSessionAsync(saved, draft);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to transfer draft to maturity session {AssessmentId}", target.AssessmentId);
+            retrySessionId = target.AssessmentId;
+            contextError = $"The draft remains available. Some selections may already have been saved; select the session marked 'Draft transfer interrupted' and choose Apply draft to retry. Opening it unchanged will discard the draft: {ErrorSummary(exception)}";
+        }
+        finally
+        {
+            draft.IsBusy = false;
+            selectorVersion++;
+            busyMessage = null;
+            isSwitching = false;
+        }
+    }
+
+    private void EnsureTransferContext(ConceptState draft, AssessmentSession target, int version)
+    {
+        if (version != transitionVersion || !ReferenceEquals(sessionState, draft) ||
+            !string.Equals(target.WorkspaceId, WorkspaceRepository.ActiveWorkspaceId?.ToString(), StringComparison.OrdinalIgnoreCase) ||
+            !(WorkspaceRepository.ActiveWorkspace?.Structure.GetAllSquads()
+                .Any(squad => squad.Id.ToString().Equals(target.SquadId, StringComparison.OrdinalIgnoreCase)) ?? false))
+            throw new InvalidOperationException("The active workspace or assessment changed during the transfer.");
+    }
+
+    private async Task TransferDraftAsync(ConceptState draft, AssessmentSession target, int version)
+    {
+        var updates = MaturityDraftTransfer.Plan(draft.Session, target);
+        foreach (var update in updates)
+        {
+            EnsureTransferContext(draft, target, version);
+            await SessionService.UpdateThemeScoreAsync(target.AssessmentId, update.Lens, update.Theme, update.Level, update.Note);
+        }
+        EnsureTransferContext(draft, target, version);
+    }
+
+    private async Task OpenSessionAsync(AssessmentSession session, ConceptState? draft)
+    {
+        var lensName = draft?.Session.LensAssessments[draft.LensIndex].Lens;
+        var resultLensName = draft?.Session.LensAssessments[draft.ResultLensIndex].Lens;
+        ClearSession();
+        retrySessionId = null;
+        selectedSquadId = session.SquadId;
+        selectedSessionId = session.AssessmentId;
+        var opened = new ConceptState(session);
+        if (draft is not null)
+        {
+            opened.LensIndex = Math.Max(0, session.LensAssessments.FindIndex(lens => string.Equals(lens.Lens, lensName, StringComparison.OrdinalIgnoreCase)));
+            opened.ThemeIndex = draft.ThemeIndex;
+            opened.ResultLensIndex = Math.Max(0, session.LensAssessments.FindIndex(lens => string.Equals(lens.Lens, resultLensName, StringComparison.OrdinalIgnoreCase)));
+            opened.ResultThemeIndex = draft.ResultThemeIndex;
+        }
+        sessionState = opened;
+        var showResults = session.IsComplete && (draft is null || draft.ShowResults || draft.Session.IsComplete);
+        await RefreshResultsAsync(opened, showResults);
+        showAssignmentPrompt = false;
+        if (opened.ShowResults) focusPending = true;
+    }
+
+    private async Task CreateSessionAsync()
+    {
+        if (isSwitching) return;
+        contextError = null;
+        var workspace = WorkspaceRepository.ActiveWorkspace;
+        if (workspace is null || !workspace.Structure.GetAllSquads()
+            .Any(squad => squad.Id.ToString().Equals(selectedSquadId, StringComparison.OrdinalIgnoreCase)))
+        {
+            contextError = "Select a squad in the active workspace before creating a session.";
+            return;
+        }
+
+        isSwitching = true;
+        busyMessage = IsDraft && sessionState!.Session.IsComplete
+            ? "Saving your assessment and preparing results…"
+            : "Saving your assessment…";
+        var squadId = selectedSquadId;
+        var draft = IsDraft ? sessionState : null;
+        if (draft is not null) draft.IsBusy = true;
+        var version = ++transitionVersion;
+        AssessmentSession? created = null;
+        try
+        {
+            await ShowSavingStateAsync();
+            var session = await SessionService.CreateSessionAsync(workspace.Id.ToString(), squadId, DateTime.Now);
+            created = session;
+            sessions.Add(session);
+            sessions = await SessionService.ListSessions(null!, null!);
+            if (version != transitionVersion || workspace.Id != WorkspaceRepository.ActiveWorkspaceId)
+            {
+                contextError = "The session was created in the previous workspace. Switch back to open it.";
+                return;
+            }
+            if (draft is not null)
+            {
+                if (!ValidateSession(session, out var error)) throw new InvalidOperationException(error);
+                await TransferDraftAsync(draft, session, version);
+                session = await AssessmentRepository.GetMaturitySessionAsync(session.AssessmentId)
+                    ?? throw new InvalidOperationException("The new session could not be reloaded.");
+                if (!ValidateSession(session, out var errorAfterTransfer)) throw new InvalidOperationException(errorAfterTransfer);
+                EnsureTransferContext(draft, session, version);
+            }
+            await OpenSessionAsync(session, draft);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to create maturity session");
+            if (created is not null && draft is not null) retrySessionId = created.AssessmentId;
+            contextError = (created, draft) switch
+            {
+                (null, null) => $"The session could not be created: {ErrorSummary(exception)}",
+                (null, _) => $"The session could not be created. Your draft remains available: {ErrorSummary(exception)}",
+                (_, null) => $"The session was created but could not be opened. Select it from the session list: {ErrorSummary(exception)}",
+                _ => $"The session was created, but the draft transfer could not be confirmed. Your draft remains available; some selections may already have been saved. Select the session marked 'Draft transfer interrupted' and choose Apply draft to retry. Opening it unchanged will discard the draft: {ErrorSummary(exception)}"
+            };
+        }
+        finally
+        {
+            if (draft is not null) draft.IsBusy = false;
+            busyMessage = null;
+            isSwitching = false;
+        }
+    }
+
+    private async Task ShowSavingStateAsync()
+    {
+        StateHasChanged();
+        dialogModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/maturity-assessment-dialog.js");
+        await dialogModule.InvokeVoidAsync("allowPaint");
+    }
+
+    private bool ValidateSession(AssessmentSession session, out string error)
+    {
+        var missingLenses = availableLenses.Where(name => !session.LensAssessments
+            .Any(lens => string.Equals(lens.Lens, name, StringComparison.OrdinalIgnoreCase))).ToList();
+        if (missingLenses.Count > 0)
+        {
+            error = $"This historical session is missing perspectives: {string.Join(", ", missingLenses)}. It has not been changed.";
+            return false;
+        }
+        foreach (var lens in session.LensAssessments)
+        {
+            if (session.LensAssessments.Count(item => string.Equals(item.Lens, lens.Lens, StringComparison.OrdinalIgnoreCase)) != 1 ||
+                lens.Themes.Count != MaturityTheme.Themes.Length ||
+                MaturityTheme.Themes.Any(name => lens.Themes.Count(theme => string.Equals(theme.Theme, name, StringComparison.OrdinalIgnoreCase)) != 1) ||
+                lens.Themes.Any(theme => theme.Level < 0 || theme.Level > 5) ||
+                MaturityTheme.Themes.Any(name => BehaviourCatalogue.GetBehaviours(lens.Lens, name).Count != 5))
+            {
+                error = $"The session has missing, duplicated, invalid, or unsupported assessment data for {FormatLens(lens.Lens)}. It has not been changed.";
+                return false;
+            }
+        }
+        error = "";
+        return true;
+    }
+
+    private static MaturityTheme ThemeAt(MaturityLensAssessment lens, int themeIndex) =>
+        lens.Themes.Single(theme => string.Equals(theme.Theme, MaturityTheme.Themes[themeIndex], StringComparison.OrdinalIgnoreCase));
+
+    private static string ErrorSummary(Exception exception) =>
+        exception.Message.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "An unexpected error occurred";
+
+    private static int TotalObservations(AssessmentSession session) =>
+        session.LensAssessments.Count * MaturityTheme.Themes.Length;
+
+    private static int CountCompleted(AssessmentSession session) =>
+        session.LensAssessments.Sum(lens => lens.Themes.Count(theme => theme.Level > 0));
+
+    private static int CountCompletedForTheme(AssessmentSession session, string themeName) =>
+        session.LensAssessments.Count(lens =>
+            lens.Themes.FirstOrDefault(theme => string.Equals(theme.Theme, themeName, StringComparison.OrdinalIgnoreCase))?.Level > 0);
+
+    private static string FormatLens(string lens) => lens switch
+    {
+        "ScrumMaster" => "Scrum Master",
+        "ProductOwner" => "Product Owner",
+        _ => lens
+    };
+
+    private BehaviourOption? GetBehaviour(string lens, string theme, int level) =>
+        BehaviourCatalogue.GetBehaviours(lens, theme).FirstOrDefault(option => option.Level == level);
+
+    private List<InsightPlacement> MapInsights(ConceptState state, IEnumerable<OperationalInsight> currentInsights, IReadOnlyList<RuleEvaluation> currentEvaluations)
+    {
+        var placements = new List<InsightPlacement>();
+        var engineOrder = 0;
+
+        foreach (var insight in currentInsights)
+        {
+            var resolved = MaturityInsightAttribution.TryResolve(
+                state.Session, insight, maturityMappings, currentEvaluations, out var coordinates);
+            coordinates = coordinates
+                .GroupBy(coordinate => $"{coordinate.Lens}\u001f{coordinate.Theme}", StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .ToList();
+
+            var themes = coordinates
+                .Select(coordinate => coordinate.Theme)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (resolved && coordinates.Count == 1)
+            {
+                var coordinate = coordinates[0];
+                var level = state.Session.LensAssessments
+                    .First(lens => string.Equals(lens.Lens, coordinate.Lens, StringComparison.OrdinalIgnoreCase))
+                    .Themes.First(theme => string.Equals(theme.Theme, coordinate.Theme, StringComparison.OrdinalIgnoreCase))
+                    .Level;
+                placements.Add(new InsightPlacement(insight, InsightAnchorLevel.Behaviour, coordinate.Lens, coordinate.Theme, level, engineOrder));
+            }
+            else if (resolved && coordinates.Count > 1 && themes.Count == 1)
+            {
+                placements.Add(new InsightPlacement(insight, InsightAnchorLevel.Theme, null, themes[0], null, engineOrder));
+            }
+            else
+            {
+                placements.Add(new InsightPlacement(insight, InsightAnchorLevel.System, null, null, null, engineOrder));
+            }
+
+            engineOrder++;
+        }
+
+        return placements;
+    }
+
+    private IReadOnlyList<InsightPlacement> InsightsForCell(ConceptState state, string lens, string theme) =>
+        state.InsightPlacements
+            .Where(placement =>
+                placement.Level == InsightAnchorLevel.Behaviour &&
+                string.Equals(placement.Lens, lens, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(placement.Theme, theme, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(placement => placement.EngineOrder)
+            .ToList();
+
+    private IReadOnlyList<InsightPlacement> InsightsForTheme(ConceptState state, string theme) =>
+        state.InsightPlacements
+            .Where(placement =>
+                placement.Level == InsightAnchorLevel.Theme &&
+                string.Equals(placement.Theme, theme, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(placement => placement.EngineOrder)
+            .ToList();
+
+    private IReadOnlyList<InsightPlacement> InsightsForSystem(ConceptState state) =>
+        state.InsightPlacements
+            .Where(placement => placement.Level == InsightAnchorLevel.System)
+            .OrderBy(placement => placement.EngineOrder)
+            .ToList();
+
+    private RenderFragment RenderInsight(InsightPlacement placement) => @<details class="mf-insight">
+        <summary>
+            <span class="mf-insight-kind">Insight Engine · @placement.Level.ToString()</span>
+            <strong>@ReadableInsightName(placement.Insight.Name)</strong>
+            @if (!string.IsNullOrWhiteSpace(placement.Insight.Interpretation))
+            {
+                <span class="mf-insight-interpretation">@placement.Insight.Interpretation</span>
+            }
+        </summary>
+        <div class="mf-insight-details">
+            @if (!string.IsNullOrWhiteSpace(placement.Insight.Description))
+            {
+                <p>@placement.Insight.Description</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(placement.Insight.Intensity))
+            {
+                <p><strong>Intensity</strong> · @placement.Insight.Intensity</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(placement.Insight.Source))
+            {
+                <p><strong>Source</strong> · @placement.Insight.Source</p>
+            }
+            @{
+                var evidenceSignals = (placement.Insight.SupportingSignals ?? new List<string>())
+                    .Concat(placement.Insight.ContributingSignals ?? new List<string>())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            @if (evidenceSignals.Count > 0)
+            {
+                <div><strong>Supporting signals</strong><ul>@foreach (var signal in evidenceSignals) { <li>@signal</li> }</ul></div>
+            }
+            @if (placement.Insight.Reasons.Count > 0)
+            {
+                <div>
+                    <strong>Engine evidence</strong>
+                    <ul>
+                        @foreach (var reason in placement.Insight.Reasons)
+                        {
+                            <li><span>@reason.SignalName</span> · @reason.Condition · @reason.Result</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </details>;
+
+    private static string ReadableInsightName(string name) =>
+        Regex.Replace(name, "([a-z0-9])([A-Z])", "$1 $2");
+
+    private void SelectTheme(ConceptState state, int themeIndex)
+    {
+        CancelPendingAdvance(state);
+        state.ThemeIndex = themeIndex;
+        state.FeedbackMessage = string.Empty;
+    }
+
+    private void SelectPerspective(ConceptState state, int lensIndex)
+    {
+        CancelPendingAdvance(state);
+        state.LensIndex = lensIndex;
+        state.FeedbackMessage = string.Empty;
+    }
+
+    private async Task RecordBehaviourAsync(ConceptState state, int lensIndex, int themeIndex, int level)
+    {
+        if (state.IsBusy)
+        {
+            return;
+        }
+
+        var lens = state.Session.LensAssessments[lensIndex];
+        var theme = ThemeAt(lens, themeIndex);
+        if (theme.Level == level)
+        {
+            state.FeedbackMessage = $"{FormatLens(lens.Lens)} / {theme.Theme} is already recorded at Level {level}.";
+            return;
+        }
+
+        var behaviour = GetBehaviour(lens.Lens, theme.Theme, level);
+        if (behaviour is null || !await SaveBehaviourAsync(state, lens.Lens, theme, behaviour))
+        {
+            return;
+        }
+        state.LensIndex = lensIndex;
+        state.ThemeIndex = themeIndex;
+        var version = ++transitionVersion;
+        var isComplete = state.Session.IsComplete;
+        state.FeedbackMessage = isComplete
+            ? $"{FormatLens(lens.Lens)} / {theme.Theme} updated to Level {level}. Refreshing results next."
+            : $"{FormatLens(lens.Lens)} / {theme.Theme} recorded: {behaviour.Headline}.";
+
+        await Task.Delay(650);
+        if (version != transitionVersion)
+        {
+            return;
+        }
+
+        if (isComplete)
+        {
+            state.ResultLensIndex = lensIndex;
+            state.ResultThemeIndex = themeIndex;
+            await BuildResultsAsync(state);
+            return;
+        }
+
+        var next = FindNextIncomplete(state.Session, lensIndex, themeIndex);
+        if (next is { } coordinate)
+        {
+            state.LensIndex = coordinate.LensIndex;
+            state.ThemeIndex = coordinate.ThemeIndex;
+            state.FeedbackMessage = string.Empty;
+            focusPending = true;
+            return;
+        }
+
+        state.FeedbackMessage = "All behaviours are recorded. Preparing the completed assessment.";
+        await BuildResultsAsync(state);
+    }
+
+    private static (int LensIndex, int ThemeIndex)? FindNextIncomplete(
+        AssessmentSession session,
+        int currentLensIndex,
+        int currentThemeIndex)
+    {
+        var lensCount = session.LensAssessments.Count;
+        var total = lensCount * MaturityTheme.Themes.Length;
+        var current = currentThemeIndex * lensCount + currentLensIndex;
+
+        for (var offset = 1; offset < total; offset++)
+        {
+            var candidate = (current + offset) % total;
+            var themeIndex = candidate / lensCount;
+            var lensIndex = candidate % lensCount;
+            if (ThemeAt(session.LensAssessments[lensIndex], themeIndex).Level == 0)
+            {
+                return (lensIndex, themeIndex);
+            }
+        }
+
+        return null;
+    }
+
+    private void CancelPendingAdvance(ConceptState state)
+    {
+        transitionVersion++;
+        state.FeedbackMessage = string.Empty;
+    }
+
+    private void SelectResultCell(ConceptState state, int lensIndex, int themeIndex)
+    {
+        state.ResultLensIndex = lensIndex;
+        state.ResultThemeIndex = themeIndex;
+        state.IsAdjusting = false;
+    }
+
+    private async Task AdjustResultAsync(ConceptState state, int lensIndex, int themeIndex, int level)
+    {
+        var lens = state.Session.LensAssessments[lensIndex];
+        var theme = ThemeAt(lens, themeIndex);
+        if (theme.Level == level || state.IsBusy)
+        {
+            return;
+        }
+
+        var behaviour = GetBehaviour(lens.Lens, theme.Theme, level);
+        if (behaviour is null || !await SaveBehaviourAsync(state, lens.Lens, theme, behaviour))
+        {
+            return;
+        }
+        state.ResultLensIndex = lensIndex;
+        state.ResultThemeIndex = themeIndex;
+    }
+
+    private async Task BuildResultsAsync(ConceptState state)
+    {
+        if (!state.Session.IsComplete)
+        {
+            return;
+        }
+
+        if (IsDraft)
+        {
+            contextError = null;
+            showAssignmentPrompt = true;
+            dialogFocusPending = true;
+            return;
+        }
+
+        state.ErrorTitle = "The assessment was saved, but its results could not be refreshed.";
+        await RefreshResultsAsync(state, showResults: true);
+        if (state.ShowResults)
+        {
+            focusPending = true;
+        }
+    }
+
+    private async Task<bool> RefreshResultsAsync(ConceptState state, bool showResults)
+    {
+        if (string.IsNullOrEmpty(state.Session.AssessmentId))
+        {
+            state.ShowResults = showResults;
+            state.ErrorMessage = null;
+            return true;
+        }
+        state.IsBusy = true;
+        state.ErrorMessage = null;
+        try
+        {
+            var pipelineResult = await SignalPipeline.BuildSignalsAndDerivedDetailed(state.Session);
+            var insightPlacements = MapInsights(state, pipelineResult.insights, pipelineResult.evaluations);
+            if (!ReferenceEquals(sessionState, state))
+            {
+                return false;
+            }
+            signals = pipelineResult.signals;
+            derivedSignals = pipelineResult.behaviour.Concat(pipelineResult.system).ToList();
+            insights = pipelineResult.insights;
+            evaluations = pipelineResult.evaluations;
+            signalTraces = pipelineResult.traces;
+            insightEvaluation = pipelineResult.insightEvaluation;
+            state.InsightPlacements = insightPlacements;
+            state.ShowResults = showResults;
+            return true;
+        }
+        catch (Exception exception)
+        {
+            if (!ReferenceEquals(sessionState, state))
+            {
+                Logger.LogWarning(exception, "Maturity results refresh failed for closed assessment {AssessmentId}", state.Session.AssessmentId);
+                return false;
+            }
+            signals.Clear();
+            derivedSignals.Clear();
+            insights.Clear();
+            evaluations.Clear();
+            signalTraces.Clear();
+            insightEvaluation = null;
+            state.InsightPlacements.Clear();
+            state.ShowResults = false;
+            state.ErrorMessage = $"The existing Signal Pipeline or Insight Engine failed while refreshing results: {ErrorSummary(exception)}";
+            Logger.LogWarning(exception, "Maturity results refresh failed for assessment {AssessmentId}", state.Session.AssessmentId);
+            return false;
+        }
+        finally
+        {
+            state.IsBusy = false;
+        }
+    }
+
+    private void ReturnToAssessment(ConceptState state)
+    {
+        state.ShowResults = false;
+        state.IsAdjusting = false;
+        state.ThemeIndex = state.ResultThemeIndex;
+        state.LensIndex = state.ResultLensIndex;
+        state.FeedbackMessage = string.Empty;
+        focusPending = true;
+    }
+
+    private async Task<bool> SaveBehaviourAsync(ConceptState state, string lens, MaturityTheme theme, BehaviourOption behaviour)
+    {
+        if (string.IsNullOrEmpty(state.Session.AssessmentId))
+        {
+            theme.Level = behaviour.Level;
+            theme.BehaviouralNote = string.Join(Environment.NewLine, behaviour.Signals.Concat(behaviour.Examples));
+            return true;
+        }
+        isSwitching = true;
+        state.IsBusy = true;
+        try
+        {
+            var note = string.Join(Environment.NewLine, behaviour.Signals.Concat(behaviour.Examples));
+            await SessionService.UpdateThemeScoreAsync(state.Session.AssessmentId, lens, theme.Theme, behaviour.Level, note);
+            var saved = await AssessmentRepository.GetMaturitySessionAsync(state.Session.AssessmentId);
+            if (saved is null || !ValidateSession(saved, out _))
+            {
+                throw new InvalidOperationException("The saved session could not be reloaded safely.");
+            }
+            if (!ReferenceEquals(sessionState, state))
+            {
+                return false;
+            }
+            state.Session = saved;
+            state.ErrorTitle = "The selection was saved, but its results could not be refreshed.";
+            return await RefreshResultsAsync(state, showResults: state.ShowResults);
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning(exception, "Unable to confirm maturity selection for {AssessmentId}", state.Session.AssessmentId);
+            if (ReferenceEquals(sessionState, state))
+            {
+                ClearSession();
+                contextError = $"The selection could not be confirmed as saved: {ErrorSummary(exception)}. Reopen the session to check before trying again.";
+            }
+            return false;
+        }
+        finally
+        {
+            state.IsBusy = false;
+            isSwitching = false;
+        }
+    }
+
+    private static string GetRadarRing(int level) =>
+        string.Join(" ", Enumerable.Range(0, MaturityTheme.Themes.Length)
+            .Select(themeIndex => GetRadarPoint(themeIndex, level))
+            .Select(point => $"{Coordinate(point.X)},{Coordinate(point.Y)}"));
+
+    private static string GetRadarSeries(ConceptState state, int lensIndex) =>
+        string.Join(" ", MaturityTheme.Themes
+            .Select((_, themeIndex) => GetRadarPoint(themeIndex, ThemeAt(state.Session.LensAssessments[lensIndex], themeIndex).Level))
+            .Select(point => $"{Coordinate(point.X)},{Coordinate(point.Y)}"));
+
+    private static (double X, double Y) GetRadarPoint(int themeIndex, int level)
+    {
+        var angle = -Math.PI / 2 + themeIndex * 2 * Math.PI / MaturityTheme.Themes.Length;
+        var radius = 30 + Math.Clamp(level, 0, 5) * 40;
+        return (280 + Math.Cos(angle) * radius, 260 + Math.Sin(angle) * radius);
+    }
+
+    private static (double X, double Y) GetRadarLabelPoint(int themeIndex)
+    {
+        var angle = -Math.PI / 2 + themeIndex * 2 * Math.PI / MaturityTheme.Themes.Length;
+        return (280 + Math.Cos(angle) * 247, 260 + Math.Sin(angle) * 247);
+    }
+
+    private static string Coordinate(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string GetRadarTextAnchor(int themeIndex) => themeIndex switch
+    {
+        0 => "middle",
+        1 or 2 => "start",
+        3 or 4 => "end",
+        _ => "middle"
+    };
+
+    private RenderFragment RenderRadarLabels() => builder =>
+    {
+        var sequence = 0;
+        for (var themeIndex = 0; themeIndex < MaturityTheme.Themes.Length; themeIndex++)
+        {
+            var point = GetRadarLabelPoint(themeIndex);
+            builder.OpenElement(sequence++, "text");
+            builder.AddAttribute(sequence++, "class", "mf-radar-label");
+            builder.AddAttribute(sequence++, "x", Coordinate(point.X));
+            builder.AddAttribute(sequence++, "y", Coordinate(point.Y));
+            builder.AddAttribute(sequence++, "text-anchor", GetRadarTextAnchor(themeIndex));
+            builder.AddAttribute(sequence++, "fill", "#b7b8b0");
+            builder.AddAttribute(sequence++, "font-family", "Inter, Segoe UI, sans-serif");
+            builder.AddAttribute(sequence++, "font-size", "10");
+            builder.AddContent(sequence++, MaturityTheme.Themes[themeIndex]);
+            builder.CloseElement();
+        }
+    };
+
+    private enum InsightAnchorLevel
+    {
+        Behaviour,
+        Theme,
+        System
+    }
+
+    private sealed record InsightPlacement(
+        OperationalInsight Insight,
+        InsightAnchorLevel Level,
+        string? Lens,
+        string? Theme,
+        int? BehaviourLevel,
+        int EngineOrder);
+
+    private sealed class ConceptState(AssessmentSession session)
+    {
+        public AssessmentSession Session { get; set; } = session;
+        public List<InsightPlacement> InsightPlacements { get; set; } = new();
+        public int LensIndex { get; set; }
+        public int ThemeIndex { get; set; }
+        public int ResultLensIndex { get; set; }
+        public int ResultThemeIndex { get; set; }
+        public bool ShowResults { get; set; }
+        public bool IsAdjusting { get; set; }
+        public bool IsBusy { get; set; }
+        public string FeedbackMessage { get; set; } = string.Empty;
+        public string ErrorTitle { get; set; } = "The assessment could not be refreshed.";
+        public string? ErrorMessage { get; set; }
     }
 }
