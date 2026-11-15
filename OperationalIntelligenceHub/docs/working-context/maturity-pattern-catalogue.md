@@ -2,7 +2,7 @@
 
 ## Status
 
-This is the working catalogue from the Rule Register Review. These are candidate patterns for interpreting selected maturity behaviours; they are not approved or executable detection rules. See [pattern definitions](./maturity-pattern-definitions.md) and [pattern detection rules](./maturity-pattern-detection-rules.md).
+This is the working catalogue from the Rule Register Review. The 28 rule rows are approved as a living catalogue, but their executable conditions and evidence sufficiency are not yet defined. The patterns remain hypotheses, not established findings. JSON is the intended source of truth for editable rules and narrative. See [pattern definitions](./maturity-pattern-definitions.md) and [pattern detection rules](./maturity-pattern-detection-rules.md).
 
 The register names 26 patterns. Its closing note refers to 27 candidates, but no 27th ID is present. The catalogue therefore preserves the 26 named IDs and leaves the count discrepancy open rather than adding an inferred pattern.
 

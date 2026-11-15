@@ -1,27 +1,25 @@
-@startuml rule engine
-
-title Derived Signal Engines
-
-class Signal
-
-class BehaviourRuleEngine
-class FlowRuleEngine
-class TeamRuleEngine
-class SystemRuleEngine
-
-class DerivedSignals
-
-Signal --> BehaviourRuleEngine
-Signal --> FlowRuleEngine
-Signal --> TeamRuleEngine
-
-BehaviourRuleEngine --> SystemRuleEngine
-FlowRuleEngine --> SystemRuleEngine
-TeamRuleEngine --> SystemRuleEngine
-
-BehaviourRuleEngine --> DerivedSignals
-FlowRuleEngine --> DerivedSignals
-TeamRuleEngine --> DerivedSignals
-SystemRuleEngine --> DerivedSignals
-
+@startuml
+title Maturity semantic rule and pattern support - target conceptual flow
+rectangle "Evidence and signals" as evidence
+rectangle "JSON definitions and\nexecutable conditions" as rules
+rectangle "Rule evaluation" as match
+rectangle "Pattern aggregation" as aggregate
+rectangle "Evidence sufficiency,\nsupport and challenge" as support
+rectangle "Insight candidate" as candidate
+rectangle "Trace: provenance,\nstates and reasons" as trace
+evidence --> match
+rules --> match
+match --> aggregate : triggered rules
+aggregate --> support
+evidence --> support
+support --> candidate : only when eligible
+match ..> trace
+aggregate ..> trace
+support ..> trace
+note bottom of match
+  Semantic evidence may be matched directly.
+  A trigger does not establish sufficient support.
+  Reuse of BehaviourRuleEngine is an open option.
+  Numeric flow rules use a distinct strategy and schema.
+end note
 @enduml

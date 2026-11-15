@@ -6,6 +6,8 @@ Records the rules in `wwwroot/data/rules/flow_rules_v3.json` that decide when Ba
 
 This covers the rule and insight-engine layer only. The Backlog Health Monitor's calculations, gauges and readings are unchanged (see [backlog-health-signals.md](./backlog-health-signals.md)).
 
+**Current versus target:** the rules and fixed interpretations below describe the current numeric runtime, not the redesigned intelligence model. Today the insight engine uses configured priority and confidence weight in its ranking. The agreed target evaluates confidence and priority dynamically and separately, preserves raw evidence and provenance, and can use cross-diagnostic evidence as support, challenge or context without assuming confirmation. No replacement formula or Backlog rule change is approved here. See [insight-engine-purpose.md](./insight-engine-purpose.md).
+
 ## Rules
 
 Rules are evaluated per condition in order and the first match wins, so conditions run High, then Moderate, then Low. A rule that matches no condition produces no insight.

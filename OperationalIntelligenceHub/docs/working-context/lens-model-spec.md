@@ -1,12 +1,14 @@
-# Lens Model Specification
+# Operational Dimension Model Specification
+
+The filename is retained for existing links; “Lens” in the filename is legacy terminology. In the Maturity Assessment, a lens is a role perspective such as Scrum Master, Product Owner, Squad or Leader. It is not an Operational MRI dimension.
 
 ## Purpose
 
-The Lens Model provides a consistent, cross-platform way to organise and interpret signals, insights, diagnostics, and improvement actions.
+The Operational Dimension Model provides a consistent, cross-platform taxonomy for organising signals, insights, diagnostics, and improvement actions.
 
-Lenses are not calculated scores.
+Operational dimensions are not calculated scores.
 
-They are **perspectives** that group related system behaviours to help users:
+They group related system behaviours to help users:
 - understand what type of problem they are facing
 - connect insights across diagnostics
 - navigate to relevant actions, plays, and perspectives
@@ -16,7 +18,7 @@ They are **perspectives** that group related system behaviours to help users:
 
 ## Core Principle
 
-Lenses do not introduce new logic into the system.
+Operational dimensions do not introduce new interpretation logic into the system.
 
 They:
 - DO group signals, derived signals, and insights
@@ -24,14 +26,16 @@ They:
 - DO NOT override the Insight Engine
 - DO NOT act as a second interpretation layer
 
-Signals = what is happening  
-Derived Signals = what it means  
-Insights = explanation  
-Lenses = how to view and organise the system
+**Target boundary:** the five dimensions are the top-level operational dimensions of the shared Operational MRI taxonomy. They group and navigate insight associations rather than calculate or evaluate intelligence. Their flexible hierarchies may contain categories and elements at different depths; an insight can relate to multiple dimensions, optionally with a primary one. Diagnostic, team-system and multi-team-system intelligence scopes are independent of dimension classification. Operational MRI evaluates relationships across dimensions; they are not separate engines. These are target capabilities, not claims about the existing implementation; see [insight-engine-purpose.md](./insight-engine-purpose.md).
+
+- Signals = standardised observable measures or characteristics
+- Derived Signals = calculated or rule-derived observations, with provenance
+- Insights = evidence-grounded interpretation or hypothesis
+- Operational dimensions = how to classify and organise intelligence
 
 ---
 
-## Lens Definitions
+## Operational Dimension Definitions
 
 ### Clarity
 
@@ -130,11 +134,11 @@ Teams lack the foundational practices or discipline required to sustain delivery
 
 ---
 
-## Lens Mapping Rules
+## Operational Dimension Mapping Rules
 
-Lenses are defined through associations, not calculations.
+Operational dimensions are defined through associations, not calculations.
 
-Each lens maps to:
+Each operational dimension may be associated with:
 
 - Signals (atomic inputs)
 - Derived Signals (system meaning)
@@ -147,29 +151,29 @@ Example structure:
 
 ## System Usage
 
-Lenses are used across the platform to:
+Operational dimensions can be used across the platform to:
 
 ### 1. Group Insights
-- Coach Hub organises insights by lens
+- Coach Hub can organise insights by operational dimension
 - Users can navigate by problem type instead of signal type
 
 ### 2. Tag Plays and Actions
-- Plays are tagged with relevant lenses
+- Plays can be associated with relevant operational dimensions
 - Users can take action based on the type of problem
 
 ### 3. Tag Perspectives / Content
-- Articles and guidance are organised by lens
+- Articles and guidance can be organised by operational dimension
 - Enables deeper learning aligned to system issues
 
-### 4. Aggregate Diagnostics
-- Signals from multiple tools contribute to the same lens
-- Enables cross-diagnostic understanding
+### 4. Group Diagnostic Information
+- Signals and insights from multiple tools may be presented under the same operational dimension for navigation and comparison.
+- This grouping does not evaluate evidence relationships, corroborate insights or generate system intelligence. Those responsibilities belong to Operational MRI.
 
 ---
 
 ## UX Intent
 
-The Lens Model enables:
+The Operational Dimension Model supports:
 
 - A consistent mental model across the platform
 - Aggregated views of system health without collapsing into scores
@@ -189,9 +193,9 @@ Users should be able to:
 
 ## Non-Goals
 
-The Lens Model must not:
+The Operational Dimension Model must not:
 
-- Produce a combined score per lens
+- Produce a combined score per operational dimension
 - Replace or duplicate derived signal logic
 - Hide underlying signals or system behaviour
 - Introduce hidden weighting or aggregation
@@ -200,7 +204,7 @@ The Lens Model must not:
 
 ## Future Considerations
 
-The Lens Model may later support:
+The Operational Dimension Model may later support:
 
 - Dynamic filtering of insights
 - Personalised recommendations

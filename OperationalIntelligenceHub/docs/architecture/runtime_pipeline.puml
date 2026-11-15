@@ -1,30 +1,36 @@
-@startuml runtime pipeline
-
-title Insight Engine Runtime
-
+@startuml
+title Diagnostic to intelligence flow - target, not current runtime
 actor User
-
-rectangle Assessment
-rectangle SignalBuilder
-rectangle RuleEngines
-rectangle DerivedSignals
-rectangle DomainProfiles
-rectangle InsightGenerator
-rectangle InsightPrioritiser
-rectangle Insights
-
-User --> Assessment
-
-Assessment --> SignalBuilder
-SignalBuilder --> RuleEngines
-RuleEngines --> DerivedSignals
-
-DerivedSignals --> DomainProfiles
-DerivedSignals --> InsightGenerator
-
-InsightGenerator --> InsightPrioritiser
-InsightPrioritiser --> Insights
-
-Insights --> User
-
+rectangle "Diagnostic inputs\nand evidence" as input
+rectangle "Measurements and signals\n(optional normalisation)" as signal
+rectangle "Diagnostic rules,\nderived signals and insights" as diagnostic
+rectangle "Operational MRI:\nscopes, relationships and dimensions" as mri
+rectangle "Evaluate evidence, confidence,\nsignificance and priority" as evaluation
+rectangle "Compose and decide presentation" as output
+rectangle "Shared Intelligence Trace\n(target contract)" as trace
+rectangle "Diagnostics Console" as console
+User --> input
+input --> signal
+input --> diagnostic : direct evidence
+signal --> diagnostic
+input --> mri : retained evidence
+signal --> mri
+diagnostic --> mri
+diagnostic --> evaluation
+mri --> evaluation
+evaluation --> output
+output --> User : grounded narrative
+input ..> trace
+signal ..> trace
+diagnostic ..> trace
+mri ..> trace
+evaluation ..> trace
+output ..> trace
+trace --> console : recorded data
+note bottom of trace
+  Target lifecycle includes quality, provenance,
+  support/challenge, evaluation and presentation states.
+  Pipeline stages produce records; the console renders them.
+  Current SignalTraceService covers only part of this lifecycle.
+end note
 @enduml

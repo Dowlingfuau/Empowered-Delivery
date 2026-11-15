@@ -5,12 +5,14 @@
 **Scope:** Diagnostic inputs, calculations, signal outputs, visual presentation, and overall health assessment.
 **Out of scope:** Derived insights, cross-diagnostic interpretation, and Insight Engine rules. These will be addressed separately.
 
+**Target boundary:** retain original inputs, distributions, calculated and raw values alongside any purpose-specific normalisation and provenance. Normalisation does not by itself make signals comparable. Diagnostic-specific input importance and availability inform measurement reliability and evidence quality, not a generic completed-field count. This is target direction, not a claim that current traces retain all evidence or quality assessments. See [insight-engine-purpose.md](./insight-engine-purpose.md) and [debug-diagnostic-console.md](./debug-diagnostic-console.md).
+
 ---
 
 ## 1. Purpose
 The Backlog Health Diagnostic provides an evidence-based snapshot of how work is being managed within a delivery system.
 
-It examines five dimensions:
+It examines five diagnostic measures:
 
 1. Backlog Size
 2. Backlog Age
@@ -334,7 +336,7 @@ The presentation should include:
 - Plain-language interpretation.
 The interpretation should explain what the result means without repeating the formula.
 
-The continuum must represent the specific dimension being measured. Different signals have different meanings, directions, and desirable ranges. They should not be treated as interchangeable scores.
+The continuum must represent the specific diagnostic measure being assessed. Different signals have different meanings, directions, and desirable ranges. They should not be treated as interchangeable scores.
 
 ---
 
@@ -402,7 +404,7 @@ For Delivery Predictability, do not render a pattern label or classification wit
 ---
 
 ## 7. Signal outputs and Insight Engine boundary
-The diagnostic produces structured signals. It does not independently determine broader system-level meaning.
+The diagnostic produces structured signals and diagnostic-specific interpretations. Broader cross-diagnostic system meaning belongs to Operational MRI; this does not replace the diagnostic's own insights.
 
 The five signals are:
 

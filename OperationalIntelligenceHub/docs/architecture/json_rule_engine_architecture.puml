@@ -1,45 +1,60 @@
-@startuml JSON Rule Engine Architecture
-left to right direction
-title Operational MRI Rule Engine Architecture
-
-package "JSON Configuration" {
-  component behaviour_rules.json
-  component flow_rules.json
-  component team_rules.json
-  component system_rules.json
-  component insight_templates.json
-}
-
-package "Rule Engine" {
-  component RuleLoader
-  component DerivedSignalEngine
-}
-
-package "Insight Engine" {
-  component InsightGenerator
-  component InsightPrioritiser
-}
-
-package "Runtime Data" {
-  component Signals
-  component DerivedSignals
-  component Insights
-}
-
-behaviour_rules.json --> RuleLoader
-flow_rules.json --> RuleLoader
-team_rules.json --> RuleLoader
-system_rules.json --> RuleLoader
-
-RuleLoader --> DerivedSignalEngine
-
-Signals --> DerivedSignalEngine
-DerivedSignalEngine --> DerivedSignals
-
-DerivedSignals --> InsightGenerator
-insight_templates.json --> InsightGenerator
-
-InsightGenerator --> InsightPrioritiser
-InsightPrioritiser --> Insights
-
+@startuml
+title JSON definitions and evaluation - target, not deployed configuration
+component "Numeric flow rule JSON\nand validation" as numericRules
+component "Semantic maturity pattern JSON\nand validation" as semanticRules
+component "Shared evidence, signals\nand provenance" as evidence
+component "Numeric evaluation:\nmeasurements, signals and thresholds" as numeric
+component "Semantic evaluation:\nbehaviours, alternatives and relationships" as semantic
+component "Shared outcomes and provenance;\ndiagnostic evidence sufficiency" as outcomes
+component "Eligible diagnostic\ninsight candidate" as diagnosticCandidate
+component "Diagnostic evaluation:\nconfidence then priority" as diagnosticEvaluation
+component "Diagnostic composition,\ninsight and presentation" as diagnosticInsight
+component "Operational MRI:\nrelationship evaluation" as mri
+component "Eligible MRI system\ninsight candidate" as mriCandidate
+component "System evaluation:\nconfidence then priority" as systemEvaluation
+component "System insight composition\nand presentation" as systemInsight
+component "Shared Intelligence Trace\n(target contract)" as trace
+numericRules --> numeric
+semanticRules --> semantic
+evidence --> numeric
+evidence --> semantic
+numeric --> outcomes
+semantic --> outcomes
+evidence --> outcomes
+outcomes --> diagnosticCandidate
+diagnosticCandidate --> diagnosticEvaluation
+evidence --> diagnosticEvaluation
+diagnosticEvaluation --> diagnosticInsight
+diagnosticInsight --> mri : optional consumption
+evidence --> mri
+mri --> mriCandidate : when supported
+mriCandidate --> systemEvaluation
+evidence --> systemEvaluation
+systemEvaluation --> systemInsight
+numeric ..> trace
+semantic ..> trace
+outcomes ..> trace
+diagnosticEvaluation ..> trace
+diagnosticInsight ..> trace
+mri ..> trace
+systemEvaluation ..> trace
+systemInsight ..> trace
+note bottom of numericRules
+  Definitions do not prescribe fixed confidence
+  or priority. Existing configuration and ranking
+  still contain static values; migration is unresolved.
+end note
+note bottom of semantic
+  Distinct strategies and schemas do not require
+  separate services or a single shared rule model.
+end note
+note bottom of diagnosticCandidate
+  A trigger does not automatically produce an insight.
+  The diagnostic owns this finding and interpretation.
+end note
+note bottom of mri
+  System candidates require separate relationship
+  evaluation, not just a diagnostic rule match.
+  Both paths may reuse shared evaluation capabilities.
+end note
 @enduml

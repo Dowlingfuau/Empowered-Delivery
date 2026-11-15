@@ -1,35 +1,37 @@
-@startuml signal model
-
-title Signal Model
-
-class Signal {
-  Name
-  Domain
-  RawValue
-  NormalisedValue
-}
-
-class DerivedSignal {
-  Name
-  Category
-  Intensity
-  Priority
-}
-
-class DomainProfile {
-  Name
-  Score
-}
-
-class Insight {
-  Title
-  Narrative
-  Category
-  Priority
-}
-
-Signal --> DerivedSignal
-DerivedSignal --> DomainProfile
-DerivedSignal --> Insight
-
+@startuml
+title Evidence and signal relationships - target conceptual model
+class "Original input / selected evidence" as Evidence
+class Measurement
+class Signal
+class "Optional normalised value" as Normalised
+class "Derived signal" as Derived
+class "Diagnostic insight" as DiagnosticInsight
+class "Evidence relationship" as Relationship
+class "Intelligence evaluation" as Evaluation
+class Provenance
+Evidence --> Measurement : may inform
+Evidence --> Signal : may inform
+Evidence --> Relationship : may directly inform
+Measurement --> Signal : may inform
+Signal --> Normalised : optional
+Signal --> Derived : may inform
+Evidence --> DiagnosticInsight
+Signal --> DiagnosticInsight
+Derived --> DiagnosticInsight
+DiagnosticInsight --> Relationship
+Relationship --> Evaluation
+Provenance .. Evidence
+Provenance .. Measurement
+Provenance .. Signal
+Provenance .. Derived
+Provenance .. Relationship
+note bottom of Relationship
+  Support, challenge, context, missing,
+  not evaluated, or related but insufficiently relevant.
+  Shared sources are not independent corroboration.
+end note
+note bottom of Evaluation
+  Reliability, evidence strength and confidence differ.
+  Confidence and priority are dynamic and distinct.
+end note
 @enduml

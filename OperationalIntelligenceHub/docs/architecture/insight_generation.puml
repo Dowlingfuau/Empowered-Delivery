@@ -1,17 +1,30 @@
-@startuml insight generation
-
-title Insight Generation
-
-class DerivedSignals
-class InsightTemplate
-class InsightGenerator
-class InsightPrioritiser
-class Insight
-
-DerivedSignals --> InsightGenerator
-InsightTemplate --> InsightGenerator
-
-InsightGenerator --> InsightPrioritiser
-InsightPrioritiser --> Insight
-
+@startuml
+title Insight evaluation and composition - target
+rectangle "Triggered rules and\nretained evidence" as triggers
+rectangle "Aggregate as appropriate;\nevaluate sufficiency" as support
+rectangle "Eligible insight candidate" as candidate
+rectangle "Relationships: support, challenge,\ncontext, missing and relevance" as relations
+rectangle "Measurement reliability" as reliability
+rectangle "Evidence strength" as strength
+rectangle "Dynamic insight confidence" as confidence
+rectangle "Consequences, impact, reach,\npersistence and urgency" as context
+rectangle "Significance and\npriority evaluation" as priority
+rectangle "Composition and presentation:\nobserved / suspected / implications / action" as narrative
+triggers --> support
+relations --> support
+support --> candidate
+reliability --> strength
+relations --> strength
+candidate --> confidence
+reliability --> confidence
+strength --> confidence
+relations --> priority : relevant context
+context --> priority
+confidence --> priority : informs, not a multiplier
+priority --> narrative
+note bottom of priority
+  Confidence and priority can change independently.
+  Low confidence does not automatically mean low priority.
+  No numerical formula or thresholds are specified.
+end note
 @enduml

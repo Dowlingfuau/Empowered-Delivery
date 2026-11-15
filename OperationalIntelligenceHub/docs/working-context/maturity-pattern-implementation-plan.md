@@ -4,7 +4,9 @@
 
 This is an investigation and implementation plan only. No code or rule configuration is changed by this document.
 
-The source workbook's `Pattern Detection Rules` sheet is Version 0.1. It contains 28 rule rows for 26 patterns, and every rule is marked **Proposed**. The workbook explicitly says its trigger syntax and numeric thresholds are undefined and its evidence sufficiency is qualitative. Therefore, the examples below are proposed acceptance-test fixtures, not a claim that those combinations are already approved or executable.
+The source workbook's `Pattern Detection Rules` sheet is Version 0.1. Its 28 rule rows for 26 patterns are marked **Proposed** in the workbook, but the user has since approved them as a living catalogue. JSON is the intended source of truth for editable rules and narrative. The current JSON's executable conditions are not defined; evidence roles and sufficiency need further specification. The examples below remain provisional acceptance-test fixtures, not approved executable conditions.
+
+**Scope and dependency:** This is a Maturity pattern investigation, not the overall Insight Engine redesign plan or an approved component design. The broader architecture must establish shared evidence, provenance, diagnostic/MRI integration, evaluation and Intelligence Trace contracts first; Maturity then implements against them. The agreed redesign preserves evidence throughout the pipeline and evaluates confidence and priority dynamically and separately; see [insight-engine-purpose.md](./insight-engine-purpose.md). Reusing `BehaviourRuleEngine` is an option alongside a separate evaluator. Component boundaries, evaluation methods and migration are unresolved.
 
 The 26 pattern IDs are EM01, EM02, BF01–BF09, CC01–CC04, SC01–SC05, and PR01–PR06. EM01 and EM02 each have two rule rows. A prior catalogue note mentions 27 patterns, but no 27th ID is listed; this discrepancy remains an approval question.
 
@@ -18,12 +20,12 @@ This plan does not alter the agreed pattern definitions. Where the workbook is a
 |---|---|
 | Session | `AssessmentSession` stores `AssessmentId`, `WorkspaceId`, `SquadId`, creation/status fields, and `LensAssessments`. |
 | Lens | `MaturityLensAssessment` stores a lens name and a list of themes. Current lens keys include `ScrumMaster`, `ProductOwner`, `Squad`, and `Leader`. |
-| Theme selection | `MaturityTheme` stores `Theme`, integer `Level` (0 means unselected; 1–5 are selectable), `SelectedBehaviourHeadline`, and `BehaviouralNote`. The page saves the selected level and a note assembled from catalogue signals/examples; the level and its parent lens/theme coordinate are the actual selection identity. |
+| Theme selection | The user selects one catalogue behaviour per lens/theme. Its current stored coordinate is `Theme` and `Level` under the lens (0 means unselected; 1–5 selectable). `BehaviouralNote` is generated from catalogue signals/examples by the page, not entered by the user or independent evidence. `SelectedBehaviourHeadline` is serialized as a model field but is not populated by the current selection or draft-transfer flows; results resolve the headline from the catalogue. Existing sessions may contain other values. |
 | Cardinality | The session has one `MaturityTheme` per theme for each lens. Page validation expects each of the five themes exactly once per lens. Therefore, it can store only one level for a given lens/theme. It cannot represent two candidate levels at that coordinate simultaneously. |
 | Persistence | `AssessmentRepositoryService` serializes sessions to browser localStorage under `assessments_maturity`. The session is the persisted assessment input; pattern evaluation results are currently recomputed and are not persisted as an assessment result. |
 | Incomplete data | A level of 0 is an unanswered coordinate. The page blocks its normal results action until the session is complete. The signal builder skips levels at or below 0. An evaluator must treat such a coordinate as unknown, never as evidence against a pattern. |
 
-The workbook references (`SQ-OWN-L2`, `PO-VAL-L5`, etc.) are not stored application IDs. The current signal mapping has `BehaviourId` values such as `Squad_Ownership_L2`, but the assessment session does not persist them. The canonical selection is `(Lens, Theme, Level)`.
+The workbook references (`SQ-OWN-L2`, `PO-VAL-L5`, etc.) are not stored application IDs. The current signal mapping has `BehaviourId` values such as `Squad_Ownership_L2`, but the assessment session does not persist them. The canonical selection is the selected catalogue behaviour, currently resolved through `(Lens, Theme, Level)`; catalogue headlines and content provide supporting context, not separate observations.
 
 ### Catalogue and mapping
 
@@ -37,9 +39,9 @@ The workbook contains 92 within-rule coordinate collisions. These are multiple l
 
 | Stage | Current component and behavior | Consequence for pattern work |
 |---|---|---|
-| Base signal construction | `MaturitySignalBuilderService` maps selected tuples to normalized `Signal` values and traces. | This is useful for the existing numeric engine but loses the direct semantic evidence needed for workbook relationships if used alone. New pattern evaluation should receive the `AssessmentSession` (or an evidence projection that preserves its coordinates and catalogue labels). |
+| Base signal construction | `MaturitySignalBuilderService` maps selected tuples to signals with raw selected levels, normalized values and traces. | Individual raw levels can often be resolved back through the mapping, but a durable, explicit semantic evidence/provenance contract is missing. Pattern evaluation needs the session or a projection preserving coordinates and catalogue labels. |
 | Numeric behaviour and flow rules | `DerivedSignalEngine` loads `DerivedSignalRule` definitions from `RuleRepositoryService` and evaluates expression conditions against numeric signals. It combines behavior and flow rule definitions. | This is not a semantic behaviour-combination evaluator. Do not translate workbook prose into numeric signal thresholds or treat the existing `behaviour_rules.json` rules as implementation of these patterns. |
-| Experimental engine | `BehaviourRuleEngine` is registered in `Program.cs`, but the main `SignalPipelineService` does not call it. Its current implementation contains sample ownership averages, not workbook pattern logic. | There is no current semantic pattern detector to extend. |
+| Experimental engine | `BehaviourRuleEngine` is registered in `Program.cs`, but the main `SignalPipelineService` does not call it. Its current implementation contains sample ownership averages, not workbook pattern logic. | It could be redesigned and integrated for semantic patterns; a separate evaluator is another option, not an established requirement. |
 | System rules | `SystemRuleEngine` evaluates derived-signal intensity relationships after the numeric rule stage. | These are a separate existing layer, not a substitute for behaviour-reference relationships. |
 | Insight generation | `OperationalInsightEngine` converts derived signals into `OperationalInsight`, ranks by `IntensityScore × Priority × ConfidenceWeight`, and renders at most five. | Its numeric score and five-item cap are not justified for the workbook's qualitative evidence sufficiency. Avoid routing a matched rule directly into this engine as an insight. |
 | Domain profiles and generators | `DomainProfileBuilder`, `InsightGenerator`, and `InsightPrioritiser` are TODO stubs; related domain model types are not a completed profile pipeline. `InsightResult` is not used in the active Maturity flow. | Do not describe domain profiles, generated recommendations, or an alternate insight generator as existing capabilities. |
@@ -78,7 +80,7 @@ Some pattern claims refer to evidence outside the assessment. For example, a rul
 
 ### Recommended evaluation stages
 
-1. **Resolve selected evidence.** For each nonzero session coordinate, load the current catalogue entry and mapping. Produce evidence records containing the selected Lens, Theme, Level, current `BehaviourId`, current catalogue headline, and source coordinate. Do not use the free-text note as a substitute for a selected behavior ID.
+1. **Resolve selected evidence.** For each nonzero selection, use its retained catalogue version and mapping to resolve the saved Lens, Theme, Level and `BehaviourId` to the content presented at selection time. Preserve that version and source coordinate; report unavailable or inconsistent historical references instead of silently substituting current content. The generated or legacy `BehaviouralNote` is not a user-entered observation or a substitute for the selected behaviour. This versioned identity is a target requirement; the current session stores only the coordinate.
 2. **Evaluate approved rule clauses.** A typed rule should distinguish required references from alternatives, supporting evidence, contradictory evidence, and exclusions. Compare only with selected evidence. Return a rule evaluation with `Matched` state and exact evidence references; missing/unselected coordinates remain `Unknown`.
 3. **Aggregate by pattern ID.** Combine all evaluations for the same Pattern ID into one candidate pattern, preserving the contributing Rule IDs and the evidence each rule contributed. Do not create duplicate cards for multiple rules describing the same pattern.
 4. **Assess support separately.** Return an explicit support state (for example: insufficient, qualified, or supported) based on approved qualitative criteria. A rule match is a trigger candidate, not an automatic user-facing insight. Contradictions or exclusions may qualify or block support only when their semantics are explicitly approved.
@@ -86,7 +88,7 @@ Some pattern claims refer to evidence outside the assessment. For example, a rul
 6. **Preserve direction.** Store relationship direction explicitly (for example, role A's selected evidence in relation to role B's selected evidence). Reversed evidence should not match a directional rule unless the rule is explicitly bidirectional or a separate rule covers the reverse.
 7. **Evaluate positive patterns identically.** PR01–PR06 use the same evidence, support, contradiction, and sufficiency pipeline as friction patterns. Do not use lower evidence standards or reduce improvement visibility to make room for friction cards.
 
-No scoring, confidence percentage, arbitrary evidence count, or numeric threshold is recommended. Until the workbook's qualitative sufficiency statements are made testable, the evaluator can report a triggered rule and its evidence, but must not claim that a user-facing pattern is sufficiently supported.
+No arbitrary scoring, confidence percentage, evidence count, or numeric threshold is recommended. The target evaluates confidence and priority dynamically using justified evidence and context, with the method still unresolved. Until sufficiency statements are made testable, the evaluator must not claim that a user-facing pattern is sufficiently supported merely because a rule triggered.
 
 ### Proposed rule record
 
@@ -113,21 +115,21 @@ Deduplicate by Pattern ID for multiple matched rules. For distinct overlapping P
 
 ## 5. Technical changes likely required
 
-The following is a minimal design recommendation, not an instruction to create every listed file. No data-model or runtime changes are made in this planning task.
+The following is an earlier candidate Maturity design, not an approved file list or a replacement for shared architecture contracts. Names and responsibilities must be reassessed against those contracts before implementation. No data-model or runtime changes are made in this planning task.
 
 | Component/file candidate | Responsibility | Status / dependencies | Data model, configuration, or persistence |
 |---|---|---|---|
-| `wwwroot/data/rules/maturity_pattern_rules.json` | Store the approved typed behavior-pattern rules separately from numeric derived-signal rules. | New; depends on rule semantics and mapping approval. | Static configuration; no persistence. |
-| `Models/Patterns/MaturityPatternRule.cs` and evaluation/evidence result types | Typed rule clauses, evidence provenance, rule match, pattern support state, and directional relationship. | New; based on the approved rule contract. Keep the first model minimal and testable. | Transient evaluation result; do not add `BehaviourId` to the stored assessment unless stable identity across catalogue revisions is required. |
+| `wwwroot/data/rules/maturity_pattern_rules.json` | Store editable behavior-pattern rules and narrative separately from numeric derived-signal rules. | Existing candidate configuration; executable conditions and mapping semantics need completion and approval. | Configuration; policy for versions and provenance remains open. |
+| `Models/Patterns/MaturityPatternRule.cs` and evaluation/evidence result types | Typed rule clauses, evidence provenance, rule match, pattern support state, and directional relationship. | Candidate; based on the shared and approved rule contracts. | Evaluation results may be transient; the assessment evidence must persist selected coordinate, resolved `BehaviourId` and catalogue version. Retain the referenced content and mapping. |
 | `Services/Patterns/MaturityPatternRuleRepository.cs` | Load and validate pattern config and resolve its references against existing catalogue/mapping entries. | New; may reuse existing data loading conventions, but should not deserialize pattern records as `DerivedSignalRule`. | Config validation should fail explicitly for unknown IDs, impossible same-coordinate conjunctions, missing narrative, or duplicate IDs. |
 | `Services/Patterns/MaturityPatternEngine.cs` | Project a session into evidence, evaluate individual rules, then aggregate by Pattern ID and compute support state. | New; depends on repository and catalogue/mapping. Keep matching and support decisions deterministic. | No database. Direct session input avoids lossy numeric aggregation. |
 | `Services/Patterns/MaturityPatternInsightComposer.cs` | Compose the four authored narrative parts for supported patterns and attach evidence/validation/action fields. | New, or a small cohesive part of the engine if the final implementation stays simple. | No LLM-generated text. |
-| `Pages/Hub/Diagnostics/MaturityAssessment.razor` | Invoke pattern evaluation during the existing results refresh and render pattern results alongside—not instead of—the current grid, radar, and numeric insights. | Existing; depends on engine/composer. Keep existing flow insight behavior unchanged. | No session schema change for evaluation. |
+| `Pages/Hub/Diagnostics/MaturityAssessment.razor` | Present diagnostic pattern insights without duplicating the current grid and radar. | Existing; integration depends on the shared architecture and selected evaluator/composer. | The UI does not own persistence; the session model and repository must persist versioned selection evidence. |
 | `Components/Debug/DiagnosticsConsole.razor` | Show evaluated rule status, source evidence, alternatives, contradictions, support decision, and suppression reason in its existing Pattern Detection section. | Existing; depends on structured evaluation trace. | Diagnostic-only; no persistence. |
 | `OperationalIntelligenceHub.Tests/Tests/MaturityPatternEngineTests.cs` | Focused rule, support, contradiction, missing-data, and aggregation tests. | New; depends on approved rule fixtures. | Test-only. Add config validation tests in the same or a focused test file. |
-| `AssessmentSession` / `AssessmentRepositoryService` | Persist validation/rejection feedback only if product approves persistent feedback. | Existing; optional, not needed to evaluate patterns. | Would require a keyed feedback record and staleness/version rules. Defer unless persistence is approved. |
+| `AssessmentSession` / `AssessmentRepositoryService` | Persist versioned selection evidence; persist validation/rejection feedback only if separately approved. | Existing; versioned identity is required by the agreed target; feedback remains optional. | Save coordinate, `BehaviourId` and catalogue version with assessment evidence; retain the referenced catalogue content and mapping. Feedback would require staleness/version rules. |
 
-The simplest integration is a separate Maturity pattern engine invoked with the current `AssessmentSession` during the Maturity result refresh. Keep the existing generic numeric signal pipeline and `OperationalInsight` scoring/top-five behavior unchanged for the first implementation. Do not force semantic patterns into `DerivedSignal`, whose provenance is numeric signal names, or into the current numeric priority/confidence ranking without an agreed policy.
+The earlier proposal was a separate Maturity pattern engine invoked during result refresh, leaving numeric scoring unchanged. This is one option, not the agreed target: extending the existing registered `BehaviourRuleEngine` may be simpler. The full redesign replaces static confidence/priority with dynamic evaluation; sequencing and protection of Backlog Health behaviour require a separately approved migration plan. Do not force semantic patterns into `DerivedSignal` or reuse current numeric ranking as pattern confidence.
 
 ## 6. Test strategy and provisional acceptance matrix
 
@@ -215,21 +217,22 @@ The workbook's Behaviour Test Inputs sheet has headers for 20 role/theme inputs 
 
 | Order | Work item | Dependencies | Likely files/components |
 |---|---|---|---|
-| 0 | Approve the 26 pattern IDs, 28 rule rows, status, intended scope, and unresolved 27th-pattern count. | Product/content owners. | Workbook and working-context pattern docs. |
+| 0 | Confirm scope and resolve the 26-versus-27 pattern count; the 28 living rule rows are already approved. | Product/content owners. | Workbook and working-context pattern docs. |
 | 1 | Review all workbook reference labels against current catalogue headlines; confirm whether each tuple represents the intended behavior. Decide all 92 same-coordinate collisions as alternatives or revise the rule references. | Current mapping crosswalk in the detection-rules document. | `maturity_behaviours.json`, `maturity.json` only if approved content/mapping changes are needed; no such changes assumed. |
 | 2 | For every rule, approve required/optional evidence, alternatives, AND/OR logic, direction, supporting/contradictory evidence, observable exclusions, sufficiency, and test outcomes. | Steps 0–1. | Workbook/rule specification. |
 | 3 | Approve user-facing authored copy for observation, hypothesis, implication, validation question, and conditional action. Decide whether feedback is persisted. | Step 2 and UX review. | Rule content; optional assessment feedback schema. |
-| 4 | Define the typed rule contract and JSON configuration; add configuration validation and crosswalk checks. | Steps 0–3. | New `Models/Patterns/` types, `Services/Patterns/MaturityPatternRuleRepository.cs`, `wwwroot/data/rules/maturity_pattern_rules.json`. |
-| 5 | Implement and unit-test evidence projection, rule matching, support assessment, aggregation, and provenance. | Step 4. | `Services/Patterns/MaturityPatternEngine.cs`, pattern engine tests. |
-| 6 | Implement deterministic four-part insight composition and verify evidence grounding. | Steps 3 and 5. | `Services/Patterns/MaturityPatternInsightComposer.cs`, insight tests. |
-| 7 | Integrate in Maturity results and diagnostics without changing the existing numeric/Flow insight pipeline. | Steps 5–6. | `MaturityAssessment.razor`, `Components/Debug/DiagnosticsConsole.razor`, `Program.cs`. |
+| 4 | Define Maturity rule configuration and validation against the agreed shared contracts; establish versioned selection identity and retained catalogue/mapping content, then complete the existing JSON and crosswalk checks. | Steps 0–3 and shared architecture contracts. | Assessment evidence, catalogue/mapping version storage, candidate pattern models and repository; existing `wwwroot/data/rules/maturity_pattern_rules.json`. |
+| 5 | Implement and test Maturity evidence projection, rule matching, support assessment, aggregation and provenance against those contracts. | Step 4; select existing `BehaviourRuleEngine` extension or another design. | Evaluator and tests; component choice unresolved. |
+| 6 | Implement deterministic four-part diagnostic insight composition and verify evidence grounding. | Steps 3 and 5; shared contracts. | Composer or shared capability; component choice unresolved. |
+| 7 | Integrate Maturity results and Intelligence Trace with the agreed shared pipeline; verify Backlog Health behaviour during migration. | Steps 5–6 and shared integration design. | `MaturityAssessment.razor`, `Components/Debug/DiagnosticsConsole.razor`, integration components. |
 | 8 | Run the complete rule matrix, cross-cutting tests, whole-assessment scenarios, accessibility checks, and user review. | Steps 5–7. | `OperationalIntelligenceHub.Tests/Tests/`. |
 
 ### Risks and assumptions
 
-- **Approval status:** every new pattern rule is marked Proposed despite being described as “defined.” Implementation should wait for explicit approval of the rule content.
+- **Approval status:** the 28 rules are approved as a living catalogue despite the workbook's Proposed labels; executable semantics, copy and unresolved mappings still need review.
 - **Unresolved pattern count:** 26 IDs are listed while an earlier summary says 27. Do not invent a missing pattern.
 - **Catalogue semantics:** all 249 references resolve to tuples, but some workbook labels differ from current catalogue headlines. Coordinate resolution does not resolve content meaning.
+- **Historical identity:** current assessments do not persist a behaviour ID or catalogue version. The redesigned evidence must retain both and resolve against retained historical content, or explicitly report that it cannot.
 - **Alternative collisions:** 92 same-coordinate collisions make a literal all-references-required interpretation invalid. Treating them as alternatives is a constraint-based interpretation that must be approved per rule.
 - **Unstructured logic:** free-text workbook columns do not provide executable AND/OR groups or a complete decision table.
 - **Unobservable context:** authority, stakeholder behavior, capacity, motivation, and actual delivery outcomes are not assessment fields. These remain user-validation prompts.
@@ -241,7 +244,7 @@ The workbook's Behaviour Test Inputs sheet has headers for 20 role/theme inputs 
 
 ### Decisions requiring approval
 
-1. Are the 28 rows and 26 listed patterns the complete approved scope? Is an ID missing from the stated total of 27?
+1. Is an ID missing from the stated total of 27, given the 28 approved rows currently list 26 patterns?
 2. Are all workbook rule references correctly mapped to the current catalogue despite label differences such as `SQ-OWN-L2` and `PO-VAL-L5`?
 3. For each same-coordinate collision, which levels are alternatives, required, support, or contradiction?
 4. What exact Boolean logic and direction apply to each rule? Can any relationship be bidirectional?
@@ -255,12 +258,13 @@ The workbook's Behaviour Test Inputs sheet has headers for 20 role/theme inputs 
 ### Definition of done for the first implementation
 
 - All approved rule references resolve to existing canonical tuples and catalogue entries; unknown or semantically unresolved references fail validation visibly.
+- A selection saved against catalogue version A remains interpretable against A after its headline or definition changes in version B; reopening and re-evaluation do not silently use B. Missing or inconsistent version A is reported explicitly.
 - Every approved rule has an explicit, tested positive fixture and applicable negative, contradiction, alternative/exclusion, missing-data, and directionality fixtures.
 - Impossible same-coordinate conjunctions are rejected; one selected level remains the only evidence for a coordinate.
 - Rule-trigger status and pattern-support status are distinct in types, diagnostics, and tests.
 - Multiple rules for one Pattern ID produce one evidence-grounded result; distinct overlapping patterns are not silently merged or suppressed.
 - Positive and friction patterns use the same approved sufficiency process.
 - Every observation is traceable to selected assessment evidence; hypotheses, implications, and actions are authored, conditional, and visibly distinguishable.
-- Incomplete data is treated as unknown; the existing result grid, radar, numeric insights, and Flow insight path retain their behavior.
+- Incomplete data is treated as unknown; the existing result grid and radar remain useful, and any changes to numeric and Flow insight behaviour follow an approved migration and regression plan.
 - The Pattern Detection diagnostics section explains matches, missing evidence, contradictions, support decisions, and suppression.
 - User validation/rejection behavior and persistence policy are approved and covered by tests.

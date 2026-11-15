@@ -1,75 +1,50 @@
-@startuml Canonical Architecture
-title Operational MRI Insight Engine Architecture
-
-package "Assessments" as A {
-  component MaturityAssessment
-  component BacklogHealthAssessment
-  component TeamHealthAssessment
-}
-
-package "Signal Layer" as SLayer {
-  component SignalBuilder
-  component SignalRegistry
-  component SignalNormaliser
-}
-
-package "Signal Store" as SStore {
-  component Signals
-}
-
-package "Derived Signal Engines" as DSE {
-  component BehaviourRuleEngine
-  component FlowRuleEngine
-  component TeamRuleEngine
-  component SystemRuleEngine
-}
-
-package "Derived Signals" as DS {
-  component DerivedSignals
-}
-
-package "Domain Profiles" as DP {
-  component CapabilityProfile
-  component FlowHealthProfile
-  component TeamEnvironmentProfile
-  component SystemHealthProfile
-}
-
-package "Insight Engine" as IE {
-  component InsightTemplates
-  component InsightGenerator
-  component InsightPrioritiser
-}
-
-package "Output" as O {
-  component Insights
-}
-
-A --> SignalBuilder
-SignalBuilder --> Signals
-
-Signals --> BehaviourRuleEngine
-Signals --> FlowRuleEngine
-Signals --> TeamRuleEngine
-
-BehaviourRuleEngine --> SystemRuleEngine
-FlowRuleEngine --> SystemRuleEngine
-TeamRuleEngine --> SystemRuleEngine
-
-BehaviourRuleEngine --> DerivedSignals
-FlowRuleEngine --> DerivedSignals
-TeamRuleEngine --> DerivedSignals
-SystemRuleEngine --> DerivedSignals
-
-DerivedSignals --> CapabilityProfile
-DerivedSignals --> FlowHealthProfile
-DerivedSignals --> TeamEnvironmentProfile
-DerivedSignals --> SystemHealthProfile
-
-DerivedSignals --> InsightGenerator
-InsightTemplates --> InsightGenerator
-
-InsightGenerator --> InsightPrioritiser
-InsightPrioritiser --> Insights
-
+@startuml
+title Operational intelligence - agreed target, not current runtime
+left to right direction
+component "Diagnostics" as diagnostics
+component "Evidence, measurements\nand signals" as evidence
+component "Diagnostic intelligence\nand insights" as diagnostic
+component "Operational MRI:\nscopes and relationships" as mri
+component "Operational dimensions:\nshared flexible taxonomy" as taxonomy
+component "Dynamic evaluation:\nconfidence and priority" as evaluate
+component "Narrative and presentation" as presentation
+component "Shared Intelligence Trace\n(target contract)" as trace
+diagnostics --> evidence
+evidence --> diagnostic
+diagnostic --> mri
+evidence --> mri
+mri --> taxonomy : classify / visualise
+diagnostic --> evaluate
+mri --> evaluate
+evidence --> evaluate
+evaluate --> presentation
+diagnostics ..> trace
+evidence ..> trace
+diagnostic ..> trace
+mri ..> trace
+taxonomy ..> trace
+evaluate ..> trace
+presentation ..> trace
+note bottom of evidence
+  Preserve original evidence and provenance.
+  Normalisation is optional.
+end note
+note bottom of mri
+  Single diagnostic, team system and multi-team system
+  are scopes, independent of dimension associations.
+  Additional evidence is not automatic confirmation.
+end note
+note bottom of taxonomy
+  Clarity, Performance, Leadership, Culture, Foundation.
+  Hierarchical classification, not five engines.
+end note
+note bottom of diagnostic
+  Diagnostic intelligence owns diagnostic-specific
+  interpretation and retains its evidence.
+  Shared evaluation is a capability, not ownership.
+end note
+note bottom of trace
+  Pipeline stages produce records; the console
+  renders them. Existing SignalTraceService is partial.
+end note
 @enduml

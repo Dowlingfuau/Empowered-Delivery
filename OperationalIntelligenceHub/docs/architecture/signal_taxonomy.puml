@@ -1,38 +1,30 @@
-@startuml Signal Taxonomy
-left to right direction
-title Operational MRI Signal Taxonomy
-
-package "Signal Registry" {
-
-  package "Capability Signals" {
-    component OwnershipSignals
-    component ValueSignals
-    component LearningSignals
-  }
-
-  package "Flow Signals" {
-    component PredictabilitySignals
-    component BacklogSignals
-    component DeliveryRateSignals
-  }
-
-  package "Team Environment Signals" {
-    component SafetySignals
-    component CollaborationSignals
-    component ImprovementSignals
-  }
-
-  package "System Signals" {
-    component AlignmentSignals
-    component AutonomySignals
-    component LeadershipSignals
-  }
-
+@startuml
+title Signal groupings - illustrative, not the MRI operational dimension taxonomy
+package "Capability" {
+  component Ownership
+  component Value
+  component Learning
 }
-
-OwnershipSignals --> ValueSignals
-PredictabilitySignals --> BacklogSignals
-SafetySignals --> CollaborationSignals
-AlignmentSignals --> LeadershipSignals
-
+package "Flow" {
+  component Backlog
+  component Predictability
+  component DeliveryRate
+}
+package "Team environment" {
+  component Safety
+  component Collaboration
+  component Improvement
+}
+package "System" {
+  component Alignment
+  component Autonomy
+  component Leadership
+}
+note bottom
+  Illustrative groupings, not a claim that every signal
+  is implemented or that these signal groups are comparable.
+  The MRI operational dimensions are a separate taxonomy.
+  Evidence may also be used directly, without a signal.
+  Normalisation is optional and purpose-driven.
+end note
 @enduml

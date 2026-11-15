@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-This is a documentation-only mapping of the `Pattern Detection Rules` sheet in **Pattern Detection Rules — Version 0.1** of the Rule Register Review workbook. All 28 rule rows are marked **Proposed**. The rule prose and scenarios are not an approved executable specification, and this document does not change code or the existing numeric `behaviour_rules.json` rules.
+This is a documentation-only mapping of the `Pattern Detection Rules` sheet in **Pattern Detection Rules — Version 0.1** of the Rule Register Review workbook. Although the source rows are marked **Proposed**, the user has approved all 28 as a living rule catalogue. Their technical conditions, evidence sufficiency and scenarios are not yet an executable specification. The JSON is the intended source of truth for editable rules and narrative; this document does not change code or configuration.
 
 The workbook contains 26 pattern IDs and 28 rule IDs. The 26 IDs are EM01, EM02, BF01–BF09, CC01–CC04, SC01–SC05, and PR01–PR06; EM01 and EM02 each have two rule rows. The earlier catalogue note that mentions a possible 27th pattern remains unresolved; no 27th ID is present in the current list.
 

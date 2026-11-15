@@ -18,11 +18,15 @@ AssessmentSession
     Themes[]
       Theme
       Level (0 = unanswered; 1–5 = selected)
-      SelectedBehaviourHeadline
-      BehaviouralNote
+      SelectedBehaviourHeadline (model field; not populated by current selection flow)
+      BehaviouralNote (model field; catalogue-generated content in current selection flow)
 ```
 
-The current page validates one entry for each of the five themes within each lens. Thus the stored selection identity is `(Lens, Theme, Level)`: one behaviour level per lens/theme, not an arbitrary list of behaviour IDs. A zero level is missing evidence; it does not mean that the corresponding behaviour was rejected or absent from the organization.
+The user selects one behaviour per lens/theme; the page validates one entry for each of the five themes within each lens. The canonical selection is that behaviour, resolved through the catalogue from the currently stored `(Lens, Theme, Level)` coordinate, not an arbitrary list of behaviour IDs. A zero level is missing evidence; it does not mean that a behaviour was rejected or absent from the organization.
+
+The current assessment does **not** collect user-entered free-text behavioural evidence. The selected behaviour's headline and catalogue signals/examples provide supporting context for the selection, not independent observations. On selection, `SaveBehaviourAsync` assembles catalogue signals and examples into `BehaviouralNote`; `SessionService.UpdateThemeScoreAsync` saves that generated value with the level, and draft transfer carries it forward. A legacy or generated note must not be treated as independent user evidence.
+
+`SelectedBehaviourHeadline` is a model property included in session serialization, but the current selection and draft-transfer flows do not populate it; a newly created session therefore ordinarily saves its default empty value. Results obtain the headline from the catalogue using the selected coordinate. Existing saved sessions may contain other values; the field must not be assumed populated or authoritative. The repository serializes the session to localStorage rather than separately persisting a resolved `BehaviourId`.
 
 ## 2. Catalogue and mapping
 
@@ -68,6 +72,16 @@ The 28 workbook rules have been approved as a living document, although Version 
 - positive patterns must be evaluated alongside friction patterns under the same evidence standard.
 
 The new pattern evaluation must be deterministic, preserve selected-coordinate provenance, aggregate rules by pattern ID, and compose user-facing insights only after an explicit support decision. Extending the existing `BehaviourRuleEngine` is an option; the redesigned pipeline and rule configuration remain to be decided. The [implementation plan](./maturity-pattern-implementation-plan.md) records the earlier proposed components, tests, UX, sequence, and open decisions.
+
+### Agreed target — not current runtime
+
+For each selected behaviour, persist the coordinate `(Lens, Theme, Level)`, resolved `BehaviourId`, and catalogue version with the assessment evidence. Retain the referenced catalogue content and the mapping needed to interpret that selection as it was presented. Reopening or re-evaluating an assessment must use that historical version, not silently reinterpret its coordinate against today's catalogue. If the referenced version or mapping is unavailable or inconsistent, report the limitation explicitly rather than substitute the current version. Version identifiers, storage and retention mechanisms remain to be designed; this is an agreed target, not a current capability. Existing saved assessments are test data and may be discarded, but this documentation does not delete or migrate them.
+
+Preserving the selected behaviour does not by itself reproduce an old insight if rule definitions or evaluation logic change. Rule/evaluation versioning and whether to replay an earlier evaluation or run a new one are separate decisions; the trace must distinguish them.
+
+Preserve this evidence alongside raw levels, calculated signals, optional normalised values, derived results and evaluation history. The current session-only trace is not durable evidence history. Semantic selections may be evaluated directly rather than forced into numeric signals. Normalisation is optional and equal ranges do not establish comparability.
+
+The JSON is the source of truth for editable rule definitions and narrative, while its machine-evaluable conditions and sufficiency criteria remain incomplete. A matched rule is a candidate, not an automatic insight. Dynamic confidence and priority are separate evaluations, with support, challenge, missing evidence, relationships and shared provenance recorded; neither has an approved numeric formula. Diagnostic insights remain distinct from cross-diagnostic MRI hypotheses. See [insight-engine-purpose.md](./insight-engine-purpose.md).
 
 ## 5. Separate Flow rule documentation
 
