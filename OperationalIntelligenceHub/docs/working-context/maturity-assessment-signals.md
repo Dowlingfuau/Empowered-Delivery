@@ -1,404 +1,74 @@
-# Maturity Assessment — Signal Model (Working Context)
+# Maturity Assessment — Current Data and Signal Model
 
-## Purpose
+## Purpose and status
 
-Defines how maturity signals are constructed from behavioural data and how they drive system insights.
+This document records the current Maturity Assessment data path and distinguishes it from the proposed semantic behaviour-pattern work. The pattern mapping, implementation design, user experience, and tests are covered in the [pattern implementation plan](./maturity-pattern-implementation-plan.md) and [pattern detection rules](./maturity-pattern-detection-rules.md). No runtime pattern detector exists for those workbook rules today.
 
-This document is aligned to:
+## 1. Assessment responses
 
-* behaviour catalogue
-* behaviour → signal mapping
-* derived signal rules
-* insight rules
-
----
-
-# 1. System Overview
-
-Maturity Assessment pipeline:
-
-Responses
-→ Behaviour Identification
-→ Behaviour Level (1–5)
-→ Signal Mapping
-→ Role-Based Signal Scores
-→ Aggregation (Averages)
-→ Disparity (Gaps)
-→ Derived Signals
-→ Insights
-
----
-
-# 2. Behaviour Model (FOUNDATION)
-
-Maturity is defined through behaviours.
-
-Each behaviour:
-
-* belongs to a **role (lens)**
-* belongs to a **theme (Ownership, Trust, Value, Learning, System)**
-* has a **level (1–5)**
-* includes:
-
-  * signals (indicators)
-  * examples (real-world patterns)
-
----
-
-## Example
-
-From behaviour catalogue: 
-
-Level 1 Ownership (Squad):
-
-* “Work ownership sits with individuals”
-* “Collaboration is limited”
-
-Level 5 Ownership:
-
-* “Team leads value creation”
-* “Proactively improves product outcomes”
-
----
-
-## Key Insight
-
-Levels are not arbitrary:
-
-👉 They represent **evolution of capability**
-
----
-
-# 3. Behaviour → Signal Mapping
-
-Each behaviour maps to a signal.
-
-From mapping: 
-
-Example:
+Maturity responses are stored as an `AssessmentSession` in browser localStorage under `assessments_maturity`.
 
 ```text
-Squad_Ownership_L3 → TeamOwnershipLevel
-Leader_Trust_L2 → LeaderTrustLevel
+AssessmentSession
+  AssessmentId
+  WorkspaceId
+  SquadId
+  LensAssessments[]
+    Lens
+    Themes[]
+      Theme
+      Level (0 = unanswered; 1–5 = selected)
+      SelectedBehaviourHeadline
+      BehaviouralNote
 ```
 
----
+The current page validates one entry for each of the five themes within each lens. Thus the stored selection identity is `(Lens, Theme, Level)`: one behaviour level per lens/theme, not an arbitrary list of behaviour IDs. A zero level is missing evidence; it does not mean that the corresponding behaviour was rejected or absent from the organization.
 
-## Result
+## 2. Catalogue and mapping
 
-Signals are:
+`wwwroot/data/diagnostics/maturity_behaviours.json` provides the behaviour content by lens, theme, and level. `wwwroot/data/signals/maturity.json` maps each coordinate to a current `BehaviourId`, such as `Squad_Ownership_L3`, and an output signal.
 
-* theme-based
-* role-specific
+The assessment session does not persist `BehaviourId`. `MaturitySignalBuilderService` loads signal mappings and matches by Lens, Theme, and Level; it records the resolved `BehaviourId` in the session-only signal trace, but does not use it to evaluate a semantic relationship. Workbook references such as `SQ-OWN-L3` are proposed composite references. They can be cross-checked against the current tuple and mapping, but they are not application IDs saved on the session. See the [complete rule reference map](./maturity-pattern-detection-rules.md).
 
----
-
-## Signal Structure
-
-SignalName = <Role><Theme>Level
-
-Examples:
-
-* TeamOwnershipLevel
-* LeaderTrustLevel
-* POValueLevel
-
----
-
-# 4. Role-Based Signal Scoring
-
-Each role produces:
-
-* one score per theme
-
----
-
-## Example
+## 3. Current runtime pipeline
 
 ```text
-TeamOwnershipLevel = 0.6
-LeaderOwnershipLevel = 0.3
+AssessmentSession
+  -> MaturitySignalBuilderService
+  -> DerivedSignalEngine (numeric behaviour and flow rules)
+  -> SystemRuleEngine
+  -> OperationalInsightEngine
+  -> MaturityAssessment results and diagnostics
 ```
 
----
+| Component | Current responsibility |
+|---|---|
+| `MaturitySignalBuilderService` | Converts selected nonzero lens/theme/level coordinates to normalized numeric signals and signal traces. |
+| `DerivedSignalEngine` | Evaluates configured `DerivedSignalRule` expressions against numeric signals. It combines behavior and flow rule definitions; it does not evaluate workbook prose or selected-behaviour relationships. |
+| `SystemRuleEngine` | Evaluates system rules against derived-signal intensities. |
+| `OperationalInsightEngine` | Creates insights from derived signals, scores them with intensity, configured priority, and confidence weight, and selects at most five. |
+| `MaturityInsightAttribution` | Traces existing numeric-rule evidence back to Maturity coordinates when the evaluation evidence resolves uniquely. |
+| `MaturityAssessment.razor` | Presents the four-lens/five-theme results grid, radar profile, and expandable insight cards. Current cards expose interpretation, description, intensity, source, supporting signals, and rule reasons. |
+| `Components/Debug/DiagnosticsConsole.razor` | Provides evaluation diagnostics. Its Pattern Detection area is currently a placeholder with no data. |
 
-## Meaning
+`BehaviourRuleEngine` is registered but is not called by the main signal pipeline. It contains experimental average-ownership examples, not the new patterns. `InsightGenerator`, `InsightPrioritiser`, and `DomainProfileBuilder` remain TODO stubs; the related domain-profile path is not implemented. `InsightResult` is not the active result type for the Maturity pipeline.
 
-* higher score → higher maturity level
-* lower score → earlier stage behaviour
+## 4. Proposed pattern boundary
 
----
+The new workbook describes semantic relationships among selected behaviours, including reinforcing and friction patterns. Individual maturity signals retain their raw selected level, and the mapping can resolve a behaviour ID; numeric averages alone cannot preserve the individual evidence or establish these relationships. The current pipeline does not evaluate the new semantic rules.
 
-# 5. Aggregation
+The workbook's 28 rule rows reference 26 patterns. Cross-checking found 249 unique references with current Lens/Theme/Level mappings and no unresolved tuples. The 92 within-rule coordinate collisions represent multiple candidate levels for the same lens/theme; because only one level can be selected at a time, these must be treated as alternatives, not simultaneous requirements. Some workbook labels differ from current catalogue headlines, so tuple resolution alone does not confirm semantic equivalence.
 
-Signals are aggregated into:
+The 28 workbook rules have been approved as a living document, although Version 0.1 still marks its rows Proposed. The workbook supplies no technical trigger syntax, no approved numeric threshold, and no raw behaviour test cases. Therefore:
 
-* theme averages
-* system-level indicators
+- an individual rule match must remain distinct from a sufficiently supported pattern;
+- incomplete coordinates are unknown, not negative evidence;
+- hypotheses and delivery impacts must remain conditional and user-validated;
+- the existing numeric insight ranking must not be reused as a pattern confidence model;
+- positive patterns must be evaluated alongside friction patterns under the same evidence standard.
 
----
+The new pattern evaluation must be deterministic, preserve selected-coordinate provenance, aggregate rules by pattern ID, and compose user-facing insights only after an explicit support decision. Extending the existing `BehaviourRuleEngine` is an option; the redesigned pipeline and rule configuration remain to be decided. The [implementation plan](./maturity-pattern-implementation-plan.md) records the earlier proposed components, tests, UX, sequence, and open decisions.
 
-## Example
+## 5. Separate Flow rule documentation
 
-```text
-OwnershipAverage =
-(TeamOwnership + POOwnership + LeaderOwnership) / N
-```
-
----
-
-# 6. Disparity (CRITICAL)
-
-Disparity measures difference between roles.
-
----
-
-## Example
-
-```text
-LeaderTrustLevel = 0.8
-TeamTrustLevel = 0.4
-
-TrustGap = 0.4
-```
-
----
-
-## Insight Rules Use This
-
-From insights: 
-
-```text
-trust_gap >= 2 → alignment issue
-```
-
----
-
-## Meaning
-
-* low disparity → aligned system
-* high disparity → hidden dysfunction
-
----
-
-## Key Principle
-
-👉 Disparity often matters more than absolute score
-
----
-
-# 7. Derived Signals
-
-Derived signals combine multiple signals.
-
-From rules: 
-
----
-
-## Example
-
-### AutonomyFriction
-
-```text
-TeamOwnershipLevel >= 0.7
-AND LeaderTrustLevel <= 0.4
-→ High
-```
-
----
-
-## Meaning
-
-* teams are capable
-* leadership is restrictive
-
----
-
-## Structure
-
-Each derived signal includes:
-
-* source signals
-* conditions
-* intensity (Low / Moderate / High)
-* interpretation
-
----
-
-## Categories
-
-* Positive
-* Opportunity
-* Constraint
-* Risk
-
----
-
-# 8. Insight Layer
-
-Insights are triggered from:
-
-* averages
-* gaps
-* derived signals
-
----
-
-## Example
-
-From insight rules: 
-
-### Trust Alignment Gap
-
-* metric: trust_gap
-* threshold: 2
-
----
-
-## Output
-
-* title
-* description
-* recommendation
-
----
-
-# 9. Continuum Model
-
-Each signal exists on a maturity continuum:
-
----
-
-## Ownership
-
-Individual → Team → System Ownership
-
----
-
-## Trust
-
-Control → Collaboration → Autonomy
-
----
-
-## Value
-
-Output → Outcome → Value
-
----
-
-## Learning
-
-Compliance → Reflection → Evolution
-
----
-
-## System
-
-Local → Cross-team → Organisational
-
----
-
----
-
-# 10. Interpretation Principles
-
----
-
-## 1. Absolute Level
-
-Indicates maturity stage
-
----
-
-## 2. Disparity
-
-Indicates alignment between roles
-
----
-
-## 3. Derived Signals
-
-Reveal system dynamics
-
----
-
-## Combined Interpretation
-
-| Condition                   | Meaning               |
-| --------------------------- | --------------------- |
-| High score + low disparity  | healthy maturity      |
-| High score + high disparity | unstable / fragile    |
-| Low score + low disparity   | consistent immaturity |
-| Mixed signals               | transitional system   |
-
----
-
-# 11. Trace Requirements (IMPORTANT)
-
-Each maturity signal must expose:
-
----
-
-## Inputs
-
-* behaviours selected
-* role responses
-
----
-
-## Calculation
-
-* level mapping
-* scoring
-* aggregation
-* disparity
-
----
-
-## Derived
-
-* rule evaluation
-* condition results
-
----
-
-## Output
-
-* final signal
-* gap values
-* derived signals
-* triggered insights
-
----
-
-# 12. Validation Guidance
-
----
-
-## Check:
-
-* behaviours match responses
-* signal levels are correct
-* gaps reflect real disagreement
-* derived signals trigger correctly
-
----
-
-## Red Flags
-
-* identical scores across roles with different inputs
-* no gaps when disagreement exists
-* incorrect rule triggering
-* signals not matching behaviour descriptions
-
----
-
-# 13. Future Enhancements
-
-* confidence scoring
-* behavioural clustering
-* trend analysis
-* cross-diagnostic insights (with Backlog Health)
-
----
+Backlog Health rules use operational flow signals and remain distinct from Maturity behaviour patterns. Their current runtime is documented in [backlog-health-flow-rules.md](./backlog-health-flow-rules.md), including a separate section for review findings from the workbook that are not deployed changes.

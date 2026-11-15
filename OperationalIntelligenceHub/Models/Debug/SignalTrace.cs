@@ -9,6 +9,14 @@ namespace OperationalIntelligenceHub.Models
 		public object? Value { get; set; }
 		public string? Source { get; set; }
 		public DateTime? Timestamp { get; set; }
+		public TraceInputKind Kind { get; set; }
+	}
+
+	public enum TraceInputKind
+	{
+		Unspecified,
+		UserInput,
+		Calculation
 	}
 
 	// Where a step sits in the chain from user input to rule evaluation.
@@ -88,6 +96,7 @@ namespace OperationalIntelligenceHub.Models
 	public class SignalTrace
 	{
 		public string SignalName { get; set; } = "";
+		public string? BehaviourId { get; set; }
 		public Guid? WorkspaceId { get; set; }
 		public Guid? SquadId { get; set; }
 		public DateTime Timestamp { get; set; } = DateTime.UtcNow;
@@ -103,6 +112,7 @@ namespace OperationalIntelligenceHub.Models
 	public class CalculationTrace
 	{
 		public string CalculationName { get; set; } = "";
+		public List<TraceInput> Inputs { get; set; } = new();
 		public List<CalculationStep> Steps { get; set; } = new();
 		public List<PatternDetection> PatternDetections { get; set; } = new();
 	}

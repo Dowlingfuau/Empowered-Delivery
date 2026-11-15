@@ -80,11 +80,12 @@ public class MaturitySignalBuilderService : SignalBuilderBaseService
             traces.Add(new SignalTrace
             {
                 SignalName = signal.Name,
+                BehaviourId = mapping.BehaviourId,
                 WorkspaceId = signal.WorkspaceId,
                 SquadId = signal.SquadId,
                 Inputs = new List<TraceInput>
                 {
-                    new TraceInput { Name = $"{lens.Lens} · {theme.Theme} · behaviour level", Value = theme.Level, Source = "MaturityAssessment" }
+                    new TraceInput { Name = $"{lens.Lens} · {theme.Theme} · behaviour level", Value = theme.Level, Source = "MaturityAssessment", Kind = TraceInputKind.UserInput }
                 },
                 CalculationSteps = new List<CalculationStep>
                 {

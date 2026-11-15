@@ -71,6 +71,11 @@
     </div>
 </div>
 </div>
+<DiagnosticsConsolePortal>
+    <DiagnosticsConsole AdditionalInputs="@TeamHealthTrace().Inputs"
+                        CalculationTraces="@TeamHealthTrace().Calculations"
+                        PipelineStatus="Showing current answers and the existing overall score calculation. Team Health signals, rule evaluation and insights are not yet implemented." />
+</DiagnosticsConsolePortal>
 @code {
     private Func<Task>? _workspaceChangedHandler;
     private async Task WorkspaceChanged()
@@ -166,6 +171,21 @@
 
         return total / 8;
     }
+
+    private List<(string Name, int Score)> TeamHealthScores() => new()
+    {
+        ("Clarity of Purpose", ClarityScore),
+        ("Psychological Safety", SafetyScore),
+        ("Flow of Work", FlowScore),
+        ("Collaboration vs Silos", CollaborationScore),
+        ("Focus & Discipline", FocusScore),
+        ("Stakeholder Engagement", StakeholderScore),
+        ("Continuous Improvement", ImprovementScore),
+        ("Energy & Morale", MoraleScore)
+    };
+
+    private (List<TraceInput> Inputs, List<CalculationTrace> Calculations) TeamHealthTrace() =>
+        TeamHealthTraceAdapter.Build(TeamHealthScores(), CalculateOverallTeamHealthScore());
 
     // ===============================
     // SAVE (Clean Architecture)

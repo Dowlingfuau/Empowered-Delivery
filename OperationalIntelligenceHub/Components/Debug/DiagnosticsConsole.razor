@@ -1,8 +1,13 @@
 @using OperationalIntelligenceHub.Models
+@inject SignalTraceService TraceService
 
 <div class="card stack">
 
     <h3>Diagnostics Console</h3>
+    @if (!string.IsNullOrWhiteSpace(PipelineStatus))
+    {
+        <p class="text-muted small">@PipelineStatus</p>
+    }
 
     <div class="stack">
 
@@ -49,7 +54,27 @@
                                     </div>
 
                                     <h5>Calculation / Formation</h5>
-                                    <div class="text-muted small">No data available</div>
+                                    @{
+                                        var linkedSignals = (SignalTraces ?? new()).Where(trace => trace.Inputs.Any(
+                                            candidate => SameInput(candidate, input))).ToList();
+                                        var linkedCalculations = (CalculationTraces ?? new()).Where(calculation => calculation.Inputs.Any(
+                                            candidate => SameInput(candidate, input))).ToList();
+                                    }
+                                    @if (!linkedSignals.Any() && !linkedCalculations.Any())
+                                    {
+                                        <div class="text-muted small">No recorded calculation for this input.</div>
+                                    }
+                                    @foreach (var trace in linkedSignals)
+                                    {
+                                        <div>Signal: @trace.SignalName</div>
+                                        @if (!string.IsNullOrWhiteSpace(trace.BehaviourId)) { <div>Behaviour ID: @trace.BehaviourId</div> }
+                                        @StepList(trace.CalculationSteps)
+                                    }
+                                    @foreach (var calculation in linkedCalculations)
+                                    {
+                                        <div>Calculation: @calculation.CalculationName</div>
+                                        @StepList(calculation.Steps)
+                                    }
 
                                     <h5>Rule Evaluation</h5>
                                     <div class="text-muted small">No data available</div>
@@ -114,6 +139,10 @@
                                     }
 
                                     <h5>Calculation / Formation</h5>
+                                    @if (!string.IsNullOrWhiteSpace(trace?.BehaviourId))
+                                    {
+                                        <div>Behaviour ID: @trace.BehaviourId</div>
+                                    }
                                     @if (trace?.CalculationSteps?.Any() == true)
                                     {
                                         @StepList(trace.CalculationSteps)
@@ -162,6 +191,18 @@
                 }
             }
         </div>
+
+        @if (CalculationTraces?.Any() == true)
+        {
+            <div class="card stack">
+                <strong>Calculations</strong>
+                @foreach (var calculation in CalculationTraces)
+                {
+                    <div><strong>@calculation.CalculationName</strong></div>
+                    @StepList(calculation.Steps)
+                }
+            </div>
+        }
 
         <div class="card stack">
             <div class="grid grid-3" @onclick="() => ToggleSection(SectionDerivedSignals)" style="cursor:pointer">
@@ -582,6 +623,12 @@
                             <div>@entry.MatchedRuleName: <span class="text-muted">@entry.MatchedCondition</span></div>
                             @if (entry.MatchedClauses.Any()) { @ClauseRows(entry.MatchedClauses) }
 
+                            <h5>Evidence path</h5>
+                            @foreach (var evidence in TraceService.TraceInsight(entry, RuleEvaluations ?? new(), SignalTraces ?? new()))
+                            {
+                                <div style="@($"padding-left: {evidence.Depth}rem")">@evidence.Description</div>
+                            }
+
                             <h5>Prioritisation</h5>
                             @if (entry.ScoreFormula != null) { @FormulaView(entry.ScoreFormula) }
                             <div>Eligible: @(entry.EligibleForPrioritisation ? "Yes" : "No") · Rank @entry.Rank · Score @TraceNumber.Format(entry.Score)</div>
@@ -617,6 +664,8 @@
     [Parameter] public List<RuleEvaluation>? RuleEvaluations { get; set; }
     [Parameter] public List<SignalTrace>? SignalTraces { get; set; }
     [Parameter] public List<CalculationTrace>? CalculationTraces { get; set; }
+    [Parameter] public List<TraceInput>? AdditionalInputs { get; set; }
+    [Parameter] public string? PipelineStatus { get; set; }
 
     private readonly HashSet<string> expandedSections = new();
 
@@ -644,25 +693,16 @@
 
     private static string GetItemKey(string section, string name) => $"{section}:{name}";
 
+    private static bool SameInput(TraceInput left, TraceInput right) =>
+        string.Equals(left.Source, right.Source, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(left.Name, right.Name, StringComparison.OrdinalIgnoreCase);
+
     private static string GetSignalDisplayName(string signalName) =>
         signalName == "DeliveryPredictability" ? "Predictability" : signalName;
 
     private SignalTrace? GetTraceFor(string signalName)
     {
-        if (SignalTraces == null || string.IsNullOrWhiteSpace(signalName)) return null;
-
-        // Exact match
-        var exact = SignalTraces.FirstOrDefault(t => string.Equals(t.SignalName, signalName, StringComparison.OrdinalIgnoreCase));
-        if (exact != null) return exact;
-
-        // Try partial matches (e.g. Predictability vs DeliveryPredictability)
-        var partial = SignalTraces.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t.SignalName) &&
-            signalName.IndexOf(t.SignalName, StringComparison.OrdinalIgnoreCase) >= 0);
-        if (partial != null) return partial;
-
-        var reverse = SignalTraces.FirstOrDefault(t => !string.IsNullOrWhiteSpace(t.SignalName) &&
-            t.SignalName.IndexOf(signalName, StringComparison.OrdinalIgnoreCase) >= 0);
-        return reverse;
+        return TraceService.FindSignalTrace(SignalTraces, signalName);
     }
 
     private CalculationTrace? GetCalculationTraceFor(string calculationName)
@@ -682,55 +722,7 @@
 
     private List<TraceInput> GetUserInputs()
     {
-        var inputs = new List<TraceInput>();
-        if (SignalTraces == null) return inputs;
-
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var trace in SignalTraces)
-        {
-            if (trace?.Inputs == null) continue;
-            foreach (var input in trace.Inputs)
-            {
-                if (input == null) continue;
-                if (!IsUserInput(input)) continue;
-                var key = $"{input.Source ?? ""}:{input.Name ?? ""}";
-                if (seen.Contains(key)) continue;
-                seen.Add(key);
-                inputs.Add(input);
-            }
-        }
-
-        return inputs;
-    }
-
-    private static bool IsUserInput(TraceInput input)
-    {
-        if (input == null) return false;
-        var name = (input.Name ?? string.Empty).ToLowerInvariant();
-        var source = (input.Source ?? string.Empty).ToLowerInvariant();
-
-        // Explicitly exclude calculation-sourced inputs
-        if (source == "calculation") return false;
-
-        // Exclude commonly-derived names
-        if (name.Contains("average") || name.Contains("variance") || name.Contains("standarddeviation") || name.Contains("coefficientofvariation") || name.Contains("cv"))
-            return false;
-
-        // Throughput history list is considered a user input
-        if (source == "throughputhistory" && input.Value is System.Collections.IEnumerable && input.Value is not string)
-            return true;
-
-        // BacklogInput is user-provided
-        if (source == "backloginput") return true;
-
-        // A few other common sources that indicate user/input origin
-        if (source == "input" || source == "throughputhistory") return true;
-
-        // As a fallback, simple primitive values without an explicit calculation source are considered user inputs
-        if (string.IsNullOrWhiteSpace(source) && (input.Value is int || input.Value is long || input.Value is double || input.Value is float || input.Value is decimal))
-            return true;
-
-        return false;
+        return TraceService.GetUserInputs(SignalTraces, AdditionalInputs);
     }
 
     private static bool HasInsightFormation(OperationalInsight insight)

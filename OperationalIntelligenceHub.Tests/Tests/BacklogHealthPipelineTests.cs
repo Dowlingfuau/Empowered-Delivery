@@ -16,6 +16,32 @@ public class BacklogHealthPipelineTests
     }
 
     [Fact]
+    public async Task BacklogInsight_TraceLinksActualInputsCalculationsAndRule()
+    {
+        var repo = new TestRuleRepositoryService();
+        repo.AddFlowRule(new DerivedSignalRule
+        {
+            Name = "BacklogPressure",
+            Domain = "Flow",
+            Priority = 8,
+            Confidence_Weight = 0.85,
+            Rules = new() { new() { Condition = "BacklogSize > 0.7", Result = "High" } }
+        });
+        var (signals, traces) = new BacklogHealthSignalBuilderService().BuildSignals(
+            Guid.NewGuid(), Guid.NewGuid(), 50, 0, 0, new() { 10, 10 },
+            null, null, null, 0, 0, 0, 0, 0, false);
+
+        var result = await CreatePipeline(repo).ProcessSignalsDetailed(signals);
+        var insight = Assert.Single(result.insightEvaluation.Entries, entry => entry.Name == "BacklogPressure");
+        var path = new SignalTraceService().TraceInsight(insight, result.evaluations, traces);
+
+        Assert.Contains(path, item => item.Description.Contains("Flow rule BacklogPressure"));
+        Assert.Contains(path, item => item.Description.Contains("TotalItems: 50"));
+        Assert.Contains(path, item => item.Description.Contains("ThroughputHistory: 10, 10"));
+        Assert.Contains(path, item => item.Description.Contains("Normalisation"));
+    }
+
+    [Fact]
     public async Task LowDeliveryPredictability_ShouldTriggerDeliveryInstabilityHigh()
     {
         // Arrange

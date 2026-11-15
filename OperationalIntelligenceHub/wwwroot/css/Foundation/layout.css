@@ -12,7 +12,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: var(--surface-base-bg);
+    background: var(--ed-ink);
     color: var(--text-primary);
 }
 main {

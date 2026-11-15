@@ -29,6 +29,7 @@ builder.Services.AddScoped<MaturitySignalBuilderService>();
 builder.Services.AddScoped<SignalNormaliserService>();
 builder.Services.AddScoped<SignalPipelineService>();
 builder.Services.AddScoped<SignalMappingLoaderService>();
+builder.Services.AddScoped<SignalTraceService>();
 builder.Services.AddScoped<DerivedSignalEngine>();
 builder.Services.AddSingleton<RuleRepositoryService>();
 builder.Services.AddScoped<SignalRegistryService>();

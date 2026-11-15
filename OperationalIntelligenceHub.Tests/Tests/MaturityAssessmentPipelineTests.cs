@@ -167,15 +167,15 @@ public class MaturityAssessmentPipelineTests
                     Lens = "Squad",
                     Themes = new List<MaturityTheme>
                     {
-                        new MaturityTheme { Theme = "Ownership", Level = 1 }
+                        new MaturityTheme { Theme = "Ownership", Level = 1, BehaviouralNote = "private note" }
                     }
                 }
             }
         };
 
         // Act
-        var (signals, behaviour, systemSignals, insights, evaluations) =
-            await pipeline.BuildSignalsAndDerived(session);
+        var (signals, behaviour, systemSignals, insights, evaluations, traces, insightEvaluation) =
+            await pipeline.BuildSignalsAndDerivedDetailed(session);
 
         foreach (var s in signals) _output.WriteLine($"SIGNAL: {s.Name} ({s.NormalisedValue:0.00})");
         foreach (var b in behaviour) _output.WriteLine($"BEHAVIOUR: {b.Name} ({b.Intensity})");
@@ -185,6 +185,15 @@ public class MaturityAssessmentPipelineTests
         Assert.Contains(signals, s => s.Name == "TeamOwnershipLevel");
         Assert.Contains(behaviour, b => b.Name == "LowTeamOwnership");
         Assert.Contains(insights, i => i.Name == "LowTeamOwnership");
+        var trace = Assert.Single(traces);
+        Assert.Equal("Squad_Ownership_L1", trace.BehaviourId);
+        var input = Assert.Single(trace.Inputs);
+        Assert.Equal(TraceInputKind.UserInput, input.Kind);
+        Assert.Equal(1, input.Value);
+        Assert.DoesNotContain("private note", string.Join(" ", trace.Inputs.Select(i => i.Value)));
+        var path = new SignalTraceService().TraceInsight(Assert.Single(insightEvaluation.Entries), evaluations, traces);
+        Assert.Contains(path, item => item.Description.Contains("Squad_Ownership_L1"));
+        Assert.Contains(path, item => item.Description.Contains("Squad · Ownership · behaviour level: 1"));
     }
 
     [Fact]

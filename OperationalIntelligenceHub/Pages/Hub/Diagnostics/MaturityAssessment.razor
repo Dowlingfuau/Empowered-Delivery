@@ -461,7 +461,7 @@
         @if (!IsDraft)
         {
             <DiagnosticsConsolePortal>
-                <DiagnosticsConsole Signals="@signals" DerivedSignals="@derivedSignals" Insights="@insights" RuleEvaluations="@evaluations" SignalTraces="@signalTraces" InsightEvaluation="@insightEvaluation" />
+                <DiagnosticsConsole Signals="@signals" DerivedSignals="@derivedSignals" Insights="@insights" RuleEvaluations="@evaluations" SignalTraces="@signalTraces" AdditionalInputs="@MaturityTraceInputs(state.Session)" InsightEvaluation="@insightEvaluation" />
             </DiagnosticsConsolePortal>
         }
     }
@@ -1299,6 +1299,39 @@
     private BehaviourOption? GetBehaviour(string lens, string theme, int level) =>
         BehaviourCatalogue.GetBehaviours(lens, theme).FirstOrDefault(option => option.Level == level);
 
+    private static List<TraceInput> MaturityTraceInputs(AssessmentSession session) =>
+        session.LensAssessments.SelectMany(lens => lens.Themes.Select(theme => new TraceInput
+        {
+            Name = $"{lens.Lens} · {theme.Theme} · behaviour level",
+            Value = theme.Level > 0 ? theme.Level : "Not answered",
+            Source = "MaturityAssessment",
+            Kind = TraceInputKind.UserInput
+        })).ToList();
+
+    private static void ReportInsightRendering(InsightEvaluationTrace? trace, ConceptState state)
+    {
+        if (trace == null) return;
+        var rendering = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        foreach (var placement in state.InsightPlacements)
+        {
+            var displayed = placement.Level switch
+            {
+                InsightAnchorLevel.System => true,
+                InsightAnchorLevel.Theme => MaturityTheme.Themes.Any(theme =>
+                    string.Equals(theme, placement.Theme, StringComparison.OrdinalIgnoreCase)),
+                InsightAnchorLevel.Behaviour => MaturityTheme.Themes.Any(theme =>
+                    string.Equals(theme, placement.Theme, StringComparison.OrdinalIgnoreCase)) &&
+                    state.Session.LensAssessments.Any(lens =>
+                        string.Equals(lens.Lens, placement.Lens, StringComparison.OrdinalIgnoreCase)),
+                _ => false
+            };
+            rendering[placement.Insight.Name] = !state.ShowResults
+                ? "The assessment results are not currently displayed."
+                : displayed ? null : "The insight placement is not displayed on this page.";
+        }
+        trace.ApplyRendering(rendering);
+    }
+
     private List<InsightPlacement> MapInsights(ConceptState state, IEnumerable<OperationalInsight> currentInsights, IReadOnlyList<RuleEvaluation> currentEvaluations)
     {
         var placements = new List<InsightPlacement>();
@@ -1588,6 +1621,7 @@
             insightEvaluation = pipelineResult.insightEvaluation;
             state.InsightPlacements = insightPlacements;
             state.ShowResults = showResults;
+            ReportInsightRendering(insightEvaluation, state);
             return true;
         }
         catch (Exception exception)
@@ -1618,6 +1652,7 @@
     private void ReturnToAssessment(ConceptState state)
     {
         state.ShowResults = false;
+        ReportInsightRendering(insightEvaluation, state);
         state.IsAdjusting = false;
         state.ThemeIndex = state.ResultThemeIndex;
         state.LensIndex = state.ResultLensIndex;

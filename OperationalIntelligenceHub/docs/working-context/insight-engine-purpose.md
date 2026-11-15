@@ -29,6 +29,8 @@ The engine can use currently entered, unsaved diagnostic data as well as saved a
 ### 7. Rule-driven triggering
 Backlog Health insights come from numeric rules in `flow_rules_v3.json`; system-level insights come from `system_rules.json`. A rule can carry different interpretation text per condition, and the engine prefers that text over the rule-level text. Each insight condition should have one rule, so duplicate representations (such as the removed `FlowDisruption`) are avoided. See [backlog-health-flow-rules.md](./backlog-health-flow-rules.md).
 
+The Maturity Assessment pattern refresh is separate from the current numeric pipeline. The workbook's 28 proposed rule rows cover 26 pattern IDs. Their composite references have been cross-checked against current assessment tuples and mapping IDs, but those IDs are not persisted on the assessment and some workbook labels differ from the current catalogue. Rule semantics, support criteria, and user-facing copy still require approval; the rules are not executable runtime rules. See the [pattern catalogue](./maturity-pattern-catalogue.md), [definitions](./maturity-pattern-definitions.md), [detection rules](./maturity-pattern-detection-rules.md), and [implementation plan](./maturity-pattern-implementation-plan.md).
+
 ## Core principle
 
 **The Insight Engine determines what the evidence means. Prioritisation determines what matters most. Contextual rendering determines what the user sees, where and when.**

@@ -1,5 +1,15 @@
 # Debug Diagnostic Console — Working Context (v4)
 
+## Current trace implementation
+
+The shared `SignalTraceService` connects recorded rule evaluations to exact signal traces and their recorded inputs and calculations. It reports missing or ambiguous links instead of guessing. The console displays the evidence path alongside existing prioritisation and rendering information.
+
+* Backlog Health supplies signal and insight traces as before.
+* Maturity supplies selected levels, resolved behaviour IDs, signal calculations and insight placement status. Unanswered coordinates are shown as unanswered, not as negative evidence.
+* Team Health shows its current eight answers and existing overall calculation, including unanswered scores currently counted as zero. Team Health signal building, rule evaluation and insight generation are not yet implemented.
+
+Traces are held in the current page session, not persisted. Assessment free-text notes are excluded. Maturity pattern rules are not yet evaluated; the pattern detection placeholder does not represent a completed stage.
+
 ## Purpose
 
 Provide end-to-end observability across the diagnostic and Insight Engine pipeline.
