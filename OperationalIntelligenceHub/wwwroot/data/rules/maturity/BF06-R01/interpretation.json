@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF06-R01",
+  "patternId": "BF06",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not treat standards or compliance as inherently restrictive. Do not infer that improvement is being blocked without evidence of a practical constraint.",
+    "testScenario": "Squad selected Continuous Improvement; Leader selected Enforcing Standard Practices and Control-Based Leadership. Contrast with Leader selected Cultivating Learning Culture and Empowering Leadership.",
+    "expectedInterpretation": "Possible tension between the desire to improve and the degree of discretion teams have to change how work is done. Validate whether improvement ideas can be trialled and adopted."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

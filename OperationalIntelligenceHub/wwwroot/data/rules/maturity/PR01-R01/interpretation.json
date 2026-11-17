@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "PR01-R01",
+  "patternId": "PR01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer empowered ownership from a high Squad Ownership selection alone. Avoid equating delegated execution with meaningful decision authority.",
+    "testScenario": "Squad selected Team Drives Delivery; Leader selected Enabling Team Autonomy and Empowering Leadership. Contrast with Leader selected Control-Based Leadership.",
+    "expectedInterpretation": "The selected behaviours appear to reinforce team ownership and autonomy across roles. Validate whether the Squad has the authority and support to own delivery outcomes in practice."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

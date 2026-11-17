@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "SC04-R01",
+  "patternId": "SC04",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not treat stakeholder input, consultation, or collaboration as stakeholder control. Do not assume the Product Owner lacks authority.",
+    "testScenario": "PO selected Shaping Product Strategy and Executing Stakeholder Decisions. Contrast with Trusted Product Authority.",
+    "expectedInterpretation": "Possible tension between strategic product direction and the influence or approval required from stakeholders. Validate whether the Product Owner can make product decisions within clear boundaries."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

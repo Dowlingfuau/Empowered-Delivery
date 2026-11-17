@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF07-R01",
+  "patternId": "BF07",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Emerging when Squad customer-validation behaviours are paired with PO requirements/backlog-focused behaviours. Moderate only when related PO Learning/Value evidence supports a possible gap.",
+    "testScenario": "Possible difference in how customer feedback is connected to product understanding and backlog decisions. Ask whether learning from customers consistently informs what the product prioritises.",
+    "expectedInterpretation": "Proposed"
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

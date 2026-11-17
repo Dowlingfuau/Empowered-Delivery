@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "supporting",
+  "ruleId": "BF09-R01",
+  "patternId": "BF09",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "catalogueEvidence": null,
+  "supportingEvidenceProfiles": null,
+  "qualificationRules": null,
+  "contextRelationships": null,
+  "executionPolicy": null,
+  "evidenceSemantics": null,
+  "assessmentSeparation": null,
+  "sourceMaterial": {
+    "relatedEvidence": "Squad System: Collaborating with Stakeholders; Collaborating Across Teams. Squad Value: Delivering Meaningful Outcomes.",
+    "supportingEvidence": "PO Ownership: Leading the Value Chain; Squad System: Collaborating with Stakeholders.",
+    "contradictoryEvidence": "Squad Value: Delivering Meaningful Outcomes; Delivering Continuous Value; Squad System: Collaborating Across Teams; Operating as a Delivery System.",
+    "evidenceSufficiency": "Moderate when strategic PO behaviours coexist with bounded/output-oriented Squad behaviours. Supporting evidence should indicate whether the connection between strategy and delivery is visible."
+  },
+  "developmentNotes": [
+    "Source evidence descriptions are unreviewed and do not define classifications, sufficiency or dependencies.",
+    "Supporting evidence does not introduce mandatory trigger conditions."
+  ]
+}

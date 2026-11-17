@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF03-R01",
+  "patternId": "BF03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer a Leader's lack of confidence or motivation. Delegating execution does not itself prove that confidence is absent.",
+    "testScenario": "Leader selected Delegating Execution and Limited Delegation; Squad selected Team Drives Delivery. Contrast with Leader selected Empowering Leadership.",
+    "expectedInterpretation": "Possible gap between delegating work and enabling the autonomy to make decisions about that work. Ask whether the Squad has room to determine how delivery is achieved."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

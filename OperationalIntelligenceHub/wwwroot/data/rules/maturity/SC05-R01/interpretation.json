@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "SC05-R01",
+  "patternId": "SC05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume coordination equals fragmentation. A structured leadership model may support integration if goals, dependencies, and decisions are aligned.",
+    "testScenario": "Squad selected Operating as a Delivery System; SM selected Facilitating System Collaboration; Leader selected Managing Through Structure. Contrast with Leader selected Enabling Organisational Systems.",
+    "expectedInterpretation": "Possible difference between the integrated delivery model operating in teams and the way leadership coordinates the wider organisation. Validate whether leadership structures reinforce or fragment delivery across boundaries."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

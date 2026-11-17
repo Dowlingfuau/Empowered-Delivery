@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "EM01-R02",
+  "patternId": "EM01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Expectation Projection — Autonomy enablement and team ownership",
+    "category": "ExpectationMisalignment",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Squad_Ownership_L1",
+      "Leader_Ownership_L4",
+      "Leader_Trust_L4",
+      "Squad_Trust_L3",
+      "Leader_Trust_L5",
+      "Squad_Trust_L4"
+    ],
+    "sourceEvidence": "Leader Ownership: Enabling Team Autonomy. Squad Ownership: Individual Task Ownership.",
+    "relationshipLogic": "Leader behaviours may imply an expectation that the Squad will operate autonomously, while Squad behaviours may indicate that ownership is still expressed at an individual task level. This may create a difference between the autonomy leadership believes is available and how the Squad currently organises work."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

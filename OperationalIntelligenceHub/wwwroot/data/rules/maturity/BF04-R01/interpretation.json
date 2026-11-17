@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF04-R01",
+  "patternId": "BF04",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not equate stakeholder collaboration with lack of confidence. Do not assume stakeholders are undermining the Product Owner.",
+    "testScenario": "PO selected Leading the Value Chain and Executing Stakeholder Decisions. Contrast with Trusted Product Authority.",
+    "expectedInterpretation": "Possible tension between the Product Owner's product accountability and the degree of authority or stakeholder confidence available to exercise it. Validate whether product decisions can be made at the appropriate level."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

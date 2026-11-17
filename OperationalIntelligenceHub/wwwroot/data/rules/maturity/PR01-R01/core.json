@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "PR01-R01",
+  "patternId": "PR01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Empowered Ownership",
+    "category": "PositiveReinforcement",
+    "polarity": "Positive",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Ownership_L5",
+      "ScrumMaster_Ownership_L3",
+      "Squad_Ownership_L5",
+      "Leader_Ownership_L4",
+      "Leader_Trust_L4",
+      "ScrumMaster_Ownership_L4",
+      "Squad_Ownership_L4",
+      "Squad_Ownership_L3",
+      "Leader_Trust_L5"
+    ],
+    "sourceEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery; Team Leads Value Creation. Leader Ownership: Enabling Team Autonomy; Delegating System Responsibility. Leader Trust: Empowering Leadership; System-Level Trust.",
+    "relationshipLogic": "Squad ownership behaviours may be reinforced by Leader behaviours that enable autonomy and trust. SM Ownership may further support a pattern of shared ownership across the delivery relationship."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

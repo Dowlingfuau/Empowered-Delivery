@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "CC02-R01",
+  "patternId": "CC02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Product Leadership Without Organisational Alignment",
+    "category": "CapabilityConstraint",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_System_L2",
+      "Leader_Value_L1",
+      "ProductOwner_Value_L5",
+      "Leader_Value_L3",
+      "Leader_Value_L2",
+      "ProductOwner_Ownership_L5",
+      "Leader_System_L3",
+      "ProductOwner_Value_L4",
+      "Leader_System_L1",
+      "ProductOwner_Ownership_L4",
+      "Leader_Value_L4"
+    ],
+    "sourceEvidence": "PO Ownership: Leading the Value Chain; Owning Product Portfolio Value. PO Value: Optimising the Value Chain; Optimising Product Portfolio Value. Leader Value: Measuring Success Through Efficiency; Monitoring Delivery Performance. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+    "relationshipLogic": "PO behaviours may indicate product or portfolio value leadership, while Leader behaviours may indicate a stronger focus on efficiency, performance monitoring, or structural coordination. This may suggest that product leadership and organisational priorities are not fully aligned."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

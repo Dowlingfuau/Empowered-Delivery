@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "PR05-R01",
+  "patternId": "PR05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Integrated Value Chain",
+    "category": "PositiveReinforcement",
+    "polarity": "Positive",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ProductOwner_System_L3",
+      "ScrumMaster_System_L4",
+      "ScrumMaster_System_L5",
+      "Leader_System_L4",
+      "Squad_System_L5",
+      "Leader_System_L3",
+      "ProductOwner_Value_L4",
+      "ProductOwner_System_L4",
+      "Squad_System_L4",
+      "ProductOwner_System_L5",
+      "Leader_System_L5",
+      "Leader_Value_L4",
+      "ScrumMaster_System_L3"
+    ],
+    "sourceEvidence": "PO System: Collaborating Across the Value Chain; Leading Product Ecosystems; Shaping Product Strategy. Squad System: Collaborating Across Teams; Operating as a Delivery System. SM System: Improving Value Flow; Facilitating System Collaboration; Enabling Organisational Agility. Leader System: Aligning Organisational Goals; Enabling Organisational Systems; Leading System Evolution.",
+    "relationshipLogic": "System behaviours across PO, Squad, SM, and Leader may indicate that product direction, team collaboration, flow, and organisational enablement are connected across the value chain."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

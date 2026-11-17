@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF02-R01",
+  "patternId": "BF02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Accountability Without Authority",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Trust_L1",
+      "Squad_Ownership_L4",
+      "Leader_Ownership_L2",
+      "Squad_Ownership_L3",
+      "Leader_Trust_L2",
+      "Squad_Trust_L4",
+      "Squad_Trust_L5",
+      "Leader_Ownership_L1"
+    ],
+    "sourceEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery. Leader Ownership: Directing Work; Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation.",
+    "relationshipLogic": "The Squad's selected behaviours suggest responsibility for outcomes or delivery, while Leader behaviours may indicate that important direction or decision authority remains with leadership. This may create a mismatch between accountability and the authority available to exercise it."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "SC01-R01",
+  "patternId": "SC01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not treat all direction or control as incompatible with outcomes. Distinguish necessary guardrails from control over delivery choices.",
+    "testScenario": "Leader selected Supporting Outcome-Based Delivery, Directing Work, and Control-Based Leadership. Contrast with Enabling Team Autonomy and Empowering Leadership.",
+    "expectedInterpretation": "Possible tension between leadership's stated outcome orientation and the way delivery is directed or controlled. Validate whether teams have the discretion needed to pursue outcomes."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

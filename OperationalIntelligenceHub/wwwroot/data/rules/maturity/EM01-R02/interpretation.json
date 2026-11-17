@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "EM01-R02",
+  "patternId": "EM01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume the Leader has communicated expectations clearly or that the Squad is unwilling to take ownership.",
+    "testScenario": "Leader selected Enabling Team Autonomy; Squad selected Individual Task Ownership. Contrast with Squad selected Team Drives Delivery.",
+    "expectedInterpretation": "Possible mismatch between the autonomy leadership believes it is enabling and the way the Squad currently experiences or exercises ownership. Validate whether decision boundaries and expectations are explicit."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF03-R01",
+  "patternId": "BF03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Delegation Without Confidence",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Trust_L1",
+      "Squad_Ownership_L4",
+      "Leader_Ownership_L2",
+      "Squad_Ownership_L3",
+      "Leader_Trust_L2",
+      "Squad_Trust_L4",
+      "Squad_Trust_L5"
+    ],
+    "sourceEvidence": "Leader Ownership: Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation. Squad Ownership: Team Owns Outcomes; Team Drives Delivery.",
+    "relationshipLogic": "Leader behaviours may suggest that execution is delegated while trust-related behaviours indicate that decision-making or autonomy remains constrained. Squad outcome ownership may add to the possibility that responsibility and confidence are not aligned."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

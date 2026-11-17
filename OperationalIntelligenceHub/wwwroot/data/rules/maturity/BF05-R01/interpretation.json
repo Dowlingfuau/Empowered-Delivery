@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF05-R01",
+  "patternId": "BF05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer ineffective coaching or attribute the Squad's current behaviours to the Scrum Master. The selections may reflect a development stage, context, or constraints outside the Scrum Master's influence.",
+    "testScenario": "SM selected Supporting Team Autonomy; Squad selected Individual Task Ownership and Avoiding Conflict. Contrast with Squad selected Team Owns Outcomes and Open Team Dialogue.",
+    "expectedInterpretation": "Possible gap between the collaborative conditions being supported and the team's current experience of shared ownership or dialogue. Ask whether the team is ready and able to operate in the way the Scrum Master is encouraging."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "EM02-R02",
+  "patternId": "EM02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer that the Scrum Master is expecting a specific level of autonomy unless validated. The Squad may be at an earlier stage of developing shared ownership.",
+    "testScenario": "SM selected Supporting Team Autonomy and Encouraging Team Ownership; Squad selected Individual Task Ownership. Contrast with Squad selected Shared Responsibility Emerging.",
+    "expectedInterpretation": "Possible gap between the autonomy the Scrum Master is supporting and the Squad's current way of organising responsibility. Validate whether the team needs clearer support, expectations, or opportunities to build shared ownership."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

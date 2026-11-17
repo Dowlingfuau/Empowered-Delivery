@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "SC02-R01",
+  "patternId": "SC02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer centralised decisions from the Leader's autonomy statement alone. Do not require two Leader Ownership behaviours from the same theme.",
+    "testScenario": "Leader selected Enabling Team Autonomy and Control-Based Leadership. Add Squad selected Team Drives Delivery as supporting evidence; contrast with Leader selected Empowering Leadership.",
+    "expectedInterpretation": "Possible contradiction between the autonomy leadership appears to enable and the degree of trust or decision authority reflected in its other selected behaviours. Validate where decisions are actually made."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

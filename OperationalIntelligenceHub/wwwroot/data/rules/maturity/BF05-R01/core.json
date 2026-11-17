@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF05-R01",
+  "patternId": "BF05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Coaching and Team Behaviour Misalignment",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ScrumMaster_Trust_L4",
+      "Squad_Ownership_L2",
+      "ScrumMaster_Ownership_L3",
+      "Squad_Ownership_L1",
+      "ScrumMaster_Trust_L3",
+      "Squad_Trust_L2",
+      "ScrumMaster_Ownership_L4",
+      "Squad_Trust_L1",
+      "Squad_Learning_L2",
+      "Squad_Learning_L3"
+    ],
+    "sourceEvidence": "SM Ownership: Encouraging Team Ownership; Driving Team Success. SM Trust: Supporting Team Autonomy; Enabling High Trust Collaboration. Squad Ownership: Individual Task Ownership; Shared Responsibility Emerging. Squad Trust: Avoiding Conflict; Exploring Differences.",
+    "relationshipLogic": "Scrum Master behaviours may indicate an emphasis on ownership, autonomy, or collaboration, while Squad behaviours may suggest that shared ownership or open dialogue is still developing. This may indicate a difference between the conditions being encouraged and the team's current operating behaviours."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

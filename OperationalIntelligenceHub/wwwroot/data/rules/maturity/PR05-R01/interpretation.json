@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "PR05-R01",
+  "patternId": "PR05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer integration from isolated system-awareness behaviours. The pattern concerns alignment across roles, not simply each role recognising the wider system.",
+    "testScenario": "PO selected Leading Product Ecosystems; Squad selected Operating as a Delivery System; SM selected Facilitating System Collaboration; Leader selected Enabling Organisational Systems. Contrast with Leader selected Managing Through Structure.",
+    "expectedInterpretation": "The selected behaviours suggest product, delivery, facilitation, and leadership are oriented towards an integrated value chain. Validate whether decisions, dependencies, and work flow effectively across boundaries."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

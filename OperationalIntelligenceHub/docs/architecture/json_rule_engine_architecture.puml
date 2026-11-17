@@ -1,7 +1,7 @@
 @startuml
 title JSON definitions and evaluation - target, not deployed configuration
 component "Numeric flow rule JSON\nand validation" as numericRules
-component "Maturity definitions and validation\nBF01 provisional pilot" as semanticRules
+component "Current consolidated BF01 definition\nand validation" as semanticRules
 component "Shared evidence, signals\nand provenance" as evidence
 component "Numeric evaluation:\nmeasurements, signals and thresholds" as numeric
 component "Maturity evidence acquisition\nand projection" as projection
@@ -16,6 +16,13 @@ component "Eligible MRI system\ninsight candidate" as mriCandidate
 component "System evaluation:\nconfidence then priority" as systemEvaluation
 component "System insight composition\nand presentation" as systemInsight
 component "Shared Intelligence Trace\n(target contract)" as trace
+package "Maturity modular storage (files exist; loading is future)" {
+  component "catalogue.json\nRule ID -> Pattern ID, status, version, paths" as catalogue
+  component "Catalogue-driven loader\nfuture" as loader
+  component "Rule ID/core.json" as coreFile
+  component "Rule ID/supporting.json" as supportingFile
+  component "Rule ID/interpretation.json" as interpretationFile
+}
 numericRules --> numeric
 semanticRules --> semantic
 evidence --> numeric
@@ -44,6 +51,13 @@ diagnosticInsight ..> trace
 mri ..> trace
 systemEvaluation ..> trace
 systemInsight ..> trace
+catalogue ..> loader : resolve Rule ID
+loader ..> coreFile : future
+loader ..> supportingFile : future
+loader ..> interpretationFile : future
+coreFile ..> semantic : future rule triggering
+supportingFile ..> outcomes : future evidence assessment
+interpretationFile ..> diagnosticInsight : future interpretation
 note bottom of numericRules
   Definitions do not prescribe fixed confidence
   or priority. Existing configuration and ranking
@@ -55,6 +69,11 @@ note bottom of semantic
   Provisional eligibility and findings are implemented;
   their in-memory trace is visible in the console.
   Numeric and semantic strategies are distinct.
+end note
+note bottom of catalogue
+  Multiple Rule IDs may share one Pattern ID.
+  All modular entries are proposed; the BF01 pilot
+  continues to use its existing sources.
 end note
 note bottom of profiles
   Planned user-facing role profiles also provide

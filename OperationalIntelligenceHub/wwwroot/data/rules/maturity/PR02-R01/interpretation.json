@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "PR02-R01",
+  "patternId": "PR02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not claim that value is being achieved or measured effectively. The assessment captures reported operating behaviours, not verified customer or business outcomes.",
+    "testScenario": "PO selected Optimising the Value Chain; Squad selected Delivering Meaningful Outcomes; Leader selected Supporting Outcome-Based Delivery. Contrast with output-focused Squad Value.",
+    "expectedInterpretation": "The selected behaviours suggest a shared orientation towards value across product, delivery, and leadership. Validate whether this alignment is visible in prioritisation and day-to-day decisions."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

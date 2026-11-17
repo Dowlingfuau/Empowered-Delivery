@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "EM02-R01",
+  "patternId": "EM02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Direction and Autonomy Mismatch — Leadership direction versus team autonomy",
+    "category": "ExpectationMisalignment",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Trust_L1",
+      "Squad_Ownership_L4",
+      "Squad_Trust_L4",
+      "Squad_Trust_L5",
+      "Leader_Ownership_L1"
+    ],
+    "sourceEvidence": "Leader Ownership: Directing Work. Leader Trust: Control-Based Leadership. Squad Ownership: Team Drives Delivery.",
+    "relationshipLogic": "Leader behaviours may indicate a preference for explicit direction or control, while Squad behaviours may indicate an ability or desire to drive delivery. This may create friction around who determines how work is organised and decisions are made."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

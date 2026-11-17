@@ -3,7 +3,7 @@ title Maturity semantic evaluation - initial target and future enrichment
 rectangle "Original selections and provenance\nimplemented capture" as evidence
 rectangle "Evidence acquisition and projection\nsaved Maturity sessions" as projection
 rectangle "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
-rectangle "JSON definitions and validation\nBF01 v2 pilot contract" as rules
+rectangle "Current consolidated BF01 definition\nand repository" as rules
 rectangle "Core and contribution evaluation\nBF01 pilot; relationships pending" as match
 rectangle "Pattern aggregation\nfuture" as aggregate
 rectangle "Diagnostic candidate" as candidate
@@ -11,6 +11,13 @@ rectangle "Evidence sufficiency and eligibility\nBF01 provisional policy" as sup
 rectangle "Diagnostic finding\nBF01 provisional narrative" as finding
 rectangle "Trace: provenance,\nstates and reasons" as trace
 rectangle "Diagnostics Console\nBF01 in-memory trace" as console
+package "Modular storage (files exist; loading is future)" {
+  rectangle "catalogue.json\nRule ID -> Pattern ID, status, version, paths" as catalogue
+  rectangle "Catalogue-driven loader\nfuture" as loader
+  rectangle "Rule ID/core.json\ntrigger definition" as coreFile
+  rectangle "Rule ID/supporting.json\nevidence and context" as supportFile
+  rectangle "Rule ID/interpretation.json\nnarrative and guardrails" as interpretationFile
+}
 evidence --> projection
 evidence ..> profiles : future
 profiles ..> projection : future profile interpretations
@@ -28,10 +35,23 @@ match ..> trace
 aggregate ..> trace
 support ..> trace
 trace --> console : BF01 run
+catalogue ..> loader : resolve Rule ID
+loader ..> coreFile : future
+loader ..> supportFile : future
+loader ..> interpretationFile : future
+coreFile ..> match : future trigger evaluation
+supportFile ..> support : future evidence assessment
+interpretationFile ..> finding : future composition
+catalogue ..> aggregate : multiple Rule IDs per Pattern ID
 note bottom of match
   Initial evaluation uses original selected behaviours.
   A trigger is a candidate, not an automatic insight.
   Numeric flow rules use a distinct strategy and schema.
+end note
+note bottom of catalogue
+  All modular entries are proposed.
+  The current BF01 pilot still loads
+  the retained consolidated source and narrative.
 end note
 note bottom of profiles
   Future dedicated user experience and interpreted

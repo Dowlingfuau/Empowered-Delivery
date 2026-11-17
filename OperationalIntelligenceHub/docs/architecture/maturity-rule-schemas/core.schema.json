@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Draft Maturity rule core file",
+  "type": "object",
+  "required": ["schemaVersion", "fileType", "ruleId", "patternId", "ruleVersion", "status", "definitionStatus", "identity", "evaluation", "coreEvidence", "coreRelationship", "executionPolicy", "sourceMaterial", "sourceEvaluation", "developmentNotes"],
+  "properties": {
+    "schemaVersion": { "const": "1.0-draft" },
+    "fileType": { "const": "core" },
+    "ruleId": { "type": "string", "pattern": "^[A-Z]{2}[0-9]{2}-R[0-9]{2}$" },
+    "patternId": { "type": "string", "pattern": "^[A-Z]{2}[0-9]{2}$" },
+    "ruleVersion": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "status": { "enum": ["Approved", "Proposed", "Disabled"] },
+    "definitionStatus": { "enum": ["Undefined", "DefinedPilot", "Defined"] },
+    "identity": {
+      "type": "object",
+      "required": ["patternName", "category", "polarity", "diagnosticScope"],
+      "properties": {
+        "patternName": { "type": "string", "minLength": 1 },
+        "category": { "type": "string", "minLength": 1 },
+        "polarity": { "type": "string", "minLength": 1 },
+        "diagnosticScope": { "const": "MaturityAssessment" }
+      }
+    },
+    "evaluation": { "type": ["object", "null"] },
+    "coreEvidence": { "type": ["object", "null"] },
+    "coreRelationship": { "type": ["object", "null"] },
+    "executionPolicy": { "type": ["object", "null"] },
+    "sourceMaterial": { "type": "object" },
+    "sourceEvaluation": { "type": ["object", "null"] },
+    "developmentNotes": { "type": "array", "items": { "type": "string" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "definitionStatus": { "const": "Undefined" } }, "required": ["definitionStatus"] },
+      "then": {
+        "properties": {
+          "status": { "enum": ["Proposed", "Disabled"] },
+          "ruleVersion": { "type": "null" },
+          "evaluation": { "type": "null" },
+          "coreEvidence": { "type": "null" },
+          "coreRelationship": { "type": "null" },
+          "executionPolicy": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "definitionStatus": { "const": "DefinedPilot" } }, "required": ["definitionStatus"] },
+      "then": {
+        "properties": {
+          "status": { "enum": ["Proposed", "Disabled"] },
+          "ruleVersion": { "type": "string", "minLength": 1 },
+          "evaluation": { "type": "object" },
+          "coreEvidence": { "type": "object" },
+          "coreRelationship": {
+            "type": "object",
+            "required": ["requiredCoordinates", "groupDefinitions", "branches"]
+          },
+          "executionPolicy": { "type": "object" }
+        }
+      }
+    }
+  ]
+}

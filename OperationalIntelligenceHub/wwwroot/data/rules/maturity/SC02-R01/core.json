@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "SC02-R01",
+  "patternId": "SC02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Autonomy Rhetoric, Centralised Decisions",
+    "category": "SystemicContradiction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Ownership_L5",
+      "Squad_Ownership_L5",
+      "Leader_Trust_L1",
+      "Leader_Ownership_L4",
+      "Squad_Ownership_L4",
+      "Leader_Trust_L2",
+      "Squad_Trust_L4",
+      "Squad_Trust_L5"
+    ],
+    "sourceEvidence": "Leader Ownership: Enabling Team Autonomy; Delegating System Responsibility. Leader Trust: Control-Based Leadership; Limited Delegation. Squad Ownership: Team Drives Delivery; Team Leads Value Creation.",
+    "relationshipLogic": "Leader Ownership behaviours may indicate an intent to enable autonomy, while Leader Trust behaviours may suggest continued control or limited delegation. Squad Ownership can provide supporting evidence of whether teams are positioned to act autonomously."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

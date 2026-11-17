@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "CC02-R01",
+  "patternId": "CC02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not treat efficiency or performance management as incompatible with product value. Do not infer misalignment merely because roles operate at different levels.",
+    "testScenario": "PO selected Optimising Product Portfolio Value; Leader selected Measuring Success Through Efficiency and Managing Through Structure. Contrast with Leader selected Supporting Outcome-Based Delivery.",
+    "expectedInterpretation": "Possible difference between product-level value priorities and the organisational measures or coordination mechanisms guiding execution. Validate whether priorities and success measures reinforce one another."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

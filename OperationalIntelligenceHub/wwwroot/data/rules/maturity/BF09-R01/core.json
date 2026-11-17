@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF09-R01",
+  "patternId": "BF09",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Strategic Product Direction Versus Delivery Reality",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ProductOwner_Value_L5",
+      "Squad_System_L3",
+      "Squad_Value_L2",
+      "Squad_Value_L3",
+      "Squad_System_L1",
+      "Squad_System_L2",
+      "ProductOwner_Value_L4",
+      "ProductOwner_System_L4",
+      "Squad_System_L4",
+      "ProductOwner_System_L5",
+      "Squad_Value_L1"
+    ],
+    "sourceEvidence": "PO System: Leading Product Ecosystems; Shaping Product Strategy. PO Value: Optimising the Value Chain; Optimising Product Portfolio Value. Squad System: Working Within Team Boundaries; Developing Shared Standards. Squad Value: Delivering Output; Measuring Delivery Performance.",
+    "relationshipLogic": "PO behaviours may indicate strategic product or ecosystem direction, while Squad behaviours may indicate a more bounded or output-oriented delivery focus. This may suggest that strategic direction is not yet translating into the Squad's day-to-day delivery context."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

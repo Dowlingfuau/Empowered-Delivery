@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "EM02-R02",
+  "patternId": "EM02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Direction and Autonomy Mismatch — Autonomy support versus task-level ownership",
+    "category": "ExpectationMisalignment",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ScrumMaster_Ownership_L3",
+      "Squad_Ownership_L1",
+      "ScrumMaster_Trust_L3",
+      "Squad_Trust_L3"
+    ],
+    "sourceEvidence": "SM Trust: Supporting Team Autonomy. Squad Ownership: Individual Task Ownership.",
+    "relationshipLogic": "SM behaviours may indicate support for team autonomy, while Squad Ownership may suggest that work is still organised around individual tasks rather than shared delivery responsibility. This may indicate a difference between the autonomy being encouraged and the team's current operating approach."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

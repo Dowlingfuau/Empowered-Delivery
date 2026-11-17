@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "supporting",
+  "ruleId": "BF03-R01",
+  "patternId": "BF03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "catalogueEvidence": null,
+  "supportingEvidenceProfiles": null,
+  "qualificationRules": null,
+  "contextRelationships": null,
+  "executionPolicy": null,
+  "evidenceSemantics": null,
+  "assessmentSeparation": null,
+  "sourceMaterial": {
+    "relatedEvidence": "Squad Trust: Strong Team Trust; Deep Mutual Trust.",
+    "supportingEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery. Leader Ownership: Delegating Execution.",
+    "contradictoryEvidence": "Leader Trust: Empowering Leadership; System-Level Trust. Leader Ownership: Enabling Team Autonomy.",
+    "evidenceSufficiency": "Emerging if delegation and control indicators coexist. Moderate only when the relationship is supported by Squad responsibility and not materially contradicted by empowering leadership behaviours."
+  },
+  "developmentNotes": [
+    "Source evidence descriptions are unreviewed and do not define classifications, sufficiency or dependencies.",
+    "Supporting evidence does not introduce mandatory trigger conditions."
+  ]
+}

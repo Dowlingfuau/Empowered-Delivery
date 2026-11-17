@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Draft Maturity rule supporting file",
+  "type": "object",
+  "required": ["schemaVersion", "fileType", "ruleId", "patternId", "ruleVersion", "status", "definitionStatus", "catalogueEvidence", "supportingEvidenceProfiles", "qualificationRules", "contextRelationships", "executionPolicy", "evidenceSemantics", "assessmentSeparation", "sourceMaterial", "developmentNotes"],
+  "properties": {
+    "schemaVersion": { "const": "1.0-draft" },
+    "fileType": { "const": "supporting" },
+    "ruleId": { "type": "string", "pattern": "^[A-Z]{2}[0-9]{2}-R[0-9]{2}$" },
+    "patternId": { "type": "string", "pattern": "^[A-Z]{2}[0-9]{2}$" },
+    "ruleVersion": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "status": { "enum": ["Approved", "Proposed", "Disabled"] },
+    "definitionStatus": { "enum": ["Undefined", "DefinedPilot", "Defined"] },
+    "catalogueEvidence": { "type": ["object", "null"] },
+    "supportingEvidenceProfiles": { "type": ["array", "null"], "items": { "type": "object" } },
+    "qualificationRules": { "type": ["array", "null"], "items": { "type": "object" } },
+    "contextRelationships": { "type": ["array", "null"], "items": { "type": "object" } },
+    "executionPolicy": { "type": ["object", "null"] },
+    "evidenceSemantics": { "type": ["object", "null"] },
+    "assessmentSeparation": { "type": ["object", "null"] },
+    "sourceMaterial": { "type": "object" },
+    "developmentNotes": { "type": "array", "items": { "type": "string" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "definitionStatus": { "const": "Undefined" } }, "required": ["definitionStatus"] },
+      "then": {
+        "properties": {
+          "status": { "enum": ["Proposed", "Disabled"] },
+          "ruleVersion": { "type": "null" },
+          "catalogueEvidence": { "type": "null" },
+          "supportingEvidenceProfiles": { "type": "null" },
+          "qualificationRules": { "type": "null" },
+          "contextRelationships": { "type": "null" },
+          "executionPolicy": { "type": "null" },
+          "evidenceSemantics": { "type": "null" },
+          "assessmentSeparation": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "definitionStatus": { "const": "DefinedPilot" } }, "required": ["definitionStatus"] },
+      "then": {
+        "properties": {
+          "status": { "enum": ["Proposed", "Disabled"] },
+          "ruleVersion": { "type": "string", "minLength": 1 },
+          "catalogueEvidence": { "type": "object" },
+          "supportingEvidenceProfiles": { "type": "array" },
+          "qualificationRules": { "type": "array" },
+          "contextRelationships": { "type": "array" },
+          "executionPolicy": { "type": "object" },
+          "evidenceSemantics": { "type": "object" },
+          "assessmentSeparation": { "type": "object" }
+        }
+      }
+    }
+  ]
+}

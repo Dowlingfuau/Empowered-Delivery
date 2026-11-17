@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "CC01-R01",
+  "patternId": "CC01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer that leadership is the sole cause of capability constraints. External dependencies, role clarity, risk, or organisational controls may explain the operating conditions.",
+    "testScenario": "Squad selected Team Drives Delivery and Strong Team Trust; Leader selected Directing Work and Limited Delegation. Ask whether the team has room to use its capability.",
+    "expectedInterpretation": "Possible constraint between the Squad's reported capability and the authority or discretion available to apply it. Validate whether leadership decisions or boundaries limit team ownership."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

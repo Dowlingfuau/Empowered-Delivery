@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "PR04-R01",
+  "patternId": "PR04",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Trust Across the Delivery System",
+    "category": "PositiveReinforcement",
+    "polarity": "Positive",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ProductOwner_System_L3",
+      "ScrumMaster_Trust_L4",
+      "ProductOwner_Trust_L3",
+      "ScrumMaster_Trust_L5",
+      "ScrumMaster_Ownership_L3",
+      "ProductOwner_Trust_L4",
+      "ProductOwner_Trust_L5",
+      "ScrumMaster_Trust_L3",
+      "Leader_Trust_L4",
+      "Squad_Trust_L3",
+      "Leader_Trust_L5",
+      "Squad_Trust_L4",
+      "Squad_Trust_L5"
+    ],
+    "sourceEvidence": "Squad Trust: Open Team Dialogue; Strong Team Trust; Deep Mutual Trust. SM Trust: Supporting Team Autonomy; Enabling High Trust Collaboration; Building Organisational Trust. PO Trust: Collaborating on Product Outcomes; Trusted Product Authority; Trusted Strategic Partner. Leader Trust: Empowering Leadership; System-Level Trust.",
+    "relationshipLogic": "Trust-related behaviours across relevant roles may indicate mutually reinforcing conditions for open dialogue, collaboration, autonomy, and trusted decision-making across the delivery system."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "EM02-R01",
+  "patternId": "EM02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume all direction is unwanted or inappropriate. Some delivery contexts require explicit constraints or decisions.",
+    "testScenario": "Leader selected Directing Work and Control-Based Leadership; Squad selected Team Drives Delivery. Reverse the pattern in a test where Leader enables autonomy and Squad remains task-focused.",
+    "expectedInterpretation": "Possible difference in the amount of direction the Leader provides and the autonomy the Squad needs or expects. Validate where decision-making authority should sit."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "supporting",
+  "ruleId": "BF05-R01",
+  "patternId": "BF05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "catalogueEvidence": null,
+  "supportingEvidenceProfiles": null,
+  "qualificationRules": null,
+  "contextRelationships": null,
+  "executionPolicy": null,
+  "evidenceSemantics": null,
+  "assessmentSeparation": null,
+  "sourceMaterial": {
+    "relatedEvidence": "Squad Learning: Sharing Knowledge; Seeking Feedback.",
+    "supportingEvidence": "SM Learning: Guiding Team Learning; Encouraging Continuous Improvement.",
+    "contradictoryEvidence": "Squad Ownership: Team Owns Outcomes; Squad Trust: Open Team Dialogue; Strong Team Trust.",
+    "evidenceSufficiency": "Moderate when SM behaviours supporting autonomy/coaching are paired with Squad behaviours indicating emerging shared ownership or conflict avoidance. Supporting evidence from Learning can strengthen but is not mandatory."
+  },
+  "developmentNotes": [
+    "Source evidence descriptions are unreviewed and do not define classifications, sufficiency or dependencies.",
+    "Supporting evidence does not introduce mandatory trigger conditions."
+  ]
+}

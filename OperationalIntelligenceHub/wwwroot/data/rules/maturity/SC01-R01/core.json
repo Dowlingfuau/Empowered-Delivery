@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "SC01-R01",
+  "patternId": "SC01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Outcome Ambition, Output Control",
+    "category": "SystemicContradiction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Value_L3",
+      "Squad_Value_L3",
+      "Leader_Value_L5",
+      "Squad_Value_L4",
+      "Leader_Trust_L1",
+      "Leader_Value_L4",
+      "Leader_Ownership_L2",
+      "Leader_Trust_L2",
+      "Leader_Ownership_L1"
+    ],
+    "sourceEvidence": "Leader Value: Supporting Outcome-Based Delivery; Enabling Value Creation; Driving Organisational Value. Leader Ownership: Directing Work; Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation.",
+    "relationshipLogic": "Leader Value behaviours may indicate an ambition for outcome-based delivery, while Leader Ownership or Trust behaviours may indicate direction and control over execution. This may create a contradiction between the outcomes leadership wants and the operating conditions it reinforces."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

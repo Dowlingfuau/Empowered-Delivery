@@ -6,6 +6,8 @@ This is a documentation-only mapping of the `Pattern Detection Rules` sheet in *
 
 The workbook contains 26 pattern IDs and 28 rule IDs. The 26 IDs are EM01, EM02, BF01–BF09, CC01–CC04, SC01–SC05, and PR01–PR06; EM01 and EM02 each have two rule rows. The earlier catalogue note that mentions a possible 27th pattern remains unresolved; no 27th ID is present in the current list.
 
+The [draft modular catalogue](../../wwwroot/data/rules/maturity/catalogue.json) preserves each Rule ID separately and points to core, supporting and interpretation files. Its entries are proposed scaffolds; only BF01 has the migrated pilot definition. Source prose is retained for review, not converted into conditions. BF07's source fields appear shifted, including `Proposed` in `expectedInterpretation`; the modular files preserve those original field names and values pending clarification. The current repository does not load the modular files.
+
 The workbook says there is one selected behaviour per perspective/theme, defines no technical trigger syntax or numeric threshold, and treats evidence sufficiency as qualitative guidance. A later workbook's `Behaviour Test Inputs` sheet has one populated input row without an expected result; it is not an executable acceptance test.
 
 ## Application identifier mapping

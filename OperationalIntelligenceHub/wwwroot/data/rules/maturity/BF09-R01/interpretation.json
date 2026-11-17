@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF09-R01",
+  "patternId": "BF09",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume the Squad should own product strategy. A bounded delivery focus may be appropriate where strategy is translated clearly elsewhere.",
+    "testScenario": "PO selected Shaping Product Strategy and Optimising Product Portfolio Value; Squad selected Working Within Team Boundaries and Delivering Output. Contrast with Squad selected Delivering Meaningful Outcomes.",
+    "expectedInterpretation": "Possible gap between strategic product direction and the context the Squad uses to organise delivery. Ask whether the Squad can explain how its work contributes to the broader product direction."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

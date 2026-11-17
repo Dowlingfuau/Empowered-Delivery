@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "supporting",
+  "ruleId": "PR05-R01",
+  "patternId": "PR05",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "catalogueEvidence": null,
+  "supportingEvidenceProfiles": null,
+  "qualificationRules": null,
+  "contextRelationships": null,
+  "executionPolicy": null,
+  "evidenceSemantics": null,
+  "assessmentSeparation": null,
+  "sourceMaterial": {
+    "relatedEvidence": "PO Value: Optimising the Value Chain; Leader Value: Enabling Value Creation.",
+    "supportingEvidence": "SM System: Facilitating System Collaboration; Leader System: Enabling Organisational Systems.",
+    "contradictoryEvidence": "Squad System: Working Within Team Boundaries; Leader System: Managing Through Structure without related alignment/enabling evidence.",
+    "evidenceSufficiency": "Moderate when at least three relevant perspectives demonstrate system integration behaviours. Stronger when all four perspectives provide complementary evidence and counter-evidence is limited."
+  },
+  "developmentNotes": [
+    "Source evidence descriptions are unreviewed and do not define classifications, sufficiency or dependencies.",
+    "Supporting evidence does not introduce mandatory trigger conditions."
+  ]
+}

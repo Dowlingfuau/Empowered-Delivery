@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF01-R01",
+  "patternId": "BF01",
+  "ruleVersion": "2.0",
+  "status": "Proposed",
+  "definitionStatus": "DefinedPilot",
+  "semanticMetadata": {
+    "definitionVersion": "2.0",
+    "status": "Proposed",
+    "operationalDimensions": [
+      "Performance"
+    ],
+    "intent": "Explore whether Product Owner and Squad behaviours demonstrate different orientations towards value, potentially indicating a disconnect between product direction and delivery focus.",
+    "interpretationGuardrails": [
+      "Treat the pattern as a hypothesis, not a diagnosis.",
+      "The assessment captures selected operating behaviours, not verified customer or business outcomes.",
+      "Do not infer communication failure, causation, role failure, or poor organisational outcomes.",
+      "The same selected catalogue entry is one evidence item; its headline, signals, and examples are not independent corroboration."
+    ]
+  },
+  "branchInterpretations": {
+    "DirectionA_ProductOwnerAhead": "Product Owner demonstrates value-oriented behaviours while Squad reports output/performance orientation.",
+    "DirectionB_SquadAhead": "Squad demonstrates outcome/value orientation while Product Owner reports requirements/backlog orientation.",
+    "SharedLowOrientation": "Shared low explicit value orientation; retain as a separate insight candidate.",
+    "SharedValueOrientation": "Both perspectives demonstrate value orientation. This is not by itself a positive Value Alignment finding."
+  },
+  "contextRelationshipInterpretations": {
+    "DelegationWithDirectiveTrust": "Responsibility may be delegated while decision control remains centralised; validate the actual decision arrangements.",
+    "OwnershipWithProcessCompliance": "Team ownership may be encouraged while process control remains with the Scrum Master; validate the operating arrangements.",
+    "ValueIntentWithCentralDirection": "Value-oriented leadership intent may coexist with centralised direction; validate the actual decision arrangements.",
+    "ValueImprovementWithOperationalDirection": "Value-oriented improvement may coexist with continued operational direction; validate the operating arrangements."
+  },
+  "qualificationInterpretations": {
+    "BF01-SM-Value": {
+      "interpretiveEffect": "Value-related practices may be present in another role.",
+      "boundary": "Does not establish alignment, causation, or resolution of the core relationship."
+    },
+    "BF01-Leader-Value": {
+      "interpretiveEffect": "Value-related practices may be present in another role.",
+      "boundary": "Does not establish alignment, causation, or resolution of the core relationship."
+    }
+  },
+  "narrative": {
+    "patternId": "BF01",
+    "version": "1.0",
+    "directions": {
+      "DirectionA": {
+        "observed": "For Value, the selected Product Owner behaviour was {ProductOwner}, while the selected Squad behaviour was {Squad}.",
+        "suspected": "These selections suggest a possible difference between the Product Owner’s value orientation and the Squad’s delivery focus. This is a hypothesis to explore, not evidence of a role or communication failure.",
+        "meaning": "If these perspectives describe the same work, it may be useful to examine how product priorities connect to the Squad’s delivery decisions.",
+        "action": "Compare the product priorities and the Squad’s current delivery goals, and ask whether they express the same intended outcomes."
+      },
+      "DirectionB": {
+        "observed": "For Value, the selected Product Owner behaviour was {ProductOwner}, while the selected Squad behaviour was {Squad}.",
+        "suspected": "These selections suggest that the Squad’s outcome or value orientation may be stronger than the orientation reflected in the Product Owner selection. This is a hypothesis to explore, not evidence of a role or communication failure.",
+        "meaning": "If these perspectives describe the same work, it may be useful to examine how the Squad’s intended outcomes connect to product priorities.",
+        "action": "Compare the Squad’s current delivery goals with product priorities, and ask how both perspectives inform decisions about outcomes."
+      }
+    },
+    "qualifications": {
+      "ScrumMaster.Value": {
+        "DirectionA": "While the Scrum Master selection points to value-related practices, it does not establish how product intent reaches the Squad.",
+        "DirectionB": "While the Scrum Master selection points to value-related practices, it does not establish how those practices relate to the Product Owner’s selected orientation."
+      },
+      "Leader.Value": {
+        "DirectionA": "While the Leader selection points to value-related practices, it does not establish how product intent reaches the Squad or how decisions support that translation.",
+        "DirectionB": "While the Leader selection points to value-related practices, it does not establish how the Squad’s value orientation influences product decisions."
+      }
+    },
+    "limitation": "These are selected catalogue behaviours, not independently verified outcomes, decisions or causes. They do not by themselves establish alignment between roles."
+  },
+  "newInsightCandidates": [
+    {
+      "candidateId": "NIC01",
+      "name": "Shared low value orientation",
+      "situation": "ProductOwner.Value L1-L2 and Squad.Value L1-L2.",
+      "potentialInterpretations": [
+        "Low explicit value maturity",
+        "Output-driven delivery",
+        "Delivery-factory risk"
+      ],
+      "status": "CandidateOnly",
+      "notPartOf": "BF01"
+    },
+    {
+      "candidateId": "NIC02",
+      "name": "Value Alignment",
+      "situation": "ProductOwner.Value L3-L5 and Squad.Value L3-L5.",
+      "potentialInterpretation": "Potential positive counterpart requiring independent detection rules and evidence policy.",
+      "status": "CandidateOnly",
+      "notPartOf": "BF01"
+    },
+    {
+      "candidateId": "NIC03",
+      "name": "Centralised decision-making / controlling leadership",
+      "situation": "Potential combinations of low Leader.Ownership and low Leader.Trust.",
+      "status": "CandidateOnly",
+      "notPartOf": "BF01"
+    },
+    {
+      "candidateId": "NIC04",
+      "name": "Control despite delegated responsibility",
+      "situation": "Potential combination of higher Leader.Ownership delegation and low Leader.Trust.",
+      "status": "CandidateOnly",
+      "notPartOf": "BF01"
+    },
+    {
+      "candidateId": "NIC05",
+      "name": "Scrum Master role-boundary interference",
+      "situation": "Potential combinations where Scrum Master retains or directs operational ownership.",
+      "status": "CandidateOnly",
+      "notPartOf": "BF01"
+    },
+    {
+      "candidateId": "NIC06",
+      "name": "Scrum Master operational bottleneck",
+      "situation": "Potential combinations of lower ScrumMaster.Ownership and lower ScrumMaster.Trust.",
+      "status": "CandidateOnly",
+      "notPartOf": "BF01"
+    }
+  ],
+  "implementationBoundaries": [
+    "Maturity Assessment only; no cross-diagnostic evidence.",
+    "Do not alter the existing numeric Maturity pipeline or Backlog Health processing.",
+    "The independently testable semantic evaluator records a trace displayed in the Diagnostics Console.",
+    "The maturity-semantic-v2 contract is evaluated independently of the existing numeric pipeline.",
+    "The existing results page presents an eligible provisional finding; no Operational MRI insight is included."
+  ],
+  "unresolvedItems": [
+    "Refine the pilot evaluator and definitions as additional patterns are reviewed.",
+    "Define immutable rule and catalogue version retention and historical replay.",
+    "Evidence sufficiency policy, if one is required beyond the mandatory core relationship.",
+    "Confidence and priority assessment policies.",
+    "Whether Value Alignment and the other insight candidates should be developed as independent patterns."
+  ],
+  "sourceMaterial": {
+    "exclusions": "Do not infer failed communication, causation, role failure, poor outcomes, or absence of value from these selections. Do not treat output measurement as inherently poor practice. Do not treat shared low orientation as BF01. Do not infer Value Alignment from the absence of BF01. Do not double-count a behaviour used in the core relationship as independent corroboration.",
+    "testScenario": "Cover all four core group combinations: PO L1-L2/Squad L1-L2 (no BF01); PO L1-L2/Squad L3-L5 (Direction B); PO L3-L5/Squad L1-L2 (Direction A); PO L3-L5/Squad L3-L5 (challenges BF01). Test missing core inputs, Value qualifications, contextual Ownership and Trust, missing supporting evidence, and pending relationships.",
+    "expectedInterpretation": "Direction A: possible difference between Product Owner value orientation and Squad delivery focus. Direction B: Squad may demonstrate stronger outcome/value orientation than is reflected in Product Owner behaviours. Validate product direction, prioritisation, decision authority, and the relationship in practice. Do not assert causation or failure."
+  },
+  "developmentNotes": []
+}

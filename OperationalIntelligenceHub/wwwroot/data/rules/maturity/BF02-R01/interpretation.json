@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF02-R01",
+  "patternId": "BF02",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume that accountability is unsupported solely because a Leader selects Directing Work. Some decisions may appropriately remain with leadership.",
+    "testScenario": "Squad selected Team Owns Outcomes; Leader selected Directing Work and Control-Based Leadership. Contrast with Leader selected Enabling Team Autonomy.",
+    "expectedInterpretation": "Possible tension between the Squad's responsibility for outcomes and its reported scope to make decisions. Validate whether the Squad has the authority it needs to fulfil its accountability."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

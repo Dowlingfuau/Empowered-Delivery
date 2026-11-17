@@ -1,0 +1,379 @@
+{
+  "catalogueId": "maturity-semantic-rule-catalogue",
+  "schemaVersion": "1.0-draft",
+  "catalogueVersion": "1.0-draft",
+  "status": "Draft",
+  "allowedRuleStatuses": [
+    "Approved",
+    "Proposed",
+    "Disabled"
+  ],
+  "productionLoadingImplemented": false,
+  "versionPolicy": "A released rule version identifies one consistent set of all three files. The BF01 2.0 value refers to the source definition, not an approved modular release. Null means no rule version has been defined.",
+  "source": {
+    "definitionPath": "../maturity_pattern_rules_BF01_revised.json",
+    "definitionSha256": "887092e814dc70a74aa94913fa4a6b2dc40e55a0df3e991ac659478c55304f8c",
+    "definitionSchemaVersion": "1.0-draft",
+    "narrativePath": "../maturity_bf01_narrative_v1.json",
+    "narrativeSha256": "de532b958b7cbdbdf8acb9c740efe1ccb92c322f96e588cb435bbdcd3c027c70",
+    "narrativeVersion": "1.0"
+  },
+  "sourceContext": {
+    "name": "Maturity Assessment Pattern Detection Rules",
+    "diagnosticScope": "MaturityAssessment",
+    "purpose": "BF01 Maturity semantic pilot definition, evaluated independently from the existing numeric pipeline.",
+    "separationOfConcerns": {
+      "diagnosticInsights": "Generated within the Maturity Assessment from that diagnostic's own assessment evidence and signals.",
+      "crossDiagnosticInsights": "Reserved for the Operational MRI, where signals and insights from multiple diagnostics may be combined.",
+      "prohibition": "Do not combine Backlog Health, Team Health, or other diagnostic signals into Maturity Assessment pattern evaluation."
+    },
+    "evaluationPrinciples": [
+      "Treat every detected pattern as a hypothesis, not a diagnosis.",
+      "Preserve the selected behaviour IDs and source assessment evidence that support each triggered rule.",
+      "Do not infer a relationship or role expectation as fact; describe it as a possibility and validate it with the user.",
+      "Do not treat candidateBehaviourIds as an implicit AND condition. They are the candidate evidence universe for rule design.",
+      "Respect the assessment constraint of one selected behaviour per perspective and theme.",
+      "Distinguish required evidence, alternative evidence, supporting evidence, contradictory evidence, and exclusions before implementation.",
+      "Do not introduce numeric thresholds unless they are explicitly justified and agreed.",
+      "Group multiple triggered rules by patternId so one pattern produces one consolidated insight."
+    ]
+  },
+  "rules": [
+    {
+      "ruleId": "BF01-R01",
+      "patternId": "BF01",
+      "status": "Proposed",
+      "ruleVersion": "2.0",
+      "definitionStatus": "DefinedPilot",
+      "files": {
+        "core": "BF01-R01/core.json",
+        "supporting": "BF01-R01/supporting.json",
+        "interpretation": "BF01-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF02-R01",
+      "patternId": "BF02",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF02-R01/core.json",
+        "supporting": "BF02-R01/supporting.json",
+        "interpretation": "BF02-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF03-R01",
+      "patternId": "BF03",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF03-R01/core.json",
+        "supporting": "BF03-R01/supporting.json",
+        "interpretation": "BF03-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF04-R01",
+      "patternId": "BF04",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF04-R01/core.json",
+        "supporting": "BF04-R01/supporting.json",
+        "interpretation": "BF04-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF05-R01",
+      "patternId": "BF05",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF05-R01/core.json",
+        "supporting": "BF05-R01/supporting.json",
+        "interpretation": "BF05-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF06-R01",
+      "patternId": "BF06",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF06-R01/core.json",
+        "supporting": "BF06-R01/supporting.json",
+        "interpretation": "BF06-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF07-R01",
+      "patternId": "BF07",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF07-R01/core.json",
+        "supporting": "BF07-R01/supporting.json",
+        "interpretation": "BF07-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF08-R01",
+      "patternId": "BF08",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF08-R01/core.json",
+        "supporting": "BF08-R01/supporting.json",
+        "interpretation": "BF08-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "BF09-R01",
+      "patternId": "BF09",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "BF09-R01/core.json",
+        "supporting": "BF09-R01/supporting.json",
+        "interpretation": "BF09-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "EM01-R01",
+      "patternId": "EM01",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "EM01-R01/core.json",
+        "supporting": "EM01-R01/supporting.json",
+        "interpretation": "EM01-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "EM01-R02",
+      "patternId": "EM01",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "EM01-R02/core.json",
+        "supporting": "EM01-R02/supporting.json",
+        "interpretation": "EM01-R02/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "EM02-R01",
+      "patternId": "EM02",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "EM02-R01/core.json",
+        "supporting": "EM02-R01/supporting.json",
+        "interpretation": "EM02-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "EM02-R02",
+      "patternId": "EM02",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "EM02-R02/core.json",
+        "supporting": "EM02-R02/supporting.json",
+        "interpretation": "EM02-R02/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "CC01-R01",
+      "patternId": "CC01",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "CC01-R01/core.json",
+        "supporting": "CC01-R01/supporting.json",
+        "interpretation": "CC01-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "CC02-R01",
+      "patternId": "CC02",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "CC02-R01/core.json",
+        "supporting": "CC02-R01/supporting.json",
+        "interpretation": "CC02-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "CC03-R01",
+      "patternId": "CC03",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "CC03-R01/core.json",
+        "supporting": "CC03-R01/supporting.json",
+        "interpretation": "CC03-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "CC04-R01",
+      "patternId": "CC04",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "CC04-R01/core.json",
+        "supporting": "CC04-R01/supporting.json",
+        "interpretation": "CC04-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "SC01-R01",
+      "patternId": "SC01",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "SC01-R01/core.json",
+        "supporting": "SC01-R01/supporting.json",
+        "interpretation": "SC01-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "SC02-R01",
+      "patternId": "SC02",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "SC02-R01/core.json",
+        "supporting": "SC02-R01/supporting.json",
+        "interpretation": "SC02-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "SC03-R01",
+      "patternId": "SC03",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "SC03-R01/core.json",
+        "supporting": "SC03-R01/supporting.json",
+        "interpretation": "SC03-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "SC04-R01",
+      "patternId": "SC04",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "SC04-R01/core.json",
+        "supporting": "SC04-R01/supporting.json",
+        "interpretation": "SC04-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "SC05-R01",
+      "patternId": "SC05",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "SC05-R01/core.json",
+        "supporting": "SC05-R01/supporting.json",
+        "interpretation": "SC05-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "PR01-R01",
+      "patternId": "PR01",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "PR01-R01/core.json",
+        "supporting": "PR01-R01/supporting.json",
+        "interpretation": "PR01-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "PR02-R01",
+      "patternId": "PR02",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "PR02-R01/core.json",
+        "supporting": "PR02-R01/supporting.json",
+        "interpretation": "PR02-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "PR03-R01",
+      "patternId": "PR03",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "PR03-R01/core.json",
+        "supporting": "PR03-R01/supporting.json",
+        "interpretation": "PR03-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "PR04-R01",
+      "patternId": "PR04",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "PR04-R01/core.json",
+        "supporting": "PR04-R01/supporting.json",
+        "interpretation": "PR04-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "PR05-R01",
+      "patternId": "PR05",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "PR05-R01/core.json",
+        "supporting": "PR05-R01/supporting.json",
+        "interpretation": "PR05-R01/interpretation.json"
+      }
+    },
+    {
+      "ruleId": "PR06-R01",
+      "patternId": "PR06",
+      "status": "Proposed",
+      "ruleVersion": null,
+      "definitionStatus": "Undefined",
+      "files": {
+        "core": "PR06-R01/core.json",
+        "supporting": "PR06-R01/supporting.json",
+        "interpretation": "PR06-R01/interpretation.json"
+      }
+    }
+  ]
+}

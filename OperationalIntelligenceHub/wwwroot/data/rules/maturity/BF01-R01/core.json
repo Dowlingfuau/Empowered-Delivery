@@ -1,0 +1,270 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF01-R01",
+  "patternId": "BF01",
+  "ruleVersion": "2.0",
+  "status": "Proposed",
+  "definitionStatus": "DefinedPilot",
+  "identity": {
+    "patternName": "Value Translation Gap",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": {
+    "status": "Proposed",
+    "contract": "maturity-semantic-v2",
+    "conditionStatus": "SpecifiedForProposedContract",
+    "notes": "The semanticDefinition contains the BF01 evaluation inputs. Do not interpret candidateBehaviourIds as an implicit AND condition."
+  },
+  "coreEvidence": {
+    "catalogueSource": "maturity_behaviours.json",
+    "compatibleCatalogueVersions": [
+      "v1"
+    ],
+    "core": [
+      {
+        "coordinate": "ProductOwner.Value",
+        "role": "ProductOwner",
+        "theme": "Value",
+        "groupByLevel": {
+          "1-2": "Requirements/backlog orientation",
+          "3-5": "Value orientation"
+        },
+        "behaviours": [
+          {
+            "behaviourId": "ProductOwner_Value_L1",
+            "level": 1,
+            "headline": "Capturing stakeholder requirements"
+          },
+          {
+            "behaviourId": "ProductOwner_Value_L2",
+            "level": 2,
+            "headline": "Managing the Product Backlog"
+          },
+          {
+            "behaviourId": "ProductOwner_Value_L3",
+            "level": 3,
+            "headline": "Value creation mindset"
+          },
+          {
+            "behaviourId": "ProductOwner_Value_L4",
+            "level": 4,
+            "headline": "Continuous value optimisation"
+          },
+          {
+            "behaviourId": "ProductOwner_Value_L5",
+            "level": 5,
+            "headline": "Customer value leadership"
+          }
+        ]
+      },
+      {
+        "coordinate": "Squad.Value",
+        "role": "Squad",
+        "theme": "Value",
+        "groupByLevel": {
+          "1-2": "Output/performance orientation",
+          "3-5": "Outcome/value orientation"
+        },
+        "behaviours": [
+          {
+            "behaviourId": "Squad_Value_L1",
+            "level": 1,
+            "headline": "Delivering output"
+          },
+          {
+            "behaviourId": "Squad_Value_L2",
+            "level": 2,
+            "headline": "Measuring delivery performance"
+          },
+          {
+            "behaviourId": "Squad_Value_L3",
+            "level": 3,
+            "headline": "Delivering meaningful outcomes"
+          },
+          {
+            "behaviourId": "Squad_Value_L4",
+            "level": 4,
+            "headline": "Delivering continuous value"
+          },
+          {
+            "behaviourId": "Squad_Value_L5",
+            "level": 5,
+            "headline": "Frequent value confirmed by users"
+          }
+        ]
+      }
+    ]
+  },
+  "coreRelationship": {
+    "requiredCoordinates": [
+      "ProductOwner.Value",
+      "Squad.Value"
+    ],
+    "groupDefinitions": [
+      {
+        "groupId": "RequirementsBacklogOrientation",
+        "coordinate": "ProductOwner.Value",
+        "levels": [
+          1,
+          2
+        ]
+      },
+      {
+        "groupId": "ValueOrientation",
+        "coordinate": "ProductOwner.Value",
+        "levels": [
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "groupId": "OutputPerformanceOrientation",
+        "coordinate": "Squad.Value",
+        "levels": [
+          1,
+          2
+        ]
+      },
+      {
+        "groupId": "OutcomeValueOrientation",
+        "coordinate": "Squad.Value",
+        "levels": [
+          3,
+          4,
+          5
+        ]
+      }
+    ],
+    "branches": [
+      {
+        "branchId": "DirectionA_ProductOwnerAhead",
+        "when": {
+          "all": [
+            {
+              "hasGroup": "ValueOrientation"
+            },
+            {
+              "hasGroup": "OutputPerformanceOrientation"
+            }
+          ]
+        },
+        "direction": "DirectionA",
+        "result": "PotentialValueTranslationGap"
+      },
+      {
+        "branchId": "DirectionB_SquadAhead",
+        "when": {
+          "all": [
+            {
+              "hasGroup": "RequirementsBacklogOrientation"
+            },
+            {
+              "hasGroup": "OutcomeValueOrientation"
+            }
+          ]
+        },
+        "direction": "DirectionB",
+        "result": "PotentialValueTranslationGap"
+      },
+      {
+        "branchId": "SharedLowOrientation",
+        "when": {
+          "all": [
+            {
+              "hasGroup": "RequirementsBacklogOrientation"
+            },
+            {
+              "hasGroup": "OutputPerformanceOrientation"
+            }
+          ]
+        },
+        "result": "DoesNotTriggerBF01"
+      },
+      {
+        "branchId": "SharedValueOrientation",
+        "when": {
+          "all": [
+            {
+              "hasGroup": "ValueOrientation"
+            },
+            {
+              "hasGroup": "OutcomeValueOrientation"
+            }
+          ]
+        },
+        "result": "ChallengesBF01"
+      }
+    ],
+    "missingCoreEvidence": "If either required coordinate is missing or unavailable, do not evaluate the relationship as true or false; return an explicit incomplete/unknown core outcome.",
+    "directionMustBePreserved": true
+  },
+  "executionPolicy": {
+    "evidenceSource": "SelectedBehaviours",
+    "missingCore": "Unknown",
+    "unavailableCore": "Unavailable",
+    "nonMatchingCore": "NoMatch",
+    "matchedCore": "Candidate"
+  },
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ProductOwner_Value_L1",
+      "ProductOwner_Value_L2",
+      "ProductOwner_Value_L3",
+      "ProductOwner_Value_L4",
+      "ProductOwner_Value_L5",
+      "Squad_Value_L1",
+      "Squad_Value_L2",
+      "Squad_Value_L3",
+      "Squad_Value_L4",
+      "Squad_Value_L5",
+      "ScrumMaster_Value_L1",
+      "ScrumMaster_Value_L2",
+      "ScrumMaster_Value_L3",
+      "ScrumMaster_Value_L4",
+      "ScrumMaster_Value_L5",
+      "Leader_Value_L1",
+      "Leader_Value_L2",
+      "Leader_Value_L3",
+      "Leader_Value_L4",
+      "Leader_Value_L5",
+      "ProductOwner_Ownership_L1",
+      "ProductOwner_Ownership_L2",
+      "ProductOwner_Ownership_L3",
+      "ProductOwner_Ownership_L4",
+      "ProductOwner_Ownership_L5",
+      "Squad_Ownership_L1",
+      "Squad_Ownership_L2",
+      "Squad_Ownership_L3",
+      "Squad_Ownership_L4",
+      "Squad_Ownership_L5",
+      "Leader_Ownership_L1",
+      "Leader_Ownership_L2",
+      "Leader_Ownership_L3",
+      "Leader_Ownership_L4",
+      "Leader_Ownership_L5",
+      "Leader_Trust_L1",
+      "Leader_Trust_L2",
+      "Leader_Trust_L3",
+      "Leader_Trust_L4",
+      "Leader_Trust_L5",
+      "ScrumMaster_Ownership_L1",
+      "ScrumMaster_Ownership_L2",
+      "ScrumMaster_Ownership_L3",
+      "ScrumMaster_Ownership_L4",
+      "ScrumMaster_Ownership_L5",
+      "ScrumMaster_Trust_L1",
+      "ScrumMaster_Trust_L2",
+      "ScrumMaster_Trust_L3",
+      "ScrumMaster_Trust_L4",
+      "ScrumMaster_Trust_L5"
+    ],
+    "sourceEvidence": "Core: ProductOwner.Value and Squad.Value. Context: ScrumMaster.Value, Leader.Value, and Ownership and Trust coordinates declared in semanticDefinition.",
+    "relationshipLogic": "BF01 identifies a difference in value orientation between Product Owner and Squad. Direction A: ProductOwner.Value L3-L5 with Squad.Value L1-L2. Direction B: ProductOwner.Value L1-L2 with Squad.Value L3-L5. Both directions are potential Value Translation Gaps. Shared low orientation (both L1-L2) does not trigger BF01. Shared value orientation (both L3-L5) challenges BF01 but does not establish a separate positive insight."
+  },
+  "sourceEvaluation": null,
+  "developmentNotes": []
+}

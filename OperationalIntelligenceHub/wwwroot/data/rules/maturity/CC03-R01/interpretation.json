@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "CC03-R01",
+  "patternId": "CC03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not require two Leader Learning selections; only one behaviour can be selected for a perspective/theme. Do not assume local learning is not shared unless validated.",
+    "testScenario": "Squad selected Continuous Improvement; Leader selected Improving Execution Practices. Contrast with Leader selected Cultivating Learning Culture.",
+    "expectedInterpretation": "Possible gap between learning within the team and learning that is enabled, shared, or embedded across the organisation. Validate whether improvements and lessons travel beyond the Squad."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "SC04-R01",
+  "patternId": "SC04",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Product Strategy, Stakeholder Control",
+    "category": "SystemicContradiction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ProductOwner_Value_L5",
+      "ProductOwner_Trust_L1",
+      "ProductOwner_Trust_L2",
+      "ProductOwner_Ownership_L5",
+      "ProductOwner_Value_L4",
+      "ProductOwner_System_L4",
+      "ProductOwner_System_L5",
+      "ProductOwner_Ownership_L4"
+    ],
+    "sourceEvidence": "PO Ownership: Leading the Value Chain; Owning Product Portfolio Value. PO Trust: Executing Stakeholder Decisions; Building Stakeholder Confidence. PO System: Leading Product Ecosystems; Shaping Product Strategy.",
+    "relationshipLogic": "PO behaviours may indicate strategic product leadership while Trust behaviours suggest decisions are strongly shaped by stakeholder direction or confidence-building. This may indicate a tension between product strategy ownership and the influence stakeholders have over product decisions."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

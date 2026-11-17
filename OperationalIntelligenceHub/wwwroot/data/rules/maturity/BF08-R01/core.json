@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF08-R01",
+  "patternId": "BF08",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "System Collaboration Versus Organisational Boundaries",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_System_L2",
+      "ScrumMaster_System_L4",
+      "ScrumMaster_System_L5",
+      "Squad_System_L5",
+      "Squad_System_L4",
+      "Leader_System_L1",
+      "ScrumMaster_System_L3"
+    ],
+    "sourceEvidence": "Squad System: Collaborating Across Teams; Operating as a Delivery System. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+    "relationshipLogic": "Squad behaviours may indicate cross-team or system-level collaboration, while Leader behaviours may indicate an operating approach centred on structure and coordination. This may suggest friction between the collaboration teams need and the boundaries through which the organisation is managed."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

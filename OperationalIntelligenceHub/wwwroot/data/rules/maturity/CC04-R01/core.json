@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "CC04-R01",
+  "patternId": "CC04",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Cross-Team Capability Without System Enablement",
+    "category": "CapabilityConstraint",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_System_L2",
+      "ScrumMaster_System_L4",
+      "ScrumMaster_System_L5",
+      "Leader_System_L4",
+      "Squad_System_L5",
+      "Squad_System_L4",
+      "Leader_System_L1",
+      "Leader_System_L5",
+      "ScrumMaster_System_L3"
+    ],
+    "sourceEvidence": "Squad System: Collaborating Across Teams; Operating as a Delivery System. SM System: Improving Value Flow; Facilitating System Collaboration. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+    "relationshipLogic": "Squad and Scrum Master behaviours may indicate cross-team or system-level capability, while Leader System behaviours may indicate a focus on structure and coordination rather than enabling the wider system. This may suggest that cross-team capability is not fully supported by organisational mechanisms."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

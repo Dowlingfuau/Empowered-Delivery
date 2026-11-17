@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "PR06-R01",
+  "patternId": "PR06",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not confuse distributed improvement leadership with general team autonomy or delivery ownership. The focus is who enables and leads improvement across the system.",
+    "testScenario": "Squad selected Team Drives Delivery and Continuous Improvement; SM selected Encouraging Team Ownership; Leader selected Supporting Team Learning and Enabling Team Autonomy. Contrast with Leader selected Enforcing Standard Practices.",
+    "expectedInterpretation": "The selected behaviours suggest improvement is led and supported across the delivery system, rather than depending on one role. Validate whether teams can initiate improvements and receive support to embed them more broadly."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

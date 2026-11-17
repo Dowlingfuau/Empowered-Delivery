@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "CC01-R01",
+  "patternId": "CC01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Team Capability Constrained by Leadership",
+    "category": "CapabilityConstraint",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Squad_Ownership_L5",
+      "Leader_Trust_L1",
+      "Leader_Ownership_L4",
+      "Leader_Trust_L4",
+      "Squad_Ownership_L4",
+      "Leader_Ownership_L2",
+      "Squad_Ownership_L3",
+      "Leader_Trust_L2",
+      "Squad_Trust_L4",
+      "Squad_Trust_L5",
+      "Leader_Ownership_L1"
+    ],
+    "sourceEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery; Team Leads Value Creation. Squad Trust: Strong Team Trust; Deep Mutual Trust. Leader Ownership: Directing Work; Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation.",
+    "relationshipLogic": "Squad behaviours may indicate capability or readiness to own outcomes, while Leader behaviours may suggest that direction and decision authority remain more centralised. This may constrain the extent to which the Squad can apply its capability."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "SC03-R01",
+  "patternId": "SC03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Only one Leader Learning behaviour can be selected. Do not require both a learning-culture and compliance behaviour in the same Leader Learning theme. Do not equate standard practices with a lack of learning.",
+    "testScenario": "Leader selected Cultivating Learning Culture and Control-Based Leadership; Squad selected Continuous Improvement. Contrast with Leader selected Empowering Leadership.",
+    "expectedInterpretation": "Possible tension between the learning culture leadership seeks to cultivate and the degree of discretion teams have to experiment or change practices. Validate whether learning can translate into changed ways of working."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

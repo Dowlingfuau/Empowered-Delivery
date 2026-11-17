@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "CC04-R01",
+  "patternId": "CC04",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume structure and coordination prevent collaboration. They may be the mechanisms through which system capability is enabled.",
+    "testScenario": "Squad selected Collaborating Across Teams; SM selected Facilitating System Collaboration; Leader selected Managing Through Structure. Contrast with Leader selected Enabling Organisational Systems.",
+    "expectedInterpretation": "Possible gap between the collaboration capability present in delivery roles and the organisational support available to sustain it. Validate whether structures, decision rights, and dependencies enable cross-team work."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

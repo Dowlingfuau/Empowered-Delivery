@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "PR03-R01",
+  "patternId": "PR03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not infer a continuous learning system from Squad learning alone. Distinguish learning activity from organisational learning and adaptation.",
+    "testScenario": "Squad selected Continuous Improvement; SM selected Enabling System Learning; Leader selected Cultivating Learning Culture. Contrast with Squad learning alone.",
+    "expectedInterpretation": "The selected behaviours suggest learning is supported across team, facilitation, and leadership levels. Validate whether insights and improvements are shared and embedded beyond the immediate team."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF06-R01",
+  "patternId": "BF06",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Improvement Without Permission",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ScrumMaster_Learning_L3",
+      "Leader_Learning_L2",
+      "Leader_Learning_L1",
+      "ScrumMaster_Learning_L4",
+      "Leader_Trust_L1",
+      "Squad_Learning_L4",
+      "Leader_Ownership_L4",
+      "Squad_Ownership_L4",
+      "Squad_Learning_L5",
+      "Leader_Trust_L2"
+    ],
+    "sourceEvidence": "Squad Learning: Continuous Improvement; Collective Mastery. SM Learning: Encouraging Continuous Improvement; Enabling System Learning. Leader Learning: Enforcing Standard Practices; Improving Execution Practices. Leader Trust: Control-Based Leadership; Limited Delegation.",
+    "relationshipLogic": "Squad or Scrum Master behaviours may indicate an improvement orientation, while Leader Learning or Trust behaviours may indicate stronger emphasis on standardisation, control, or limited delegation. This may make it harder for teams to act on improvement opportunities independently."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

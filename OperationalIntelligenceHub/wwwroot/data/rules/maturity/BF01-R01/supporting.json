@@ -1,0 +1,634 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "supporting",
+  "ruleId": "BF01-R01",
+  "patternId": "BF01",
+  "ruleVersion": "2.0",
+  "status": "Proposed",
+  "definitionStatus": "DefinedPilot",
+  "catalogueEvidence": {
+    "catalogueSourceRef": "core.json#/coreEvidence/catalogueSource",
+    "compatibleCatalogueVersionsRef": "core.json#/coreEvidence/compatibleCatalogueVersions",
+    "supporting": [
+      {
+        "coordinate": "ScrumMaster.Value",
+        "behaviours": [
+          {
+            "behaviourId": "ScrumMaster_Value_L1",
+            "level": 1,
+            "headline": "Focusing on operational delivery"
+          },
+          {
+            "behaviourId": "ScrumMaster_Value_L2",
+            "level": 2,
+            "headline": "Connecting practices to outcomes"
+          },
+          {
+            "behaviourId": "ScrumMaster_Value_L3",
+            "level": 3,
+            "headline": "Enables product value delivery"
+          },
+          {
+            "behaviourId": "ScrumMaster_Value_L4",
+            "level": 4,
+            "headline": "Optimises value flow"
+          },
+          {
+            "behaviourId": "ScrumMaster_Value_L5",
+            "level": 5,
+            "headline": "Improves organisational delivery system"
+          }
+        ]
+      },
+      {
+        "coordinate": "Leader.Value",
+        "behaviours": [
+          {
+            "behaviourId": "Leader_Value_L1",
+            "level": 1,
+            "headline": "Efficiency and control focus"
+          },
+          {
+            "behaviourId": "Leader_Value_L2",
+            "level": 2,
+            "headline": "Delivery performance focus"
+          },
+          {
+            "behaviourId": "Leader_Value_L3",
+            "level": 3,
+            "headline": "Outcome delivery focus"
+          },
+          {
+            "behaviourId": "Leader_Value_L4",
+            "level": 4,
+            "headline": "Value creation focus"
+          },
+          {
+            "behaviourId": "Leader_Value_L5",
+            "level": 5,
+            "headline": "Driving organisational value"
+          }
+        ]
+      },
+      {
+        "coordinate": "Leader.Ownership",
+        "behaviours": [
+          {
+            "behaviourId": "Leader_Ownership_L1",
+            "level": 1,
+            "headline": "Directing the work"
+          },
+          {
+            "behaviourId": "Leader_Ownership_L2",
+            "level": 2,
+            "headline": "Delegates execution"
+          },
+          {
+            "behaviourId": "Leader_Ownership_L3",
+            "level": 3,
+            "headline": "Co-creates plans"
+          },
+          {
+            "behaviourId": "Leader_Ownership_L4",
+            "level": 4,
+            "headline": "Enabling team autonomy"
+          },
+          {
+            "behaviourId": "Leader_Ownership_L5",
+            "level": 5,
+            "headline": "Delegating full value responsibility"
+          }
+        ]
+      },
+      {
+        "coordinate": "Leader.Trust",
+        "behaviours": [
+          {
+            "behaviourId": "Leader_Trust_L1",
+            "level": 1,
+            "headline": "Directive leadership"
+          },
+          {
+            "behaviourId": "Leader_Trust_L2",
+            "level": 2,
+            "headline": "Conditional trust"
+          },
+          {
+            "behaviourId": "Leader_Trust_L3",
+            "level": 3,
+            "headline": "Shared decision making"
+          },
+          {
+            "behaviourId": "Leader_Trust_L4",
+            "level": 4,
+            "headline": "Empowering leadership"
+          },
+          {
+            "behaviourId": "Leader_Trust_L5",
+            "level": 5,
+            "headline": "Servant leadership culture"
+          }
+        ]
+      },
+      {
+        "coordinate": "ScrumMaster.Ownership",
+        "behaviours": [
+          {
+            "behaviourId": "ScrumMaster_Ownership_L1",
+            "level": 1,
+            "headline": "Learning the mechanics"
+          },
+          {
+            "behaviourId": "ScrumMaster_Ownership_L2",
+            "level": 2,
+            "headline": "Guiding team roles"
+          },
+          {
+            "behaviourId": "ScrumMaster_Ownership_L3",
+            "level": 3,
+            "headline": "Encourages team ownership"
+          },
+          {
+            "behaviourId": "ScrumMaster_Ownership_L4",
+            "level": 4,
+            "headline": "Driving the teams success"
+          },
+          {
+            "behaviourId": "ScrumMaster_Ownership_L5",
+            "level": 5,
+            "headline": "Organisational change catalyst"
+          }
+        ]
+      },
+      {
+        "coordinate": "ScrumMaster.Trust",
+        "behaviours": [
+          {
+            "behaviourId": "ScrumMaster_Trust_L1",
+            "level": 1,
+            "headline": "Facilitates process compliance"
+          },
+          {
+            "behaviourId": "ScrumMaster_Trust_L2",
+            "level": 2,
+            "headline": "Supports team confidence"
+          },
+          {
+            "behaviourId": "ScrumMaster_Trust_L3",
+            "level": 3,
+            "headline": "Supporting team autonomy"
+          },
+          {
+            "behaviourId": "ScrumMaster_Trust_L4",
+            "level": 4,
+            "headline": "Enables high trust collaboration"
+          },
+          {
+            "behaviourId": "ScrumMaster_Trust_L5",
+            "level": 5,
+            "headline": "Building organisational trust"
+          }
+        ]
+      },
+      {
+        "coordinate": "ProductOwner.Ownership",
+        "behaviours": [
+          {
+            "behaviourId": "ProductOwner_Ownership_L1",
+            "level": 1,
+            "headline": "Captures requirements"
+          },
+          {
+            "behaviourId": "ProductOwner_Ownership_L2",
+            "level": 2,
+            "headline": "Owns the Product backlog"
+          },
+          {
+            "behaviourId": "ProductOwner_Ownership_L3",
+            "level": 3,
+            "headline": "Drives product value"
+          },
+          {
+            "behaviourId": "ProductOwner_Ownership_L4",
+            "level": 4,
+            "headline": "Leads a value chain"
+          },
+          {
+            "behaviourId": "ProductOwner_Ownership_L5",
+            "level": 5,
+            "headline": "Owns product portfolio value"
+          }
+        ]
+      },
+      {
+        "coordinate": "Squad.Ownership",
+        "behaviours": [
+          {
+            "behaviourId": "Squad_Ownership_L1",
+            "level": 1,
+            "headline": "Individual task Ownership"
+          },
+          {
+            "behaviourId": "Squad_Ownership_L2",
+            "level": 2,
+            "headline": "Shared knowledge emerging"
+          },
+          {
+            "behaviourId": "Squad_Ownership_L3",
+            "level": 3,
+            "headline": "Team Owns Outcomes"
+          },
+          {
+            "behaviourId": "Squad_Ownership_L4",
+            "level": 4,
+            "headline": "Team Drives Delivery"
+          },
+          {
+            "behaviourId": "Squad_Ownership_L5",
+            "level": 5,
+            "headline": "Team Leads Value Creation"
+          }
+        ]
+      }
+    ],
+    "excludedFromPilot": [
+      "role/theme coordinates not declared above",
+      "EngineeringManager perspective"
+    ]
+  },
+  "supportingEvidenceProfiles": [
+    {
+      "coordinate": "ScrumMaster.Value",
+      "principle": "Value-related behaviours outside the core can qualify interpretation without establishing alignment.",
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Qualifying",
+          "4": "Qualifying",
+          "5": "Qualifying"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Qualifying",
+          "4": "Qualifying",
+          "5": "Qualifying"
+        }
+      }
+    },
+    {
+      "coordinate": "Leader.Value",
+      "principle": "Value-related behaviours outside the core can qualify interpretation without establishing alignment.",
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Qualifying",
+          "4": "Qualifying",
+          "5": "Qualifying"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Qualifying",
+          "4": "Qualifying",
+          "5": "Qualifying"
+        }
+      }
+    },
+    {
+      "coordinate": "Leader.Ownership",
+      "principle": "Ownership is contextual; no BF01 qualification is defined.",
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        }
+      }
+    },
+    {
+      "coordinate": "Leader.Trust",
+      "principle": "Trust is contextual; no BF01 qualification trigger is defined.",
+      "potentialRelevance": {
+        "DirectionA": {
+          "1": "Centralised decisions may be relevant to authority, but whose decisions are constrained is not established.",
+          "2": "Limited delegation may be relevant to authority, but whose decisions are constrained is not established."
+        },
+        "DirectionB": {
+          "1": "Centralised decisions may be relevant to authority, but whose decisions are constrained is not established.",
+          "2": "Limited delegation may be relevant to authority, but whose decisions are constrained is not established."
+        }
+      },
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        }
+      }
+    },
+    {
+      "coordinate": "ScrumMaster.Ownership",
+      "principle": "Ownership is contextual; no BF01 qualification is defined.",
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        }
+      }
+    },
+    {
+      "coordinate": "ScrumMaster.Trust",
+      "principle": "Trust is contextual; no BF01 qualification trigger is defined.",
+      "potentialRelevance": {
+        "DirectionB": {
+          "3": "Support for Squad autonomy may be relevant, but does not establish authority over product direction.",
+          "4": "Support for collaboration may be relevant, but does not establish authority over product direction."
+        }
+      },
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        }
+      }
+    },
+    {
+      "coordinate": "ProductOwner.Ownership",
+      "principle": "Ownership is contextual; no BF01 qualification is defined.",
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        }
+      }
+    },
+    {
+      "coordinate": "Squad.Ownership",
+      "principle": "Ownership is contextual; no BF01 qualification is defined.",
+      "contributions": {
+        "DirectionA": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        },
+        "DirectionB": {
+          "1": "Contextual",
+          "2": "Contextual",
+          "3": "Contextual",
+          "4": "Contextual",
+          "5": "Contextual"
+        }
+      }
+    }
+  ],
+  "qualificationRules": [
+    {
+      "ruleId": "BF01-SM-Value",
+      "coordinate": "ScrumMaster.Value",
+      "behaviourIds": [
+        "ScrumMaster_Value_L3",
+        "ScrumMaster_Value_L4",
+        "ScrumMaster_Value_L5"
+      ],
+      "directions": [
+        "DirectionA",
+        "DirectionB"
+      ],
+      "narrativeKey": "ScrumMaster.Value"
+    },
+    {
+      "ruleId": "BF01-Leader-Value",
+      "coordinate": "Leader.Value",
+      "behaviourIds": [
+        "Leader_Value_L3",
+        "Leader_Value_L4",
+        "Leader_Value_L5"
+      ],
+      "directions": [
+        "DirectionA",
+        "DirectionB"
+      ],
+      "narrativeKey": "Leader.Value"
+    }
+  ],
+  "contextRelationships": [
+    {
+      "relationshipId": "DelegationWithDirectiveTrust",
+      "status": "PendingApproval",
+      "when": {
+        "all": [
+          {
+            "hasBehaviour": {
+              "coordinate": "Leader.Ownership",
+              "behaviourIds": [
+                "Leader_Ownership_L4"
+              ]
+            }
+          },
+          {
+            "hasBehaviour": {
+              "coordinate": "Leader.Trust",
+              "behaviourIds": [
+                "Leader_Trust_L1"
+              ]
+            }
+          }
+        ]
+      },
+      "effect": "ContextOnly"
+    },
+    {
+      "relationshipId": "OwnershipWithProcessCompliance",
+      "status": "PendingApproval",
+      "when": {
+        "all": [
+          {
+            "hasBehaviour": {
+              "coordinate": "ScrumMaster.Ownership",
+              "behaviourIds": [
+                "ScrumMaster_Ownership_L3"
+              ]
+            }
+          },
+          {
+            "hasBehaviour": {
+              "coordinate": "ScrumMaster.Trust",
+              "behaviourIds": [
+                "ScrumMaster_Trust_L1"
+              ]
+            }
+          }
+        ]
+      },
+      "effect": "ContextOnly"
+    },
+    {
+      "relationshipId": "ValueIntentWithCentralDirection",
+      "status": "PendingApproval",
+      "when": {
+        "all": [
+          {
+            "hasBehaviour": {
+              "coordinate": "Leader.Value",
+              "behaviourIds": [
+                "Leader_Value_L4",
+                "Leader_Value_L5"
+              ]
+            }
+          },
+          {
+            "hasBehaviour": {
+              "coordinate": "Leader.Ownership",
+              "behaviourIds": [
+                "Leader_Ownership_L1",
+                "Leader_Ownership_L2"
+              ]
+            }
+          },
+          {
+            "hasBehaviour": {
+              "coordinate": "Leader.Trust",
+              "behaviourIds": [
+                "Leader_Trust_L1",
+                "Leader_Trust_L2"
+              ]
+            }
+          }
+        ]
+      },
+      "effect": "ContextOnly"
+    },
+    {
+      "relationshipId": "ValueImprovementWithOperationalDirection",
+      "status": "PendingApproval",
+      "when": {
+        "all": [
+          {
+            "hasBehaviour": {
+              "coordinate": "ScrumMaster.Value",
+              "behaviourIds": [
+                "ScrumMaster_Value_L3",
+                "ScrumMaster_Value_L4",
+                "ScrumMaster_Value_L5"
+              ]
+            }
+          },
+          {
+            "hasBehaviour": {
+              "coordinate": "ScrumMaster.Ownership",
+              "behaviourIds": [
+                "ScrumMaster_Ownership_L1",
+                "ScrumMaster_Ownership_L2"
+              ]
+            }
+          },
+          {
+            "hasBehaviour": {
+              "coordinate": "ScrumMaster.Trust",
+              "behaviourIds": [
+                "ScrumMaster_Trust_L1",
+                "ScrumMaster_Trust_L2"
+              ]
+            }
+          }
+        ]
+      },
+      "effect": "ContextOnly"
+    }
+  ],
+  "executionPolicy": {
+    "contextEvaluation": "PendingApproval",
+    "contextEffect": "NotApplied",
+    "neutralPresentation": "TraceOnly",
+    "strength": "NotAssessed",
+    "reliability": "NotAssessed",
+    "confidence": "NotAssessed",
+    "priority": "NotAssessed"
+  },
+  "evidenceSemantics": {
+    "classifications": [
+      "Supporting",
+      "Challenging",
+      "Qualifying",
+      "Contextual",
+      "Neutral",
+      "Missing",
+      "NotEvaluated",
+      "Unknown"
+    ],
+    "neutral": "Retain in trace; do not present as support or challenge.",
+    "missing": "Relevant evidence with no valid selection; not neutral, negative, or evidence of absent behaviour.",
+    "notEvaluated": "Outside scope, skipped, or not evaluated; do not conflate with missing.",
+    "unknown": "A conditional contribution cannot be determined because an input is missing or unavailable; do not treat as false.",
+    "dependencyAndDoubleCounting": "Retain dependencies between evidence and derived relationships. A core behaviour reused in a relationship is not independent corroboration.",
+    "supportingEvidenceConstraint": "Supporting evidence cannot establish, remove, or invalidate BF01."
+  },
+  "assessmentSeparation": {
+    "insightValidity": "Determined by the mandatory core ProductOwner.Value/Squad.Value relationship.",
+    "evidenceStrength": "Describes available relevant support and challenge, and completeness/limitations of the evidence.",
+    "signalReliability": "Describes dependability of the underlying assessment evidence and provenance.",
+    "insightConfidence": "Describes how justified the interpretation is considering evidence and limitations.",
+    "priority": "Describes importance or urgency; supporting evidence may provide context for prioritisation.",
+    "scoringPolicy": "Not defined. No numerical weights, thresholds, confidence scores, or priority formulas are approved."
+  },
+  "sourceMaterial": {
+    "relatedEvidence": "Ownership and Trust are contextual by default. Some Trust behaviours may be relevant to a future qualification, but no such trigger has been approved.",
+    "supportingEvidence": "Value qualifications and contextual evidence cannot establish, invalidate, or replace the core Product Owner/Squad Value relationship.",
+    "contradictoryEvidence": "Challenging evidence must be retained alongside supporting evidence. It may qualify or challenge the interpretation but cannot invalidate a matched core relationship. Neutral, missing, skipped, not-evaluated, and unknown evidence remain distinct.",
+    "evidenceSufficiency": "A valid compatible core match is eligible for provisional presentation. Supporting, qualifying, contextual and missing evidence does not change eligibility."
+  },
+  "developmentNotes": []
+}

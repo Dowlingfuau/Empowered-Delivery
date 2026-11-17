@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "supporting",
+  "ruleId": "CC01-R01",
+  "patternId": "CC01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "catalogueEvidence": null,
+  "supportingEvidenceProfiles": null,
+  "qualificationRules": null,
+  "contextRelationships": null,
+  "executionPolicy": null,
+  "evidenceSemantics": null,
+  "assessmentSeparation": null,
+  "sourceMaterial": {
+    "relatedEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership.",
+    "supportingEvidence": "Squad Trust: Strong Team Trust; Squad Learning: Continuous Improvement.",
+    "contradictoryEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership; System-Level Trust.",
+    "evidenceSufficiency": "Moderate when strong Squad ownership/trust behaviours coexist with Leader direction/control behaviours. Stronger when multiple Leader indicators align and autonomy evidence is limited."
+  },
+  "developmentNotes": [
+    "Source evidence descriptions are unreviewed and do not define classifications, sufficiency or dependencies.",
+    "Supporting evidence does not introduce mandatory trigger conditions."
+  ]
+}

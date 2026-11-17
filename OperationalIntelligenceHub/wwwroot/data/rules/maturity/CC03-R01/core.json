@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "CC03-R01",
+  "patternId": "CC03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Organisational Learning Bottleneck",
+    "category": "CapabilityConstraint",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "ScrumMaster_Learning_L5",
+      "Leader_Learning_L4",
+      "Leader_Learning_L2",
+      "Leader_Learning_L1",
+      "Leader_Learning_L5",
+      "ScrumMaster_Learning_L4",
+      "Leader_Learning_L3",
+      "Squad_Learning_L4",
+      "Squad_Learning_L5"
+    ],
+    "sourceEvidence": "Squad Learning: Continuous Improvement; Collective Mastery. SM Learning: Enabling System Learning; Driving Organisational Learning. Leader Learning: Enforcing Standard Practices; Improving Execution Practices.",
+    "relationshipLogic": "Squad learning behaviours may be stronger or more continuous than the learning behaviours selected for Scrum Master or Leader roles. This may suggest that learning is occurring locally but is not consistently enabled or spread through the wider system."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

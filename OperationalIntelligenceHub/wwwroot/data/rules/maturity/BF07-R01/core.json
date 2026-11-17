@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "BF07-R01",
+  "patternId": "BF07",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Customer Value Disconnect",
+    "category": "BehaviouralFriction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Squad_Value_L5",
+      "ProductOwner_Value_L1",
+      "ProductOwner_Learning_L2",
+      "ProductOwner_Value_L2",
+      "ProductOwner_Learning_L1",
+      "ProductOwner_Learning_L4",
+      "ProductOwner_Value_L3",
+      "ProductOwner_Learning_L5",
+      "Squad_Learning_L4",
+      "Squad_Learning_L3"
+    ],
+    "sourceEvidence": "Squad Value: Delivering Customer-Validated Value. Squad Learning: Seeking Feedback; Continuous Improvement. PO Value: Capturing Stakeholder Requirements; Managing the Product Backlog. PO Learning: Developing Product Knowledge; Improving Backlog Understanding.",
+    "relationshipLogic": "Squad behaviours may indicate customer validation and feedback-led delivery, while PO behaviours may indicate a stronger emphasis on requirements capture or backlog management. This may suggest a possible disconnect in how customer learning informs product direction and prioritisation."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

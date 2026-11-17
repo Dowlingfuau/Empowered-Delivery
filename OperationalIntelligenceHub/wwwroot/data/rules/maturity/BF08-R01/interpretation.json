@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "interpretation",
+  "ruleId": "BF08-R01",
+  "patternId": "BF08",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "semanticMetadata": null,
+  "branchInterpretations": null,
+  "contextRelationshipInterpretations": null,
+  "qualificationInterpretations": null,
+  "narrative": null,
+  "newInsightCandidates": null,
+  "implementationBoundaries": null,
+  "unresolvedItems": null,
+  "sourceMaterial": {
+    "exclusions": "Do not assume organisational structure is a barrier. Structure and coordination may actively enable collaboration in the user's context.",
+    "testScenario": "Squad selected Collaborating Across Teams; Leader selected Managing Through Structure. Contrast with Leader selected Enabling Organisational Systems.",
+    "expectedInterpretation": "Possible tension between cross-team ways of working and the structures used to coordinate organisational execution. Validate whether those structures help or hinder the collaboration required."
+  },
+  "developmentNotes": [
+    "Source text is preserved verbatim under its original field names and is not approved interpretation.",
+    "Direction-specific narrative, actions, validation questions and examples remain undefined."
+  ]
+}

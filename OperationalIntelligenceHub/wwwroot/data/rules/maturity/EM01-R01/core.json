@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "EM01-R01",
+  "patternId": "EM01",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Expectation Projection — Product direction and Squad autonomy",
+    "category": "ExpectationMisalignment",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Squad_Ownership_L2",
+      "Squad_Value_L2",
+      "ProductOwner_Value_L4",
+      "Squad_Ownership_L1",
+      "ProductOwner_Ownership_L4",
+      "Squad_Value_L1"
+    ],
+    "sourceEvidence": "PO Ownership: Leading the Value Chain. Squad Ownership: Individual Task Ownership; Shared Responsibility Emerging.",
+    "relationshipLogic": "The PO's selected behaviours may imply an expectation that broader product direction is translated into delivery goals and increments by the Squad, while Squad behaviours may suggest reliance on more explicit direction or individually defined work. This difference may create uncertainty about who shapes next steps."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

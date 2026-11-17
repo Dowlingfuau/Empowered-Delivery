@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0-draft",
+  "fileType": "core",
+  "ruleId": "SC03-R01",
+  "patternId": "SC03",
+  "ruleVersion": null,
+  "status": "Proposed",
+  "definitionStatus": "Undefined",
+  "identity": {
+    "patternName": "Improvement Culture, Compliance Behaviour",
+    "category": "SystemicContradiction",
+    "polarity": "Tension",
+    "diagnosticScope": "MaturityAssessment"
+  },
+  "evaluation": null,
+  "coreEvidence": null,
+  "coreRelationship": null,
+  "executionPolicy": null,
+  "sourceMaterial": {
+    "candidateBehaviourIds": [
+      "Leader_Learning_L4",
+      "Leader_Learning_L5",
+      "Leader_Trust_L1",
+      "Leader_Learning_L3",
+      "Squad_Learning_L4",
+      "Leader_Ownership_L4",
+      "Leader_Trust_L4",
+      "Squad_Learning_L5",
+      "Leader_Trust_L2"
+    ],
+    "sourceEvidence": "Leader Learning: Supporting Team Learning; Enabling Organisational Growth; Cultivating Learning Culture. Leader Trust: Control-Based Leadership; Limited Delegation. Squad Learning: Continuous Improvement; Collective Mastery.",
+    "relationshipLogic": "Leader Learning behaviours may indicate support for learning and improvement, while Leader Trust behaviours may indicate control or limited delegation. Squad Learning can show whether continuous improvement is present locally. This may reveal tension between learning intent and the discretion available to act."
+  },
+  "sourceEvaluation": {
+    "status": "Proposed",
+    "conditionGroups": [],
+    "conditionStatus": "NotDefined",
+    "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+  },
+  "developmentNotes": [
+    "Source references are unclassified candidates, not required or alternative trigger conditions.",
+    "Executable core definition, applicable roles, dependencies and condition groups are undefined."
+  ]
+}

@@ -6,6 +6,8 @@ This is the working catalogue from the Rule Register Review. The 28 rule rows ar
 
 The register names 26 patterns. Its closing note refers to 27 candidates, but no 27th ID is present. The catalogue therefore preserves the 26 named IDs and leaves the count discrepancy open rather than adding an inferred pattern.
 
+The draft [modular rule catalogue](../../wwwroot/data/rules/maturity/catalogue.json) lists 28 Rule IDs across these 26 Pattern IDs, including both EM01 and both EM02 rule variants. Each entry points to its own core, supporting and interpretation files. All entries remain proposed; BF01 is a migrated pilot, not a production-approved modular release. The running BF01 evaluator still uses the retained consolidated source. See the [implementation plan](./maturity-pattern-implementation-plan.md) for the draft structures, versioning and future loading boundary.
+
 ## Catalogue
 
 | ID | Pattern | Working family |
