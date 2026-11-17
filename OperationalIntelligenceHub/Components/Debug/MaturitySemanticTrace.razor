@@ -16,7 +16,33 @@
             <p role="alert">Failed at @Run.FailedStage: @Run.Error</p>
         }
         <p><strong>Eligibility: @Run.Eligibility.</strong> @Run.EligibilityReason</p>
-        <p>No diagnostic finding is created or presented by this pilot.</p>
+        @if (Run.EligibilityDecision is { } decision)
+        {
+            <p>Policy: @decision.PolicyId · Version: @decision.PolicyVersion · Core evidence: @string.Join(", ", decision.EvidenceIds)</p>
+        }
+        <p>Presentation: @Run.PresentationStatus · @Run.PresentationReason</p>
+        @if (Run.Interpretation is { } profile)
+        {
+            <p>Unavailable relevant evidence: @(profile.UnavailableEvidenceIds.Count == 0 ? "none" : string.Join(", ", profile.UnavailableEvidenceIds))</p>
+            <p>Alternative explanations: @profile.AlternativeExplanationsStatus</p>
+        }
+        @if (Run.Finding is { } finding)
+        {
+            <details>
+                <summary>Provisional diagnostic finding and narrative</summary>
+                <p>Finding: @finding.FindingId · Direction: @finding.Direction</p>
+                <p>Narrative: @finding.NarrativeSource · Version: @finding.NarrativeVersion · Fingerprint: <code>@finding.NarrativeFingerprint</code></p>
+                <p><strong>Observed:</strong> @finding.Observed</p>
+                <p><strong>Suspected:</strong> @finding.Suspected</p>
+                <p><strong>Meaning:</strong> @finding.Meaning</p>
+                <p><strong>Action:</strong> @finding.Action</p>
+                <p><strong>Limitation:</strong> @finding.Limitation</p>
+                @foreach (var qualification in finding.Qualifications)
+                {
+                    <p>Qualification @qualification.RuleId · @qualification.Coordinate · Evidence @qualification.EvidenceId: @qualification.Text<br />Boundary: @qualification.Boundary</p>
+                }
+            </details>
+        }
 
         @if (Run.Evaluation is { } result)
         {
@@ -24,6 +50,7 @@
             <p>Rule: @result.Definition.RuleId · Definition version: @result.Definition.DefinitionVersion · Contract: @result.Definition.Contract</p>
             <p>Definition fingerprint: <code>@result.Definition.DefinitionFingerprint</code></p>
             <p>Compatible catalogue versions: @string.Join(", ", result.Definition.CompatibleCatalogueVersions)</p>
+            <p>Operational dimensions: @string.Join(", ", result.Definition.OperationalDimensions)</p>
             <p>Strength: @result.AssessmentStates.Strength · Reliability: @result.AssessmentStates.Reliability · Confidence: @result.AssessmentStates.Confidence · Priority: @result.AssessmentStates.Priority</p>
 
             <details>
@@ -75,6 +102,14 @@
                 {
                     <p><strong>@contribution.Coordinate</strong> · @contribution.Status · @(contribution.Classification ?? "not classified")<br />
                         Evidence: @contribution.EvidenceId · @contribution.Reason</p>
+                    @if (contribution.QualificationRuleId is not null)
+                    {
+                        <p>Qualification: @contribution.QualificationRuleId · Effect: @contribution.QualificationEffect · Narrative key: @contribution.NarrativeKey · Boundary: @contribution.Boundary</p>
+                    }
+                    @if (contribution.PotentialRelevance is not null)
+                    {
+                        <p>Potential future relevance (not a qualification): @contribution.PotentialRelevance</p>
+                    }
                 }
             </details>
 
@@ -85,7 +120,7 @@
                     <section>
                         <h5>@relationship.RelationshipId · @relationship.Status</h5>
                         <p>Effect: @relationship.Effect · Dependencies: @string.Join(", ", relationship.EvidenceIds)</p>
-                        <p>Configured interpretation: @relationship.Interpretation</p>
+                        <p>Draft interpretation (not necessarily evaluated or approved): @relationship.Interpretation</p>
                         @if (relationship.Condition is not null)
                         {
                             @ConditionView(relationship.Condition)

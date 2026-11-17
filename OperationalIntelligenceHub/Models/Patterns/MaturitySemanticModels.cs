@@ -29,9 +29,11 @@ public sealed class SemanticEvaluationDefinition
 public sealed class SemanticDefinition
 {
     public string DefinitionVersion { get; set; } = "";
+    public List<string> OperationalDimensions { get; set; } = new();
     public SemanticCoreRelationship CoreRelationship { get; set; } = new();
     public SemanticCatalogueEvidence CatalogueEvidence { get; set; } = new();
     public List<SemanticSupportingProfile> SupportingEvidenceProfiles { get; set; } = new();
+    public List<SemanticQualificationRule> QualificationRules { get; set; } = new();
     public List<SemanticContextRelationship> ContextRelationships { get; set; } = new();
     public Dictionary<string, string> ExecutionPolicy { get; set; } = new();
 }
@@ -84,11 +86,24 @@ public sealed class SemanticSupportingProfile
     public string Coordinate { get; set; } = "";
     public string Principle { get; set; } = "";
     public Dictionary<string, Dictionary<string, string>> Contributions { get; set; } = new();
+    public Dictionary<string, Dictionary<string, string>> PotentialRelevance { get; set; } = new();
+}
+
+public sealed class SemanticQualificationRule
+{
+    public string RuleId { get; set; } = "";
+    public string Coordinate { get; set; } = "";
+    public List<string> BehaviourIds { get; set; } = new();
+    public List<string> Directions { get; set; } = new();
+    public string InterpretiveEffect { get; set; } = "";
+    public string NarrativeKey { get; set; } = "";
+    public string Boundary { get; set; } = "";
 }
 
 public sealed class SemanticContextRelationship
 {
     public string RelationshipId { get; set; } = "";
+    public string Status { get; set; } = "";
     public JsonElement When { get; set; }
     public string Effect { get; set; } = "";
     public string Interpretation { get; set; } = "";
@@ -118,7 +133,14 @@ public sealed record SemanticBranchTrace(
     string BranchId, string Result, string? Direction, SemanticConditionTrace Condition, string Interpretation);
 
 public sealed record SemanticContributionTrace(
-    string Coordinate, string EvidenceId, string Status, string? Classification, string Reason);
+    string Coordinate, string EvidenceId, string Status, string? Classification, string Reason)
+{
+    public string? PotentialRelevance { get; init; }
+    public string? QualificationRuleId { get; init; }
+    public string? QualificationEffect { get; init; }
+    public string? NarrativeKey { get; init; }
+    public string? Boundary { get; init; }
+}
 
 public sealed record SemanticContextTrace(
     string RelationshipId, string Status, string Effect, string Interpretation,
@@ -129,7 +151,10 @@ public sealed record SemanticStageTrace(
 
 public sealed record SemanticDefinitionProvenance(
     string PatternId, string PatternName, string RuleId, string DefinitionVersion, string Source,
-    string Contract, string DefinitionFingerprint, IReadOnlyList<string> CompatibleCatalogueVersions);
+    string Contract, string DefinitionFingerprint, IReadOnlyList<string> CompatibleCatalogueVersions)
+{
+    public IReadOnlyList<string> OperationalDimensions { get; init; } = Array.Empty<string>();
+}
 
 public sealed record SemanticAssessmentStates(string Strength, string Reliability, string Confidence, string Priority);
 

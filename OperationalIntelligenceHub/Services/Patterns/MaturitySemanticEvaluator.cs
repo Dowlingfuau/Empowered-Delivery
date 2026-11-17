@@ -116,7 +116,21 @@ public sealed class MaturitySemanticEvaluator
                 classification = profile.Contributions[matched!.Direction!][item.Level.ToString()];
                 contributionReason = profile.Principle;
             }
-            contributions.Add(new(profile.Coordinate, item.EvidenceId, status, classification, contributionReason));
+            var qualification = classification == "Qualifying"
+                ? semantic.QualificationRules.Single(x => x.Coordinate == profile.Coordinate &&
+                    x.Directions.Contains(matched!.Direction!) && x.BehaviourIds.Contains(item.Snapshot!.BehaviourId))
+                : null;
+            string? potentialRelevance = null;
+            if (classification == "Contextual" && profile.PotentialRelevance.TryGetValue(matched!.Direction!, out var levels))
+                levels.TryGetValue(item.Level.ToString(), out potentialRelevance);
+            contributions.Add(new SemanticContributionTrace(profile.Coordinate, item.EvidenceId, status, classification, contributionReason)
+            {
+                PotentialRelevance = potentialRelevance,
+                QualificationRuleId = qualification?.RuleId,
+                QualificationEffect = qualification?.InterpretiveEffect,
+                NarrativeKey = qualification?.NarrativeKey,
+                Boundary = qualification?.Boundary
+            });
             trace.Add(new("Contribution", profile.Coordinate, classification ?? status, contributionReason, new[] { item.EvidenceId }));
         }
 
@@ -125,17 +139,18 @@ public sealed class MaturitySemanticEvaluator
         {
             var dependencies = ReferencedCoordinates(relationship.When, groups).Distinct()
                 .Select(x => evidence[x].EvidenceId).ToList();
-            var condition = outcome == SemanticOutcome.Candidate
-                ? SemanticConditionEvaluator.Evaluate(relationship.When, $"context:{relationship.RelationshipId}", evidence, groups)
-                : null;
-            contexts.Add(new(relationship.RelationshipId, condition?.Result.ToString() ?? "Skipped",
+            SemanticConditionTrace? condition = null;
+            contexts.Add(new(relationship.RelationshipId, "NotEvaluated",
                 relationship.Effect, relationship.Interpretation, dependencies, condition));
-            trace.Add(new("ContextRelationship", relationship.RelationshipId, condition?.Result.ToString() ?? "Skipped",
-                condition?.Reason ?? $"Core outcome is {outcome}.", dependencies));
+            trace.Add(new("ContextRelationship", relationship.RelationshipId, "NotEvaluated",
+                "The relationship is pending approval.", dependencies));
         }
         var provenance = new SemanticDefinitionProvenance(definition.PatternId, definition.PatternName, definition.RuleId,
             semantic.DefinitionVersion, definition.Source, definition.Evaluation.Contract,
-            definition.ValidatedFingerprint!, semantic.CatalogueEvidence.CompatibleCatalogueVersions.ToList());
+            definition.ValidatedFingerprint!, semantic.CatalogueEvidence.CompatibleCatalogueVersions.ToList())
+        {
+            OperationalDimensions = semantic.OperationalDimensions.ToList()
+        };
         var assessments = new SemanticAssessmentStates(semantic.ExecutionPolicy["strength"],
             semantic.ExecutionPolicy["reliability"], semantic.ExecutionPolicy["confidence"], semantic.ExecutionPolicy["priority"]);
         return new SemanticEvaluationResult(provenance, evidence.Values.ToList(), groupResults, branches, contributions, contexts,

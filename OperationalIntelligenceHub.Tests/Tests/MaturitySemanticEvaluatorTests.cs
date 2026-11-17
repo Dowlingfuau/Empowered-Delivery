@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using OperationalIntelligenceHub.Components.Debug;
+using OperationalIntelligenceHub.Components.Domain;
 
 public class MaturitySemanticEvaluatorTests
 {
@@ -125,19 +126,21 @@ public class MaturitySemanticEvaluatorTests
     {
         var profiles = new Dictionary<string, (string A, string B)>
         {
-            ["ScrumMaster.Value"] = ("SQSSS", "SQSSS"),
-            ["Leader.Value"] = ("SSCCC", "QQSSS"),
-            ["Leader.Ownership"] = ("SSQCC", "QQSSS"),
-            ["Leader.Trust"] = ("SSQCC", "QQSSS"),
-            ["ScrumMaster.Ownership"] = ("SQCCC", "QQNNQ"),
-            ["ScrumMaster.Trust"] = ("SQCCC", "QQNQQ")
+            ["ScrumMaster.Value"] = ("XXQQQ", "XXQQQ"),
+            ["Leader.Value"] = ("XXQQQ", "XXQQQ"),
+            ["ProductOwner.Ownership"] = ("XXXXX", "XXXXX"),
+            ["Squad.Ownership"] = ("XXXXX", "XXXXX"),
+            ["Leader.Ownership"] = ("XXXXX", "XXXXX"),
+            ["Leader.Trust"] = ("XXXXX", "XXXXX"),
+            ["ScrumMaster.Ownership"] = ("XXXXX", "XXXXX"),
+            ["ScrumMaster.Trust"] = ("XXXXX", "XXXXX")
         };
         foreach (var (coordinate, profilesByDirection) in profiles)
         foreach (var direction in new[] { "DirectionA", "DirectionB" })
         for (var level = 1; level <= 5; level++)
         {
             var letter = (direction == "DirectionA" ? profilesByDirection.A : profilesByDirection.B)[level - 1];
-            var expected = letter switch { 'S' => "Supporting", 'Q' => "Qualifying", 'C' => "Challenging", _ => "Neutral" };
+            var expected = letter == 'Q' ? "Qualifying" : "Contextual";
             yield return new object[] { coordinate, direction, level, expected };
         }
     }
@@ -167,7 +170,7 @@ public class MaturitySemanticEvaluatorTests
         var result = await evaluator.EvaluateAsync(Session(("Leader", "Trust", 1)), definition);
         Assert.Equal(SemanticOutcome.Unknown, result.Outcome);
         Assert.All(result.Contributions, x => Assert.Equal("Skipped", x.Status));
-        Assert.All(result.ContextRelationships, x => Assert.Equal("Skipped", x.Status));
+        Assert.All(result.ContextRelationships, x => Assert.Equal("NotEvaluated", x.Status));
         Assert.All(result.Evidence.Where(x => x.Coordinate is "ProductOwner.Value" or "Squad.Value"),
             x => Assert.Equal(SemanticEvidenceStatus.Missing, x.Status));
     }
@@ -201,9 +204,9 @@ public class MaturitySemanticEvaluatorTests
             var result = await evaluator.EvaluateAsync(Session(("ProductOwner", "Value", 3), ("Squad", "Value", squad)), definition);
             Assert.Equal(outcome, result.Outcome);
             Assert.Equal("BF01", result.Definition.PatternId);
-            Assert.Equal("1.0-draft", result.Definition.DefinitionVersion);
+            Assert.Equal("2.0", result.Definition.DefinitionVersion);
             Assert.Equal(MaturitySemanticRuleRepository.DefaultSource, result.Definition.Source);
-            Assert.Equal("maturity-semantic-v1-draft", result.Definition.Contract);
+            Assert.Equal("maturity-semantic-v2", result.Definition.Contract);
             Assert.False(string.IsNullOrWhiteSpace(result.Definition.DefinitionFingerprint));
             Assert.Equal("v1", Assert.Single(result.Definition.CompatibleCatalogueVersions));
             var matched = result.Branches.Single(x => x.BranchId == branch);
@@ -231,7 +234,7 @@ public class MaturitySemanticEvaluatorTests
     }
 
     [Fact]
-    public async Task MixedSupportingAndChallengingAndContext_DoNotChangeCoreOutcome()
+    public async Task ContextualEvidenceAndPendingRelationships_DoNotChangeCoreOutcome()
     {
         var (http, _) = CreateHttp();
         var (definition, evaluator) = await CreateEngine(http);
@@ -239,42 +242,42 @@ public class MaturitySemanticEvaluatorTests
             ("Leader", "Ownership", 4), ("Leader", "Trust", 1));
         var result = await evaluator.EvaluateAsync(session, definition);
         Assert.Equal(SemanticOutcome.Candidate, result.Outcome);
-        Assert.Contains(result.Contributions, x => x.Coordinate == "Leader.Ownership" && x.Classification == "Challenging");
-        Assert.Contains(result.Contributions, x => x.Coordinate == "Leader.Trust" && x.Classification == "Supporting");
+        Assert.Contains(result.Contributions, x => x.Coordinate == "Leader.Ownership" && x.Classification == "Contextual");
+        Assert.Contains(result.Contributions, x => x.Coordinate == "Leader.Trust" && x.Classification == "Contextual" && x.PotentialRelevance != null);
         var relationship = result.ContextRelationships.Single(x => x.RelationshipId == "DelegationWithDirectiveTrust");
-        Assert.Equal("True", relationship.Status);
+        Assert.Equal("NotEvaluated", relationship.Status);
         Assert.Equal("ContextOnly", relationship.Effect);
-        Assert.Equal(2, relationship.Condition!.EvidenceIds.Count);
+        Assert.Null(relationship.Condition);
         Assert.Equal("NotAssessed", result.AssessmentStates.Confidence);
         Assert.Equal("NotAssessed", result.AssessmentStates.Priority);
         Assert.Contains(result.Trace, x => x.Stage == "Candidate" && x.Result == "Created");
     }
 
     [Fact]
-    public async Task NeutralAndMissingEvidence_RemainDistinct()
+    public async Task ContextualAndMissingEvidence_RemainDistinct()
     {
         var (http, _) = CreateHttp();
         var (definition, evaluator) = await CreateEngine(http);
         var result = await evaluator.EvaluateAsync(Session(("ProductOwner", "Value", 1), ("Squad", "Value", 3),
             ("ScrumMaster", "Ownership", 3)), definition);
-        Assert.Equal("Neutral", result.Contributions.Single(x => x.Coordinate == "ScrumMaster.Ownership").Classification);
+        Assert.Equal("Contextual", result.Contributions.Single(x => x.Coordinate == "ScrumMaster.Ownership").Classification);
         var missing = result.Contributions.Single(x => x.Coordinate == "Leader.Trust");
         Assert.Equal("Missing", missing.Status);
         Assert.Null(missing.Classification);
-        Assert.Equal("Unknown", result.ContextRelationships.Single(x => x.RelationshipId == "DelegationWithDirectiveTrust").Status);
+        Assert.Equal("NotEvaluated", result.ContextRelationships.Single(x => x.RelationshipId == "DelegationWithDirectiveTrust").Status);
     }
 
     [Fact]
-    public async Task ContextualRelationship_EvaluatesFalseAndTracesEveryOperand()
+    public async Task ContextualRelationship_RemainsUnevaluatedEvenWhenEvidenceIsPresent()
     {
         var (http, _) = CreateHttp();
         var (definition, evaluator) = await CreateEngine(http);
         var result = await evaluator.EvaluateAsync(Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1),
             ("Leader", "Ownership", 1), ("Leader", "Trust", 1)), definition);
-        var condition = result.ContextRelationships.Single(x => x.RelationshipId == "DelegationWithDirectiveTrust").Condition!;
-        Assert.Equal(SemanticTruth.False, condition.Result);
-        Assert.Equal(2, condition.Operands.Count);
-        Assert.Equal(SemanticTruth.True, condition.Operands[1].Result);
+        var relationship = result.ContextRelationships.Single(x => x.RelationshipId == "DelegationWithDirectiveTrust");
+        Assert.Equal("NotEvaluated", relationship.Status);
+        Assert.Null(relationship.Condition);
+        Assert.Equal(2, relationship.EvidenceIds.Count);
     }
 
     [Theory]
@@ -300,9 +303,8 @@ public class MaturitySemanticEvaluatorTests
         wrong[0] = (wrong[0].Item1, wrong[0].Item2, id == "OwnershipWithProcessCompliance" ? 1 : 2);
         var nonmatching = await evaluator.EvaluateAsync(Session(core.Concat(wrong).ToArray()), definition);
         Assert.All(new[] { matching, missing, nonmatching }, x => Assert.Equal(SemanticOutcome.Candidate, x.Outcome));
-        Assert.Equal("True", matching.ContextRelationships.Single(x => x.RelationshipId == id).Status);
-        Assert.Equal("Unknown", missing.ContextRelationships.Single(x => x.RelationshipId == id).Status);
-        Assert.Equal("False", nonmatching.ContextRelationships.Single(x => x.RelationshipId == id).Status);
+        Assert.All(new[] { matching, missing, nonmatching }, x =>
+            Assert.Equal("NotEvaluated", x.ContextRelationships.Single(r => r.RelationshipId == id).Status));
         Assert.Equal("ContextOnly", matching.ContextRelationships.Single(x => x.RelationshipId == id).Effect);
     }
 
@@ -414,6 +416,9 @@ public class MaturitySemanticEvaluatorTests
     [InlineData("malformedExpression")]
     [InlineData("impossibleContext")]
     [InlineData("nullProfiles")]
+    [InlineData("missingQualification")]
+    [InlineData("trustQualification")]
+    [InlineData("activeContext")]
     [InlineData("unsupportedContract")]
     public async Task InvalidDefinition_IsRejectedWithActionableError(string mutation)
     {
@@ -440,6 +445,12 @@ public class MaturitySemanticEvaluatorTests
                     "{\"all\":[{\"hasBehaviour\":{\"coordinate\":\"Leader.Trust\",\"behaviourIds\":[\"Leader_Trust_L1\"]}},{\"hasBehaviour\":{\"coordinate\":\"Leader.Trust\",\"behaviourIds\":[\"Leader_Trust_L4\"]}}]}");
                 break;
             case "nullProfiles": semantic["supportingEvidenceProfiles"] = null; break;
+            case "missingQualification": semantic["qualificationRules"]!.AsArray().RemoveAt(0); break;
+            case "trustQualification":
+                semantic["supportingEvidenceProfiles"]!.AsArray().First(x => x!["coordinate"]!.GetValue<string>() == "Leader.Trust")!
+                    ["contributions"]!["DirectionA"]!["1"] = "Qualifying";
+                break;
+            case "activeContext": semantic["contextRelationships"]![0]!["status"] = "Approved"; break;
             case "unsupportedContract": root["rules"]![0]!["evaluation"]!["contract"] = "unknown"; break;
         }
 
@@ -481,7 +492,7 @@ public class MaturitySemanticEvaluatorTests
         var path = MaturitySemanticRuleRepository.DefaultSource;
         var file = Path.Combine(Root, "OperationalIntelligenceHub", "wwwroot", path.Replace('/', Path.DirectorySeparatorChar));
         var root = JsonNode.Parse(File.ReadAllText(file))!;
-        root["rules"]![0]!["semanticDefinition"]!["supportingEvidenceProfiles"]![0]!["contributions"]!["DirectionA"]!["1"] = "Qualifying";
+        root["rules"]![0]!["semanticDefinition"]!["supportingEvidenceProfiles"]![0]!["principle"] = "Updated explanatory principle.";
         handler.Overrides[path] = root.ToJsonString();
         var revised = await new MaturitySemanticRuleRepository(http).LoadAsync("BF01");
         var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1), ("ScrumMaster", "Value", 1));
@@ -489,16 +500,16 @@ public class MaturitySemanticEvaluatorTests
         var after = await evaluator.EvaluateAsync(session, revised);
         Assert.Equal(before.Definition.DefinitionVersion, after.Definition.DefinitionVersion);
         Assert.NotEqual(before.Definition.DefinitionFingerprint, after.Definition.DefinitionFingerprint);
-        Assert.Equal("Supporting", before.Contributions.Single(x => x.Coordinate == "ScrumMaster.Value").Classification);
-        Assert.Equal("Qualifying", after.Contributions.Single(x => x.Coordinate == "ScrumMaster.Value").Classification);
+        Assert.NotEqual(before.Contributions.Single(x => x.Coordinate == "ScrumMaster.Value").Reason,
+            after.Contributions.Single(x => x.Coordinate == "ScrumMaster.Value").Reason);
     }
 
     [Theory]
-    [InlineData(3, 1, SemanticOutcome.Candidate, "NotAssessed")]
-    [InlineData(1, 3, SemanticOutcome.Candidate, "NotAssessed")]
-    [InlineData(1, 1, SemanticOutcome.NoMatch, "NotApplicable")]
-    [InlineData(3, 3, SemanticOutcome.NoMatch, "NotApplicable")]
-    public async Task SemanticRun_PreservesEvaluationAndDoesNotCreateFindings(
+    [InlineData(3, 1, SemanticOutcome.Candidate, "EligibleProvisional")]
+    [InlineData(1, 3, SemanticOutcome.Candidate, "EligibleProvisional")]
+    [InlineData(1, 1, SemanticOutcome.NoMatch, "NotEligible")]
+    [InlineData(3, 3, SemanticOutcome.NoMatch, "NotEligible")]
+    public async Task SemanticRun_PreservesEvaluationAndCreatesOnlyEligibleFindings(
         int po, int squad, SemanticOutcome outcome, string eligibility)
     {
         var (http, _) = CreateHttp();
@@ -507,6 +518,8 @@ public class MaturitySemanticEvaluatorTests
         Assert.Null(run.Error);
         Assert.Equal(outcome, run.Evaluation!.Outcome);
         Assert.Equal(eligibility, run.Eligibility);
+        Assert.Equal(outcome == SemanticOutcome.Candidate, run.Finding is not null);
+        Assert.NotNull(run.Interpretation);
         Assert.NotEmpty(run.RunId);
         Assert.NotEmpty(run.AssessmentFingerprint);
         var branch = run.Evaluation.Branches.Single(x => x.Condition.Result == SemanticTruth.True);
@@ -522,13 +535,16 @@ public class MaturitySemanticEvaluatorTests
         var service = CreateRunService(http);
         var unknown = await service.EvaluateAsync(Session(("ProductOwner", "Value", 3)));
         Assert.Equal(SemanticOutcome.Unknown, unknown.Evaluation!.Outcome);
+        Assert.Equal("NotAssessed", unknown.Eligibility);
+        Assert.Null(unknown.Finding);
         Assert.Equal(SemanticEvidenceStatus.Missing, unknown.Evaluation.Evidence.Single(x => x.Coordinate == "Squad.Value").Status);
         var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
         session.LensAssessments[0].Themes[0].SelectedBehaviour!.CatalogueVersion = "v2";
         var unavailable = await service.EvaluateAsync(session);
         Assert.Equal(SemanticOutcome.Unavailable, unavailable.Evaluation!.Outcome);
         Assert.Equal(SemanticEvidenceStatus.Incompatible, unavailable.Evaluation.Evidence.Single(x => x.Coordinate == "ProductOwner.Value").Status);
-        Assert.Equal("NotApplicable", unavailable.Eligibility);
+        Assert.Equal("NotAssessed", unavailable.Eligibility);
+        Assert.Null(unavailable.Finding);
     }
 
     [Fact]
@@ -549,7 +565,7 @@ public class MaturitySemanticEvaluatorTests
         var path = MaturitySemanticRuleRepository.DefaultSource;
         var file = Path.Combine(Root, "OperationalIntelligenceHub", "wwwroot", path.Replace('/', Path.DirectorySeparatorChar));
         var root = JsonNode.Parse(File.ReadAllText(file))!;
-        root["rules"]![0]!["semanticDefinition"]!["supportingEvidenceProfiles"]![0]!["contributions"]!["DirectionA"]!["1"] = "Qualifying";
+        root["rules"]![0]!["semanticDefinition"]!["supportingEvidenceProfiles"]![0]!["principle"] = "Updated explanatory principle.";
         handler.Overrides[path] = root.ToJsonString();
         var changedRule = await service.EvaluateAsync(session, changed);
         Assert.NotEqual(changed.RunId, changedRule.RunId);
@@ -568,12 +584,139 @@ public class MaturitySemanticEvaluatorTests
         Assert.Null(failure.Evaluation);
         Assert.Equal("DefinitionLoading", failure.FailedStage);
         Assert.False(string.IsNullOrWhiteSpace(failure.Error));
-        Assert.Equal("NotAssessed", failure.Eligibility);
+        Assert.Equal("EvaluationError", failure.Eligibility);
         handler.Overrides.Remove(MaturitySemanticRuleRepository.DefaultSource);
         var retry = await service.EvaluateAsync(session, failure);
         Assert.Null(retry.Error);
         Assert.Equal(SemanticOutcome.Candidate, retry.Evaluation!.Outcome);
         Assert.NotEqual(original.RunId, retry.RunId);
+    }
+
+    [Theory]
+    [InlineData(3, 1, "DirectionA")]
+    [InlineData(1, 3, "DirectionB")]
+    public async Task EligibleFinding_UsesOriginalEvidenceAndOnlyApprovedQualifications(int po, int squad, string direction)
+    {
+        var (http, _) = CreateHttp();
+        var run = await CreateRunService(http).EvaluateAsync(Session(
+            ("ProductOwner", "Value", po), ("Squad", "Value", squad),
+            ("ScrumMaster", "Value", 3), ("Leader", "Value", 5),
+            ("ScrumMaster", "Trust", 3), ("Leader", "Trust", 1),
+            ("ProductOwner", "Ownership", 2)));
+        Assert.Null(run.Error);
+        Assert.Equal("EligibleProvisional", run.Eligibility);
+        var finding = Assert.IsType<MaturityDiagnosticFinding>(run.Finding);
+        Assert.Equal(direction, finding.Direction);
+        Assert.Equal("Performance", Assert.Single(finding.OperationalDimensions));
+        Assert.Contains(run.Evaluation!.Evidence.Single(x => x.Coordinate == "ProductOwner.Value").Snapshot!.Headline, finding.Observed);
+        Assert.Contains(run.Evaluation.Evidence.Single(x => x.Coordinate == "Squad.Value").Snapshot!.Headline, finding.Observed);
+        Assert.Equal(2, finding.Qualifications.Count);
+        Assert.All(finding.Qualifications, x =>
+        {
+            Assert.EndsWith(".Value", x.Coordinate);
+            Assert.False(string.IsNullOrWhiteSpace(x.Boundary));
+            Assert.Contains(finding.Evidence, evidence => evidence.EvidenceId == x.EvidenceId);
+        });
+        Assert.All(run.Evaluation.Contributions.Where(x => x.Coordinate.EndsWith(".Trust")),
+            x => Assert.Equal("Contextual", x.Classification));
+        Assert.All(run.Evaluation.ContextRelationships, x => Assert.Equal("NotEvaluated", x.Status));
+        Assert.NotEmpty(run.Interpretation!.UnavailableEvidenceIds);
+        Assert.Equal("NotAssessed", run.Evaluation.AssessmentStates.Confidence);
+        Assert.Equal("NotAssessed", run.Evaluation.AssessmentStates.Priority);
+    }
+
+    [Fact]
+    public async Task SemanticRun_NarrativeFailurePreservesEligibilityAndRetryRecomposes()
+    {
+        var (http, handler) = CreateHttp();
+        var service = CreateRunService(http);
+        var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
+        handler.Overrides[MaturityNarrativeComposer.Source] = null;
+        var failure = await service.EvaluateAsync(session);
+        Assert.Equal("NarrativeComposition", failure.FailedStage);
+        Assert.NotNull(failure.Error);
+        Assert.Equal("EligibleProvisional", failure.Eligibility);
+        Assert.Equal(SemanticOutcome.Candidate, failure.Evaluation!.Outcome);
+        Assert.NotNull(failure.Interpretation);
+        Assert.Null(failure.Finding);
+        handler.Overrides.Remove(MaturityNarrativeComposer.Source);
+        var retry = await service.EvaluateAsync(session, failure);
+        Assert.Null(retry.Error);
+        Assert.NotNull(retry.Finding);
+        Assert.Same(failure.Evaluation, retry.Evaluation);
+    }
+
+    [Fact]
+    public async Task SemanticRun_ChangedNarrativeRecomposesWithoutReevaluatingEvidence()
+    {
+        var (http, handler) = CreateHttp();
+        var service = CreateRunService(http);
+        var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
+        var first = await service.EvaluateAsync(session);
+        var path = Path.Combine(Root, "OperationalIntelligenceHub", "wwwroot",
+            MaturityNarrativeComposer.Source.Replace('/', Path.DirectorySeparatorChar));
+        var narrative = JsonNode.Parse(File.ReadAllText(path))!;
+        narrative["directions"]!["DirectionA"]!["action"] = "Updated action.";
+        handler.Overrides[MaturityNarrativeComposer.Source] = narrative.ToJsonString();
+        var changed = await service.EvaluateAsync(session, first);
+        Assert.Null(changed.Error);
+        Assert.Same(first.Evaluation, changed.Evaluation);
+        Assert.NotEqual(first.Finding!.NarrativeFingerprint, changed.Finding!.NarrativeFingerprint);
+        Assert.Equal("Updated action.", changed.Finding.Action);
+    }
+
+    [Fact]
+    public async Task SemanticRun_PolicyVersionChangeRecomposes()
+    {
+        var (http, _) = CreateHttp();
+        var service = CreateRunService(http);
+        var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
+        var original = await service.EvaluateAsync(session);
+        var stale = original with { EligibilityDecision = original.EligibilityDecision! with { PolicyVersion = "old" } };
+        var updated = await service.EvaluateAsync(session, stale);
+        Assert.NotEqual(original.RunId, updated.RunId);
+        Assert.Equal(MaturityEligibilityPolicy.PolicyVersion, updated.EligibilityDecision!.PolicyVersion);
+        Assert.Same(original.Evaluation, updated.Evaluation);
+        Assert.NotNull(updated.Finding);
+    }
+
+    [Fact]
+    public async Task OperationalDimensionAssociations_RetainMultipleConfiguredDimensions()
+    {
+        var (http, handler) = CreateHttp();
+        var path = MaturitySemanticRuleRepository.DefaultSource;
+        var filename = Path.Combine(Root, "OperationalIntelligenceHub", "wwwroot", path.Replace('/', Path.DirectorySeparatorChar));
+        var definition = JsonNode.Parse(File.ReadAllText(filename))!;
+        definition["rules"]![0]!["semanticDefinition"]!["operationalDimensions"]!.AsArray().Add("Clarity");
+        handler.Overrides[path] = definition.ToJsonString();
+        var run = await CreateRunService(http).EvaluateAsync(Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1)));
+        Assert.Null(run.Error);
+        Assert.Equal(new[] { "Performance", "Clarity" }, run.Finding!.OperationalDimensions);
+    }
+
+    [Fact]
+    public async Task FindingView_RendersFourPartNarrativeAndEvidence()
+    {
+        var (http, _) = CreateHttp();
+        var run = await CreateRunService(http).EvaluateAsync(Session(
+            ("ProductOwner", "Value", 3), ("Squad", "Value", 1), ("Leader", "Value", 3)));
+        var services = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var renderer = new HtmlRenderer(services, services.GetRequiredService<ILoggerFactory>());
+        var html = await renderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var parameters = ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                ["Finding"] = run.Finding, ["Profile"] = run.Interpretation
+            });
+            return (await renderer.RenderComponentAsync<MaturityDiagnosticFindingView>(parameters)).ToHtmlString();
+        });
+        Assert.Contains("What we observed", html);
+        Assert.Contains("What we suspect", html);
+        Assert.Contains("Why it may matter", html);
+        Assert.Contains("What could be done", html);
+        Assert.Contains("ProductOwner_Value_L3", html);
+        Assert.Contains("Boundary:", html);
+        Assert.Contains("missing or unavailable", html);
     }
 
     [Fact]
@@ -594,10 +737,10 @@ public class MaturitySemanticEvaluatorTests
         Assert.Contains("DirectionA_ProductOwnerAhead", html);
         Assert.Contains("hasGroup", html);
         Assert.Contains("Leader.Trust", html);
-        Assert.Contains("Supporting", html);
+        Assert.Contains("Contextual", html);
         Assert.Contains("Missing", html);
         Assert.Contains("NotAssessed", html);
-        Assert.Contains("No diagnostic finding is created", html);
+        Assert.Contains("Provisional diagnostic finding and narrative", html);
     }
 
     [Fact]
@@ -620,7 +763,7 @@ public class MaturitySemanticEvaluatorTests
         var maturity = await Render(true);
         Assert.Contains("Maturity pattern detection", maturity);
         Assert.Contains("DefinitionLoading", maturity);
-        Assert.Contains("NotAssessed", maturity);
+        Assert.Contains("EvaluationError", maturity);
         Assert.DoesNotContain("Outcome: NoMatch", maturity);
         Assert.DoesNotContain("Maturity pattern detection", await Render(false));
     }
@@ -628,5 +771,6 @@ public class MaturitySemanticEvaluatorTests
     private static MaturitySemanticRunService CreateRunService(HttpClient http) =>
         new(new MaturitySemanticRuleRepository(http),
             new MaturitySemanticEvaluator(new MaturitySemanticEvidenceProjector(new MaturityEvidenceService(http))),
+            new MaturityNarrativeComposer(http),
             NullLogger<MaturitySemanticRunService>.Instance);
 }

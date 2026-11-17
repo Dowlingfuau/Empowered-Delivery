@@ -143,7 +143,7 @@
         @if (state.SemanticRun?.Error is { } semanticError)
         {
             <div class="mf-alert" role="alert">
-                <strong>Maturity pattern evaluation is unavailable.</strong>
+                <strong>Maturity diagnostic interpretation is unavailable.</strong>
                 <p>@semanticError</p>
                 <button type="button" class="mf-text-button" disabled="@state.IsBusy"
                         @onclick="() => RefreshResultsAsync(state, state.ShowResults)">Retry pattern evaluation</button>
@@ -176,12 +176,23 @@
                                         <h3 id="@($"mf-result-theme-{themeIndex}")">@themeName</h3>
                                         <span>@ThemeContinuums[themeName]</span>
                                     </div>
-                                    @if (themeInsights.Count > 0)
+                                    @if (themeInsights.Count > 0 || (themeName == "Value" && state.SemanticRun is not null))
                                     {
                                         <div class="mf-result-insights">
                                             @foreach (var placement in themeInsights)
                                             {
                                                 @RenderInsight(placement)
+                                            }
+                                            @if (themeName == "Value" && state.SemanticRun is { } semantic)
+                                            {
+                                                @if (semantic.Finding is { } finding && semantic.Interpretation is { } profile)
+                                                {
+                                                    <MaturityDiagnosticFindingView Finding="@finding" Profile="@profile" />
+                                                }
+                                                else if (semantic.Error is null)
+                                                {
+                                                    <p class="mf-insight-interpretation">BF01: @semantic.EligibilityReason</p>
+                                                }
                                             }
                                         </div>
                                     }
@@ -1658,6 +1669,7 @@
             state.InsightPlacements = insightPlacements;
             state.ShowResults = showResults;
             ReportInsightRendering(insightEvaluation, state);
+            ReportSemanticRendering(state);
             return true;
         }
         catch (Exception exception)
@@ -1676,6 +1688,7 @@
             insightEvaluation = null;
             state.InsightPlacements.Clear();
             state.ShowResults = false;
+            ReportSemanticRendering(state);
             state.ErrorMessage = $"The existing Signal Pipeline or Insight Engine failed while refreshing results: {ErrorSummary(exception)}";
             Logger.LogWarning(exception, "Maturity results refresh failed for assessment {AssessmentId}", state.Session.AssessmentId);
             return false;
@@ -1689,12 +1702,26 @@
     private void ReturnToAssessment(ConceptState state)
     {
         state.ShowResults = false;
+        ReportSemanticRendering(state);
         ReportInsightRendering(insightEvaluation, state);
         state.IsAdjusting = false;
         state.ThemeIndex = state.ResultThemeIndex;
         state.LensIndex = state.ResultLensIndex;
         state.FeedbackMessage = string.Empty;
         focusPending = true;
+    }
+
+    private static void ReportSemanticRendering(ConceptState state)
+    {
+        if (state.SemanticRun is not { } run) return;
+        var presented = state.ShowResults && run.Finding is not null;
+        state.SemanticRun = run with
+        {
+            PresentationStatus = presented ? "Presented" : "NotPresented",
+            PresentationReason = presented ? "The provisional finding is shown in the Value theme."
+                : run.Finding is null ? "No diagnostic finding is available."
+                : "The results view is not currently displayed."
+        };
     }
 
     private async Task<bool> SaveBehaviourAsync(ConceptState state, string lens, MaturityTheme theme, BehaviourOption behaviour)
@@ -1714,6 +1741,7 @@
                 theme.BehaviouralNote = string.Join(Environment.NewLine, evidence.Signals.Concat(evidence.Examples));
                 return true;
             }
+
             await SessionService.UpdateThemeScoreAsync(state.Session.AssessmentId, lens, theme.Theme, behaviour.Level, evidence);
             var saved = await AssessmentRepository.GetMaturitySessionAsync(state.Session.AssessmentId);
             if (saved is null || !ValidateSession(saved, out _))

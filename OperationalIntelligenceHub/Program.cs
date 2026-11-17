@@ -30,6 +30,7 @@ builder.Services.AddScoped<MaturityEvidenceService>();
 builder.Services.AddScoped<MaturitySemanticRuleRepository>();
 builder.Services.AddScoped<MaturitySemanticEvidenceProjector>();
 builder.Services.AddScoped<MaturitySemanticEvaluator>();
+builder.Services.AddScoped<MaturityNarrativeComposer>();
 builder.Services.AddScoped<MaturitySemanticRunService>();
 builder.Services.AddScoped<MaturitySignalBuilderService>();
 builder.Services.AddScoped<SignalNormaliserService>();

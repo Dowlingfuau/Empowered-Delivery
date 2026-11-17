@@ -10,4 +10,11 @@ public sealed record MaturitySemanticRun(
     string Eligibility,
     string EligibilityReason,
     string? FailedStage,
-    string? Error);
+    string? Error)
+{
+    public MaturityEligibilityDecision? EligibilityDecision { get; init; }
+    public MaturityInterpretationProfile? Interpretation { get; init; }
+    public MaturityDiagnosticFinding? Finding { get; init; }
+    public string PresentationStatus { get; init; } = "NotReported";
+    public string PresentationReason { get; init; } = "Presentation has not been reported.";
+}

@@ -2,7 +2,7 @@
 
 ## Purpose and status
 
-This document records the current Maturity Assessment data paths. BF01 is evaluated independently of the numeric pipeline during saved assessment refreshes; its candidate trace is visible in the Diagnostics Console, not in the existing result cards. The pattern mapping, implementation design, user experience, and tests are covered in the [pattern implementation plan](./maturity-pattern-implementation-plan.md) and [pattern detection rules](./maturity-pattern-detection-rules.md).
+This document records the current Maturity Assessment data paths. BF01 is evaluated independently of the numeric pipeline during saved assessment refreshes; a provisional diagnostic finding can appear in the existing Value results and its trace is visible in the Diagnostics Console. The pattern mapping, implementation design, user experience, and tests are covered in the [pattern implementation plan](./maturity-pattern-implementation-plan.md) and [pattern detection rules](./maturity-pattern-detection-rules.md).
 
 ## 1. Assessment responses
 

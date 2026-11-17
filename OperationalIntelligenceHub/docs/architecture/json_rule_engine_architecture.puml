@@ -1,11 +1,11 @@
 @startuml
 title JSON definitions and evaluation - target, not deployed configuration
 component "Numeric flow rule JSON\nand validation" as numericRules
-component "Maturity definitions and validation\nBF01 candidate-only integration" as semanticRules
+component "Maturity definitions and validation\nBF01 provisional pilot" as semanticRules
 component "Shared evidence, signals\nand provenance" as evidence
 component "Numeric evaluation:\nmeasurements, signals and thresholds" as numeric
 component "Maturity evidence acquisition\nand projection" as projection
-component "Maturity semantic evaluation:\nBF01 candidate-only integration" as semantic
+component "Maturity semantic evaluation:\nBF01 provisional pilot" as semantic
 component "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
 component "Shared outcomes and provenance;\ndiagnostic evidence sufficiency" as outcomes
 component "Eligible diagnostic\ninsight candidate" as diagnosticCandidate
@@ -52,8 +52,8 @@ end note
 note bottom of semantic
   Initial target uses direct selected behaviours.
   BF01 runs independently of the numeric pipeline.
-  Its candidate trace is visible in the console;
-  eligibility and findings are not implemented.
+  Provisional eligibility and findings are implemented;
+  their in-memory trace is visible in the console.
   Numeric and semantic strategies are distinct.
 end note
 note bottom of profiles

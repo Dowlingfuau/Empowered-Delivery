@@ -1,0 +1,29 @@
+{
+  "patternId": "BF01",
+  "version": "1.0",
+  "directions": {
+    "DirectionA": {
+      "observed": "For Value, the selected Product Owner behaviour was {ProductOwner}, while the selected Squad behaviour was {Squad}.",
+      "suspected": "These selections suggest a possible difference between the Product Owner’s value orientation and the Squad’s delivery focus. This is a hypothesis to explore, not evidence of a role or communication failure.",
+      "meaning": "If these perspectives describe the same work, it may be useful to examine how product priorities connect to the Squad’s delivery decisions.",
+      "action": "Compare the product priorities and the Squad’s current delivery goals, and ask whether they express the same intended outcomes."
+    },
+    "DirectionB": {
+      "observed": "For Value, the selected Product Owner behaviour was {ProductOwner}, while the selected Squad behaviour was {Squad}.",
+      "suspected": "These selections suggest that the Squad’s outcome or value orientation may be stronger than the orientation reflected in the Product Owner selection. This is a hypothesis to explore, not evidence of a role or communication failure.",
+      "meaning": "If these perspectives describe the same work, it may be useful to examine how the Squad’s intended outcomes connect to product priorities.",
+      "action": "Compare the Squad’s current delivery goals with product priorities, and ask how both perspectives inform decisions about outcomes."
+    }
+  },
+  "qualifications": {
+    "ScrumMaster.Value": {
+      "DirectionA": "While the Scrum Master selection points to value-related practices, it does not establish how product intent reaches the Squad.",
+      "DirectionB": "While the Scrum Master selection points to value-related practices, it does not establish how those practices relate to the Product Owner’s selected orientation."
+    },
+    "Leader.Value": {
+      "DirectionA": "While the Leader selection points to value-related practices, it does not establish how product intent reaches the Squad or how decisions support that translation.",
+      "DirectionB": "While the Leader selection points to value-related practices, it does not establish how the Squad’s value orientation influences product decisions."
+    }
+  },
+  "limitation": "These are selected catalogue behaviours, not independently verified outcomes, decisions or causes. They do not by themselves establish alignment between roles."
+}

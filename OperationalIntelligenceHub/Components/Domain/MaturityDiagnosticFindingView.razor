@@ -1,0 +1,55 @@
+@using OperationalIntelligenceHub.Models.Patterns
+
+<details class="mf-insight mf-diagnostic-finding">
+    <summary>
+        <strong>Potential value translation gap</strong>
+        <span class="mf-insight-interpretation">Provisional Maturity diagnostic finding</span>
+    </summary>
+    <div class="mf-insight-details">
+        <p><strong>What we observed</strong><br />@Finding.Observed</p>
+        <p><strong>What we suspect</strong><br />@Finding.Suspected</p>
+        <p><strong>Why it may matter</strong><br />@Finding.Meaning</p>
+        @foreach (var qualification in Finding.Qualifications)
+        {
+            <p>@qualification.Text<br /><strong>Boundary:</strong> @qualification.Boundary</p>
+        }
+        <p><strong>What could be done</strong><br />@Finding.Action</p>
+        <p><strong>Limitations</strong><br />@Finding.Limitation</p>
+        @if (Profile.UnavailableEvidenceIds.Count > 0)
+        {
+            <p>Some relevant selections are missing or unavailable; their implications have not been assessed.</p>
+        }
+        <details>
+            <summary>Inspect assessment evidence</summary>
+            <ul>
+                @foreach (var evidence in Finding.Evidence)
+                {
+                    var contribution = Profile.Contributions.FirstOrDefault(x => x.EvidenceId == evidence.EvidenceId);
+                    @if (contribution?.Classification != "Neutral")
+                    {
+                        <li>
+                            @evidence.Lens / @evidence.Theme:
+                            @if (evidence.Snapshot is { } snapshot)
+                            {
+                                <span>Level @evidence.Level · @snapshot.Headline · @snapshot.BehaviourId · @snapshot.CatalogueVersion</span>
+                            }
+                            else
+                            {
+                                <span>@evidence.Status</span>
+                            }
+                            @if (contribution is not null)
+                            {
+                                <span> · @(contribution.Classification ?? contribution.Status)</span>
+                            }
+                        </li>
+                    }
+                }
+            </ul>
+        </details>
+    </div>
+</details>
+
+@code {
+    [Parameter, EditorRequired] public MaturityDiagnosticFinding Finding { get; set; } = default!;
+    [Parameter, EditorRequired] public MaturityInterpretationProfile Profile { get; set; } = default!;
+}

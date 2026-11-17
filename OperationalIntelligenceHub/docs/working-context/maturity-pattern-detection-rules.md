@@ -76,7 +76,7 @@ The references in this table are the workbook's composite codes. Use the prefix/
 
 ## Detection specification still required
 
-The workbook's prose is useful design input, but it does not itself establish machine-evaluable conditions. The separate [BF01 revised draft](../../wwwroot/data/rules/maturity_pattern_rules_BF01_revised.json) specifies conditions for the direct-evidence contract described in the [implementation plan](./maturity-pattern-implementation-plan.md). An independent semantic evaluator executes BF01 on saved assessment refreshes and exposes its candidate trace in the Diagnostics Console; it does not create user-facing findings or substitute for the workbook. Other rows still need approved definitions of:
+The workbook's prose is useful design input, but it does not itself establish machine-evaluable conditions. The separate [BF01 definition](../../wwwroot/data/rules/maturity_pattern_rules_BF01_revised.json) specifies conditions for the direct-evidence contract described in the [implementation plan](./maturity-pattern-implementation-plan.md). An independent semantic evaluator executes BF01 on saved assessment refreshes, creates a provisional finding when eligible and exposes its trace in the Diagnostics Console. It does not substitute for the workbook. Other rows still need approved definitions of:
 
 - which references are required, optional, or alternatives;
 - AND/OR structure and the direction of any role-to-role relationship;

@@ -38,7 +38,7 @@ public sealed class MaturitySemanticRuleRepository
                 var semantic = raw.GetProperty("semanticDefinition");
                 if (semantic.ValueKind != JsonValueKind.Object)
                     throw new InvalidOperationException($"Invalid semantic definition JSON at '{source}': semanticDefinition must be an object.");
-                foreach (var name in new[] { "coreRelationship", "catalogueEvidence", "supportingEvidenceProfiles", "contextRelationships", "executionPolicy" })
+                foreach (var name in new[] { "operationalDimensions", "coreRelationship", "catalogueEvidence", "supportingEvidenceProfiles", "qualificationRules", "contextRelationships", "executionPolicy" })
                     CheckNoNulls(semantic.GetProperty(name), name);
             }
         }
@@ -98,10 +98,14 @@ public sealed class MaturitySemanticRuleRepository
         {
             if (!condition) throw new InvalidOperationException($"Invalid semantic definition {rule.PatternId}: {message}");
         }
-        Require(rule.Evaluation.Contract == "maturity-semantic-v1-draft", $"Unsupported contract '{rule.Evaluation.Contract}'.");
+        Require(rule.Evaluation.Contract == "maturity-semantic-v2", $"Unsupported contract '{rule.Evaluation.Contract}'.");
         Require(!string.IsNullOrWhiteSpace(rule.PatternId) && !string.IsNullOrWhiteSpace(rule.PatternName) &&
             !string.IsNullOrWhiteSpace(rule.RuleId) && !string.IsNullOrWhiteSpace(rule.SemanticDefinition.DefinitionVersion), "Missing identity or version.");
         var definition = rule.SemanticDefinition;
+        Require(definition.OperationalDimensions.Count > 0 &&
+            definition.OperationalDimensions.All(x => x is "Clarity" or "Performance" or "Leadership" or "Culture" or "Foundation") &&
+            definition.OperationalDimensions.Distinct(StringComparer.Ordinal).Count() == definition.OperationalDimensions.Count,
+            "Missing, duplicate or unrecognised operational dimensions.");
         var catalogue = definition.CatalogueEvidence;
         Require(catalogue.CompatibleCatalogueVersions.Count > 0 &&
             catalogue.CompatibleCatalogueVersions.Distinct().Count() == catalogue.CompatibleCatalogueVersions.Count, "Missing or duplicate compatible versions.");
@@ -194,11 +198,40 @@ public sealed class MaturitySemanticRuleRepository
             Require(profile.Contributions.Keys.ToHashSet().SetEquals(new[] { "DirectionA", "DirectionB" }), $"Missing directions for {profile.Coordinate}.");
             foreach (var pair in profile.Contributions)
                 Require(pair.Value.Keys.ToHashSet().SetEquals(new[] { "1", "2", "3", "4", "5" }) &&
-                    pair.Value.Values.All(x => x is "Supporting" or "Challenging" or "Qualifying" or "Neutral"),
+                    pair.Value.Values.All(x => x is "Supporting" or "Challenging" or "Qualifying" or "Contextual" or "Neutral"),
                     $"Invalid levels or classifications for {profile.Coordinate}/{pair.Key}.");
+            foreach (var (direction, levels) in profile.PotentialRelevance)
+                Require(profile.Contributions.ContainsKey(direction) && levels.All(x =>
+                    profile.Contributions[direction].TryGetValue(x.Key, out var classification) &&
+                    classification == "Contextual" && !string.IsNullOrWhiteSpace(x.Value)),
+                    $"Invalid potential relevance for {profile.Coordinate}/{direction}.");
+        }
+        Require(definition.QualificationRules.Select(x => x.RuleId).Distinct().Count() == definition.QualificationRules.Count,
+            "Duplicate qualification rule IDs.");
+        foreach (var qualification in definition.QualificationRules)
+        {
+            Require(!string.IsNullOrWhiteSpace(qualification.RuleId) && coordinates.ContainsKey(qualification.Coordinate) &&
+                catalogue.Supporting.Any(x => x.Coordinate == qualification.Coordinate) &&
+                qualification.BehaviourIds.Count > 0 && qualification.BehaviourIds.Distinct().Count() == qualification.BehaviourIds.Count &&
+                qualification.BehaviourIds.All(id => coordinates[qualification.Coordinate].Behaviours.Any(x => x.BehaviourId == id)) &&
+                qualification.Directions.Count > 0 && qualification.Directions.Distinct().Count() == qualification.Directions.Count &&
+                qualification.Directions.All(x => x is "DirectionA" or "DirectionB") &&
+                !string.IsNullOrWhiteSpace(qualification.InterpretiveEffect) && !string.IsNullOrWhiteSpace(qualification.NarrativeKey) &&
+                !string.IsNullOrWhiteSpace(qualification.Boundary), $"Invalid qualification rule '{qualification.RuleId}'.");
+        }
+        foreach (var profile in definition.SupportingEvidenceProfiles)
+        foreach (var (direction, levels) in profile.Contributions)
+        foreach (var (level, classification) in levels)
+        {
+            var behaviour = coordinates[profile.Coordinate].Behaviours.Single(x => x.Level.ToString() == level);
+            var matchingRules = definition.QualificationRules.Count(x => x.Coordinate == profile.Coordinate &&
+                x.Directions.Contains(direction) && x.BehaviourIds.Contains(behaviour.BehaviourId));
+            Require(matchingRules == (classification == "Qualifying" ? 1 : 0),
+                $"Qualification rules do not match {profile.Coordinate}/{direction}/{level}.");
         }
         Require(definition.ContextRelationships.Select(x => x.RelationshipId).Distinct().Count() == definition.ContextRelationships.Count &&
-            definition.ContextRelationships.All(x => !string.IsNullOrWhiteSpace(x.RelationshipId) && x.Effect == "ContextOnly"),
+            definition.ContextRelationships.All(x => !string.IsNullOrWhiteSpace(x.RelationshipId) &&
+                x.Effect == "ContextOnly" && x.Status == "PendingApproval"),
             "Invalid or duplicate contextual relationships.");
         foreach (var relation in definition.ContextRelationships)
         {
@@ -208,8 +241,8 @@ public sealed class MaturitySemanticRuleRepository
         }
         var expectedPolicy = new Dictionary<string, string>
         {
-            ["evidenceSource"] = "SelectedBehaviours", ["contextEvaluation"] = "OnCoreMatch",
-            ["contextEffect"] = "AddWithoutReplacingContributions", ["missingCore"] = "Unknown",
+            ["evidenceSource"] = "SelectedBehaviours", ["contextEvaluation"] = "PendingApproval",
+            ["contextEffect"] = "NotApplied", ["missingCore"] = "Unknown",
             ["unavailableCore"] = "Unavailable", ["nonMatchingCore"] = "NoMatch", ["matchedCore"] = "Candidate",
             ["neutralPresentation"] = "TraceOnly", ["strength"] = "NotAssessed", ["reliability"] = "NotAssessed",
             ["confidence"] = "NotAssessed", ["priority"] = "NotAssessed"
