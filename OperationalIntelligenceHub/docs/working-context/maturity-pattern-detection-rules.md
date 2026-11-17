@@ -6,7 +6,7 @@ This is a documentation-only mapping of the `Pattern Detection Rules` sheet in *
 
 The workbook contains 26 pattern IDs and 28 rule IDs. The 26 IDs are EM01, EM02, BF01–BF09, CC01–CC04, SC01–SC05, and PR01–PR06; EM01 and EM02 each have two rule rows. The earlier catalogue note that mentions a possible 27th pattern remains unresolved; no 27th ID is present in the current list.
 
-The workbook says there is one selected behaviour per perspective/theme, defines no technical trigger syntax or numeric threshold, and treats evidence sufficiency as qualitative guidance. Its `Behaviour Test Inputs` sheet contains only headers, with no populated test cases.
+The workbook says there is one selected behaviour per perspective/theme, defines no technical trigger syntax or numeric threshold, and treats evidence sufficiency as qualitative guidance. A later workbook's `Behaviour Test Inputs` sheet has one populated input row without an expected result; it is not an executable acceptance test.
 
 ## Application identifier mapping
 
@@ -29,7 +29,7 @@ The workbook references such as `SQ-OWN-L2` are proposed composite references, n
 
 `L<n>` denotes level `<n>`. Thus `SQ-OWN-L2` resolves to the current mapping ID `Squad_Ownership_L2` and tuple `(Lens=Squad, Theme=Ownership, Level=2)`. The pattern rules must resolve against that tuple or the matching current `SignalMapping.BehaviourId`; they must not assume the workbook reference is persisted in an assessment.
 
-The cross-check found 249 unique workbook references, all of which resolve to an existing Lens/Theme/Level tuple in the current mapping. No references were unresolvable. However, the assessment session stores the lens, theme, and selected level—not the `BehaviourId`. The signal builder also matches on Lens/Theme/Level and uses the mapping's output signal; it does not use `BehaviourId` to recover rule semantics. Accordingly, the IDs below are the current catalogue/mapping identifiers corresponding to the workbook references, not IDs saved on the assessment.
+The cross-check found 249 workbook reference occurrences representing 78 distinct IDs, all of which resolve to an existing Lens/Theme/Level tuple in the current mapping. No references were unresolvable. New selections persist their `BehaviourId` and catalogue version alongside the coordinate and selected content. The numeric signal builder validates these against the retained version, but does not use them to evaluate rule semantics. The IDs below are the current catalogue/mapping identifiers corresponding to the workbook references; historical selections must be interpreted using their saved version.
 
 Some workbook labels do not match the current catalogue headline for the same tuple. For example, `SQ-OWN-L2` is described in the workbook as “Shared Responsibility Emerging” but the current catalogue headline is “Shared knowledge emerging”; `PO-VAL-L5` is called “Optimising Product Portfolio Value” in the workbook but the current headline is “Customer value leadership”. Tuple resolution is not proof of semantic equivalence. Review these labels before approving rule copy or expected outcomes; do not silently rename or remap a behaviour.
 
@@ -76,7 +76,7 @@ The references in this table are the workbook's composite codes. Use the prefix/
 
 ## Detection specification still required
 
-The workbook's prose is useful design input, but it does not yet establish machine-evaluable conditions. Before implementation, each row needs an approved definition of:
+The workbook's prose is useful design input, but it does not itself establish machine-evaluable conditions. The separate [BF01 revised draft](../../wwwroot/data/rules/maturity_pattern_rules_BF01_revised.json) specifies conditions for the direct-evidence contract described in the [implementation plan](./maturity-pattern-implementation-plan.md). An isolated semantic evaluator executes BF01; it is not integrated into the current results page or automatically substituted for the workbook. Other rows still need approved definitions of:
 
 - which references are required, optional, or alternatives;
 - AND/OR structure and the direction of any role-to-role relationship;

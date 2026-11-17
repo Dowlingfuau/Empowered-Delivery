@@ -1,10 +1,12 @@
 @startuml
 title JSON definitions and evaluation - target, not deployed configuration
 component "Numeric flow rule JSON\nand validation" as numericRules
-component "Semantic maturity pattern JSON\nand validation" as semanticRules
+component "Maturity definitions and validation\nBF01 implemented; isolated" as semanticRules
 component "Shared evidence, signals\nand provenance" as evidence
 component "Numeric evaluation:\nmeasurements, signals and thresholds" as numeric
-component "Semantic evaluation:\nbehaviours, alternatives and relationships" as semantic
+component "Maturity evidence acquisition\nand projection (isolated)" as projection
+component "Maturity semantic evaluation:\nBF01 implemented; isolated" as semantic
+component "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
 component "Shared outcomes and provenance;\ndiagnostic evidence sufficiency" as outcomes
 component "Eligible diagnostic\ninsight candidate" as diagnosticCandidate
 component "Diagnostic evaluation:\nconfidence then priority" as diagnosticEvaluation
@@ -17,7 +19,10 @@ component "Shared Intelligence Trace\n(target contract)" as trace
 numericRules --> numeric
 semanticRules --> semantic
 evidence --> numeric
-evidence --> semantic
+evidence --> projection : original selections
+evidence ..> profiles : future
+profiles ..> projection : future interpreted evidence
+projection --> semantic
 numeric --> outcomes
 semantic --> outcomes
 evidence --> outcomes
@@ -45,8 +50,14 @@ note bottom of numericRules
   still contain static values; migration is unresolved.
 end note
 note bottom of semantic
-  Distinct strategies and schemas do not require
-  separate services or a single shared rule model.
+  Initial target uses direct selected behaviours.
+  BF01 uses the implemented isolated evaluator.
+  Numeric and semantic strategies are distinct.
+end note
+note bottom of profiles
+  Planned user-facing role profiles also provide
+  interpreted evidence, linked to original selections.
+  No profiles are needed by the first engine.
 end note
 note bottom of diagnosticCandidate
   A trigger does not automatically produce an insight.

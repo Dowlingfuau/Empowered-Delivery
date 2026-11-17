@@ -11,6 +11,7 @@
 @using OperationalIntelligenceHub.Models
 @using OperationalIntelligenceHub.Services
 @inject BehaviourCatalogueService BehaviourCatalogue
+@inject MaturityEvidenceService MaturityEvidence
 @inject SignalMappingLoaderService MappingLoader
 @inject SignalRegistryService SignalRegistry
 @inject SignalPipelineService SignalPipeline
@@ -183,7 +184,7 @@
                                         <button type="button"
                                                 class="mf-reading-button @(isSelected ? "is-selected" : string.Empty)"
                                                 aria-pressed="@isSelected"
-                                                aria-label="@($"{FormatLens(state.Session.LensAssessments[lensIndex].Lens)}, {themeName}, level {theme.Level}, {GetBehaviour(state.Session.LensAssessments[lensIndex].Lens, themeName, theme.Level)?.Headline}")"
+                                                aria-label="@($"{FormatLens(state.Session.LensAssessments[lensIndex].Lens)}, {themeName}, level {theme.Level}, {theme.SelectedBehaviour?.Headline}")"
                                                 disabled="@state.IsBusy"
                                                 @onclick="() => SelectResultCell(state, targetLensIndex, targetThemeIndex)">
                                             <span class="mf-reading-lens">@FormatLens(state.Session.LensAssessments[lensIndex].Lens)</span>
@@ -193,7 +194,7 @@
                                                     <i class="@(theme.Level == level ? "is-level" : string.Empty)"></i>
                                                 }
                                             </span>
-                                            <strong><span>Level @theme.Level</span> @GetBehaviour(state.Session.LensAssessments[lensIndex].Lens, themeName, theme.Level)?.Headline</strong>
+                                            <strong><span>Level @theme.Level</span> @theme.SelectedBehaviour?.Headline</strong>
                                         </button>
 
                                         @if (cellInsights.Count > 0)
@@ -265,8 +266,8 @@
                             @{
                                 var selectedLens = state.Session.LensAssessments[state.ResultLensIndex];
                                 var selectedTheme = ThemeAt(selectedLens, state.ResultThemeIndex);
-                                var selectedBehaviour = GetBehaviour(selectedLens.Lens, selectedTheme.Theme, selectedTheme.Level);
-                                var selectedOptions = BehaviourCatalogue.GetBehaviours(selectedLens.Lens, selectedTheme.Theme);
+                                var selectedBehaviour = selectedTheme.SelectedBehaviour;
+                                var selectedOptions = DisplayedOptions(selectedLens.Lens, selectedTheme);
                             }
                             <div class="mf-selected-heading">
                                 <div>
@@ -348,7 +349,7 @@
         {
             var lens = state.Session.LensAssessments[state.LensIndex];
             var theme = ThemeAt(lens, state.ThemeIndex);
-            var options = BehaviourCatalogue.GetBehaviours(lens.Lens, theme.Theme);
+            var options = DisplayedOptions(lens.Lens, theme);
 
             <section class="mf-assessment" aria-labelledby="mf-assessment-title">
                 <header class="mf-assessment-heading">
@@ -619,6 +620,7 @@
         try
         {
             await BehaviourCatalogue.InitializeAsync();
+            await MaturityEvidence.InitializeAsync();
             await SignalRegistry.InitializeAsync();
             maturityMappings = await MappingLoader.GetMappings("maturity");
             await SignalValidator.ValidateAsync();
@@ -630,7 +632,7 @@
                 await RuleRepository.InitializeAsync();
             }
         }
-        catch (Exception exception) when (exception is HttpRequestException or JsonException)
+        catch (Exception exception) when (exception is HttpRequestException or JsonException or InvalidOperationException)
         {
             Logger.LogWarning(exception, "Unable to load maturity assessment data");
             loadError = $"The existing behaviour, signal, or rule data could not be loaded: {ErrorSummary(exception)}";
@@ -1028,6 +1030,7 @@
                 contextError = error;
                 return;
             }
+            await MaturityEvidence.ResolveSessionAsync(session);
             if (!(WorkspaceRepository.ActiveWorkspace?.Structure.GetAllSquads()
                 .Any(squad => squad.Id.ToString().Equals(session.SquadId, StringComparison.OrdinalIgnoreCase)) ?? false))
             {
@@ -1112,6 +1115,7 @@
             var fresh = await AssessmentRepository.GetMaturitySessionAsync(target.AssessmentId);
             if (fresh is null || !ValidateSession(fresh, out _))
                 throw new InvalidOperationException("The selected session is no longer available or valid.");
+            await MaturityEvidence.ResolveSessionAsync(fresh);
             await TransferDraftAsync(draft, fresh, version);
             var saved = await AssessmentRepository.GetMaturitySessionAsync(fresh.AssessmentId);
             if (saved is null || !ValidateSession(saved, out _))
@@ -1146,16 +1150,18 @@
     private async Task TransferDraftAsync(ConceptState draft, AssessmentSession target, int version)
     {
         var updates = MaturityDraftTransfer.Plan(draft.Session, target);
+        await MaturityEvidence.ResolveSessionAsync(draft.Session);
         foreach (var update in updates)
         {
             EnsureTransferContext(draft, target, version);
-            await SessionService.UpdateThemeScoreAsync(target.AssessmentId, update.Lens, update.Theme, update.Level, update.Note);
+            await SessionService.UpdateThemeScoreAsync(target.AssessmentId, update.Lens, update.Theme, update.Level, update.Evidence);
         }
         EnsureTransferContext(draft, target, version);
     }
 
     private async Task OpenSessionAsync(AssessmentSession session, ConceptState? draft)
     {
+        await MaturityEvidence.ResolveSessionAsync(session);
         var lensName = draft?.Session.LensAssessments[draft.LensIndex].Lens;
         var resultLensName = draft?.Session.LensAssessments[draft.ResultLensIndex].Lens;
         ClearSession();
@@ -1299,6 +1305,12 @@
     private BehaviourOption? GetBehaviour(string lens, string theme, int level) =>
         BehaviourCatalogue.GetBehaviours(lens, theme).FirstOrDefault(option => option.Level == level);
 
+    private List<BehaviourOption> DisplayedOptions(string lens, MaturityTheme theme) =>
+        BehaviourCatalogue.GetBehaviours(lens, theme.Theme).Select(option =>
+            option.Level == theme.Level && theme.SelectedBehaviour is { } evidence
+                ? new BehaviourOption { Level = theme.Level, Headline = evidence.Headline, Signals = evidence.Signals, Examples = evidence.Examples }
+                : option).ToList();
+
     private static List<TraceInput> MaturityTraceInputs(AssessmentSession session) =>
         session.LensAssessments.SelectMany(lens => lens.Themes.Select(theme => new TraceInput
         {
@@ -1332,7 +1344,7 @@
         trace.ApplyRendering(rendering);
     }
 
-    private List<InsightPlacement> MapInsights(ConceptState state, IEnumerable<OperationalInsight> currentInsights, IReadOnlyList<RuleEvaluation> currentEvaluations)
+    private List<InsightPlacement> MapInsights(ConceptState state, IEnumerable<OperationalInsight> currentInsights, IReadOnlyList<RuleEvaluation> currentEvaluations, IReadOnlyList<SignalMapping> selectedMappings)
     {
         var placements = new List<InsightPlacement>();
         var engineOrder = 0;
@@ -1340,7 +1352,7 @@
         foreach (var insight in currentInsights)
         {
             var resolved = MaturityInsightAttribution.TryResolve(
-                state.Session, insight, maturityMappings, currentEvaluations, out var coordinates);
+                state.Session, insight, selectedMappings, currentEvaluations, out var coordinates);
             coordinates = coordinates
                 .GroupBy(coordinate => $"{coordinate.Lens}\u001f{coordinate.Theme}", StringComparer.OrdinalIgnoreCase)
                 .Select(group => group.First())
@@ -1608,7 +1620,8 @@
         try
         {
             var pipelineResult = await SignalPipeline.BuildSignalsAndDerivedDetailed(state.Session);
-            var insightPlacements = MapInsights(state, pipelineResult.insights, pipelineResult.evaluations);
+            var selectedMappings = await MaturityEvidence.ResolveSessionAsync(state.Session);
+            var insightPlacements = MapInsights(state, pipelineResult.insights, pipelineResult.evaluations, selectedMappings);
             if (!ReferenceEquals(sessionState, state))
             {
                 return false;
@@ -1662,18 +1675,20 @@
 
     private async Task<bool> SaveBehaviourAsync(ConceptState state, string lens, MaturityTheme theme, BehaviourOption behaviour)
     {
-        if (string.IsNullOrEmpty(state.Session.AssessmentId))
-        {
-            theme.Level = behaviour.Level;
-            theme.BehaviouralNote = string.Join(Environment.NewLine, behaviour.Signals.Concat(behaviour.Examples));
-            return true;
-        }
         isSwitching = true;
         state.IsBusy = true;
         try
         {
-            var note = string.Join(Environment.NewLine, behaviour.Signals.Concat(behaviour.Examples));
-            await SessionService.UpdateThemeScoreAsync(state.Session.AssessmentId, lens, theme.Theme, behaviour.Level, note);
+            var evidence = await MaturityEvidence.CaptureAsync(lens, theme.Theme, behaviour);
+            if (string.IsNullOrEmpty(state.Session.AssessmentId))
+            {
+                theme.Level = behaviour.Level;
+                theme.SelectedBehaviour = evidence;
+                theme.SelectedBehaviourHeadline = evidence.Headline;
+                theme.BehaviouralNote = string.Join(Environment.NewLine, evidence.Signals.Concat(evidence.Examples));
+                return true;
+            }
+            await SessionService.UpdateThemeScoreAsync(state.Session.AssessmentId, lens, theme.Theme, behaviour.Level, evidence);
             var saved = await AssessmentRepository.GetMaturitySessionAsync(state.Session.AssessmentId);
             if (saved is null || !ValidateSession(saved, out _))
             {
@@ -1692,8 +1707,13 @@
             Logger.LogWarning(exception, "Unable to confirm maturity selection for {AssessmentId}", state.Session.AssessmentId);
             if (ReferenceEquals(sessionState, state))
             {
-                ClearSession();
-                contextError = $"The selection could not be confirmed as saved: {ErrorSummary(exception)}. Reopen the session to check before trying again.";
+                if (string.IsNullOrEmpty(state.Session.AssessmentId))
+                    contextError = $"The selection could not be recorded: {ErrorSummary(exception)}";
+                else
+                {
+                    ClearSession();
+                    contextError = $"The selection could not be confirmed as saved: {ErrorSummary(exception)}. Reopen the session to check before trying again.";
+                }
             }
             return false;
         }

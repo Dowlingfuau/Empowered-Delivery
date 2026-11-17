@@ -9,10 +9,12 @@ namespace OperationalIntelligenceHub.Services
     {
         private readonly AssessmentRepositoryService _repository;
         private readonly SignalPipelineService _signalPipeline;        
-        public SessionService( AssessmentRepositoryService repository, SignalPipelineService signalPipeline)
+        private readonly MaturityEvidenceService _evidence;
+        public SessionService(AssessmentRepositoryService repository, SignalPipelineService signalPipeline, MaturityEvidenceService evidence)
         {
             _repository = repository;
             _signalPipeline = signalPipeline;
+            _evidence = evidence;
         }
         // Create a session
         public async Task<AssessmentSession> CreateSessionAsync(string workspaceId, string squadId, DateTime date)
@@ -62,10 +64,12 @@ namespace OperationalIntelligenceHub.Services
         }
 
         // Update theme score
-        public async Task UpdateThemeScoreAsync(string sessionId, string lens, string theme, int level, string? note = null)
+        public async Task UpdateThemeScoreAsync(string sessionId, string lens, string theme, int level, MaturityBehaviourEvidence evidence)
         {
+            ArgumentNullException.ThrowIfNull(evidence);
             var session = await _repository.GetMaturitySessionAsync(sessionId);
             if (session == null) throw new Exception($"Session {sessionId} not found.");
+            await _evidence.ResolveSessionAsync(session);
 
             var lensAssessment = session.LensAssessments.FirstOrDefault(l => l.Lens == lens);
             if (lensAssessment == null) throw new Exception($"Lens {lens} not found in session {sessionId}.");
@@ -73,8 +77,18 @@ namespace OperationalIntelligenceHub.Services
             var themeScore = lensAssessment.Themes.FirstOrDefault(t => t.Theme == theme);
             if (themeScore == null) throw new Exception($"Theme {theme} not found in lens {lens}.");
 
+            var selection = new MaturityTheme
+            {
+                Theme = themeScore.Theme,
+                Level = level,
+                SelectedBehaviour = evidence,
+                SelectedBehaviourHeadline = evidence.Headline
+            };
+            await _evidence.ResolveAsync(lensAssessment.Lens, selection);
             themeScore.Level = level;
-            themeScore.BehaviouralNote = note ?? string.Empty;
+            themeScore.SelectedBehaviour = evidence;
+            themeScore.SelectedBehaviourHeadline = evidence.Headline;
+            themeScore.BehaviouralNote = string.Join(Environment.NewLine, evidence.Signals.Concat(evidence.Examples));
 
             await _repository.SaveMaturitySessionAsync(session); // persist update
             await _signalPipeline.DebugSignals(session);

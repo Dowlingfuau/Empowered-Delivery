@@ -25,6 +25,7 @@ builder.Services.AddScoped<WorkspaceRepositoryService>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<BehaviourCatalogueService>();
+builder.Services.AddScoped<MaturityEvidenceService>();
 builder.Services.AddScoped<MaturitySignalBuilderService>();
 builder.Services.AddScoped<SignalNormaliserService>();
 builder.Services.AddScoped<SignalPipelineService>();

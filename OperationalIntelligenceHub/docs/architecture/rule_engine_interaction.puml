@@ -1,25 +1,38 @@
 @startuml
-title Maturity semantic rule and pattern support - target conceptual flow
-rectangle "Evidence and signals" as evidence
-rectangle "JSON definitions and\nexecutable conditions" as rules
-rectangle "Rule evaluation" as match
-rectangle "Pattern aggregation" as aggregate
-rectangle "Evidence sufficiency,\nsupport and challenge" as support
-rectangle "Insight candidate" as candidate
+title Maturity semantic evaluation - initial target and future enrichment
+rectangle "Original selections and provenance\nimplemented capture" as evidence
+rectangle "Evidence acquisition and projection\nimplemented; not UI-integrated" as projection
+rectangle "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
+rectangle "JSON definitions and validation\nBF01 proposed contract" as rules
+rectangle "Contribution and relationship evaluation\nBF01 implemented; not UI-integrated" as match
+rectangle "Pattern aggregation\nfuture" as aggregate
+rectangle "Diagnostic candidate" as candidate
+rectangle "Evidence sufficiency and eligibility\nfuture; policy unresolved" as support
+rectangle "Diagnostic finding\neligibility policy unresolved" as finding
 rectangle "Trace: provenance,\nstates and reasons" as trace
-evidence --> match
+evidence --> projection
+evidence ..> profiles : future
+profiles ..> projection : future profile interpretations
+projection --> match
 rules --> match
 match --> aggregate : triggered rules
 aggregate --> support
-evidence --> support
-support --> candidate : only when eligible
+projection --> support
+aggregate --> candidate : matched relationship
+candidate --> support
+support --> finding : only when eligible
+projection ..> trace
 match ..> trace
 aggregate ..> trace
 support ..> trace
 note bottom of match
-  Semantic evidence may be matched directly.
-  A trigger does not establish sufficient support.
-  Reuse of BehaviourRuleEngine is an open option.
+  Initial evaluation uses original selected behaviours.
+  A trigger is a candidate, not an automatic insight.
   Numeric flow rules use a distinct strategy and schema.
+end note
+note bottom of profiles
+  Future dedicated user experience and interpreted
+  evidence for each role; original evidence remains
+  authoritative and accessible. No profile implementation now.
 end note
 @enduml

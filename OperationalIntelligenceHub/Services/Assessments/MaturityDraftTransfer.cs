@@ -2,7 +2,7 @@ using OperationalIntelligenceHub.Models;
 
 namespace OperationalIntelligenceHub.Services;
 
-public record MaturityDraftUpdate(string Lens, string Theme, int Level, string Note);
+public record MaturityDraftUpdate(string Lens, string Theme, int Level, MaturityBehaviourEvidence Evidence);
 
 public static class MaturityDraftTransfer
 {
@@ -17,12 +17,12 @@ public static class MaturityDraftTransfer
                     string.Equals(item.Lens, lens.Lens, StringComparison.OrdinalIgnoreCase));
                 var targetTheme = targetLens?.Themes.SingleOrDefault(item =>
                     string.Equals(item.Theme, theme.Theme, StringComparison.OrdinalIgnoreCase));
-                if (targetLens is null || targetTheme is null || theme.Level > 5)
+                if (targetLens is null || targetTheme is null || theme.Level > 5 || theme.SelectedBehaviour is null)
                 {
                     throw new InvalidOperationException($"The session cannot accept the draft selection for {lens.Lens} / {theme.Theme}.");
                 }
 
-                updates.Add(new MaturityDraftUpdate(targetLens.Lens, targetTheme.Theme, theme.Level, theme.BehaviouralNote));
+                updates.Add(new MaturityDraftUpdate(targetLens.Lens, targetTheme.Theme, theme.Level, theme.SelectedBehaviour));
             }
         }
         return updates;

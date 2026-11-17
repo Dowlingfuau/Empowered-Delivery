@@ -6,6 +6,7 @@ namespace OperationalIntelligenceHub.Models
         public int Level { get; set; } = 0; // 1–5
         public string SelectedBehaviourHeadline { get; set; } = string.Empty;
         public string BehaviouralNote { get; set; } = string.Empty;
+        public MaturityBehaviourEvidence? SelectedBehaviour { get; set; }
         public static readonly string [] Themes =
         {
             "Ownership",

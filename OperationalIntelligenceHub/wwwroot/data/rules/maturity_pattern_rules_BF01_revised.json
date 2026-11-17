@@ -1,0 +1,1649 @@
+{
+  "schemaVersion": "1.0-draft",
+  "name": "Maturity Assessment Pattern Detection Rules",
+  "diagnosticScope": "MaturityAssessment",
+  "purpose": "Candidate pattern definitions and evidence references for implementation-plan review. This file is not yet an executable production rule set.",
+  "separationOfConcerns": {
+    "diagnosticInsights": "Generated within the Maturity Assessment from that diagnostic's own assessment evidence and signals.",
+    "crossDiagnosticInsights": "Reserved for the Operational MRI, where signals and insights from multiple diagnostics may be combined.",
+    "prohibition": "Do not combine Backlog Health, Team Health, or other diagnostic signals into Maturity Assessment pattern evaluation."
+  },
+  "evaluationPrinciples": [
+    "Treat every detected pattern as a hypothesis, not a diagnosis.",
+    "Preserve the selected behaviour IDs and source assessment evidence that support each triggered rule.",
+    "Do not infer a relationship or role expectation as fact; describe it as a possibility and validate it with the user.",
+    "Do not treat candidateBehaviourIds as an implicit AND condition. They are the candidate evidence universe for rule design.",
+    "Respect the assessment constraint of one selected behaviour per perspective and theme.",
+    "Distinguish required evidence, alternative evidence, supporting evidence, contradictory evidence, and exclusions before implementation.",
+    "Do not introduce numeric thresholds unless they are explicitly justified and agreed.",
+    "Group multiple triggered rules by patternId so one pattern produces one consolidated insight."
+  ],
+  "rules": [
+    {
+      "ruleId": "BF01-R01",
+      "patternId": "BF01",
+      "patternName": "Value Translation Gap",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ProductOwner_Value_L1",
+        "ProductOwner_Value_L2",
+        "ProductOwner_Value_L3",
+        "ProductOwner_Value_L4",
+        "ProductOwner_Value_L5",
+        "Squad_Value_L1",
+        "Squad_Value_L2",
+        "Squad_Value_L3",
+        "Squad_Value_L4",
+        "Squad_Value_L5",
+        "ScrumMaster_Value_L1",
+        "ScrumMaster_Value_L2",
+        "ScrumMaster_Value_L3",
+        "ScrumMaster_Value_L4",
+        "ScrumMaster_Value_L5",
+        "Leader_Value_L1",
+        "Leader_Value_L2",
+        "Leader_Value_L3",
+        "Leader_Value_L4",
+        "Leader_Value_L5",
+        "Leader_Ownership_L1",
+        "Leader_Ownership_L2",
+        "Leader_Ownership_L3",
+        "Leader_Ownership_L4",
+        "Leader_Ownership_L5",
+        "Leader_Trust_L1",
+        "Leader_Trust_L2",
+        "Leader_Trust_L3",
+        "Leader_Trust_L4",
+        "Leader_Trust_L5",
+        "ScrumMaster_Ownership_L1",
+        "ScrumMaster_Ownership_L2",
+        "ScrumMaster_Ownership_L3",
+        "ScrumMaster_Ownership_L4",
+        "ScrumMaster_Ownership_L5",
+        "ScrumMaster_Trust_L1",
+        "ScrumMaster_Trust_L2",
+        "ScrumMaster_Trust_L3",
+        "ScrumMaster_Trust_L4",
+        "ScrumMaster_Trust_L5"
+      ],
+      "sourceEvidence": "Core: ProductOwner.Value (L1-L5) and Squad.Value (L1-L5). Supporting: ScrumMaster.Value, Leader.Value, Leader.Ownership, Leader.Trust, ScrumMaster.Ownership, and ScrumMaster.Trust (L1-L5). Exact behaviour IDs and headlines are recorded in semanticDefinition. No other coordinates are evaluated for BF01 in this pilot.",
+      "relatedEvidence": "ProductOwner.Ownership and Squad.Ownership are recognised as potentially relevant context, but their BF01 contribution profiles have not been defined and they are not included in this pilot evidence profile.",
+      "relationshipLogic": "BF01 identifies a difference in value orientation between Product Owner and Squad. Direction A: ProductOwner.Value L3-L5 with Squad.Value L1-L2. Direction B: ProductOwner.Value L1-L2 with Squad.Value L3-L5. Both directions are potential Value Translation Gaps. Shared low orientation (both L1-L2) does not trigger BF01. Shared value orientation (both L3-L5) challenges BF01 but does not establish a separate positive insight.",
+      "supportingEvidence": "Supporting evidence is contextual only and cannot establish, invalidate, or replace the core Product Owner/Squad Value relationship. Direction-specific qualitative contribution profiles are defined in semanticDefinition.supportingEvidenceProfiles.",
+      "contradictoryEvidence": "Challenging evidence must be retained alongside supporting evidence. It may qualify or challenge the interpretation but cannot invalidate a matched core relationship. Neutral, missing, skipped, not-evaluated, and unknown evidence remain distinct.",
+      "exclusions": "Do not infer failed communication, causation, role failure, poor outcomes, or absence of value from these selections. Do not treat output measurement as inherently poor practice. Do not treat shared low orientation as BF01. Do not infer Value Alignment from the absence of BF01. Do not double-count a behaviour used in the core relationship as independent corroboration.",
+      "evidenceSufficiency": "The core relationship is mandatory. Supporting evidence may enrich context and later inform priority, but no sufficiency threshold, numerical weight, confidence score, or priority formula is defined in this pilot definition.",
+      "testScenario": "Cover all four core group combinations: PO L1-L2/Squad L1-L2 (no BF01); PO L1-L2/Squad L3-L5 (Direction B); PO L3-L5/Squad L1-L2 (Direction A); PO L3-L5/Squad L3-L5 (challenges BF01). Test missing core inputs, conditional supporting profiles, mixed support/challenge, neutral evidence, skipped/out-of-scope evidence, and dependency-aware trace behaviour.",
+      "expectedInterpretation": "Direction A: possible difference between Product Owner value orientation and Squad delivery focus. Direction B: Squad may demonstrate stronger outcome/value orientation than is reflected in Product Owner behaviours. Validate product direction, prioritisation, decision authority, and the relationship in practice. Do not assert causation or failure.",
+      "evaluation": {
+        "status": "Proposed",
+        "contract": "maturity-semantic-v1-draft",
+        "conditionStatus": "SpecifiedForProposedContract",
+        "notes": "The semanticDefinition contains the evaluation inputs and expressions for the independently testable Maturity semantic evaluator. This pilot is not integrated into the results page or the numeric pipeline. Do not interpret candidateBehaviourIds as an implicit AND condition."
+      },
+      "semanticDefinition": {
+        "definitionVersion": "1.0-draft",
+        "status": "Proposed",
+        "operationalDimension": "Performance",
+        "intent": "Explore whether Product Owner and Squad behaviours demonstrate different orientations towards value, potentially indicating a disconnect between product direction and delivery focus.",
+        "interpretationGuardrails": [
+          "Treat the pattern as a hypothesis, not a diagnosis.",
+          "The assessment captures selected operating behaviours, not verified customer or business outcomes.",
+          "Do not infer communication failure, causation, role failure, or poor organisational outcomes.",
+          "The same selected catalogue entry is one evidence item; its headline, signals, and examples are not independent corroboration."
+        ],
+        "coreRelationship": {
+          "requiredCoordinates": [
+            "ProductOwner.Value",
+            "Squad.Value"
+          ],
+          "groupDefinitions": [
+            {
+              "groupId": "RequirementsBacklogOrientation",
+              "coordinate": "ProductOwner.Value",
+              "levels": [
+                1,
+                2
+              ]
+            },
+            {
+              "groupId": "ValueOrientation",
+              "coordinate": "ProductOwner.Value",
+              "levels": [
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "groupId": "OutputPerformanceOrientation",
+              "coordinate": "Squad.Value",
+              "levels": [
+                1,
+                2
+              ]
+            },
+            {
+              "groupId": "OutcomeValueOrientation",
+              "coordinate": "Squad.Value",
+              "levels": [
+                3,
+                4,
+                5
+              ]
+            }
+          ],
+          "branches": [
+            {
+              "branchId": "DirectionA_ProductOwnerAhead",
+              "when": {
+                "all": [
+                  { "hasGroup": "ValueOrientation" },
+                  { "hasGroup": "OutputPerformanceOrientation" }
+                ]
+              },
+              "direction": "DirectionA",
+              "result": "PotentialValueTranslationGap",
+              "interpretation": "Product Owner demonstrates value-oriented behaviours while Squad reports output/performance orientation."
+            },
+            {
+              "branchId": "DirectionB_SquadAhead",
+              "when": {
+                "all": [
+                  { "hasGroup": "RequirementsBacklogOrientation" },
+                  { "hasGroup": "OutcomeValueOrientation" }
+                ]
+              },
+              "direction": "DirectionB",
+              "result": "PotentialValueTranslationGap",
+              "interpretation": "Squad demonstrates outcome/value orientation while Product Owner reports requirements/backlog orientation."
+            },
+            {
+              "branchId": "SharedLowOrientation",
+              "when": {
+                "all": [
+                  { "hasGroup": "RequirementsBacklogOrientation" },
+                  { "hasGroup": "OutputPerformanceOrientation" }
+                ]
+              },
+              "result": "DoesNotTriggerBF01",
+              "interpretation": "Shared low explicit value orientation; retain as a separate insight candidate."
+            },
+            {
+              "branchId": "SharedValueOrientation",
+              "when": {
+                "all": [
+                  { "hasGroup": "ValueOrientation" },
+                  { "hasGroup": "OutcomeValueOrientation" }
+                ]
+              },
+              "result": "ChallengesBF01",
+              "interpretation": "Both perspectives demonstrate value orientation. This is not by itself a positive Value Alignment finding."
+            }
+          ],
+          "missingCoreEvidence": "If either required coordinate is missing or unavailable, do not evaluate the relationship as true or false; return an explicit incomplete/unknown core outcome.",
+          "directionMustBePreserved": true
+        },
+        "catalogueEvidence": {
+          "catalogueSource": "maturity_behaviours.json",
+          "compatibleCatalogueVersions": ["v1"],
+          "core": [
+            {
+              "coordinate": "ProductOwner.Value",
+              "role": "ProductOwner",
+              "theme": "Value",
+              "groupByLevel": {
+                "1-2": "Requirements/backlog orientation",
+                "3-5": "Value orientation"
+              },
+              "behaviours": [
+                {
+                  "behaviourId": "ProductOwner_Value_L1",
+                  "level": 1,
+                  "headline": "Capturing stakeholder requirements"
+                },
+                {
+                  "behaviourId": "ProductOwner_Value_L2",
+                  "level": 2,
+                  "headline": "Managing the Product Backlog"
+                },
+                {
+                  "behaviourId": "ProductOwner_Value_L3",
+                  "level": 3,
+                  "headline": "Value creation mindset"
+                },
+                {
+                  "behaviourId": "ProductOwner_Value_L4",
+                  "level": 4,
+                  "headline": "Continuous value optimisation"
+                },
+                {
+                  "behaviourId": "ProductOwner_Value_L5",
+                  "level": 5,
+                  "headline": "Customer value leadership"
+                }
+              ]
+            },
+            {
+              "coordinate": "Squad.Value",
+              "role": "Squad",
+              "theme": "Value",
+              "groupByLevel": {
+                "1-2": "Output/performance orientation",
+                "3-5": "Outcome/value orientation"
+              },
+              "behaviours": [
+                {
+                  "behaviourId": "Squad_Value_L1",
+                  "level": 1,
+                  "headline": "Delivering output"
+                },
+                {
+                  "behaviourId": "Squad_Value_L2",
+                  "level": 2,
+                  "headline": "Measuring delivery performance"
+                },
+                {
+                  "behaviourId": "Squad_Value_L3",
+                  "level": 3,
+                  "headline": "Delivering meaningful outcomes"
+                },
+                {
+                  "behaviourId": "Squad_Value_L4",
+                  "level": 4,
+                  "headline": "Delivering continuous value"
+                },
+                {
+                  "behaviourId": "Squad_Value_L5",
+                  "level": 5,
+                  "headline": "Frequent value confirmed by users"
+                }
+              ]
+            }
+          ],
+          "supporting": [
+            {
+              "coordinate": "ScrumMaster.Value",
+              "behaviours": [
+                {
+                  "behaviourId": "ScrumMaster_Value_L1",
+                  "level": 1,
+                  "headline": "Focusing on operational delivery"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Value_L2",
+                  "level": 2,
+                  "headline": "Connecting practices to outcomes"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Value_L3",
+                  "level": 3,
+                  "headline": "Enables product value delivery"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Value_L4",
+                  "level": 4,
+                  "headline": "Optimises value flow"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Value_L5",
+                  "level": 5,
+                  "headline": "Improves organisational delivery system"
+                }
+              ]
+            },
+            {
+              "coordinate": "Leader.Value",
+              "behaviours": [
+                {
+                  "behaviourId": "Leader_Value_L1",
+                  "level": 1,
+                  "headline": "Efficiency and control focus"
+                },
+                {
+                  "behaviourId": "Leader_Value_L2",
+                  "level": 2,
+                  "headline": "Delivery performance focus"
+                },
+                {
+                  "behaviourId": "Leader_Value_L3",
+                  "level": 3,
+                  "headline": "Outcome delivery focus"
+                },
+                {
+                  "behaviourId": "Leader_Value_L4",
+                  "level": 4,
+                  "headline": "Value creation focus"
+                },
+                {
+                  "behaviourId": "Leader_Value_L5",
+                  "level": 5,
+                  "headline": "Driving organisational value"
+                }
+              ]
+            },
+            {
+              "coordinate": "Leader.Ownership",
+              "behaviours": [
+                {
+                  "behaviourId": "Leader_Ownership_L1",
+                  "level": 1,
+                  "headline": "Directing the work"
+                },
+                {
+                  "behaviourId": "Leader_Ownership_L2",
+                  "level": 2,
+                  "headline": "Delegates execution"
+                },
+                {
+                  "behaviourId": "Leader_Ownership_L3",
+                  "level": 3,
+                  "headline": "Co-creates plans"
+                },
+                {
+                  "behaviourId": "Leader_Ownership_L4",
+                  "level": 4,
+                  "headline": "Enabling team autonomy"
+                },
+                {
+                  "behaviourId": "Leader_Ownership_L5",
+                  "level": 5,
+                  "headline": "Delegating full value responsibility"
+                }
+              ]
+            },
+            {
+              "coordinate": "Leader.Trust",
+              "behaviours": [
+                {
+                  "behaviourId": "Leader_Trust_L1",
+                  "level": 1,
+                  "headline": "Directive leadership"
+                },
+                {
+                  "behaviourId": "Leader_Trust_L2",
+                  "level": 2,
+                  "headline": "Conditional trust"
+                },
+                {
+                  "behaviourId": "Leader_Trust_L3",
+                  "level": 3,
+                  "headline": "Shared decision making"
+                },
+                {
+                  "behaviourId": "Leader_Trust_L4",
+                  "level": 4,
+                  "headline": "Empowering leadership"
+                },
+                {
+                  "behaviourId": "Leader_Trust_L5",
+                  "level": 5,
+                  "headline": "Servant leadership culture"
+                }
+              ]
+            },
+            {
+              "coordinate": "ScrumMaster.Ownership",
+              "behaviours": [
+                {
+                  "behaviourId": "ScrumMaster_Ownership_L1",
+                  "level": 1,
+                  "headline": "Learning the mechanics"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Ownership_L2",
+                  "level": 2,
+                  "headline": "Guiding team roles"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Ownership_L3",
+                  "level": 3,
+                  "headline": "Encourages team ownership"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Ownership_L4",
+                  "level": 4,
+                  "headline": "Driving the teams success"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Ownership_L5",
+                  "level": 5,
+                  "headline": "Organisational change catalyst"
+                }
+              ]
+            },
+            {
+              "coordinate": "ScrumMaster.Trust",
+              "behaviours": [
+                {
+                  "behaviourId": "ScrumMaster_Trust_L1",
+                  "level": 1,
+                  "headline": "Facilitates process compliance"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Trust_L2",
+                  "level": 2,
+                  "headline": "Supports team confidence"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Trust_L3",
+                  "level": 3,
+                  "headline": "Supporting team autonomy"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Trust_L4",
+                  "level": 4,
+                  "headline": "Enables high trust collaboration"
+                },
+                {
+                  "behaviourId": "ScrumMaster_Trust_L5",
+                  "level": 5,
+                  "headline": "Building organisational trust"
+                }
+              ]
+            }
+          ],
+          "excludedFromPilot": [
+            "ProductOwner.Ownership",
+            "Squad.Ownership",
+            "all other role/theme coordinates",
+            "EngineeringManager perspective"
+          ]
+        },
+        "supportingEvidenceProfiles": [
+          {
+            "coordinate": "ScrumMaster.Value",
+            "principle": "Scrum Master enables or restricts through teaching, facilitating, coaching, and improvement; does not own product value translation.",
+            "contributions": {
+              "DirectionA": {
+                "1": "Supporting",
+                "2": "Qualifying",
+                "3": "Supporting",
+                "4": "Supporting",
+                "5": "Supporting"
+              },
+              "DirectionB": {
+                "1": "Supporting",
+                "2": "Qualifying",
+                "3": "Supporting",
+                "4": "Supporting",
+                "5": "Supporting"
+              }
+            }
+          },
+          {
+            "coordinate": "Leader.Value",
+            "principle": "Leader shapes the environment through direction, expectations, decisions, and empowerment. Value intent does not equal value enablement.",
+            "contributions": {
+              "DirectionA": {
+                "1": "Supporting",
+                "2": "Supporting",
+                "3": "Challenging",
+                "4": "Challenging",
+                "5": "Challenging"
+              },
+              "DirectionB": {
+                "1": "Qualifying",
+                "2": "Qualifying",
+                "3": "Supporting",
+                "4": "Supporting",
+                "5": "Supporting"
+              }
+            }
+          },
+          {
+            "coordinate": "Leader.Ownership",
+            "principle": "Describes where leadership places responsibility and delivery decisions. Delegating execution is not the same as delegating value ownership.",
+            "contributions": {
+              "DirectionA": {
+                "1": "Supporting",
+                "2": "Supporting",
+                "3": "Qualifying",
+                "4": "Challenging",
+                "5": "Challenging"
+              },
+              "DirectionB": {
+                "1": "Qualifying",
+                "2": "Qualifying",
+                "3": "Supporting",
+                "4": "Supporting",
+                "5": "Supporting"
+              }
+            }
+          },
+          {
+            "coordinate": "Leader.Trust",
+            "principle": "Distinguishes formal delegation from the trust/autonomy that makes it meaningful. Ownership describes where responsibility sits; Trust describes whether teams can exercise it.",
+            "contributions": {
+              "DirectionA": {
+                "1": "Supporting",
+                "2": "Supporting",
+                "3": "Qualifying",
+                "4": "Challenging",
+                "5": "Challenging"
+              },
+              "DirectionB": {
+                "1": "Qualifying",
+                "2": "Qualifying",
+                "3": "Supporting",
+                "4": "Supporting",
+                "5": "Supporting"
+              }
+            }
+          },
+          {
+            "coordinate": "ScrumMaster.Ownership",
+            "principle": "Describes whether Scrum Master enables PO/Squad ownership or retains too much ownership/directs team activity.",
+            "contributions": {
+              "DirectionA": {
+                "1": "Supporting",
+                "2": "Qualifying",
+                "3": "Challenging",
+                "4": "Challenging",
+                "5": "Challenging"
+              },
+              "DirectionB": {
+                "1": "Qualifying",
+                "2": "Qualifying",
+                "3": "Neutral",
+                "4": "Neutral",
+                "5": "Qualifying"
+              }
+            }
+          },
+          {
+            "coordinate": "ScrumMaster.Trust",
+            "principle": "Distinguishes ownership from autonomy; describes whether people make decisions and collaborate without intervention.",
+            "contributions": {
+              "DirectionA": {
+                "1": "Supporting",
+                "2": "Qualifying",
+                "3": "Challenging",
+                "4": "Challenging",
+                "5": "Challenging"
+              },
+              "DirectionB": {
+                "1": "Qualifying",
+                "2": "Qualifying",
+                "3": "Neutral",
+                "4": "Qualifying",
+                "5": "Qualifying"
+              }
+            }
+          }
+        ],
+        "contextRelationships": [
+          {
+            "relationshipId": "DelegationWithDirectiveTrust",
+            "when": {
+              "all": [
+                { "hasBehaviour": { "coordinate": "Leader.Ownership", "behaviourIds": ["Leader_Ownership_L4"] } },
+                { "hasBehaviour": { "coordinate": "Leader.Trust", "behaviourIds": ["Leader_Trust_L1"] } }
+              ]
+            },
+            "effect": "ContextOnly",
+            "interpretation": "Responsibility may be delegated while decision control remains centralised; validate the actual decision arrangements."
+          },
+          {
+            "relationshipId": "OwnershipWithProcessCompliance",
+            "when": {
+              "all": [
+                { "hasBehaviour": { "coordinate": "ScrumMaster.Ownership", "behaviourIds": ["ScrumMaster_Ownership_L3"] } },
+                { "hasBehaviour": { "coordinate": "ScrumMaster.Trust", "behaviourIds": ["ScrumMaster_Trust_L1"] } }
+              ]
+            },
+            "effect": "ContextOnly",
+            "interpretation": "Team ownership may be encouraged while process control remains with the Scrum Master; validate the operating arrangements."
+          },
+          {
+            "relationshipId": "ValueIntentWithCentralDirection",
+            "when": {
+              "all": [
+                { "hasBehaviour": { "coordinate": "Leader.Value", "behaviourIds": ["Leader_Value_L4", "Leader_Value_L5"] } },
+                { "hasBehaviour": { "coordinate": "Leader.Ownership", "behaviourIds": ["Leader_Ownership_L1", "Leader_Ownership_L2"] } },
+                { "hasBehaviour": { "coordinate": "Leader.Trust", "behaviourIds": ["Leader_Trust_L1", "Leader_Trust_L2"] } }
+              ]
+            },
+            "effect": "ContextOnly",
+            "interpretation": "Value-oriented leadership intent may coexist with centralised direction; validate the actual decision arrangements."
+          },
+          {
+            "relationshipId": "ValueImprovementWithOperationalDirection",
+            "when": {
+              "all": [
+                { "hasBehaviour": { "coordinate": "ScrumMaster.Value", "behaviourIds": ["ScrumMaster_Value_L3", "ScrumMaster_Value_L4", "ScrumMaster_Value_L5"] } },
+                { "hasBehaviour": { "coordinate": "ScrumMaster.Ownership", "behaviourIds": ["ScrumMaster_Ownership_L1", "ScrumMaster_Ownership_L2"] } },
+                { "hasBehaviour": { "coordinate": "ScrumMaster.Trust", "behaviourIds": ["ScrumMaster_Trust_L1", "ScrumMaster_Trust_L2"] } }
+              ]
+            },
+            "effect": "ContextOnly",
+            "interpretation": "Value-oriented improvement may coexist with continued operational direction; validate the operating arrangements."
+          }
+        ],
+        "executionPolicy": {
+          "evidenceSource": "SelectedBehaviours",
+          "contextEvaluation": "OnCoreMatch",
+          "contextEffect": "AddWithoutReplacingContributions",
+          "missingCore": "Unknown",
+          "unavailableCore": "Unavailable",
+          "nonMatchingCore": "NoMatch",
+          "matchedCore": "Candidate",
+          "neutralPresentation": "TraceOnly",
+          "strength": "NotAssessed",
+          "reliability": "NotAssessed",
+          "confidence": "NotAssessed",
+          "priority": "NotAssessed"
+        },
+        "evidenceSemantics": {
+          "classifications": [
+            "Supporting",
+            "Challenging",
+            "Qualifying",
+            "Neutral",
+            "Missing",
+            "NotEvaluated",
+            "Unknown"
+          ],
+          "neutral": "Retain in trace; do not present as support or challenge.",
+          "missing": "Relevant evidence with no valid selection; not neutral, negative, or evidence of absent behaviour.",
+          "notEvaluated": "Outside scope, skipped, or not evaluated; do not conflate with missing.",
+          "unknown": "A conditional contribution cannot be determined because an input is missing or unavailable; do not treat as false.",
+          "dependencyAndDoubleCounting": "Retain dependencies between evidence and derived relationships. A core behaviour reused in a relationship is not independent corroboration.",
+          "supportingEvidenceConstraint": "Supporting evidence cannot establish, remove, or invalidate BF01."
+        },
+        "assessmentSeparation": {
+          "insightValidity": "Determined by the mandatory core ProductOwner.Value/Squad.Value relationship.",
+          "evidenceStrength": "Describes available relevant support and challenge, and completeness/limitations of the evidence.",
+          "signalReliability": "Describes dependability of the underlying assessment evidence and provenance.",
+          "insightConfidence": "Describes how justified the interpretation is considering evidence and limitations.",
+          "priority": "Describes importance or urgency; supporting evidence may provide context for prioritisation.",
+          "scoringPolicy": "Not defined. No numerical weights, thresholds, confidence scores, or priority formulas are approved."
+        },
+        "newInsightCandidates": [
+          {
+            "candidateId": "NIC01",
+            "name": "Shared low value orientation",
+            "situation": "ProductOwner.Value L1-L2 and Squad.Value L1-L2.",
+            "potentialInterpretations": [
+              "Low explicit value maturity",
+              "Output-driven delivery",
+              "Delivery-factory risk"
+            ],
+            "status": "CandidateOnly",
+            "notPartOf": "BF01"
+          },
+          {
+            "candidateId": "NIC02",
+            "name": "Value Alignment",
+            "situation": "ProductOwner.Value L3-L5 and Squad.Value L3-L5.",
+            "potentialInterpretation": "Potential positive counterpart requiring independent detection rules and evidence policy.",
+            "status": "CandidateOnly",
+            "notPartOf": "BF01"
+          },
+          {
+            "candidateId": "NIC03",
+            "name": "Centralised decision-making / controlling leadership",
+            "situation": "Potential combinations of low Leader.Ownership and low Leader.Trust.",
+            "status": "CandidateOnly",
+            "notPartOf": "BF01"
+          },
+          {
+            "candidateId": "NIC04",
+            "name": "Control despite delegated responsibility",
+            "situation": "Potential combination of higher Leader.Ownership delegation and low Leader.Trust.",
+            "status": "CandidateOnly",
+            "notPartOf": "BF01"
+          },
+          {
+            "candidateId": "NIC05",
+            "name": "Scrum Master role-boundary interference",
+            "situation": "Potential combinations where Scrum Master retains or directs operational ownership.",
+            "status": "CandidateOnly",
+            "notPartOf": "BF01"
+          },
+          {
+            "candidateId": "NIC06",
+            "name": "Scrum Master operational bottleneck",
+            "situation": "Potential combinations of lower ScrumMaster.Ownership and lower ScrumMaster.Trust.",
+            "status": "CandidateOnly",
+            "notPartOf": "BF01"
+          }
+        ],
+        "implementationBoundaries": [
+          "Maturity Assessment only; no cross-diagnostic evidence.",
+          "Do not alter the existing numeric Maturity pipeline or Backlog Health processing.",
+          "The independently testable semantic evaluator records its own evaluation trace; the Diagnostics Console does not yet display it.",
+          "The maturity-semantic-v1-draft contract is evaluated independently of the existing numeric pipeline.",
+          "No new results page or Operational MRI insight is included in the initial pilot."
+        ],
+        "unresolvedItems": [
+          "Refine the pilot evaluator and definitions as additional patterns are reviewed.",
+          "Define immutable rule and catalogue version retention and historical replay.",
+          "Evidence sufficiency policy, if one is required beyond the mandatory core relationship.",
+          "Confidence and priority assessment policies.",
+          "Whether Value Alignment and the other insight candidates should be developed as independent patterns."
+        ]
+      }
+    },
+    {
+      "ruleId": "BF02-R01",
+      "patternId": "BF02",
+      "patternName": "Accountability Without Authority",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Trust_L1",
+        "Squad_Ownership_L4",
+        "Leader_Ownership_L2",
+        "Squad_Ownership_L3",
+        "Leader_Trust_L2",
+        "Squad_Trust_L4",
+        "Squad_Trust_L5",
+        "Leader_Ownership_L1"
+      ],
+      "sourceEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery. Leader Ownership: Directing Work; Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation.",
+      "relatedEvidence": "Squad Trust: Strong Team Trust; Deep Mutual Trust.",
+      "relationshipLogic": "The Squad's selected behaviours suggest responsibility for outcomes or delivery, while Leader behaviours may indicate that important direction or decision authority remains with leadership. This may create a mismatch between accountability and the authority available to exercise it.",
+      "supportingEvidence": "Squad Ownership: Team Drives Delivery; Squad Trust: Strong Team Trust; Leader Ownership: Directing Work.",
+      "contradictoryEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership or System-Level Trust.",
+      "exclusions": "Do not assume that accountability is unsupported solely because a Leader selects Directing Work. Some decisions may appropriately remain with leadership.",
+      "evidenceSufficiency": "Moderate when Squad outcome ownership is paired with Leader direction/control evidence. Stronger when Leader Trust also indicates limited delegation and no meaningful autonomy evidence qualifies it.",
+      "testScenario": "Squad selected Team Owns Outcomes; Leader selected Directing Work and Control-Based Leadership. Contrast with Leader selected Enabling Team Autonomy.",
+      "expectedInterpretation": "Possible tension between the Squad's responsibility for outcomes and its reported scope to make decisions. Validate whether the Squad has the authority it needs to fulfil its accountability.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF03-R01",
+      "patternId": "BF03",
+      "patternName": "Delegation Without Confidence",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Trust_L1",
+        "Squad_Ownership_L4",
+        "Leader_Ownership_L2",
+        "Squad_Ownership_L3",
+        "Leader_Trust_L2",
+        "Squad_Trust_L4",
+        "Squad_Trust_L5"
+      ],
+      "sourceEvidence": "Leader Ownership: Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation. Squad Ownership: Team Owns Outcomes; Team Drives Delivery.",
+      "relatedEvidence": "Squad Trust: Strong Team Trust; Deep Mutual Trust.",
+      "relationshipLogic": "Leader behaviours may suggest that execution is delegated while trust-related behaviours indicate that decision-making or autonomy remains constrained. Squad outcome ownership may add to the possibility that responsibility and confidence are not aligned.",
+      "supportingEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery. Leader Ownership: Delegating Execution.",
+      "contradictoryEvidence": "Leader Trust: Empowering Leadership; System-Level Trust. Leader Ownership: Enabling Team Autonomy.",
+      "exclusions": "Do not infer a Leader's lack of confidence or motivation. Delegating execution does not itself prove that confidence is absent.",
+      "evidenceSufficiency": "Emerging if delegation and control indicators coexist. Moderate only when the relationship is supported by Squad responsibility and not materially contradicted by empowering leadership behaviours.",
+      "testScenario": "Leader selected Delegating Execution and Limited Delegation; Squad selected Team Drives Delivery. Contrast with Leader selected Empowering Leadership.",
+      "expectedInterpretation": "Possible gap between delegating work and enabling the autonomy to make decisions about that work. Ask whether the Squad has room to determine how delivery is achieved.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF04-R01",
+      "patternId": "BF04",
+      "patternName": "Product Authority Without Stakeholder Confidence",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ProductOwner_System_L3",
+        "ProductOwner_Trust_L1",
+        "ProductOwner_Trust_L2",
+        "ProductOwner_Value_L3",
+        "ProductOwner_Value_L4",
+        "ProductOwner_System_L4",
+        "ProductOwner_Ownership_L4",
+        "ProductOwner_Ownership_L3"
+      ],
+      "sourceEvidence": "PO Ownership: Owning Value Delivery; Leading the Value Chain. PO Trust: Executing Stakeholder Decisions; Building Stakeholder Confidence. PO System: Collaborating Across the Value Chain; Leading Product Ecosystems.",
+      "relatedEvidence": "PO Value: Focusing on Value Delivery; Optimising the Value Chain.",
+      "relationshipLogic": "PO behaviours may indicate responsibility for product value or value-chain leadership alongside behaviours that suggest reliance on stakeholder decisions or a need to build stakeholder confidence. This may point to a tension between product accountability and perceived authority.",
+      "supportingEvidence": "PO Ownership: Leading the Value Chain; PO System: Collaborating Across the Value Chain.",
+      "contradictoryEvidence": "PO Trust: Trusted Product Authority; Trusted Strategic Partner.",
+      "exclusions": "Do not equate stakeholder collaboration with lack of confidence. Do not assume stakeholders are undermining the Product Owner.",
+      "evidenceSufficiency": "Moderate only when product accountability/leadership and stakeholder-dependence evidence are both present. Stronger if related PO behaviours reinforce the same tension.",
+      "testScenario": "PO selected Leading the Value Chain and Executing Stakeholder Decisions. Contrast with Trusted Product Authority.",
+      "expectedInterpretation": "Possible tension between the Product Owner's product accountability and the degree of authority or stakeholder confidence available to exercise it. Validate whether product decisions can be made at the appropriate level.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF05-R01",
+      "patternId": "BF05",
+      "patternName": "Coaching and Team Behaviour Misalignment",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ScrumMaster_Trust_L4",
+        "Squad_Ownership_L2",
+        "ScrumMaster_Ownership_L3",
+        "Squad_Ownership_L1",
+        "ScrumMaster_Trust_L3",
+        "Squad_Trust_L2",
+        "ScrumMaster_Ownership_L4",
+        "Squad_Trust_L1",
+        "Squad_Learning_L2",
+        "Squad_Learning_L3"
+      ],
+      "sourceEvidence": "SM Ownership: Encouraging Team Ownership; Driving Team Success. SM Trust: Supporting Team Autonomy; Enabling High Trust Collaboration. Squad Ownership: Individual Task Ownership; Shared Responsibility Emerging. Squad Trust: Avoiding Conflict; Exploring Differences.",
+      "relatedEvidence": "Squad Learning: Sharing Knowledge; Seeking Feedback.",
+      "relationshipLogic": "Scrum Master behaviours may indicate an emphasis on ownership, autonomy, or collaboration, while Squad behaviours may suggest that shared ownership or open dialogue is still developing. This may indicate a difference between the conditions being encouraged and the team's current operating behaviours.",
+      "supportingEvidence": "SM Learning: Guiding Team Learning; Encouraging Continuous Improvement.",
+      "contradictoryEvidence": "Squad Ownership: Team Owns Outcomes; Squad Trust: Open Team Dialogue; Strong Team Trust.",
+      "exclusions": "Do not infer ineffective coaching or attribute the Squad's current behaviours to the Scrum Master. The selections may reflect a development stage, context, or constraints outside the Scrum Master's influence.",
+      "evidenceSufficiency": "Moderate when SM behaviours supporting autonomy/coaching are paired with Squad behaviours indicating emerging shared ownership or conflict avoidance. Supporting evidence from Learning can strengthen but is not mandatory.",
+      "testScenario": "SM selected Supporting Team Autonomy; Squad selected Individual Task Ownership and Avoiding Conflict. Contrast with Squad selected Team Owns Outcomes and Open Team Dialogue.",
+      "expectedInterpretation": "Possible gap between the collaborative conditions being supported and the team's current experience of shared ownership or dialogue. Ask whether the team is ready and able to operate in the way the Scrum Master is encouraging.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF06-R01",
+      "patternId": "BF06",
+      "patternName": "Improvement Without Permission",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ScrumMaster_Learning_L3",
+        "Leader_Learning_L2",
+        "Leader_Learning_L1",
+        "ScrumMaster_Learning_L4",
+        "Leader_Trust_L1",
+        "Squad_Learning_L4",
+        "Leader_Ownership_L4",
+        "Squad_Ownership_L4",
+        "Squad_Learning_L5",
+        "Leader_Trust_L2"
+      ],
+      "sourceEvidence": "Squad Learning: Continuous Improvement; Collective Mastery. SM Learning: Encouraging Continuous Improvement; Enabling System Learning. Leader Learning: Enforcing Standard Practices; Improving Execution Practices. Leader Trust: Control-Based Leadership; Limited Delegation.",
+      "relatedEvidence": "Squad Ownership: Team Drives Delivery; Leader Ownership: Enabling Team Autonomy.",
+      "relationshipLogic": "Squad or Scrum Master behaviours may indicate an improvement orientation, while Leader Learning or Trust behaviours may indicate stronger emphasis on standardisation, control, or limited delegation. This may make it harder for teams to act on improvement opportunities independently.",
+      "supportingEvidence": "SM Learning: Enabling System Learning; Leader Learning: Supporting Team Learning; Cultivating Learning Culture.",
+      "contradictoryEvidence": "Leader Trust: Empowering Leadership; System-Level Trust. Leader Ownership: Enabling Team Autonomy.",
+      "exclusions": "Do not treat standards or compliance as inherently restrictive. Do not infer that improvement is being blocked without evidence of a practical constraint.",
+      "evidenceSufficiency": "Moderate when improvement-oriented behaviours coexist with leadership control/standardisation evidence. Stronger when autonomy-related evidence also suggests limited room to act.",
+      "testScenario": "Squad selected Continuous Improvement; Leader selected Enforcing Standard Practices and Control-Based Leadership. Contrast with Leader selected Cultivating Learning Culture and Empowering Leadership.",
+      "expectedInterpretation": "Possible tension between the desire to improve and the degree of discretion teams have to change how work is done. Validate whether improvement ideas can be trialled and adopted.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF07-R01",
+      "patternId": "BF07",
+      "patternName": "Customer Value Disconnect",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Squad_Value_L5",
+        "ProductOwner_Value_L1",
+        "ProductOwner_Learning_L2",
+        "ProductOwner_Value_L2",
+        "ProductOwner_Learning_L1",
+        "ProductOwner_Learning_L4",
+        "ProductOwner_Value_L3",
+        "ProductOwner_Learning_L5",
+        "Squad_Learning_L4",
+        "Squad_Learning_L3"
+      ],
+      "sourceEvidence": "Squad Value: Delivering Customer-Validated Value. Squad Learning: Seeking Feedback; Continuous Improvement. PO Value: Capturing Stakeholder Requirements; Managing the Product Backlog. PO Learning: Developing Product Knowledge; Improving Backlog Understanding.",
+      "relatedEvidence": "PO Learning: Developing Customer Insight; Mastering Product Strategy. PO Value: Focusing on Value Delivery.",
+      "relationshipLogic": "Squad behaviours may indicate customer validation and feedback-led delivery, while PO behaviours may indicate a stronger emphasis on requirements capture or backlog management. This may suggest a possible disconnect in how customer learning informs product direction and prioritisation.",
+      "supportingEvidence": "PO Learning: Developing Customer Insight; Mastering Product Strategy. PO Value: Focusing on Value Delivery; Optimising the Value Chain.",
+      "contradictoryEvidence": "Do not infer that the Product Owner lacks customer insight or that requirements capture is not customer-informed. The assessment may not capture the full research and feedback process.",
+      "exclusions": "Emerging when Squad customer-validation behaviours are paired with PO requirements/backlog-focused behaviours. Moderate only when related PO Learning/Value evidence supports a possible gap.",
+      "evidenceSufficiency": "Squad selected Delivering Customer-Validated Value and Seeking Feedback; PO selected Capturing Stakeholder Requirements and Developing Product Knowledge. Contrast with PO selected Developing Customer Insight.",
+      "testScenario": "Possible difference in how customer feedback is connected to product understanding and backlog decisions. Ask whether learning from customers consistently informs what the product prioritises.",
+      "expectedInterpretation": "Proposed",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF08-R01",
+      "patternId": "BF08",
+      "patternName": "System Collaboration Versus Organisational Boundaries",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_System_L2",
+        "ScrumMaster_System_L4",
+        "ScrumMaster_System_L5",
+        "Squad_System_L5",
+        "Squad_System_L4",
+        "Leader_System_L1",
+        "ScrumMaster_System_L3"
+      ],
+      "sourceEvidence": "Squad System: Collaborating Across Teams; Operating as a Delivery System. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+      "relatedEvidence": "SM System: Improving Value Flow; Facilitating System Collaboration; Enabling Organisational Agility.",
+      "relationshipLogic": "Squad behaviours may indicate cross-team or system-level collaboration, while Leader behaviours may indicate an operating approach centred on structure and coordination. This may suggest friction between the collaboration teams need and the boundaries through which the organisation is managed.",
+      "supportingEvidence": "SM System: Facilitating System Collaboration; Improving Value Flow.",
+      "contradictoryEvidence": "Leader System: Enabling Organisational Systems; Leading System Evolution. SM System: Enabling Organisational Agility.",
+      "exclusions": "Do not assume organisational structure is a barrier. Structure and coordination may actively enable collaboration in the user's context.",
+      "evidenceSufficiency": "Moderate when Squad cross-team collaboration is paired with Leader structure/coordination behaviours. Supporting SM system-collaboration evidence increases confidence; system-enabling Leader behaviours qualify it.",
+      "testScenario": "Squad selected Collaborating Across Teams; Leader selected Managing Through Structure. Contrast with Leader selected Enabling Organisational Systems.",
+      "expectedInterpretation": "Possible tension between cross-team ways of working and the structures used to coordinate organisational execution. Validate whether those structures help or hinder the collaboration required.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "BF09-R01",
+      "patternId": "BF09",
+      "patternName": "Strategic Product Direction Versus Delivery Reality",
+      "category": "BehaviouralFriction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ProductOwner_Value_L5",
+        "Squad_System_L3",
+        "Squad_Value_L2",
+        "Squad_Value_L3",
+        "Squad_System_L1",
+        "Squad_System_L2",
+        "ProductOwner_Value_L4",
+        "ProductOwner_System_L4",
+        "Squad_System_L4",
+        "ProductOwner_System_L5",
+        "Squad_Value_L1"
+      ],
+      "sourceEvidence": "PO System: Leading Product Ecosystems; Shaping Product Strategy. PO Value: Optimising the Value Chain; Optimising Product Portfolio Value. Squad System: Working Within Team Boundaries; Developing Shared Standards. Squad Value: Delivering Output; Measuring Delivery Performance.",
+      "relatedEvidence": "Squad System: Collaborating with Stakeholders; Collaborating Across Teams. Squad Value: Delivering Meaningful Outcomes.",
+      "relationshipLogic": "PO behaviours may indicate strategic product or ecosystem direction, while Squad behaviours may indicate a more bounded or output-oriented delivery focus. This may suggest that strategic direction is not yet translating into the Squad's day-to-day delivery context.",
+      "supportingEvidence": "PO Ownership: Leading the Value Chain; Squad System: Collaborating with Stakeholders.",
+      "contradictoryEvidence": "Squad Value: Delivering Meaningful Outcomes; Delivering Continuous Value; Squad System: Collaborating Across Teams; Operating as a Delivery System.",
+      "exclusions": "Do not assume the Squad should own product strategy. A bounded delivery focus may be appropriate where strategy is translated clearly elsewhere.",
+      "evidenceSufficiency": "Moderate when strategic PO behaviours coexist with bounded/output-oriented Squad behaviours. Supporting evidence should indicate whether the connection between strategy and delivery is visible.",
+      "testScenario": "PO selected Shaping Product Strategy and Optimising Product Portfolio Value; Squad selected Working Within Team Boundaries and Delivering Output. Contrast with Squad selected Delivering Meaningful Outcomes.",
+      "expectedInterpretation": "Possible gap between strategic product direction and the context the Squad uses to organise delivery. Ask whether the Squad can explain how its work contributes to the broader product direction.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "EM01-R01",
+      "patternId": "EM01",
+      "patternName": "Expectation Projection — Product direction and Squad autonomy",
+      "category": "ExpectationMisalignment",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Squad_Ownership_L2",
+        "Squad_Value_L2",
+        "ProductOwner_Value_L4",
+        "Squad_Ownership_L1",
+        "ProductOwner_Ownership_L4",
+        "Squad_Value_L1"
+      ],
+      "sourceEvidence": "PO Ownership: Leading the Value Chain. Squad Ownership: Individual Task Ownership; Shared Responsibility Emerging.",
+      "relatedEvidence": "PO Value: Optimising the Value Chain. Squad Value: Delivering Output; Measuring Delivery Performance.",
+      "relationshipLogic": "The PO's selected behaviours may imply an expectation that broader product direction is translated into delivery goals and increments by the Squad, while Squad behaviours may suggest reliance on more explicit direction or individually defined work. This difference may create uncertainty about who shapes next steps.",
+      "supportingEvidence": "PO Ownership: Owning Value Delivery; Squad Ownership: Shared Responsibility Emerging.",
+      "contradictoryEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery. Squad Value: Delivering Meaningful Outcomes.",
+      "exclusions": "Do not state that the PO definitely expects independent planning. The expectation is inferred from the relationship and must be validated. Do not assume the Squad lacks capability.",
+      "evidenceSufficiency": "Moderate when PO value-chain ownership is paired with Squad task-focused ownership. Stronger when PO Value also indicates value-chain optimisation and Squad Value indicates output focus.",
+      "testScenario": "PO selected Leading the Value Chain; Squad selected Individual Task Ownership. Ask whether the PO assumes the Squad will shape delivery goals without further direction.",
+      "expectedInterpretation": "Possible difference in assumptions about who translates product direction into delivery goals. Invite validation and, if recognised, clarify what direction the PO provides and what the Squad shapes independently.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "EM01-R02",
+      "patternId": "EM01",
+      "patternName": "Expectation Projection — Autonomy enablement and team ownership",
+      "category": "ExpectationMisalignment",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Squad_Ownership_L1",
+        "Leader_Ownership_L4",
+        "Leader_Trust_L4",
+        "Squad_Trust_L3",
+        "Leader_Trust_L5",
+        "Squad_Trust_L4"
+      ],
+      "sourceEvidence": "Leader Ownership: Enabling Team Autonomy. Squad Ownership: Individual Task Ownership.",
+      "relatedEvidence": "Leader Trust: Empowering Leadership; System-Level Trust. Squad Trust: Open Team Dialogue; Strong Team Trust.",
+      "relationshipLogic": "Leader behaviours may imply an expectation that the Squad will operate autonomously, while Squad behaviours may indicate that ownership is still expressed at an individual task level. This may create a difference between the autonomy leadership believes is available and how the Squad currently organises work.",
+      "supportingEvidence": "Leader Trust: Empowering Leadership; Leader Ownership: Delegating Execution.",
+      "contradictoryEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery. Squad Trust: Strong Team Trust.",
+      "exclusions": "Do not assume the Leader has communicated expectations clearly or that the Squad is unwilling to take ownership.",
+      "evidenceSufficiency": "Emerging when Leader autonomy-enabling behaviours are paired with individual task ownership. Moderate when additional Squad evidence indicates limited shared responsibility.",
+      "testScenario": "Leader selected Enabling Team Autonomy; Squad selected Individual Task Ownership. Contrast with Squad selected Team Drives Delivery.",
+      "expectedInterpretation": "Possible mismatch between the autonomy leadership believes it is enabling and the way the Squad currently experiences or exercises ownership. Validate whether decision boundaries and expectations are explicit.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "EM02-R01",
+      "patternId": "EM02",
+      "patternName": "Direction and Autonomy Mismatch — Leadership direction versus team autonomy",
+      "category": "ExpectationMisalignment",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Trust_L1",
+        "Squad_Ownership_L4",
+        "Squad_Trust_L4",
+        "Squad_Trust_L5",
+        "Leader_Ownership_L1"
+      ],
+      "sourceEvidence": "Leader Ownership: Directing Work. Leader Trust: Control-Based Leadership. Squad Ownership: Team Drives Delivery.",
+      "relatedEvidence": "Squad Trust: Strong Team Trust; Deep Mutual Trust.",
+      "relationshipLogic": "Leader behaviours may indicate a preference for explicit direction or control, while Squad behaviours may indicate an ability or desire to drive delivery. This may create friction around who determines how work is organised and decisions are made.",
+      "supportingEvidence": "Squad Ownership: Team Owns Outcomes; Squad Trust: Open Team Dialogue.",
+      "contradictoryEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership or System-Level Trust.",
+      "exclusions": "Do not assume all direction is unwanted or inappropriate. Some delivery contexts require explicit constraints or decisions.",
+      "evidenceSufficiency": "Moderate when Leader direction/control and Squad delivery ownership coexist. Stronger when Squad trust evidence supports autonomous collaboration and there is limited counter-evidence.",
+      "testScenario": "Leader selected Directing Work and Control-Based Leadership; Squad selected Team Drives Delivery. Reverse the pattern in a test where Leader enables autonomy and Squad remains task-focused.",
+      "expectedInterpretation": "Possible difference in the amount of direction the Leader provides and the autonomy the Squad needs or expects. Validate where decision-making authority should sit.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "EM02-R02",
+      "patternId": "EM02",
+      "patternName": "Direction and Autonomy Mismatch — Autonomy support versus task-level ownership",
+      "category": "ExpectationMisalignment",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ScrumMaster_Ownership_L3",
+        "Squad_Ownership_L1",
+        "ScrumMaster_Trust_L3",
+        "Squad_Trust_L3"
+      ],
+      "sourceEvidence": "SM Trust: Supporting Team Autonomy. Squad Ownership: Individual Task Ownership.",
+      "relatedEvidence": "SM Ownership: Encouraging Team Ownership; Squad Trust: Open Team Dialogue.",
+      "relationshipLogic": "SM behaviours may indicate support for team autonomy, while Squad Ownership may suggest that work is still organised around individual tasks rather than shared delivery responsibility. This may indicate a difference between the autonomy being encouraged and the team's current operating approach.",
+      "supportingEvidence": "SM Ownership: Encouraging Team Ownership; SM Learning: Guiding Team Learning.",
+      "contradictoryEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery.",
+      "exclusions": "Do not infer that the Scrum Master is expecting a specific level of autonomy unless validated. The Squad may be at an earlier stage of developing shared ownership.",
+      "evidenceSufficiency": "Emerging when autonomy-supporting SM Trust is paired with individual task ownership. Moderate when related SM Ownership evidence supports the autonomy emphasis.",
+      "testScenario": "SM selected Supporting Team Autonomy and Encouraging Team Ownership; Squad selected Individual Task Ownership. Contrast with Squad selected Shared Responsibility Emerging.",
+      "expectedInterpretation": "Possible gap between the autonomy the Scrum Master is supporting and the Squad's current way of organising responsibility. Validate whether the team needs clearer support, expectations, or opportunities to build shared ownership.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "CC01-R01",
+      "patternId": "CC01",
+      "patternName": "Team Capability Constrained by Leadership",
+      "category": "CapabilityConstraint",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Squad_Ownership_L5",
+        "Leader_Trust_L1",
+        "Leader_Ownership_L4",
+        "Leader_Trust_L4",
+        "Squad_Ownership_L4",
+        "Leader_Ownership_L2",
+        "Squad_Ownership_L3",
+        "Leader_Trust_L2",
+        "Squad_Trust_L4",
+        "Squad_Trust_L5",
+        "Leader_Ownership_L1"
+      ],
+      "sourceEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery; Team Leads Value Creation. Squad Trust: Strong Team Trust; Deep Mutual Trust. Leader Ownership: Directing Work; Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation.",
+      "relatedEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership.",
+      "relationshipLogic": "Squad behaviours may indicate capability or readiness to own outcomes, while Leader behaviours may suggest that direction and decision authority remain more centralised. This may constrain the extent to which the Squad can apply its capability.",
+      "supportingEvidence": "Squad Trust: Strong Team Trust; Squad Learning: Continuous Improvement.",
+      "contradictoryEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership; System-Level Trust.",
+      "exclusions": "Do not infer that leadership is the sole cause of capability constraints. External dependencies, role clarity, risk, or organisational controls may explain the operating conditions.",
+      "evidenceSufficiency": "Moderate when strong Squad ownership/trust behaviours coexist with Leader direction/control behaviours. Stronger when multiple Leader indicators align and autonomy evidence is limited.",
+      "testScenario": "Squad selected Team Drives Delivery and Strong Team Trust; Leader selected Directing Work and Limited Delegation. Ask whether the team has room to use its capability.",
+      "expectedInterpretation": "Possible constraint between the Squad's reported capability and the authority or discretion available to apply it. Validate whether leadership decisions or boundaries limit team ownership.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "CC02-R01",
+      "patternId": "CC02",
+      "patternName": "Product Leadership Without Organisational Alignment",
+      "category": "CapabilityConstraint",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_System_L2",
+        "Leader_Value_L1",
+        "ProductOwner_Value_L5",
+        "Leader_Value_L3",
+        "Leader_Value_L2",
+        "ProductOwner_Ownership_L5",
+        "Leader_System_L3",
+        "ProductOwner_Value_L4",
+        "Leader_System_L1",
+        "ProductOwner_Ownership_L4",
+        "Leader_Value_L4"
+      ],
+      "sourceEvidence": "PO Ownership: Leading the Value Chain; Owning Product Portfolio Value. PO Value: Optimising the Value Chain; Optimising Product Portfolio Value. Leader Value: Measuring Success Through Efficiency; Monitoring Delivery Performance. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+      "relatedEvidence": "Leader Value: Supporting Outcome-Based Delivery; Enabling Value Creation. Leader System: Aligning Organisational Goals.",
+      "relationshipLogic": "PO behaviours may indicate product or portfolio value leadership, while Leader behaviours may indicate a stronger focus on efficiency, performance monitoring, or structural coordination. This may suggest that product leadership and organisational priorities are not fully aligned.",
+      "supportingEvidence": "PO System: Shaping Product Strategy; Leader System: Aligning Organisational Goals; Leader Value: Supporting Outcome-Based Delivery.",
+      "contradictoryEvidence": "Leader Value: Enabling Value Creation; Driving Organisational Value. Leader System: Enabling Organisational Systems.",
+      "exclusions": "Do not treat efficiency or performance management as incompatible with product value. Do not infer misalignment merely because roles operate at different levels.",
+      "evidenceSufficiency": "Emerging when strategic PO behaviours coexist with efficiency/coordination-focused Leader behaviours. Moderate only where evidence suggests a meaningful difference in the outcomes being optimised.",
+      "testScenario": "PO selected Optimising Product Portfolio Value; Leader selected Measuring Success Through Efficiency and Managing Through Structure. Contrast with Leader selected Supporting Outcome-Based Delivery.",
+      "expectedInterpretation": "Possible difference between product-level value priorities and the organisational measures or coordination mechanisms guiding execution. Validate whether priorities and success measures reinforce one another.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "CC03-R01",
+      "patternId": "CC03",
+      "patternName": "Organisational Learning Bottleneck",
+      "category": "CapabilityConstraint",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ScrumMaster_Learning_L5",
+        "Leader_Learning_L4",
+        "Leader_Learning_L2",
+        "Leader_Learning_L1",
+        "Leader_Learning_L5",
+        "ScrumMaster_Learning_L4",
+        "Leader_Learning_L3",
+        "Squad_Learning_L4",
+        "Squad_Learning_L5"
+      ],
+      "sourceEvidence": "Squad Learning: Continuous Improvement; Collective Mastery. SM Learning: Enabling System Learning; Driving Organisational Learning. Leader Learning: Enforcing Standard Practices; Improving Execution Practices.",
+      "relatedEvidence": "Leader Learning: Supporting Team Learning; Enabling Organisational Growth; Cultivating Learning Culture.",
+      "relationshipLogic": "Squad learning behaviours may be stronger or more continuous than the learning behaviours selected for Scrum Master or Leader roles. This may suggest that learning is occurring locally but is not consistently enabled or spread through the wider system.",
+      "supportingEvidence": "SM Learning: Enabling System Learning; Driving Organisational Learning.",
+      "contradictoryEvidence": "Leader Learning: Supporting Team Learning; Enabling Organisational Growth; Cultivating Learning Culture.",
+      "exclusions": "Do not require two Leader Learning selections; only one behaviour can be selected for a perspective/theme. Do not assume local learning is not shared unless validated.",
+      "evidenceSufficiency": "Moderate when Squad Learning indicates continuous improvement and Leader Learning indicates standardisation or execution-focused improvement, with limited system-learning evidence.",
+      "testScenario": "Squad selected Continuous Improvement; Leader selected Improving Execution Practices. Contrast with Leader selected Cultivating Learning Culture.",
+      "expectedInterpretation": "Possible gap between learning within the team and learning that is enabled, shared, or embedded across the organisation. Validate whether improvements and lessons travel beyond the Squad.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "CC04-R01",
+      "patternId": "CC04",
+      "patternName": "Cross-Team Capability Without System Enablement",
+      "category": "CapabilityConstraint",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_System_L2",
+        "ScrumMaster_System_L4",
+        "ScrumMaster_System_L5",
+        "Leader_System_L4",
+        "Squad_System_L5",
+        "Squad_System_L4",
+        "Leader_System_L1",
+        "Leader_System_L5",
+        "ScrumMaster_System_L3"
+      ],
+      "sourceEvidence": "Squad System: Collaborating Across Teams; Operating as a Delivery System. SM System: Improving Value Flow; Facilitating System Collaboration. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+      "relatedEvidence": "SM System: Enabling Organisational Agility. Leader System: Enabling Organisational Systems; Leading System Evolution.",
+      "relationshipLogic": "Squad and Scrum Master behaviours may indicate cross-team or system-level capability, while Leader System behaviours may indicate a focus on structure and coordination rather than enabling the wider system. This may suggest that cross-team capability is not fully supported by organisational mechanisms.",
+      "supportingEvidence": "SM System: Facilitating System Collaboration; Improving Value Flow.",
+      "contradictoryEvidence": "Leader System: Enabling Organisational Systems; Leading System Evolution.",
+      "exclusions": "Do not assume structure and coordination prevent collaboration. They may be the mechanisms through which system capability is enabled.",
+      "evidenceSufficiency": "Moderate when Squad/SM system collaboration is paired with Leader structure/coordination behaviours. Stronger if Leader system-enablement behaviours are absent and no other evidence qualifies the interpretation.",
+      "testScenario": "Squad selected Collaborating Across Teams; SM selected Facilitating System Collaboration; Leader selected Managing Through Structure. Contrast with Leader selected Enabling Organisational Systems.",
+      "expectedInterpretation": "Possible gap between the collaboration capability present in delivery roles and the organisational support available to sustain it. Validate whether structures, decision rights, and dependencies enable cross-team work.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "SC01-R01",
+      "patternId": "SC01",
+      "patternName": "Outcome Ambition, Output Control",
+      "category": "SystemicContradiction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Value_L3",
+        "Squad_Value_L3",
+        "Leader_Value_L5",
+        "Squad_Value_L4",
+        "Leader_Trust_L1",
+        "Leader_Value_L4",
+        "Leader_Ownership_L2",
+        "Leader_Trust_L2",
+        "Leader_Ownership_L1"
+      ],
+      "sourceEvidence": "Leader Value: Supporting Outcome-Based Delivery; Enabling Value Creation; Driving Organisational Value. Leader Ownership: Directing Work; Delegating Execution. Leader Trust: Control-Based Leadership; Limited Delegation.",
+      "relatedEvidence": "Squad Value: Delivering Meaningful Outcomes; Delivering Continuous Value.",
+      "relationshipLogic": "Leader Value behaviours may indicate an ambition for outcome-based delivery, while Leader Ownership or Trust behaviours may indicate direction and control over execution. This may create a contradiction between the outcomes leadership wants and the operating conditions it reinforces.",
+      "supportingEvidence": "Leader Value: Driving Organisational Value; Enabling Value Creation.",
+      "contradictoryEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership; System-Level Trust.",
+      "exclusions": "Do not treat all direction or control as incompatible with outcomes. Distinguish necessary guardrails from control over delivery choices.",
+      "evidenceSufficiency": "Moderate when outcome-oriented Leader Value is paired with Leader direction/control evidence. Stronger when both Ownership and Trust reinforce the control side of the tension.",
+      "testScenario": "Leader selected Supporting Outcome-Based Delivery, Directing Work, and Control-Based Leadership. Contrast with Enabling Team Autonomy and Empowering Leadership.",
+      "expectedInterpretation": "Possible tension between leadership's stated outcome orientation and the way delivery is directed or controlled. Validate whether teams have the discretion needed to pursue outcomes.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "SC02-R01",
+      "patternId": "SC02",
+      "patternName": "Autonomy Rhetoric, Centralised Decisions",
+      "category": "SystemicContradiction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Ownership_L5",
+        "Squad_Ownership_L5",
+        "Leader_Trust_L1",
+        "Leader_Ownership_L4",
+        "Squad_Ownership_L4",
+        "Leader_Trust_L2",
+        "Squad_Trust_L4",
+        "Squad_Trust_L5"
+      ],
+      "sourceEvidence": "Leader Ownership: Enabling Team Autonomy; Delegating System Responsibility. Leader Trust: Control-Based Leadership; Limited Delegation. Squad Ownership: Team Drives Delivery; Team Leads Value Creation.",
+      "relatedEvidence": "Squad Trust: Strong Team Trust; Deep Mutual Trust.",
+      "relationshipLogic": "Leader Ownership behaviours may indicate an intent to enable autonomy, while Leader Trust behaviours may suggest continued control or limited delegation. Squad Ownership can provide supporting evidence of whether teams are positioned to act autonomously.",
+      "supportingEvidence": "Squad Ownership: Team Drives Delivery; Team Leads Value Creation.",
+      "contradictoryEvidence": "Leader Trust: Empowering Leadership; System-Level Trust. Leader Ownership: Enabling Team Autonomy paired with trust-enabling behaviours.",
+      "exclusions": "Do not infer centralised decisions from the Leader's autonomy statement alone. Do not require two Leader Ownership behaviours from the same theme.",
+      "evidenceSufficiency": "Moderate when Leader autonomy-enabling Ownership coexists with Leader control-oriented Trust. Squad ownership is supporting evidence, not a required trigger.",
+      "testScenario": "Leader selected Enabling Team Autonomy and Control-Based Leadership. Add Squad selected Team Drives Delivery as supporting evidence; contrast with Leader selected Empowering Leadership.",
+      "expectedInterpretation": "Possible contradiction between the autonomy leadership appears to enable and the degree of trust or decision authority reflected in its other selected behaviours. Validate where decisions are actually made.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "SC03-R01",
+      "patternId": "SC03",
+      "patternName": "Improvement Culture, Compliance Behaviour",
+      "category": "SystemicContradiction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Learning_L4",
+        "Leader_Learning_L5",
+        "Leader_Trust_L1",
+        "Leader_Learning_L3",
+        "Squad_Learning_L4",
+        "Leader_Ownership_L4",
+        "Leader_Trust_L4",
+        "Squad_Learning_L5",
+        "Leader_Trust_L2"
+      ],
+      "sourceEvidence": "Leader Learning: Supporting Team Learning; Enabling Organisational Growth; Cultivating Learning Culture. Leader Trust: Control-Based Leadership; Limited Delegation. Squad Learning: Continuous Improvement; Collective Mastery.",
+      "relatedEvidence": "Leader Ownership: Enabling Team Autonomy; Leader Trust: Empowering Leadership.",
+      "relationshipLogic": "Leader Learning behaviours may indicate support for learning and improvement, while Leader Trust behaviours may indicate control or limited delegation. Squad Learning can show whether continuous improvement is present locally. This may reveal tension between learning intent and the discretion available to act.",
+      "supportingEvidence": "Squad Learning: Continuous Improvement; Collective Mastery.",
+      "contradictoryEvidence": "Leader Trust: Empowering Leadership; System-Level Trust. Leader Ownership: Enabling Team Autonomy.",
+      "exclusions": "Only one Leader Learning behaviour can be selected. Do not require both a learning-culture and compliance behaviour in the same Leader Learning theme. Do not equate standard practices with a lack of learning.",
+      "evidenceSufficiency": "Moderate when Leader Learning is learning-supportive and Leader Trust indicates control/limited delegation. Squad Learning is supporting evidence. Avoid duplicate same-theme conditions.",
+      "testScenario": "Leader selected Cultivating Learning Culture and Control-Based Leadership; Squad selected Continuous Improvement. Contrast with Leader selected Empowering Leadership.",
+      "expectedInterpretation": "Possible tension between the learning culture leadership seeks to cultivate and the degree of discretion teams have to experiment or change practices. Validate whether learning can translate into changed ways of working.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "SC04-R01",
+      "patternId": "SC04",
+      "patternName": "Product Strategy, Stakeholder Control",
+      "category": "SystemicContradiction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ProductOwner_Value_L5",
+        "ProductOwner_Trust_L1",
+        "ProductOwner_Trust_L2",
+        "ProductOwner_Ownership_L5",
+        "ProductOwner_Value_L4",
+        "ProductOwner_System_L4",
+        "ProductOwner_System_L5",
+        "ProductOwner_Ownership_L4"
+      ],
+      "sourceEvidence": "PO Ownership: Leading the Value Chain; Owning Product Portfolio Value. PO Trust: Executing Stakeholder Decisions; Building Stakeholder Confidence. PO System: Leading Product Ecosystems; Shaping Product Strategy.",
+      "relatedEvidence": "PO Value: Optimising the Value Chain; Optimising Product Portfolio Value.",
+      "relationshipLogic": "PO behaviours may indicate strategic product leadership while Trust behaviours suggest decisions are strongly shaped by stakeholder direction or confidence-building. This may indicate a tension between product strategy ownership and the influence stakeholders have over product decisions.",
+      "supportingEvidence": "PO System: Shaping Product Strategy; PO Ownership: Owning Product Portfolio Value.",
+      "contradictoryEvidence": "PO Trust: Trusted Product Authority; Trusted Strategic Partner.",
+      "exclusions": "Do not treat stakeholder input, consultation, or collaboration as stakeholder control. Do not assume the Product Owner lacks authority.",
+      "evidenceSufficiency": "Moderate when strategic PO Ownership/System behaviours coexist with stakeholder-dependence Trust behaviours. Stronger when Value behaviours also indicate portfolio-level optimisation.",
+      "testScenario": "PO selected Shaping Product Strategy and Executing Stakeholder Decisions. Contrast with Trusted Product Authority.",
+      "expectedInterpretation": "Possible tension between strategic product direction and the influence or approval required from stakeholders. Validate whether the Product Owner can make product decisions within clear boundaries.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "SC05-R01",
+      "patternId": "SC05",
+      "patternName": "Integrated Delivery, Fragmented Leadership",
+      "category": "SystemicContradiction",
+      "polarity": "Tension",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_System_L2",
+        "ScrumMaster_System_L4",
+        "ScrumMaster_System_L5",
+        "Leader_System_L4",
+        "Squad_System_L5",
+        "Leader_System_L3",
+        "Squad_System_L4",
+        "Leader_System_L1",
+        "Leader_System_L5"
+      ],
+      "sourceEvidence": "Squad System: Collaborating Across Teams; Operating as a Delivery System. SM System: Facilitating System Collaboration; Enabling Organisational Agility. Leader System: Managing Through Structure; Coordinating Organisational Execution.",
+      "relatedEvidence": "Leader System: Aligning Organisational Goals; Enabling Organisational Systems; Leading System Evolution.",
+      "relationshipLogic": "Squad and Scrum Master behaviours may indicate integrated delivery and system collaboration, while Leader System behaviours may suggest organisational execution is managed through structures and coordination that may not align around the same system view.",
+      "supportingEvidence": "SM System: Facilitating System Collaboration; Enabling Organisational Agility.",
+      "contradictoryEvidence": "Leader System: Aligning Organisational Goals; Enabling Organisational Systems; Leading System Evolution.",
+      "exclusions": "Do not assume coordination equals fragmentation. A structured leadership model may support integration if goals, dependencies, and decisions are aligned.",
+      "evidenceSufficiency": "Moderate when Squad/SM integration behaviours coexist with Leader structural/coordination behaviours. Stronger when Leader alignment/system-enablement behaviours are absent.",
+      "testScenario": "Squad selected Operating as a Delivery System; SM selected Facilitating System Collaboration; Leader selected Managing Through Structure. Contrast with Leader selected Enabling Organisational Systems.",
+      "expectedInterpretation": "Possible difference between the integrated delivery model operating in teams and the way leadership coordinates the wider organisation. Validate whether leadership structures reinforce or fragment delivery across boundaries.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "PR01-R01",
+      "patternId": "PR01",
+      "patternName": "Empowered Ownership",
+      "category": "PositiveReinforcement",
+      "polarity": "Positive",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Leader_Ownership_L5",
+        "ScrumMaster_Ownership_L3",
+        "Squad_Ownership_L5",
+        "Leader_Ownership_L4",
+        "Leader_Trust_L4",
+        "ScrumMaster_Ownership_L4",
+        "Squad_Ownership_L4",
+        "Squad_Ownership_L3",
+        "Leader_Trust_L5"
+      ],
+      "sourceEvidence": "Squad Ownership: Team Owns Outcomes; Team Drives Delivery; Team Leads Value Creation. Leader Ownership: Enabling Team Autonomy; Delegating System Responsibility. Leader Trust: Empowering Leadership; System-Level Trust.",
+      "relatedEvidence": "SM Ownership: Encouraging Team Ownership; Driving Team Success.",
+      "relationshipLogic": "Squad ownership behaviours may be reinforced by Leader behaviours that enable autonomy and trust. SM Ownership may further support a pattern of shared ownership across the delivery relationship.",
+      "supportingEvidence": "SM Ownership: Encouraging Team Ownership; Driving Team Success.",
+      "contradictoryEvidence": "Leader Ownership: Directing Work; Leader Trust: Control-Based Leadership; Squad Ownership: Individual Task Ownership.",
+      "exclusions": "Do not infer empowered ownership from a high Squad Ownership selection alone. Avoid equating delegated execution with meaningful decision authority.",
+      "evidenceSufficiency": "Moderate when Squad ownership is paired with Leader autonomy/trust evidence. Stronger when SM behaviours also support team ownership and there is limited counter-evidence.",
+      "testScenario": "Squad selected Team Drives Delivery; Leader selected Enabling Team Autonomy and Empowering Leadership. Contrast with Leader selected Control-Based Leadership.",
+      "expectedInterpretation": "The selected behaviours appear to reinforce team ownership and autonomy across roles. Validate whether the Squad has the authority and support to own delivery outcomes in practice.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "PR02-R01",
+      "patternId": "PR02",
+      "patternName": "Shared Value Orientation",
+      "category": "PositiveReinforcement",
+      "polarity": "Positive",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "Squad_Value_L5",
+        "ProductOwner_Value_L5",
+        "Leader_Value_L3",
+        "Squad_Value_L3",
+        "Leader_Value_L5",
+        "Squad_Value_L4",
+        "ProductOwner_Value_L3",
+        "ProductOwner_Value_L4",
+        "Leader_Value_L4",
+        "ProductOwner_Ownership_L3",
+        "Squad_Ownership_L3"
+      ],
+      "sourceEvidence": "PO Value: Focusing on Value Delivery; Optimising the Value Chain; Optimising Product Portfolio Value. Squad Value: Delivering Meaningful Outcomes; Delivering Continuous Value; Delivering Customer-Validated Value. Leader Value: Supporting Outcome-Based Delivery; Enabling Value Creation; Driving Organisational Value.",
+      "relatedEvidence": "PO Ownership: Owning Value Delivery; Squad Ownership: Team Owns Outcomes.",
+      "relationshipLogic": "PO, Squad, and Leader Value behaviours may indicate a shared orientation towards outcomes and value creation across product, delivery, and organisational levels.",
+      "supportingEvidence": "PO Ownership: Owning Value Delivery; Squad Ownership: Team Owns Outcomes; PO Learning: Developing Customer Insight.",
+      "contradictoryEvidence": "PO Value: Capturing Stakeholder Requirements or Managing the Product Backlog paired with Squad Value: Delivering Output may qualify or weaken the apparent alignment.",
+      "exclusions": "Do not claim that value is being achieved or measured effectively. The assessment captures reported operating behaviours, not verified customer or business outcomes.",
+      "evidenceSufficiency": "Moderate when all three perspectives show outcome/value-oriented behaviours. Stronger when related Ownership evidence reinforces the shared orientation.",
+      "testScenario": "PO selected Optimising the Value Chain; Squad selected Delivering Meaningful Outcomes; Leader selected Supporting Outcome-Based Delivery. Contrast with output-focused Squad Value.",
+      "expectedInterpretation": "The selected behaviours suggest a shared orientation towards value across product, delivery, and leadership. Validate whether this alignment is visible in prioritisation and day-to-day decisions.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "PR03-R01",
+      "patternId": "PR03",
+      "patternName": "Continuous Learning System",
+      "category": "PositiveReinforcement",
+      "polarity": "Positive",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ScrumMaster_Learning_L3",
+        "ScrumMaster_System_L5",
+        "ScrumMaster_Learning_L5",
+        "Leader_Learning_L4",
+        "Leader_Learning_L5",
+        "ScrumMaster_Learning_L4",
+        "Leader_Learning_L3",
+        "Squad_Learning_L4",
+        "Leader_Trust_L4",
+        "Squad_Learning_L5",
+        "Squad_Learning_L3"
+      ],
+      "sourceEvidence": "Squad Learning: Seeking Feedback; Continuous Improvement; Collective Mastery. SM Learning: Encouraging Continuous Improvement; Enabling System Learning; Driving Organisational Learning. Leader Learning: Supporting Team Learning; Enabling Organisational Growth; Cultivating Learning Culture.",
+      "relatedEvidence": "SM System: Enabling Organisational Agility; Leader Trust: Empowering Leadership.",
+      "relationshipLogic": "Learning behaviours across Squad, Scrum Master, and Leader perspectives may indicate that learning is supported at team level and enabled beyond the team, creating the conditions for learning to spread through the system.",
+      "supportingEvidence": "SM Learning: Enabling System Learning; Leader Learning: Cultivating Learning Culture.",
+      "contradictoryEvidence": "Leader Learning: Enforcing Standard Practices; Squad Learning: Following Established Practices without feedback/improvement evidence.",
+      "exclusions": "Do not infer a continuous learning system from Squad learning alone. Distinguish learning activity from organisational learning and adaptation.",
+      "evidenceSufficiency": "Moderate when all three perspectives show learning-supportive behaviours. Stronger when SM/Leader behaviours explicitly extend learning beyond the team.",
+      "testScenario": "Squad selected Continuous Improvement; SM selected Enabling System Learning; Leader selected Cultivating Learning Culture. Contrast with Squad learning alone.",
+      "expectedInterpretation": "The selected behaviours suggest learning is supported across team, facilitation, and leadership levels. Validate whether insights and improvements are shared and embedded beyond the immediate team.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "PR04-R01",
+      "patternId": "PR04",
+      "patternName": "Trust Across the Delivery System",
+      "category": "PositiveReinforcement",
+      "polarity": "Positive",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ProductOwner_System_L3",
+        "ScrumMaster_Trust_L4",
+        "ProductOwner_Trust_L3",
+        "ScrumMaster_Trust_L5",
+        "ScrumMaster_Ownership_L3",
+        "ProductOwner_Trust_L4",
+        "ProductOwner_Trust_L5",
+        "ScrumMaster_Trust_L3",
+        "Leader_Trust_L4",
+        "Squad_Trust_L3",
+        "Leader_Trust_L5",
+        "Squad_Trust_L4",
+        "Squad_Trust_L5"
+      ],
+      "sourceEvidence": "Squad Trust: Open Team Dialogue; Strong Team Trust; Deep Mutual Trust. SM Trust: Supporting Team Autonomy; Enabling High Trust Collaboration; Building Organisational Trust. PO Trust: Collaborating on Product Outcomes; Trusted Product Authority; Trusted Strategic Partner. Leader Trust: Empowering Leadership; System-Level Trust.",
+      "relatedEvidence": "SM Ownership: Encouraging Team Ownership; PO System: Collaborating Across the Value Chain.",
+      "relationshipLogic": "Trust-related behaviours across relevant roles may indicate mutually reinforcing conditions for open dialogue, collaboration, autonomy, and trusted decision-making across the delivery system.",
+      "supportingEvidence": "PO Trust: Trusted Product Authority; Leader Trust: System-Level Trust.",
+      "contradictoryEvidence": "Any role's Trust behaviour indicating avoidance, control, limited delegation, or reliance on executing stakeholder decisions may qualify the interpretation.",
+      "exclusions": "Do not infer trust across every role from strong Squad Trust alone. Do not require all four perspectives if the assessment context does not support that relationship; record which perspectives provide evidence.",
+      "evidenceSufficiency": "Moderate when at least three relevant perspectives show trust-supporting behaviours and no decisive contradictory relationship is present. This is qualitative guidance, not a numeric threshold.",
+      "testScenario": "Squad selected Strong Team Trust; SM selected Enabling High Trust Collaboration; PO selected Collaborating on Product Outcomes; Leader selected Empowering Leadership. Contrast with Leader selected Control-Based Leadership.",
+      "expectedInterpretation": "The selected behaviours suggest trust may be reinforced across several roles, supporting collaboration and shared decision-making. Validate whether this is experienced consistently across the delivery system.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "PR05-R01",
+      "patternId": "PR05",
+      "patternName": "Integrated Value Chain",
+      "category": "PositiveReinforcement",
+      "polarity": "Positive",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ProductOwner_System_L3",
+        "ScrumMaster_System_L4",
+        "ScrumMaster_System_L5",
+        "Leader_System_L4",
+        "Squad_System_L5",
+        "Leader_System_L3",
+        "ProductOwner_Value_L4",
+        "ProductOwner_System_L4",
+        "Squad_System_L4",
+        "ProductOwner_System_L5",
+        "Leader_System_L5",
+        "Leader_Value_L4",
+        "ScrumMaster_System_L3"
+      ],
+      "sourceEvidence": "PO System: Collaborating Across the Value Chain; Leading Product Ecosystems; Shaping Product Strategy. Squad System: Collaborating Across Teams; Operating as a Delivery System. SM System: Improving Value Flow; Facilitating System Collaboration; Enabling Organisational Agility. Leader System: Aligning Organisational Goals; Enabling Organisational Systems; Leading System Evolution.",
+      "relatedEvidence": "PO Value: Optimising the Value Chain; Leader Value: Enabling Value Creation.",
+      "relationshipLogic": "System behaviours across PO, Squad, SM, and Leader may indicate that product direction, team collaboration, flow, and organisational enablement are connected across the value chain.",
+      "supportingEvidence": "SM System: Facilitating System Collaboration; Leader System: Enabling Organisational Systems.",
+      "contradictoryEvidence": "Squad System: Working Within Team Boundaries; Leader System: Managing Through Structure without related alignment/enabling evidence.",
+      "exclusions": "Do not infer integration from isolated system-awareness behaviours. The pattern concerns alignment across roles, not simply each role recognising the wider system.",
+      "evidenceSufficiency": "Moderate when at least three relevant perspectives demonstrate system integration behaviours. Stronger when all four perspectives provide complementary evidence and counter-evidence is limited.",
+      "testScenario": "PO selected Leading Product Ecosystems; Squad selected Operating as a Delivery System; SM selected Facilitating System Collaboration; Leader selected Enabling Organisational Systems. Contrast with Leader selected Managing Through Structure.",
+      "expectedInterpretation": "The selected behaviours suggest product, delivery, facilitation, and leadership are oriented towards an integrated value chain. Validate whether decisions, dependencies, and work flow effectively across boundaries.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    },
+    {
+      "ruleId": "PR06-R01",
+      "patternId": "PR06",
+      "patternName": "Distributed Improvement Leadership",
+      "category": "PositiveReinforcement",
+      "polarity": "Positive",
+      "diagnosticScope": "MaturityAssessment",
+      "candidateBehaviourIds": [
+        "ScrumMaster_Learning_L3",
+        "Leader_Learning_L4",
+        "ScrumMaster_Ownership_L3",
+        "Squad_Ownership_L5",
+        "ScrumMaster_Learning_L4",
+        "Leader_Learning_L3",
+        "Squad_Learning_L4",
+        "Leader_Ownership_L4",
+        "ScrumMaster_Ownership_L4",
+        "Squad_Ownership_L4",
+        "Squad_Learning_L5"
+      ],
+      "sourceEvidence": "Squad Ownership: Team Drives Delivery; Team Leads Value Creation. Squad Learning: Continuous Improvement; Collective Mastery. SM Ownership: Encouraging Team Ownership; Driving Team Success. Leader Learning: Supporting Team Learning; Enabling Organisational Growth. Leader Ownership: Enabling Team Autonomy.",
+      "relatedEvidence": "SM Learning: Encouraging Continuous Improvement; Enabling System Learning.",
+      "relationshipLogic": "Squad behaviours may indicate that improvement is owned within the team, while SM and Leader behaviours suggest that improvement leadership and capability-building are supported across roles rather than concentrated in one role.",
+      "supportingEvidence": "SM Learning: Enabling System Learning; Leader Ownership: Enabling Team Autonomy.",
+      "contradictoryEvidence": "Leader Learning: Enforcing Standard Practices; Leader Trust: Control-Based Leadership; Squad Ownership: Individual Task Ownership.",
+      "exclusions": "Do not confuse distributed improvement leadership with general team autonomy or delivery ownership. The focus is who enables and leads improvement across the system.",
+      "evidenceSufficiency": "Moderate when Squad ownership/learning behaviours are paired with SM ownership and Leader learning/autonomy support. Stronger when all relevant roles reinforce distributed improvement.",
+      "testScenario": "Squad selected Team Drives Delivery and Continuous Improvement; SM selected Encouraging Team Ownership; Leader selected Supporting Team Learning and Enabling Team Autonomy. Contrast with Leader selected Enforcing Standard Practices.",
+      "expectedInterpretation": "The selected behaviours suggest improvement is led and supported across the delivery system, rather than depending on one role. Validate whether teams can initiate improvements and receive support to embed them more broadly.",
+      "evaluation": {
+        "status": "Proposed",
+        "conditionGroups": [],
+        "conditionStatus": "NotDefined",
+        "notes": "Candidate evidence is not yet an executable trigger. Confirm required, alternative, supporting, and contradictory behaviour combinations before defining conditions."
+      }
+    }
+  ]
+}

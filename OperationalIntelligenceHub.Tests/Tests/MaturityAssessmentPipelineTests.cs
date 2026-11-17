@@ -30,7 +30,8 @@ public class MaturityAssessmentPipelineTests
             {
                 new() { Lens = "Squad", Themes = new()
                 {
-                    new() { Theme = "Ownership", Level = 3, BehaviouralNote = "draft evidence" },
+                    new() { Theme = "Ownership", Level = 3, BehaviouralNote = "draft evidence",
+                        SelectedBehaviour = Evidence("Squad_Ownership_L3", "original") },
                     new() { Theme = "Trust" }
                 } }
             }
@@ -49,7 +50,13 @@ public class MaturityAssessmentPipelineTests
 
         var update = Assert.Single(MaturityDraftTransfer.Plan(draft, target));
 
-        Assert.Equal(new MaturityDraftUpdate("SQUAD", "OWNERSHIP", 3, "draft evidence"), update);
+        Assert.Equal("SQUAD", update.Lens);
+        Assert.Equal("OWNERSHIP", update.Theme);
+        Assert.Equal(3, update.Level);
+        Assert.Equal("Squad_Ownership_L3", update.Evidence.BehaviourId);
+        Assert.Equal("original", update.Evidence.Headline);
+        Assert.Equal("v1", update.Evidence.CatalogueVersion);
+        Assert.Equal("signal", Assert.Single(update.Evidence.Signals));
         Assert.Equal("keep this", target.LensAssessments[0].Themes[0].BehaviouralNote);
         Assert.Equal("old evidence", target.LensAssessments[0].Themes[1].BehaviouralNote);
     }
@@ -61,8 +68,8 @@ public class MaturityAssessmentPipelineTests
         {
             LensAssessments = new()
             {
-                new() { Lens = "Squad", Themes = new() { new() { Theme = "Ownership", Level = 2 } } },
-                new() { Lens = "Leader", Themes = new() { new() { Theme = "Trust", Level = 4 } } }
+                new() { Lens = "Squad", Themes = new() { new() { Theme = "Ownership", Level = 2, SelectedBehaviour = Evidence("id1", "one") } } },
+                new() { Lens = "Leader", Themes = new() { new() { Theme = "Trust", Level = 4, SelectedBehaviour = Evidence("id2", "two") } } }
             }
         };
         var target = new AssessmentSession
@@ -77,10 +84,21 @@ public class MaturityAssessmentPipelineTests
         Assert.Equal(1, target.LensAssessments[0].Themes[0].Level);
     }
 
-    // Simple HTTP handler that returns minimal mapping + registry JSON for tests
+    private static MaturityBehaviourEvidence Evidence(string id, string headline) => new()
+    {
+        BehaviourId = id,
+        CatalogueVersion = "v1",
+        Headline = headline,
+        Signals = new() { "signal" },
+        Examples = new() { "example" }
+    };
+
     private class FakeHttpHandler : HttpMessageHandler
     {
-                private readonly string _mappingsJson = @"[
+        public string CurrentVersion { get; set; } = "v1";
+        public bool CurrentMismatch { get; set; }
+
+        private readonly string _mappingsJson = @"[
     {
         ""behaviourId"": ""Squad_Ownership_L1"",
         ""lens"": ""Squad"",
@@ -88,8 +106,23 @@ public class MaturityAssessmentPipelineTests
         ""level"": 1,
         ""signalName"": ""TeamOwnershipLevel"",
         ""domain"": ""Capability""
+    },
+    {
+        ""behaviourId"": ""Squad_Ownership_L2"",
+        ""lens"": ""Squad"",
+        ""theme"": ""Ownership"",
+        ""level"": 2,
+        ""signalName"": ""TeamOwnershipLevel"",
+        ""domain"": ""Capability""
     }
 ]";
+
+        private readonly string _catalogueJson = @"{
+  ""Squad"": { ""Ownership"": [
+    { ""level"": 1, ""headline"": ""original"", ""signals"": [""signal""], ""examples"": [""example""] },
+    { ""level"": 2, ""headline"": ""second"", ""signals"": [""signal""], ""examples"": [""example""] }
+  ] }
+}";
 
         private readonly string _registryJson = @"[
   { ""name"": ""TeamOwnershipLevel"", ""domain"": ""Capability"", ""type"": ""Behaviour"", ""normalisationRule"": ""value/5"" }
@@ -99,9 +132,19 @@ public class MaturityAssessmentPipelineTests
         {
             var url = request.RequestUri?.ToString() ?? string.Empty;
             var content = "[]";
+            if (url.Contains("/versions/") && !url.Contains("/versions/v1/") && !url.Contains("/versions/v2/"))
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
 
-            if (url.Contains("maturity.json"))
-                content = _mappingsJson;
+            if (url.Contains("current.json"))
+                content = $@"{{ ""currentVersion"": ""{CurrentVersion}"" }}";
+            else if (url.Contains("maturity_behaviours.json"))
+                content = url.Contains("/versions/v2/") || (!url.Contains("/versions/") && (CurrentVersion == "v2" || CurrentMismatch))
+                    ? _catalogueJson.Replace("original", "revised")
+                    : _catalogueJson;
+            else if (url.Contains("maturity.json"))
+                content = url.Contains("/versions/v2/") || (!url.Contains("/versions/") && CurrentVersion == "v2")
+                    ? _mappingsJson.Replace("TeamOwnershipLevel", "RevisedOwnershipLevel")
+                    : _mappingsJson;
             else if (url.Contains("signal_registry.json"))
                 content = _registryJson;
 
@@ -115,18 +158,143 @@ public class MaturityAssessmentPipelineTests
     }
 
     [Fact]
+    public async Task HistoricalSelection_RetainsContentAndUsesOriginalMappingAfterVersionChange()
+    {
+        var handler = new FakeHttpHandler();
+        var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
+        var originalService = new MaturityEvidenceService(http);
+        await originalService.InitializeAsync();
+        var original = new BehaviourOption { Level = 1, Headline = "original", Signals = new() { "signal" }, Examples = new() { "example" } };
+        var captured = await originalService.CaptureAsync("Squad", "Ownership", original);
+        original.Signals[0] = "changed after capture";
+        var theme = new MaturityTheme { Theme = "Ownership", Level = 1, SelectedBehaviourHeadline = captured.Headline, SelectedBehaviour = captured };
+        var session = new AssessmentSession { LensAssessments = new() { new() { Lens = "Squad", Themes = new() { theme } } } };
+        session.WorkspaceId = Guid.NewGuid().ToString();
+        session.SquadId = Guid.NewGuid().ToString();
+        var repository = new AssessmentRepositoryService(new LocalStorageService(new MemoryJsRuntime()));
+        session.AssessmentId = Guid.NewGuid().ToString();
+        await repository.SaveMaturitySessionAsync(session);
+
+        handler.CurrentVersion = "v2";
+        var newService = new MaturityEvidenceService(http);
+        await newService.InitializeAsync();
+        var reopened = await repository.GetMaturitySessionAsync(session.AssessmentId);
+        Assert.NotNull(reopened);
+        var saved = Assert.Single(Assert.Single(reopened.LensAssessments).Themes);
+        var mapping = Assert.Single(await newService.ResolveSessionAsync(reopened));
+        Assert.Equal("v1", saved.SelectedBehaviour!.CatalogueVersion);
+        Assert.Equal("original", saved.SelectedBehaviour.Headline);
+        Assert.Equal("signal", Assert.Single(saved.SelectedBehaviour.Signals));
+        Assert.Equal("TeamOwnershipLevel", mapping.SignalName);
+        Assert.Equal("Squad_Ownership_L1", mapping.BehaviourId);
+        var registry = new SignalRegistryService(http);
+        await registry.InitializeAsync();
+        var builder = new MaturitySignalBuilderService(new SignalNormaliserService(), newService, registry);
+        var (signals, traces) = await builder.BuildSignalsWithTrace(reopened);
+        Assert.Equal("TeamOwnershipLevel", Assert.Single(signals).Name);
+        Assert.Equal("Squad_Ownership_L1", Assert.Single(traces).BehaviourId);
+        var revised = await newService.CaptureAsync("Squad", "Ownership",
+            new BehaviourOption { Level = 1, Headline = "revised", Signals = new() { "signal" }, Examples = new() { "example" } });
+        Assert.Equal("v2", revised.CatalogueVersion);
+        Assert.Equal("revised", revised.Headline);
+    }
+
+    [Fact]
+    public async Task HistoricalSelection_RejectsMissingOrInconsistentProvenance()
+    {
+        var http = new HttpClient(new FakeHttpHandler()) { BaseAddress = new Uri("http://localhost/") };
+        var service = new MaturityEvidenceService(http);
+        var theme = new MaturityTheme { Theme = "Ownership", Level = 1 };
+        var legacy = await Assert.ThrowsAsync<InvalidOperationException>(() => service.ResolveAsync("Squad", theme));
+        Assert.Contains("provenance", legacy.Message);
+
+        theme.SelectedBehaviour = Evidence("Squad_Ownership_L1", "original");
+        theme.SelectedBehaviourHeadline = "original";
+        theme.SelectedBehaviour.CatalogueVersion = "missing";
+        var missing = await Assert.ThrowsAsync<InvalidOperationException>(() => service.ResolveAsync("Squad", theme));
+        Assert.Contains("version missing is unavailable", missing.Message);
+
+        theme.SelectedBehaviour.CatalogueVersion = "v1";
+        theme.SelectedBehaviour.BehaviourId = "wrong";
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ResolveAsync("Squad", theme));
+        theme.SelectedBehaviour.BehaviourId = "Squad_Ownership_L1";
+        theme.SelectedBehaviour.Signals[0] = "altered";
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.ResolveAsync("Squad", theme));
+    }
+
+    [Fact]
+    public async Task CurrentDataMustMatchRetainedVersion()
+    {
+        var handler = new FakeHttpHandler { CurrentMismatch = true };
+        var service = new MaturityEvidenceService(new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") });
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => service.InitializeAsync());
+        Assert.Contains("differs from its retained version", error.Message);
+    }
+
+    [Fact]
+    public async Task DraftTransfer_PreservesTheVersionAndContentOriginallySelected()
+    {
+        var handler = new FakeHttpHandler();
+        var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
+        var originalService = new MaturityEvidenceService(http);
+        await originalService.InitializeAsync();
+        var captured = await originalService.CaptureAsync("Squad", "Ownership",
+            new BehaviourOption { Level = 1, Headline = "original", Signals = new() { "signal" }, Examples = new() { "example" } });
+        var draft = new AssessmentSession
+        {
+            LensAssessments = new() { new() { Lens = "Squad", Themes = new()
+            {
+                new() { Theme = "Ownership", Level = 1, SelectedBehaviourHeadline = captured.Headline, SelectedBehaviour = captured }
+            } } }
+        };
+        var target = new AssessmentSession
+        {
+            AssessmentId = Guid.NewGuid().ToString(),
+            WorkspaceId = Guid.NewGuid().ToString(),
+            SquadId = Guid.NewGuid().ToString(),
+            LensAssessments = new() { new() { Lens = "Squad", Themes = new() { new() { Theme = "Ownership" } } } }
+        };
+        var repository = new AssessmentRepositoryService(new LocalStorageService(new MemoryJsRuntime()));
+        await repository.SaveMaturitySessionAsync(target);
+
+        handler.CurrentVersion = "v2";
+        var evidenceService = new MaturityEvidenceService(http);
+        await evidenceService.InitializeAsync();
+        var registry = new SignalRegistryService(http);
+        await registry.InitializeAsync();
+        var rules = new TestRuleRepositoryService();
+        var pipeline = new SignalPipelineService(
+            new MaturitySignalBuilderService(new SignalNormaliserService(), evidenceService, registry),
+            new DerivedSignalEngine(rules), new SystemRuleEngine(rules),
+            new OperationalInsightEngine(rules), new HealthAggregationService());
+        var update = Assert.Single(MaturityDraftTransfer.Plan(draft, target));
+        await evidenceService.ResolveSessionAsync(draft);
+        await new SessionService(repository, pipeline, evidenceService).UpdateThemeScoreAsync(
+            target.AssessmentId, update.Lens, update.Theme, update.Level, update.Evidence);
+
+        var saved = await repository.GetMaturitySessionAsync(target.AssessmentId);
+        var selection = Assert.Single(Assert.Single(saved!.LensAssessments).Themes);
+        Assert.Equal(1, selection.Level);
+        Assert.Equal("v1", selection.SelectedBehaviour!.CatalogueVersion);
+        Assert.Equal("Squad_Ownership_L1", selection.SelectedBehaviour.BehaviourId);
+        Assert.Equal("original", selection.SelectedBehaviourHeadline);
+        Assert.Equal("signal", Assert.Single(selection.SelectedBehaviour.Signals));
+        Assert.Equal("example", Assert.Single(selection.SelectedBehaviour.Examples));
+    }
+
+    [Fact]
     public async Task BuildSignalsAndDerived_ShouldProduce_LowTeamOwnershipInsight_FromSession()
     {
         // Arrange
         var handler = new FakeHttpHandler();
         var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
 
-        var mappingLoader = new SignalMappingLoaderService(http);
+        var evidence = new MaturityEvidenceService(http);
         var registry = new SignalRegistryService(http);
         await registry.InitializeAsync();
 
         var normaliser = new SignalNormaliserService();
-        var maturityBuilder = new MaturitySignalBuilderService(normaliser, mappingLoader, registry);
+        var maturityBuilder = new MaturitySignalBuilderService(normaliser, evidence, registry);
 
         var repo = new TestRuleRepositoryService();
 
@@ -167,7 +335,8 @@ public class MaturityAssessmentPipelineTests
                     Lens = "Squad",
                     Themes = new List<MaturityTheme>
                     {
-                        new MaturityTheme { Theme = "Ownership", Level = 1, BehaviouralNote = "private note" }
+                        new MaturityTheme { Theme = "Ownership", Level = 1, BehaviouralNote = "private note",
+                            SelectedBehaviourHeadline = "original", SelectedBehaviour = Evidence("Squad_Ownership_L1", "original") }
                     }
                 }
             }
@@ -260,8 +429,9 @@ public class MaturityAssessmentPipelineTests
         var registry = new SignalRegistryService(http);
         await registry.InitializeAsync();
         var rules = new TestRuleRepositoryService();
+        var evidenceService = new MaturityEvidenceService(http);
         var pipeline = new SignalPipelineService(
-            new MaturitySignalBuilderService(new SignalNormaliserService(), new SignalMappingLoaderService(http), registry),
+            new MaturitySignalBuilderService(new SignalNormaliserService(), evidenceService, registry),
             new DerivedSignalEngine(rules),
             new SystemRuleEngine(rules),
             new OperationalInsightEngine(rules),
@@ -281,15 +451,36 @@ public class MaturityAssessmentPipelineTests
         var notifications = 0;
         repository.OnAssessmentChanged += () => { notifications++; return Task.CompletedTask; };
 
-        await new SessionService(repository, pipeline).UpdateThemeScoreAsync(
-            session.AssessmentId, "Squad", "Ownership", 1, "catalogue signals and examples");
+        await new SessionService(repository, pipeline, evidenceService).UpdateThemeScoreAsync(
+            session.AssessmentId, "Squad", "Ownership", 1, Evidence("Squad_Ownership_L1", "original"));
 
         var saved = await repository.GetMaturitySessionAsync(session.AssessmentId);
         Assert.NotNull(saved);
         var theme = Assert.Single(Assert.Single(saved.LensAssessments).Themes);
         Assert.Equal(1, theme.Level);
-        Assert.Equal("catalogue signals and examples", theme.BehaviouralNote);
+        Assert.Equal(string.Join(Environment.NewLine, "signal", "example"), theme.BehaviouralNote);
+        Assert.Equal("original", theme.SelectedBehaviourHeadline);
+        Assert.Equal("Squad_Ownership_L1", theme.SelectedBehaviour!.BehaviourId);
+        Assert.Equal("v1", theme.SelectedBehaviour.CatalogueVersion);
         Assert.Equal(1, notifications);
+
+        await new SessionService(repository, pipeline, evidenceService).UpdateThemeScoreAsync(
+            session.AssessmentId, "Squad", "Ownership", 2, Evidence("Squad_Ownership_L2", "second"));
+        saved = await repository.GetMaturitySessionAsync(session.AssessmentId);
+        theme = Assert.Single(Assert.Single(saved!.LensAssessments).Themes);
+        Assert.Equal(2, theme.Level);
+        Assert.Equal("second", theme.SelectedBehaviourHeadline);
+        Assert.Equal("Squad_Ownership_L2", theme.SelectedBehaviour!.BehaviourId);
+        Assert.Equal(2, notifications);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            new SessionService(repository, pipeline, evidenceService).UpdateThemeScoreAsync(
+                session.AssessmentId, "Squad", "Ownership", 1, Evidence("wrong", "original")));
+        saved = await repository.GetMaturitySessionAsync(session.AssessmentId);
+        theme = Assert.Single(Assert.Single(saved!.LensAssessments).Themes);
+        Assert.Equal(2, theme.Level);
+        Assert.Equal("Squad_Ownership_L2", theme.SelectedBehaviour!.BehaviourId);
+        Assert.Equal(2, notifications);
     }
 
     private sealed class MemoryJsRuntime : IJSRuntime

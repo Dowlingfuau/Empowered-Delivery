@@ -2,15 +2,72 @@
 
 ## Status and guardrails
 
-This is an investigation and implementation plan only. No code or rule configuration is changed by this document.
+This plan describes the isolated BF01 implementation and the remaining Maturity architecture work.
 
-The source workbook's `Pattern Detection Rules` sheet is Version 0.1. Its 28 rule rows for 26 patterns are marked **Proposed** in the workbook, but the user has since approved them as a living catalogue. JSON is the intended source of truth for editable rules and narrative. The current JSON's executable conditions are not defined; evidence roles and sufficiency need further specification. The examples below remain provisional acceptance-test fixtures, not approved executable conditions.
+The source workbook's `Pattern Detection Rules` sheet is Version 0.1. Its 28 rule rows for 26 patterns are marked **Proposed** in the workbook, but the user has since approved them as a living catalogue. JSON is the intended source of truth for editable rules and narrative. The separate revised BF01 draft specifies a proposed contract; other executable conditions and sufficiency need further specification. Workbook-derived examples below remain provisional acceptance-test fixtures.
 
-**Scope and dependency:** This is a Maturity pattern investigation, not the overall Insight Engine redesign plan or an approved component design. The broader architecture must establish shared evidence, provenance, diagnostic/MRI integration, evaluation and Intelligence Trace contracts first; Maturity then implements against them. The agreed redesign preserves evidence throughout the pipeline and evaluates confidence and priority dynamically and separately; see [insight-engine-purpose.md](./insight-engine-purpose.md). Reusing `BehaviourRuleEngine` is an option alongside a separate evaluator. Component boundaries, evaluation methods and migration are unresolved.
+**Scope and dependency:** The immediate target is an independently testable Maturity semantic engine, not a platform-wide rule framework. It can evaluate original evidence before future shared contracts or Role Profiles are implemented, provided its output retains provenance and a clear diagnostic-to-platform boundary. Shared integration and historical replay remain separate decisions. The agreed redesign preserves evidence throughout the pipeline and keeps confidence and priority distinct; see [insight-engine-purpose.md](./insight-engine-purpose.md).
 
 The 26 pattern IDs are EM01, EM02, BF01–BF09, CC01–CC04, SC01–SC05, and PR01–PR06. EM01 and EM02 each have two rule rows. A prior catalogue note mentions 27 patterns, but no 27th ID is listed; this discrepancy remains an approval question.
 
 This plan does not alter the agreed pattern definitions. Where the workbook is ambiguous, internally conflicting, or unobservable in the current assessment model, the gap is called out rather than resolved by invention. The separate Flow Rule Register is not mixed into the Maturity behaviour-pattern evaluation; its differences from current flow runtime documentation are recorded in [backlog-health-flow-rules.md](./backlog-health-flow-rules.md).
+
+## Target architecture and BF01 executable contract
+
+**Status:** the first independently testable Maturity semantic evaluator, validator and structured trace are implemented. The [BF01 revised draft](../../wwwroot/data/rules/maturity_pattern_rules_BF01_revised.json) uses `maturity-semantic-v1-draft` and is loaded by the new Maturity-specific repository, not the existing numeric rule repository. It is not connected to the results page or platform pipeline. Other workbook rows are not converted; their semantics remain unresolved.
+
+### Initial and enriched evidence paths
+
+```text
+Initial target:
+saved selections -> acquire and validate -> project evidence
+                 -> configurable semantic evaluation -> candidate + trace
+                 -> assess support and compose diagnostic finding when eligible
+
+Future enrichment, not a prerequisite:
+saved selections -> deterministic Role Profile Builder -> structured Role Profiles
+       |                                                   |
+       +------------------ original evidence --------------+-> evidence projection
+                                                              -> same semantic engine
+```
+
+The initial evaluator uses original selections, not numeric scores. It resolves each saved role/theme/level, BehaviourId, catalogue version and snapshot using retained catalogue and mapping content. `MaturityEvidenceService` already checks this for valid saved selections; a projection must retain the selections and separately represent missing, unavailable and invalid evidence rather than reducing them to the returned numeric mapping. Each selection is checked against its own version. No substitution with the current catalogue is allowed.
+
+Later, a deterministic Role Profile Builder will interpret the five selected behaviours of each Product Owner, Squad, Scrum Master and Leader role into that role's current state, operating characteristics and growth focus. Profiles are planned both as a dedicated user-facing experience and as structured interpreted evidence. Each profile must link to its original selections and versioned interpretation; it cannot replace them. The semantic engine, not a profile, evaluates tensions between roles; a profile does not model a role in tension with itself. Original selections remain available alongside profile attributes. Unavailable future attributes are unknown or unavailable, not negative evidence. Optional future profile dependencies must be explicit in definition versions. Do not implement profile models, services, rules, persistence, UI or speculative placeholder abstractions now.
+
+Separate acquisition/projection from evaluation so future evidence can be added without rewriting the evaluator; do not assume normalisation means numeric scoring. The proposed responsibilities are definition loading and validation; evidence acquisition and projection; condition and relationship evaluation; contextual contribution evaluation; finding composition; and trace recording. These are responsibilities, not a mandatory class or deployment layout. The existing numeric Maturity path and shared Backlog Health processing remain unchanged in the first engine implementation.
+
+### JSON contract: `maturity-semantic-v1-draft`
+
+The executable inputs are `evaluation.contract`, `semanticDefinition.coreRelationship`, `catalogueEvidence`, `supportingEvidenceProfiles`, `contextRelationships` and `executionPolicy`. Other fields are authored context and guardrails, not executable expressions. Only BF01 uses this contract; an unsupported contract or expression must be rejected explicitly, never treated as a non-match. `candidateBehaviourIds` is an index, not an AND condition. Narrative text is not parsed as logic. The canonical retained catalogue and mapping are authoritative for behaviour identity and content; duplicate IDs, levels and headlines in the draft are review aids and must be validated against them, never treated as an alternative catalogue.
+
+| Construct | Proposed evaluator meaning |
+|---|---|
+| `groupDefinitions` | A unique `groupId`, `coordinate` and nonempty set of catalogue levels. Resolve the saved BehaviourId and coordinate against its compatible archived catalogue/mapping first; membership uses the resolved level, not a numeric score. Validate each level and its unique behaviour identity. |
+| `{ "hasGroup": "groupId" }` | True if the valid selected behaviour at the group's coordinate belongs to that group; false if valid but outside it; unknown if the evidence is missing or unavailable. |
+| `{ "hasBehaviour": { "coordinate": "...", "behaviourIds": ["..."] } }` | True if a valid selection's exact ID is in the list, false if valid and not in it, unknown if missing or unavailable. Entries in the list are alternatives, not simultaneous selections. |
+| `{ "all": [expression, ...] }` | AND: false if any operand is false; true if all are true; otherwise unknown. A nonempty array is required. |
+| `{ "any": [expression, ...] }` | OR: true if any operand is true; false if all are false; otherwise unknown. A nonempty array is required. BF01 currently does not use this operator, but the contract supports it for later definitions. |
+| `branches[].when` and `result` | Evaluate all core branches, retaining every operand and result. With both core inputs valid, exactly one branch must match; A and B produce a candidate with their explicit `direction`, and both shared-orientation branches produce a non-match. `ChallengesBF01` records the shared-value reason; it does not create an alignment insight. Zero or multiple matches are definition errors. |
+| `supportingEvidenceProfiles[].contributions` | After a core match, use the valid selected level and explicit `DirectionA` or `DirectionB` key to select Supporting, Challenging, Qualifying or Neutral. Each profile is pattern-specific; retain its principle and source selection. A classification does not itself prove a cause or change the core outcome. |
+| `contextRelationships[].when` / `effect` | On a core match, evaluate each expression with the same three-valued logic. `ContextOnly` adds the authored conditional interpretation without replacing individual contributions or changing the match. False and unknown relationship results remain in the trace. |
+| `executionPolicy` | Defines the initial direct evidence source, gating and unassessed fields. Its enumerated values are part of this contract, not arbitrary fallback strings. |
+
+Both core coordinates must be present, valid and catalogue-compatible before deciding a BF01 match or non-match. Missing core is `Unknown`; invalid, unavailable archived content or incompatible core is `Unavailable` with the reason. Missing or unavailable supporting inputs are recorded separately and lead to unknown dependent conditions; they do not prevent reporting a core candidate, change it to a non-match or fabricate a contribution. Supporting evidence and contextual relationships are not evaluated when the core is unknown, unavailable or non-matching; trace them as skipped, not neutral. Out-of-scope coordinates are not read and are not labelled missing.
+
+BF01 declares compatible version `v1` for every selection. Reject incompatible historical versions rather than infer compatibility from an ID or level. An expression has exactly one supported operator; `all`/`any` operands are evaluated without short-circuiting the trace. Validation rejects unknown operators, duplicate IDs, unknown or ambiguous groups, wrong-coordinate behaviour IDs, missing directions or levels, duplicate/overlapping core coverage, incomplete core coverage, invalid effects and references, malformed expressions and impossible conjunctions. The contract does not offer general scripting, weights, thresholds, or automatic priority/confidence.
+
+The trace links each selected snapshot, resolved version, group, classification, expression operand and relationship outcome. Definition provenance includes a fingerprint of the loaded executable definition, so changes to executable content can be distinguished even if a version is accidentally reused; it is not a substitute for immutable version retention. Retain supporting and challenging evidence together; neutral is trace-only. A relationship links to its source selections and is not independent corroboration. Evidence strength, reliability, confidence and priority remain separately **not assessed** until policies are agreed. A core match yields a candidate; eligibility and user-facing composition are separate, still-unresolved decisions.
+
+### Implementation and test boundary
+
+The first implementation evaluates BF01 direct evidence only, without modifying UI, numeric flow, Backlog Health or MRI integration. Focused automated tests exercise all 25 core level pairs, the 60 directional supporting classifications, all four contextual relationships, missing evidence, three-valued logic, invalid definitions, provenance, isolation and existing numeric pipelines. The trace is returned as structured data to its caller; it is not persisted or shown in the Diagnostics Console. The static evaluator accepts already validated projected evidence independently of session acquisition; callers must not label unvalidated evidence as valid.
+
+Later integrate findings and Intelligence Trace into the existing results experience, then agree a platform-facing diagnostic-finding contract before changing existing outputs. A future adapter must preserve diagnostic ownership, evidence and unknown assessments, and must not invent numeric intensity for the current `OperationalInsight` model. Operational MRI may consume diagnostic findings and their evidence for separately evaluated broader relationships; it must not regenerate Maturity interpretation. Role Profiles and their UI are later work.
+
+**Decisions:** refine combined-context effects and classification explanations; decide what partial supporting evidence means for presentation, eligibility and priority; determine immutable rule/evaluator retention and replay policy; agree shared output/trace contracts and transition of existing platform consumers. Separate candidates such as shared low orientation need independent definitions, not an automatic new insight.
+
+The workbook-oriented sections below are historical reference and broader planning material. Their all-rules-first sequence and earlier component alternatives are not prerequisites for the BF01-first engine target above. Where they refer to BF01 conditions as unspecified, the proposed draft contract above is the current preparation; other pattern semantics remain unresolved.
 
 ## 1. Existing architecture and data model
 
@@ -20,18 +77,18 @@ This plan does not alter the agreed pattern definitions. Where the workbook is a
 |---|---|
 | Session | `AssessmentSession` stores `AssessmentId`, `WorkspaceId`, `SquadId`, creation/status fields, and `LensAssessments`. |
 | Lens | `MaturityLensAssessment` stores a lens name and a list of themes. Current lens keys include `ScrumMaster`, `ProductOwner`, `Squad`, and `Leader`. |
-| Theme selection | The user selects one catalogue behaviour per lens/theme. Its current stored coordinate is `Theme` and `Level` under the lens (0 means unselected; 1–5 selectable). `BehaviouralNote` is generated from catalogue signals/examples by the page, not entered by the user or independent evidence. `SelectedBehaviourHeadline` is serialized as a model field but is not populated by the current selection or draft-transfer flows; results resolve the headline from the catalogue. Existing sessions may contain other values. |
+| Theme selection | The user selects one catalogue behaviour per lens/theme. The saved coordinate includes `Theme` and `Level` under the lens (0 means unselected; 1–5 selectable). New selections retain the behaviour ID, catalogue version and content snapshot, including `SelectedBehaviourHeadline`. `BehaviouralNote` is generated from catalogue signals/examples, not entered by the user or independent evidence. Legacy sessions without provenance are not migrated. |
 | Cardinality | The session has one `MaturityTheme` per theme for each lens. Page validation expects each of the five themes exactly once per lens. Therefore, it can store only one level for a given lens/theme. It cannot represent two candidate levels at that coordinate simultaneously. |
 | Persistence | `AssessmentRepositoryService` serializes sessions to browser localStorage under `assessments_maturity`. The session is the persisted assessment input; pattern evaluation results are currently recomputed and are not persisted as an assessment result. |
 | Incomplete data | A level of 0 is an unanswered coordinate. The page blocks its normal results action until the session is complete. The signal builder skips levels at or below 0. An evaluator must treat such a coordinate as unknown, never as evidence against a pattern. |
 
-The workbook references (`SQ-OWN-L2`, `PO-VAL-L5`, etc.) are not stored application IDs. The current signal mapping has `BehaviourId` values such as `Squad_Ownership_L2`, but the assessment session does not persist them. The canonical selection is the selected catalogue behaviour, currently resolved through `(Lens, Theme, Level)`; catalogue headlines and content provide supporting context, not separate observations.
+The workbook references (`SQ-OWN-L2`, `PO-VAL-L5`, etc.) are not stored application IDs. New selections persist mapping IDs such as `Squad_Ownership_L2` with their coordinate and catalogue version; catalogue headlines and content provide supporting context, not separate observations.
 
 ### Catalogue and mapping
 
 `wwwroot/data/diagnostics/maturity_behaviours.json` supplies the current catalogue content for each lens/theme/level. `wwwroot/data/signals/maturity.json` contains the current `BehaviourId`, Lens/Theme/Level mapping, and output signal. `MaturitySignalBuilderService` loads the mappings and selects a mapping by matching Lens, Theme, and Level. It builds a numeric signal from the selected level; it does not use the workbook's composite code or the `BehaviourId` to establish a semantic relationship.
 
-The workbook-to-current-map cross-check found 249 unique references and no missing Lens/Theme/Level tuples. This confirms tuple resolution only. It does not confirm that every workbook behaviour label is semantically identical to the current catalogue label. Examples of label mismatches are documented in [maturity-pattern-detection-rules.md](./maturity-pattern-detection-rules.md); those need editorial approval before the rule copy or expected test outcomes are treated as final.
+The workbook-to-current-map cross-check found 249 reference occurrences representing 78 distinct IDs and no missing Lens/Theme/Level tuples. This confirms tuple resolution only. It does not confirm that every workbook behaviour label is semantically identical to the current catalogue label. Examples of label mismatches are documented in [maturity-pattern-detection-rules.md](./maturity-pattern-detection-rules.md); those need editorial approval before the rule copy or expected test outcomes are treated as final.
 
 The workbook contains 92 within-rule coordinate collisions. These are multiple levels at the same perspective/theme in one rule's reference list. They must be interpreted as candidate alternatives, not simultaneous requirements. For example, a rule cannot require both `Leader/Ownership=L1` and `Leader/Ownership=L4` in one assessment.
 
@@ -65,7 +122,7 @@ Every listed reference can be resolved to a current tuple, so the **selection va
 
 | Requirement | Current-data assessment |
 |---|---|
-| Match a selected behaviour | Yes, by exact Lens/Theme/Level and then catalogue/mapping lookup. A `BehaviourId` can be derived from the matching current mapping but is not persisted on the response. |
+| Match a selected behaviour | New selections retain their exact Lens/Theme/Level, `BehaviourId`, version and content; historical lookup uses the retained catalogue and mapping. Semantic rule matching remains unimplemented. |
 | Combine source behaviours | Technically possible only after approved AND/OR/alternative semantics are supplied. The workbook's reference list alone does not define the Boolean expression. |
 | Supporting/contradictory evidence | Selected behaviours at other coordinates can be collected. The workbook does not consistently define which references play each role, and same-coordinate alternatives cannot co-occur. |
 | Exclusions and context | Many exclusions are prose such as “do not assume” or mention conditions (stakeholder authority, capacity, motivation) that are not structured assessment inputs. These cannot be enforced as data exclusions today. |
@@ -80,7 +137,7 @@ Some pattern claims refer to evidence outside the assessment. For example, a rul
 
 ### Recommended evaluation stages
 
-1. **Resolve selected evidence.** For each nonzero selection, use its retained catalogue version and mapping to resolve the saved Lens, Theme, Level and `BehaviourId` to the content presented at selection time. Preserve that version and source coordinate; report unavailable or inconsistent historical references instead of silently substituting current content. The generated or legacy `BehaviouralNote` is not a user-entered observation or a substitute for the selected behaviour. This versioned identity is a target requirement; the current session stores only the coordinate.
+1. **Resolve selected evidence.** For each nonzero selection, use its retained catalogue version and mapping to resolve the saved Lens, Theme, Level and `BehaviourId` to the content presented at selection time. Preserve that version and source coordinate; report unavailable or inconsistent historical references instead of silently substituting current content. The generated or legacy `BehaviouralNote` is not a user-entered observation or a substitute for the selected behaviour. Versioned selection capture is implemented; carrying this evidence through semantic evaluation remains future work.
 2. **Evaluate approved rule clauses.** A typed rule should distinguish required references from alternatives, supporting evidence, contradictory evidence, and exclusions. Compare only with selected evidence. Return a rule evaluation with `Matched` state and exact evidence references; missing/unselected coordinates remain `Unknown`.
 3. **Aggregate by pattern ID.** Combine all evaluations for the same Pattern ID into one candidate pattern, preserving the contributing Rule IDs and the evidence each rule contributed. Do not create duplicate cards for multiple rules describing the same pattern.
 4. **Assess support separately.** Return an explicit support state (for example: insufficient, qualified, or supported) based on approved qualitative criteria. A rule match is a trigger candidate, not an automatic user-facing insight. Contradictions or exclusions may qualify or block support only when their semantics are explicitly approved.
@@ -135,7 +192,7 @@ The earlier proposal was a separate Maturity pattern engine invoked during resul
 
 ### Per-rule positive fixtures
 
-The workbook's `Test Scenario` descriptions are used to seed one candidate fixture per rule. The tuples below use the current application mapping IDs; these IDs are derived from the stored coordinate and are not persisted on the session. Each fixture respects one level per lens/theme. The workbook's reference lists include multiple levels at some coordinates, so the selected level in each fixture is a proposed alternative—not a claim that the other listed levels are conjunctive requirements.
+The workbook's `Test Scenario` descriptions are used to seed one candidate fixture per rule. The tuples below use the current application mapping IDs; new selections persist their resolved ID and catalogue version. Each fixture respects one level per lens/theme. The workbook's reference lists include multiple levels at some coordinates, so the selected level in each fixture is a proposed alternative—not a claim that the other listed levels are conjunctive requirements.
 
 **Expected result once the rule is approved:** the named rule should report a match for its approved source combination and return the listed evidence. Pattern aggregation must then independently decide whether the pattern is sufficiently supported. Until the exact required/optional logic is approved, these are seed fixtures and their final pass/fail expectations cannot be frozen.
 
@@ -196,11 +253,11 @@ These are required test categories. Where workbook logic is still ambiguous, the
 
 These scenarios exercise interactions beyond single rules. Their exact triggered/support states depend on approval of each rule's required/alternative sets.
 
-1. **Value friction with contrary evidence:** `ProductOwner/Value=L3` [`ProductOwner_Value_L3`], `Squad/Value=L1` [`Squad_Value_L1`], `ProductOwner/Ownership=L3` [`ProductOwner_Ownership_L3`], `Squad/Ownership=L3` [`Squad_Ownership_L3`]. Expected: record the candidate BF01 evidence and all qualifying evidence; show a conditional question, not a diagnosis. Never also select `Squad/Value=L3` in this same assessment.
+1. **Value friction with ownership context:** `ProductOwner/Value=L3` [`ProductOwner_Value_L3`], `Squad/Value=L1` [`Squad_Value_L1`], `ProductOwner/Ownership=L3` [`ProductOwner_Ownership_L3`], `Squad/Ownership=L3` [`Squad_Ownership_L3`]. The BF01 draft records a Direction A candidate; Product Owner and Squad Ownership are outside its pilot scope and must not be assigned invented contributions. Never also select `Squad/Value=L3` in this same assessment.
 2. **Accountability, leadership, and trust overlap:** `Squad/Ownership=L4` [`Squad_Ownership_L4`], `Squad/Trust=L4` [`Squad_Trust_L4`], `Leader/Ownership=L1` [`Leader_Ownership_L1`], `Leader/Trust=L2` [`Leader_Trust_L2`]. Expected: evaluate BF02 and CC01 independently, preserve shared evidence, and do not let either pattern imply the other.
 3. **Learning across roles with an organisational constraint:** `Squad/Learning=L4` [`Squad_Learning_L4`], `ScrumMaster/Learning=L4` [`ScrumMaster_Learning_L4`], `Leader/Learning=L2` [`Leader_Learning_L2`], `Leader/Trust=L1` [`Leader_Trust_L1`]. Expected: test the relevant friction/capability rules together; do not add a positive learning pattern that requires a different Leader/Learning level in the same assessment. A missing or contrary piece remains explicit rather than being silently averaged away.
 
-The workbook's Behaviour Test Inputs sheet has headers for 20 role/theme inputs and an expected result, but no populated test rows. The matrix above is therefore plan-authored from the rule narratives and reference crosswalk. Rule owners must approve the input sets and expected outcomes before they become executable acceptance tests.
+A later workbook's Behaviour Test Inputs sheet includes one populated input row without an expected result. The matrix above is plan-authored from the rule narratives and reference crosswalk. Rule owners must approve the input sets and expected outcomes before they become executable acceptance tests.
 
 ## 7. User experience proposal
 
@@ -217,22 +274,19 @@ The workbook's Behaviour Test Inputs sheet has headers for 20 role/theme inputs 
 
 | Order | Work item | Dependencies | Likely files/components |
 |---|---|---|---|
-| 0 | Confirm scope and resolve the 26-versus-27 pattern count; the 28 living rule rows are already approved. | Product/content owners. | Workbook and working-context pattern docs. |
-| 1 | Review all workbook reference labels against current catalogue headlines; confirm whether each tuple represents the intended behavior. Decide all 92 same-coordinate collisions as alternatives or revise the rule references. | Current mapping crosswalk in the detection-rules document. | `maturity_behaviours.json`, `maturity.json` only if approved content/mapping changes are needed; no such changes assumed. |
-| 2 | For every rule, approve required/optional evidence, alternatives, AND/OR logic, direction, supporting/contradictory evidence, observable exclusions, sufficiency, and test outcomes. | Steps 0–1. | Workbook/rule specification. |
-| 3 | Approve user-facing authored copy for observation, hypothesis, implication, validation question, and conditional action. Decide whether feedback is persisted. | Step 2 and UX review. | Rule content; optional assessment feedback schema. |
-| 4 | Define Maturity rule configuration and validation against the agreed shared contracts; establish versioned selection identity and retained catalogue/mapping content, then complete the existing JSON and crosswalk checks. | Steps 0–3 and shared architecture contracts. | Assessment evidence, catalogue/mapping version storage, candidate pattern models and repository; existing `wwwroot/data/rules/maturity_pattern_rules.json`. |
-| 5 | Implement and test Maturity evidence projection, rule matching, support assessment, aggregation and provenance against those contracts. | Step 4; select existing `BehaviourRuleEngine` extension or another design. | Evaluator and tests; component choice unresolved. |
-| 6 | Implement deterministic four-part diagnostic insight composition and verify evidence grounding. | Steps 3 and 5; shared contracts. | Composer or shared capability; component choice unresolved. |
-| 7 | Integrate Maturity results and Intelligence Trace with the agreed shared pipeline; verify Backlog Health behaviour during migration. | Steps 5–6 and shared integration design. | `MaturityAssessment.razor`, `Components/Debug/DiagnosticsConsole.razor`, integration components. |
-| 8 | Run the complete rule matrix, cross-cutting tests, whole-assessment scenarios, accessibility checks, and user review. | Steps 5–7. | `OperationalIntelligenceHub.Tests/Tests/`. |
+| 0 | Review the proposed BF01 contract, v1 compatibility, contextual effects and first test cases. | Product/content approval. | BF01 draft and this plan. |
+| 1 | Implement and validate direct-evidence projection and reusable semantic evaluation, with BF01 and trace in focused tests. | Step 0; existing versioned evidence. | Maturity-specific models, services and tests; no UI or shared numeric changes. |
+| 2 | Agree support eligibility and authored narrative; integrate diagnostic findings and trace into the existing results experience. | Step 1 and product decisions. | Maturity results and diagnostics. |
+| 3 | Agree the diagnostic-to-platform contract and transition any existing consumers without fabricating numeric values. | Step 1; shared architecture decisions. | Adapter and platform integration, separately scoped. |
+| 4 | Progressively review, define and test additional patterns without blocking BF01. | Relevant pattern decisions. | Pattern definitions and tests. |
+| 5 | Design and implement Role Profiles as a separately approved future enhancement and user experience. | Profile interpretation and versioning decisions; original evidence retained. | Future profile builder, evidence and UI. |
 
 ### Risks and assumptions
 
 - **Approval status:** the 28 rules are approved as a living catalogue despite the workbook's Proposed labels; executable semantics, copy and unresolved mappings still need review.
 - **Unresolved pattern count:** 26 IDs are listed while an earlier summary says 27. Do not invent a missing pattern.
 - **Catalogue semantics:** all 249 references resolve to tuples, but some workbook labels differ from current catalogue headlines. Coordinate resolution does not resolve content meaning.
-- **Historical identity:** current assessments do not persist a behaviour ID or catalogue version. The redesigned evidence must retain both and resolve against retained historical content, or explicitly report that it cannot.
+- **Historical identity:** new selections persist a behaviour ID, catalogue version and content snapshot. Retained versions must remain available, and legacy sessions without provenance cannot be interpreted safely.
 - **Alternative collisions:** 92 same-coordinate collisions make a literal all-references-required interpretation invalid. Treating them as alternatives is a constraint-based interpretation that must be approved per rule.
 - **Unstructured logic:** free-text workbook columns do not provide executable AND/OR groups or a complete decision table.
 - **Unobservable context:** authority, stakeholder behavior, capacity, motivation, and actual delivery outcomes are not assessment fields. These remain user-validation prompts.
@@ -255,7 +309,9 @@ The workbook's Behaviour Test Inputs sheet has headers for 20 role/theme inputs 
 9. How should distinct overlapping patterns be grouped and ordered? Is there a display cap?
 10. Is the current Flow Rule Register intended to propose changes to the runtime, or is it a diagnostic review snapshot? Which Flow-specific findings should be approved separately?
 
-### Definition of done for the first implementation
+### Broader catalogue definition of done
+
+The following is a later catalogue-wide target, not a prerequisite for the isolated BF01-first implementation.
 
 - All approved rule references resolve to existing canonical tuples and catalogue entries; unknown or semantically unresolved references fail validation visibly.
 - A selection saved against catalogue version A remains interpretable against A after its headline or definition changes in version B; reopening and re-evaluation do not silently use B. Missing or inconsistent version A is reported explicitly.

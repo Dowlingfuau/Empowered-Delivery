@@ -3,14 +3,14 @@ namespace OperationalIntelligenceHub.Services
 {
 public class MaturitySignalBuilderService : SignalBuilderBaseService
 {
-    private readonly SignalMappingLoaderService _mappingLoader;
+    private readonly MaturityEvidenceService _evidence;
     private readonly SignalRegistryService _registry;
     public MaturitySignalBuilderService(SignalNormaliserService normaliser, 
-    SignalMappingLoaderService mappingLoader,
+    MaturityEvidenceService evidence,
     SignalRegistryService registry)
         : base(normaliser)
         {
-            _mappingLoader = mappingLoader;
+            _evidence = evidence;
             _registry = registry;
         }
 
@@ -22,8 +22,6 @@ public class MaturitySignalBuilderService : SignalBuilderBaseService
         var signals = new List<Signal>();
         var traces = new List<SignalTrace>();
         
-        var mappings = await _mappingLoader.GetMappings("maturity");
-
         foreach (var lens in session.LensAssessments)
         {
             foreach (var theme in lens.Themes)
@@ -31,16 +29,7 @@ public class MaturitySignalBuilderService : SignalBuilderBaseService
                 if (theme.Level <= 0)
                     continue;
 
-                var mapping = mappings.FirstOrDefault(m =>
-                    string.Equals(m.Lens, lens.Lens, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(m.Theme, theme.Theme, StringComparison.OrdinalIgnoreCase) &&
-                    m.Level == theme.Level);
-                    
-                if (mapping == null)
-                    {
-                        Console.WriteLine($"[WARN] No mapping for {lens.Lens}-{theme.Theme}-{theme.Level}");
-                        continue;
-                    }
+                var mapping = await _evidence.ResolveAsync(lens.Lens, theme);
 
                 var signal = CreateSignal(
                     mapping.SignalName,

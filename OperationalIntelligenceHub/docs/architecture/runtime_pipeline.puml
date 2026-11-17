@@ -4,6 +4,8 @@ actor User
 rectangle "Diagnostic inputs\nand evidence" as input
 rectangle "Measurements and signals\n(optional normalisation)" as signal
 rectangle "Diagnostic rules,\nderived signals and insights" as diagnostic
+rectangle "Maturity evidence projection and\nsemantic engine (isolated, not UI-integrated)" as maturity
+rectangle "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
 rectangle "Operational MRI:\nscopes, relationships and dimensions" as mri
 rectangle "Evaluate evidence, confidence,\nsignificance and priority" as evaluation
 rectangle "Compose and decide presentation" as output
@@ -13,6 +15,10 @@ User --> input
 input --> signal
 input --> diagnostic : direct evidence
 signal --> diagnostic
+input --> maturity : direct selections
+input ..> profiles : future
+profiles ..> maturity : future interpreted evidence
+maturity --> diagnostic : diagnostic findings and evidence
 input --> mri : retained evidence
 signal --> mri
 diagnostic --> mri
@@ -22,6 +28,7 @@ evaluation --> output
 output --> User : grounded narrative
 input ..> trace
 signal ..> trace
+maturity ..> trace
 diagnostic ..> trace
 mri ..> trace
 evaluation ..> trace
@@ -32,5 +39,9 @@ note bottom of trace
   support/challenge, evaluation and presentation states.
   Pipeline stages produce records; the console renders them.
   Current SignalTraceService covers only part of this lifecycle.
+end note
+note bottom of profiles
+  Profiles are a future role-level user experience
+  and evidence source, not a replacement for selections.
 end note
 @enduml
