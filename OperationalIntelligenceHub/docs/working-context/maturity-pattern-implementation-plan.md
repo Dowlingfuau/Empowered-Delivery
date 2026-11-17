@@ -2,7 +2,7 @@
 
 ## Status and guardrails
 
-This plan describes the isolated BF01 implementation and the remaining Maturity architecture work.
+This plan describes the BF01 candidate-only integration and the remaining Maturity architecture work.
 
 The source workbook's `Pattern Detection Rules` sheet is Version 0.1. Its 28 rule rows for 26 patterns are marked **Proposed** in the workbook, but the user has since approved them as a living catalogue. JSON is the intended source of truth for editable rules and narrative. The separate revised BF01 draft specifies a proposed contract; other executable conditions and sufficiency need further specification. Workbook-derived examples below remain provisional acceptance-test fixtures.
 
@@ -14,7 +14,7 @@ This plan does not alter the agreed pattern definitions. Where the workbook is a
 
 ## Target architecture and BF01 executable contract
 
-**Status:** the first independently testable Maturity semantic evaluator, validator and structured trace are implemented. The [BF01 revised draft](../../wwwroot/data/rules/maturity_pattern_rules_BF01_revised.json) uses `maturity-semantic-v1-draft` and is loaded by the new Maturity-specific repository, not the existing numeric rule repository. It is not connected to the results page or platform pipeline. Other workbook rows are not converted; their semantics remain unresolved.
+**Status:** the BF01 semantic evaluator, validator and structured trace are integrated into saved Maturity assessment refreshes. The [BF01 revised draft](../../wwwroot/data/rules/maturity_pattern_rules_BF01_revised.json) uses `maturity-semantic-v1-draft` and is loaded by the Maturity-specific repository, not the existing numeric rule repository. A candidate and its trace are shown in the Diagnostics Console, not as a user-facing finding. Other workbook rows are not converted; their semantics remain unresolved.
 
 ### Initial and enriched evidence paths
 
@@ -61,7 +61,9 @@ The trace links each selected snapshot, resolved version, group, classification,
 
 ### Implementation and test boundary
 
-The first implementation evaluates BF01 direct evidence only, without modifying UI, numeric flow, Backlog Health or MRI integration. Focused automated tests exercise all 25 core level pairs, the 60 directional supporting classifications, all four contextual relationships, missing evidence, three-valued logic, invalid definitions, provenance, isolation and existing numeric pipelines. The trace is returned as structured data to its caller; it is not persisted or shown in the Diagnostics Console. The static evaluator accepts already validated projected evidence independently of session acquisition; callers must not label unvalidated evidence as valid.
+The candidate-only integration evaluates BF01 direct evidence for saved assessments, including incomplete ones. `MaturitySemanticRunService` snapshots the session, loads and validates the rule, and reuses a successful run only when both the assessment snapshot and validated definition fingerprints match. The page invalidates the run on selection or session changes and passes the same in-memory result to the Diagnostics Console. Errors are recorded with their stage and surfaced separately; no semantic result is sent through the numeric pipeline. The console shows evidence, configured groups and condition expressions, classifications, relationships, stages and the explicitly unassessed eligibility decision. No finding, narrative, priority or eligibility policy is implemented; the run is not persisted. Reopening recalculates using the currently available definition, not an archived historical evaluation. Existing page-level evidence validation can prevent invalid or legacy sessions from opening before semantic evaluation.
+
+Focused automated tests exercise all 25 core level pairs, the 60 directional supporting classifications, all four contextual relationships, missing evidence, three-valued logic, invalid definitions, provenance, isolation and existing numeric pipelines. The static evaluator accepts already validated projected evidence independently of session acquisition; callers must not label unvalidated evidence as valid.
 
 Later integrate findings and Intelligence Trace into the existing results experience, then agree a platform-facing diagnostic-finding contract before changing existing outputs. A future adapter must preserve diagnostic ownership, evidence and unknown assessments, and must not invent numeric intensity for the current `OperationalInsight` model. Operational MRI may consume diagnostic findings and their evidence for separately evaluated broader relationships; it must not regenerate Maturity interpretation. Role Profiles and their UI are later work.
 
@@ -104,7 +106,7 @@ The workbook contains 92 within-rule coordinate collisions. These are multiple l
 | Domain profiles and generators | `DomainProfileBuilder`, `InsightGenerator`, and `InsightPrioritiser` are TODO stubs; related domain model types are not a completed profile pipeline. `InsightResult` is not used in the active Maturity flow. | Do not describe domain profiles, generated recommendations, or an alternate insight generator as existing capabilities. |
 | Maturity results | `MaturityAssessment.razor` shows the four-lens/five-theme result grid and radar profile, then renders existing insights as expandable cards. `MaturityInsightAttribution` traces numeric insight evidence back to coordinates when it can resolve them. | Reuse the current result experience and anchor concepts; pattern evidence should directly carry its selected lens/theme coordinates instead of attempting to infer them from aggregate signals. |
 | User validation | Current insight cards show interpretation, description, intensity, source, supporting signals, and rule reasons. There is no validate/reject interaction or four-part narrative model. | A pattern-specific narrative and explicit validation affordance are new UX. Whether validation feedback is persisted is an approval decision. |
-| Diagnostics | `Components/Debug/DiagnosticsConsole.razor` currently shows “No data available” for its Pattern Detection section. | Pattern evaluation should expose rule-trigger and pattern-support traces there, so operators can explain why a result did or did not become an insight. |
+| Diagnostics | The console has a separate Maturity pattern section for BF01's in-memory evaluation and candidate status. Existing numeric Pattern Detection sections remain unchanged. | Eligibility and finding/presentation decisions still require approved policies and implementation. |
 
 The `SignalPipelineService` currently builds Maturity signals, evaluates numeric behaviour/flow rules, evaluates system rules, and calls the existing insight engine. It does not evaluate the workbook's semantic pattern rules.
 

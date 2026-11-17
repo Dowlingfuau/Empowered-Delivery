@@ -1,30 +1,33 @@
 @startuml
 title Maturity semantic evaluation - initial target and future enrichment
 rectangle "Original selections and provenance\nimplemented capture" as evidence
-rectangle "Evidence acquisition and projection\nimplemented; not UI-integrated" as projection
+rectangle "Evidence acquisition and projection\nsaved Maturity sessions" as projection
 rectangle "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
 rectangle "JSON definitions and validation\nBF01 proposed contract" as rules
-rectangle "Contribution and relationship evaluation\nBF01 implemented; not UI-integrated" as match
+rectangle "Contribution and relationship evaluation\nBF01 candidate-only integration" as match
 rectangle "Pattern aggregation\nfuture" as aggregate
 rectangle "Diagnostic candidate" as candidate
 rectangle "Evidence sufficiency and eligibility\nfuture; policy unresolved" as support
 rectangle "Diagnostic finding\neligibility policy unresolved" as finding
 rectangle "Trace: provenance,\nstates and reasons" as trace
+rectangle "Diagnostics Console\nBF01 in-memory trace" as console
 evidence --> projection
 evidence ..> profiles : future
 profiles ..> projection : future profile interpretations
 projection --> match
 rules --> match
-match --> aggregate : triggered rules
+match ..> aggregate : future multi-rule aggregation
 aggregate --> support
 projection --> support
-aggregate --> candidate : matched relationship
+match --> candidate : matched BF01 relationship
+aggregate ..> candidate : future
 candidate --> support
 support --> finding : only when eligible
 projection ..> trace
 match ..> trace
 aggregate ..> trace
 support ..> trace
+trace --> console : BF01 run
 note bottom of match
   Initial evaluation uses original selected behaviours.
   A trigger is a candidate, not an automatic insight.

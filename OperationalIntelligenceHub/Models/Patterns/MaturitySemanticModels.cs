@@ -107,7 +107,12 @@ public sealed record SemanticSelection(
 
 public sealed record SemanticConditionTrace(
     string ConditionId, string Operation, SemanticTruth Result, string Reason,
-    IReadOnlyList<string> EvidenceIds, IReadOnlyList<SemanticConditionTrace> Operands);
+    IReadOnlyList<string> EvidenceIds, IReadOnlyList<SemanticConditionTrace> Operands)
+{
+    public string Expression { get; init; } = "";
+}
+
+public sealed record SemanticGroupDefinitionTrace(string GroupId, string Coordinate, IReadOnlyList<int> Levels);
 
 public sealed record SemanticBranchTrace(
     string BranchId, string Result, string? Direction, SemanticConditionTrace Condition, string Interpretation);
@@ -136,4 +141,7 @@ public sealed record SemanticEvaluationResult(
     IReadOnlyList<SemanticContributionTrace> Contributions,
     IReadOnlyList<SemanticContextTrace> ContextRelationships,
     SemanticOutcome Outcome, string? Direction, string? MatchedBranchId,
-    SemanticAssessmentStates AssessmentStates, IReadOnlyList<SemanticStageTrace> Trace);
+    SemanticAssessmentStates AssessmentStates, IReadOnlyList<SemanticStageTrace> Trace)
+{
+    public IReadOnlyList<SemanticGroupDefinitionTrace> GroupDefinitions { get; init; } = Array.Empty<SemanticGroupDefinitionTrace>();
+}

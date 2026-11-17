@@ -81,7 +81,7 @@
         "status": "Proposed",
         "contract": "maturity-semantic-v1-draft",
         "conditionStatus": "SpecifiedForProposedContract",
-        "notes": "The semanticDefinition contains the evaluation inputs and expressions for the independently testable Maturity semantic evaluator. This pilot is not integrated into the results page or the numeric pipeline. Do not interpret candidateBehaviourIds as an implicit AND condition."
+        "notes": "The semanticDefinition contains the evaluation inputs and expressions for the Maturity semantic evaluator. Saved assessment refreshes expose the BF01 candidate and trace in the Diagnostics Console; no diagnostic finding is created and the numeric pipeline is unchanged. Do not interpret candidateBehaviourIds as an implicit AND condition."
       },
       "semanticDefinition": {
         "definitionVersion": "1.0-draft",

@@ -1,0 +1,123 @@
+@using OperationalIntelligenceHub.Models.Patterns
+
+<section class="card stack" aria-labelledby="maturity-pattern-trace-title">
+    <h4 id="maturity-pattern-trace-title">Maturity pattern detection</h4>
+    @if (Run is null)
+    {
+        <p>Pattern evaluation has not been completed for this saved assessment.</p>
+    }
+    else
+    {
+        <p>Run: @Run.RunId · Assessment: @Run.AssessmentId</p>
+        <p>Assessment snapshot fingerprint: <code>@Run.AssessmentFingerprint</code></p>
+        <p>Pattern: @Run.PatternId · Definition source: <code>@Run.DefinitionSource</code></p>
+        @if (Run.Error is not null)
+        {
+            <p role="alert">Failed at @Run.FailedStage: @Run.Error</p>
+        }
+        <p><strong>Eligibility: @Run.Eligibility.</strong> @Run.EligibilityReason</p>
+        <p>No diagnostic finding is created or presented by this pilot.</p>
+
+        @if (Run.Evaluation is { } result)
+        {
+            <p><strong>Outcome: @result.Outcome</strong> · Direction: @(result.Direction ?? "not applicable") · Branch: @(result.MatchedBranchId ?? "none")</p>
+            <p>Rule: @result.Definition.RuleId · Definition version: @result.Definition.DefinitionVersion · Contract: @result.Definition.Contract</p>
+            <p>Definition fingerprint: <code>@result.Definition.DefinitionFingerprint</code></p>
+            <p>Compatible catalogue versions: @string.Join(", ", result.Definition.CompatibleCatalogueVersions)</p>
+            <p>Strength: @result.AssessmentStates.Strength · Reliability: @result.AssessmentStates.Reliability · Confidence: @result.AssessmentStates.Confidence · Priority: @result.AssessmentStates.Priority</p>
+
+            <details>
+                <summary>Acquired evidence and group resolution</summary>
+                @foreach (var evidence in result.Evidence)
+                {
+                    <section>
+                        <h5>@evidence.Coordinate · @evidence.Status</h5>
+                        <p>Evidence ID: @evidence.EvidenceId · @evidence.Reason</p>
+                        @if (evidence.Snapshot is { } snapshot)
+                        {
+                            <p>Level @evidence.Level · @snapshot.Headline</p>
+                            <p>Behaviour ID: @snapshot.BehaviourId · Catalogue version: @snapshot.CatalogueVersion</p>
+                            <p>Catalogue signals: @(snapshot.Signals is null ? "unavailable" : string.Join("; ", snapshot.Signals))</p>
+                            <p>Catalogue examples: @(snapshot.Examples is null ? "unavailable" : string.Join("; ", snapshot.Examples))</p>
+                        }
+                        @if (evidence.ConflictingSelections is { } conflicts)
+                        {
+                            @foreach (var conflict in conflicts)
+                            {
+                                <p>Conflicting selection: level @conflict.Level · @conflict.SelectedHeadline · Behaviour ID: @(conflict.Snapshot?.BehaviourId ?? "unavailable") · Catalogue version: @(conflict.Snapshot?.CatalogueVersion ?? "unavailable")</p>
+                            }
+                        }
+                        <p>Resolved groups: @(result.Groups.TryGetValue(evidence.Coordinate, out var groups) && groups.Count > 0 ? string.Join(", ", groups) : "none recorded")</p>
+                    </section>
+                }
+            </details>
+
+            <details>
+                <summary>Core branches and conditions</summary>
+                @foreach (var group in result.GroupDefinitions)
+                {
+                    <p>Group @group.GroupId: @group.Coordinate · Levels @string.Join(", ", group.Levels)</p>
+                }
+                @foreach (var branch in result.Branches)
+                {
+                    <section>
+                        <h5>@branch.BranchId · @branch.Condition.Result</h5>
+                        <p>Configured result: @branch.Result · Direction: @(branch.Direction ?? "not applicable")</p>
+                        <p>Branch interpretation: @branch.Interpretation</p>
+                        @ConditionView(branch.Condition)
+                    </section>
+                }
+            </details>
+
+            <details>
+                <summary>Supporting evidence classifications</summary>
+                @foreach (var contribution in result.Contributions)
+                {
+                    <p><strong>@contribution.Coordinate</strong> · @contribution.Status · @(contribution.Classification ?? "not classified")<br />
+                        Evidence: @contribution.EvidenceId · @contribution.Reason</p>
+                }
+            </details>
+
+            <details>
+                <summary>Contextual relationships</summary>
+                @foreach (var relationship in result.ContextRelationships)
+                {
+                    <section>
+                        <h5>@relationship.RelationshipId · @relationship.Status</h5>
+                        <p>Effect: @relationship.Effect · Dependencies: @string.Join(", ", relationship.EvidenceIds)</p>
+                        <p>Configured interpretation: @relationship.Interpretation</p>
+                        @if (relationship.Condition is not null)
+                        {
+                            @ConditionView(relationship.Condition)
+                        }
+                    </section>
+                }
+            </details>
+
+            <details>
+                <summary>Evaluation stages</summary>
+                @foreach (var stage in result.Trace)
+                {
+                    <p><strong>@stage.Stage · @stage.Subject · @stage.Result</strong><br />
+                        @stage.Reason · Evidence: @string.Join(", ", stage.EvidenceIds)</p>
+                }
+            </details>
+        }
+    }
+</section>
+
+@code {
+    [Parameter] public MaturitySemanticRun? Run { get; set; }
+
+    private RenderFragment ConditionView(SemanticConditionTrace condition) => @<ul>
+        <li>
+            @condition.ConditionId · @condition.Operation · @condition.Result: @condition.Reason
+            <code>@condition.Expression</code>
+            <span>Evidence: @string.Join(", ", condition.EvidenceIds)</span>
+            @foreach (var operand in condition.Operands)
+            {
+                @ConditionView(operand)
+            }
+        </li>
+    </ul>;
+}

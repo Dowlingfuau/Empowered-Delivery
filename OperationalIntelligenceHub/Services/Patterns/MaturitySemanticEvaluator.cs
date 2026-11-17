@@ -138,8 +138,12 @@ public sealed class MaturitySemanticEvaluator
             definition.ValidatedFingerprint!, semantic.CatalogueEvidence.CompatibleCatalogueVersions.ToList());
         var assessments = new SemanticAssessmentStates(semantic.ExecutionPolicy["strength"],
             semantic.ExecutionPolicy["reliability"], semantic.ExecutionPolicy["confidence"], semantic.ExecutionPolicy["priority"]);
-        return new(provenance, evidence.Values.ToList(), groupResults, branches, contributions, contexts,
-            outcome, matched?.Direction, matched?.BranchId, assessments, trace);
+        return new SemanticEvaluationResult(provenance, evidence.Values.ToList(), groupResults, branches, contributions, contexts,
+            outcome, matched?.Direction, matched?.BranchId, assessments, trace)
+        {
+            GroupDefinitions = semantic.CoreRelationship.GroupDefinitions
+                .Select(group => new SemanticGroupDefinitionTrace(group.GroupId, group.Coordinate, group.Levels.ToList())).ToList()
+        };
     }
 
     private static IEnumerable<string> ReferencedCoordinates(JsonElement expression,

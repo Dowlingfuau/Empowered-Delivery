@@ -10,8 +10,11 @@
 @using Microsoft.JSInterop
 @using OperationalIntelligenceHub.Models
 @using OperationalIntelligenceHub.Services
+@using OperationalIntelligenceHub.Services.Patterns
+@using OperationalIntelligenceHub.Models.Patterns
 @inject BehaviourCatalogueService BehaviourCatalogue
 @inject MaturityEvidenceService MaturityEvidence
+@inject MaturitySemanticRunService SemanticRuns
 @inject SignalMappingLoaderService MappingLoader
 @inject SignalRegistryService SignalRegistry
 @inject SignalPipelineService SignalPipeline
@@ -135,6 +138,16 @@
         @if (state.IsBusy)
         {
             <p class="mf-busy" role="status">@(busyMessage ?? "Recalculating the existing assessment interpretation…")</p>
+        }
+
+        @if (state.SemanticRun?.Error is { } semanticError)
+        {
+            <div class="mf-alert" role="alert">
+                <strong>Maturity pattern evaluation is unavailable.</strong>
+                <p>@semanticError</p>
+                <button type="button" class="mf-text-button" disabled="@state.IsBusy"
+                        @onclick="() => RefreshResultsAsync(state, state.ShowResults)">Retry pattern evaluation</button>
+            </div>
         }
 
         @if (state.ShowResults)
@@ -462,7 +475,7 @@
         @if (!IsDraft)
         {
             <DiagnosticsConsolePortal>
-                <DiagnosticsConsole Signals="@signals" DerivedSignals="@derivedSignals" Insights="@insights" RuleEvaluations="@evaluations" SignalTraces="@signalTraces" AdditionalInputs="@MaturityTraceInputs(state.Session)" InsightEvaluation="@insightEvaluation" />
+                <DiagnosticsConsole Signals="@signals" DerivedSignals="@derivedSignals" Insights="@insights" RuleEvaluations="@evaluations" SignalTraces="@signalTraces" AdditionalInputs="@MaturityTraceInputs(state.Session)" InsightEvaluation="@insightEvaluation" ShowMaturitySemantic="true" MaturitySemanticRun="@state.SemanticRun" />
             </DiagnosticsConsolePortal>
         }
     }
@@ -776,6 +789,7 @@
     private void ClearSession()
     {
         transitionVersion++;
+        if (sessionState is not null) sessionState.RefreshVersion++;
         selectedSessionId = "";
         sessionState = isReady ? CreateDraft() : null;
         signals.Clear();
@@ -1615,17 +1629,26 @@
             state.ErrorMessage = null;
             return true;
         }
+        var refreshVersion = ++state.RefreshVersion;
+        var session = state.Session;
         state.IsBusy = true;
         state.ErrorMessage = null;
         try
         {
-            var pipelineResult = await SignalPipeline.BuildSignalsAndDerivedDetailed(state.Session);
-            var selectedMappings = await MaturityEvidence.ResolveSessionAsync(state.Session);
-            var insightPlacements = MapInsights(state, pipelineResult.insights, pipelineResult.evaluations, selectedMappings);
-            if (!ReferenceEquals(sessionState, state))
+            var semanticRun = await SemanticRuns.EvaluateAsync(session, state.SemanticRun);
+            if (!ReferenceEquals(sessionState, state) || !ReferenceEquals(state.Session, session) ||
+                refreshVersion != state.RefreshVersion)
+                return false;
+            state.SemanticRun = semanticRun;
+
+            var pipelineResult = await SignalPipeline.BuildSignalsAndDerivedDetailed(session);
+            var selectedMappings = await MaturityEvidence.ResolveSessionAsync(session);
+            if (!ReferenceEquals(sessionState, state) || !ReferenceEquals(state.Session, session) ||
+                refreshVersion != state.RefreshVersion)
             {
                 return false;
             }
+            var insightPlacements = MapInsights(state, pipelineResult.insights, pipelineResult.evaluations, selectedMappings);
             signals = pipelineResult.signals;
             derivedSignals = pipelineResult.behaviour.Concat(pipelineResult.system).ToList();
             insights = pipelineResult.insights;
@@ -1639,7 +1662,8 @@
         }
         catch (Exception exception)
         {
-            if (!ReferenceEquals(sessionState, state))
+            if (!ReferenceEquals(sessionState, state) || !ReferenceEquals(state.Session, session) ||
+                refreshVersion != state.RefreshVersion)
             {
                 Logger.LogWarning(exception, "Maturity results refresh failed for closed assessment {AssessmentId}", state.Session.AssessmentId);
                 return false;
@@ -1658,7 +1682,7 @@
         }
         finally
         {
-            state.IsBusy = false;
+            if (refreshVersion == state.RefreshVersion) state.IsBusy = false;
         }
     }
 
@@ -1677,6 +1701,8 @@
     {
         isSwitching = true;
         state.IsBusy = true;
+        state.RefreshVersion++;
+        state.SemanticRun = null;
         try
         {
             var evidence = await MaturityEvidence.CaptureAsync(lens, theme.Theme, behaviour);
@@ -1794,6 +1820,8 @@
     private sealed class ConceptState(AssessmentSession session)
     {
         public AssessmentSession Session { get; set; } = session;
+        public MaturitySemanticRun? SemanticRun { get; set; }
+        public int RefreshVersion { get; set; }
         public List<InsightPlacement> InsightPlacements { get; set; } = new();
         public int LensIndex { get; set; }
         public int ThemeIndex { get; set; }

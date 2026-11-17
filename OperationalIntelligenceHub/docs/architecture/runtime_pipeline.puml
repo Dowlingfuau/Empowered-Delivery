@@ -4,7 +4,7 @@ actor User
 rectangle "Diagnostic inputs\nand evidence" as input
 rectangle "Measurements and signals\n(optional normalisation)" as signal
 rectangle "Diagnostic rules,\nderived signals and insights" as diagnostic
-rectangle "Maturity evidence projection and\nsemantic engine (isolated, not UI-integrated)" as maturity
+rectangle "Maturity evidence projection and\nBF01 candidate evaluation (saved sessions)" as maturity
 rectangle "Role Profile Builder and profiles\nfuture, not prerequisite" as profiles
 rectangle "Operational MRI:\nscopes, relationships and dimensions" as mri
 rectangle "Evaluate evidence, confidence,\nsignificance and priority" as evaluation
@@ -18,7 +18,7 @@ signal --> diagnostic
 input --> maturity : direct selections
 input ..> profiles : future
 profiles ..> maturity : future interpreted evidence
-maturity --> diagnostic : diagnostic findings and evidence
+maturity ..> diagnostic : future eligible findings and evidence
 input --> mri : retained evidence
 signal --> mri
 diagnostic --> mri
@@ -29,6 +29,7 @@ output --> User : grounded narrative
 input ..> trace
 signal ..> trace
 maturity ..> trace
+maturity --> console : current BF01 run; in memory
 diagnostic ..> trace
 mri ..> trace
 evaluation ..> trace

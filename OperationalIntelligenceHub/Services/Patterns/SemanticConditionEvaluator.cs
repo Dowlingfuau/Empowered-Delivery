@@ -27,8 +27,8 @@ public static class SemanticConditionEvaluator
                     : operands.All(x => x.Result == SemanticTruth.True) ? SemanticTruth.True : SemanticTruth.Unknown
                 : operands.Any(x => x.Result == SemanticTruth.True) ? SemanticTruth.True
                     : operands.All(x => x.Result == SemanticTruth.False) ? SemanticTruth.False : SemanticTruth.Unknown;
-            return new(conditionId, operation.Name, result, $"{operation.Name} evaluated all {operands.Count} operands.",
-                operands.SelectMany(x => x.EvidenceIds).Distinct().ToList(), operands);
+            return new SemanticConditionTrace(conditionId, operation.Name, result, $"{operation.Name} evaluated all {operands.Count} operands.",
+                operands.SelectMany(x => x.EvidenceIds).Distinct().ToList(), operands) { Expression = expression.GetRawText() };
         }
 
         string coordinate;
@@ -62,6 +62,7 @@ public static class SemanticConditionEvaluator
         var reason = selection.Status == SemanticEvidenceStatus.Valid
             ? $"Selected behaviour {selection.Snapshot!.BehaviourId} {(value == SemanticTruth.True ? "matches" : "does not match")} {operation.Name}."
             : $"{selection.Status}: {selection.Reason}";
-        return new(conditionId, operation.Name, value, reason, new[] { selection.EvidenceId }, Array.Empty<SemanticConditionTrace>());
+        return new SemanticConditionTrace(conditionId, operation.Name, value, reason, new[] { selection.EvidenceId },
+            Array.Empty<SemanticConditionTrace>()) { Expression = expression.GetRawText() };
     }
 }

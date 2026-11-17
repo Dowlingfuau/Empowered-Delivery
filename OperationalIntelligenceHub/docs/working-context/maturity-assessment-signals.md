@@ -2,7 +2,7 @@
 
 ## Purpose and status
 
-This document records the current Maturity Assessment data path and distinguishes it from the independently testable semantic behaviour-pattern foundation. The BF01 evaluator is implemented but not integrated into the results page or existing pipeline. The pattern mapping, implementation design, user experience, and tests are covered in the [pattern implementation plan](./maturity-pattern-implementation-plan.md) and [pattern detection rules](./maturity-pattern-detection-rules.md).
+This document records the current Maturity Assessment data paths. BF01 is evaluated independently of the numeric pipeline during saved assessment refreshes; its candidate trace is visible in the Diagnostics Console, not in the existing result cards. The pattern mapping, implementation design, user experience, and tests are covered in the [pattern implementation plan](./maturity-pattern-implementation-plan.md) and [pattern detection rules](./maturity-pattern-detection-rules.md).
 
 ## 1. Assessment responses
 
@@ -61,17 +61,17 @@ AssessmentSession
 | `OperationalInsightEngine` | Creates insights from derived signals, scores them with intensity, configured priority, and confidence weight, and selects at most five. |
 | `MaturityInsightAttribution` | Traces existing numeric-rule evidence back to Maturity coordinates when the evaluation evidence resolves uniquely. |
 | `MaturityAssessment.razor` | Presents the four-lens/five-theme results grid, radar profile, and expandable insight cards. Current cards expose interpretation, description, intensity, source, supporting signals, and rule reasons. |
-| `Components/Debug/DiagnosticsConsole.razor` | Provides evaluation diagnostics. Its Pattern Detection area is currently a placeholder with no data. |
+| `Components/Debug/DiagnosticsConsole.razor` | Provides numeric evaluation diagnostics and a separate BF01 semantic trace for saved Maturity sessions. Existing numeric Pattern Detection placeholders remain unchanged. |
 
 `BehaviourRuleEngine` is registered but is not called by the main signal pipeline. It contains experimental average-ownership examples, not the new patterns. `InsightGenerator`, `InsightPrioritiser`, and `DomainProfileBuilder` remain TODO stubs; the related domain-profile path is not implemented. `InsightResult` is not the active result type for the Maturity pipeline.
 
 ## 4. Proposed pattern boundary
 
-The new workbook describes semantic relationships among selected behaviours, including reinforcing and friction patterns. Individual maturity signals retain their raw selected level, while the session retains the selected behaviour evidence; numeric averages alone cannot establish these relationships. The current pipeline does not evaluate the new semantic rules.
+The new workbook describes semantic relationships among selected behaviours, including reinforcing and friction patterns. Individual maturity signals retain their raw selected level, while the session retains the selected behaviour evidence; numeric averages alone cannot establish these relationships. The numeric pipeline does not evaluate semantic rules; BF01 runs separately for saved Maturity sessions.
 
 The workbook's 28 rule rows reference 26 patterns. Cross-checking found 249 reference occurrences representing 78 distinct IDs with current Lens/Theme/Level mappings and no unresolved tuples. The 92 within-rule coordinate collisions represent multiple candidate levels for the same lens/theme; because only one level can be selected at a time, these must be treated as alternatives, not simultaneous requirements. Some workbook labels differ from current catalogue headlines, so tuple resolution alone does not confirm semantic equivalence.
 
-The 28 workbook rules have been approved as a living document, although Version 0.1 still marks its rows Proposed. The workbook itself supplies no technical trigger syntax or approved numeric threshold; a later workbook contains one populated behaviour test input without an expected result. The separate BF01 JSON has a typed direct-evidence contract implemented by an isolated evaluator. Therefore:
+The 28 workbook rules have been approved as a living document, although Version 0.1 still marks its rows Proposed. The workbook itself supplies no technical trigger syntax or approved numeric threshold; a later workbook contains one populated behaviour test input without an expected result. The separate BF01 JSON has a typed direct-evidence contract implemented by an evaluator independent of the numeric path. Therefore:
 
 - an individual rule match must remain distinct from a sufficiently supported pattern;
 - incomplete coordinates are unknown, not negative evidence;
@@ -87,9 +87,9 @@ The coordinate, resolved `BehaviourId`, catalogue version and selected content a
 
 Preserving the selected behaviour does not by itself reproduce an old insight if rule definitions or evaluation logic change. Rule/evaluation versioning and whether to replay an earlier evaluation or run a new one are separate decisions; the trace must distinguish them.
 
-Preserving the selected evidence alongside raw levels, calculated signals, optional normalised values, derived results and evaluation history throughout a semantic evaluation remains future work. The current session-only trace is not durable evidence history. Semantic selections may be evaluated directly rather than forced into numeric signals. Normalisation is optional and equal ranges do not establish comparability.
+The BF01 semantic run preserves its selected evidence and evaluation trace in memory; it does not persist evaluation history or combine its evidence with the numeric pipeline's signals. The current session-only trace is not durable evidence history. Semantic selections may be evaluated directly rather than forced into numeric signals. Normalisation is optional and equal ranges do not establish comparability.
 
-The JSON is the intended source of truth for editable rule definitions and narrative. The separate BF01 draft specifies machine-evaluable conditions for the isolated evaluator; other conditions and sufficiency criteria remain incomplete. A matched rule is a candidate, not an automatic insight. Dynamic confidence and priority are separate evaluations, with support, challenge, missing evidence, relationships and shared provenance recorded; neither has an approved numeric formula. Diagnostic insights remain distinct from cross-diagnostic MRI hypotheses. See [insight-engine-purpose.md](./insight-engine-purpose.md).
+The JSON is the intended source of truth for editable rule definitions and narrative. The separate BF01 draft specifies machine-evaluable conditions for the independent evaluator; other conditions and sufficiency criteria remain incomplete. A matched rule is a candidate, not an automatic insight. Dynamic confidence and priority are separate evaluations, with support, challenge, missing evidence, relationships and shared provenance recorded; neither has an approved numeric formula. Diagnostic insights remain distinct from cross-diagnostic MRI hypotheses. See [insight-engine-purpose.md](./insight-engine-purpose.md).
 
 ## 5. Separate Flow rule documentation
 

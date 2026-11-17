@@ -6,6 +6,12 @@ using OperationalIntelligenceHub.Models;
 using OperationalIntelligenceHub.Models.Patterns;
 using OperationalIntelligenceHub.Services;
 using OperationalIntelligenceHub.Services.Patterns;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using OperationalIntelligenceHub.Components.Debug;
 
 public class MaturitySemanticEvaluatorTests
 {
@@ -486,4 +492,141 @@ public class MaturitySemanticEvaluatorTests
         Assert.Equal("Supporting", before.Contributions.Single(x => x.Coordinate == "ScrumMaster.Value").Classification);
         Assert.Equal("Qualifying", after.Contributions.Single(x => x.Coordinate == "ScrumMaster.Value").Classification);
     }
+
+    [Theory]
+    [InlineData(3, 1, SemanticOutcome.Candidate, "NotAssessed")]
+    [InlineData(1, 3, SemanticOutcome.Candidate, "NotAssessed")]
+    [InlineData(1, 1, SemanticOutcome.NoMatch, "NotApplicable")]
+    [InlineData(3, 3, SemanticOutcome.NoMatch, "NotApplicable")]
+    public async Task SemanticRun_PreservesEvaluationAndDoesNotCreateFindings(
+        int po, int squad, SemanticOutcome outcome, string eligibility)
+    {
+        var (http, _) = CreateHttp();
+        var service = CreateRunService(http);
+        var run = await service.EvaluateAsync(Session(("ProductOwner", "Value", po), ("Squad", "Value", squad)));
+        Assert.Null(run.Error);
+        Assert.Equal(outcome, run.Evaluation!.Outcome);
+        Assert.Equal(eligibility, run.Eligibility);
+        Assert.NotEmpty(run.RunId);
+        Assert.NotEmpty(run.AssessmentFingerprint);
+        var branch = run.Evaluation.Branches.Single(x => x.Condition.Result == SemanticTruth.True);
+        Assert.All(branch.Condition.EvidenceIds, id => Assert.Contains(run.Evaluation.Evidence, evidence => evidence.EvidenceId == id));
+        Assert.Contains("hasGroup", branch.Condition.Operands[0].Expression);
+        Assert.Contains(run.Evaluation.GroupDefinitions, x => x.GroupId == "ValueOrientation" && x.Coordinate == "ProductOwner.Value");
+    }
+
+    [Fact]
+    public async Task SemanticRun_DistinguishesUnknownAndUnavailableEvidence()
+    {
+        var (http, _) = CreateHttp();
+        var service = CreateRunService(http);
+        var unknown = await service.EvaluateAsync(Session(("ProductOwner", "Value", 3)));
+        Assert.Equal(SemanticOutcome.Unknown, unknown.Evaluation!.Outcome);
+        Assert.Equal(SemanticEvidenceStatus.Missing, unknown.Evaluation.Evidence.Single(x => x.Coordinate == "Squad.Value").Status);
+        var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
+        session.LensAssessments[0].Themes[0].SelectedBehaviour!.CatalogueVersion = "v2";
+        var unavailable = await service.EvaluateAsync(session);
+        Assert.Equal(SemanticOutcome.Unavailable, unavailable.Evaluation!.Outcome);
+        Assert.Equal(SemanticEvidenceStatus.Incompatible, unavailable.Evaluation.Evidence.Single(x => x.Coordinate == "ProductOwner.Value").Status);
+        Assert.Equal("NotApplicable", unavailable.Eligibility);
+    }
+
+    [Fact]
+    public async Task SemanticRun_ReusesUnchangedSnapshotButReevaluatesChangesToEvidenceAndDefinition()
+    {
+        var (http, handler) = CreateHttp();
+        var service = CreateRunService(http);
+        var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
+        var first = await service.EvaluateAsync(session);
+        var same = await service.EvaluateAsync(session, first);
+        Assert.Same(first, same);
+        session.LensAssessments[1].Themes[0] = Selection("Squad", "Value", 3);
+        var changed = await service.EvaluateAsync(session, same);
+        Assert.NotEqual(first.RunId, changed.RunId);
+        Assert.NotEqual(first.AssessmentFingerprint, changed.AssessmentFingerprint);
+        Assert.Equal(SemanticOutcome.NoMatch, changed.Evaluation!.Outcome);
+
+        var path = MaturitySemanticRuleRepository.DefaultSource;
+        var file = Path.Combine(Root, "OperationalIntelligenceHub", "wwwroot", path.Replace('/', Path.DirectorySeparatorChar));
+        var root = JsonNode.Parse(File.ReadAllText(file))!;
+        root["rules"]![0]!["semanticDefinition"]!["supportingEvidenceProfiles"]![0]!["contributions"]!["DirectionA"]!["1"] = "Qualifying";
+        handler.Overrides[path] = root.ToJsonString();
+        var changedRule = await service.EvaluateAsync(session, changed);
+        Assert.NotEqual(changed.RunId, changedRule.RunId);
+        Assert.NotEqual(changed.Evaluation.Definition.DefinitionFingerprint, changedRule.Evaluation!.Definition.DefinitionFingerprint);
+    }
+
+    [Fact]
+    public async Task SemanticRun_ReportsDefinitionFailureAndRetriesWithoutReusingOldResult()
+    {
+        var (http, handler) = CreateHttp();
+        var service = CreateRunService(http);
+        var session = Session(("ProductOwner", "Value", 3), ("Squad", "Value", 1));
+        var original = await service.EvaluateAsync(session);
+        handler.Overrides[MaturitySemanticRuleRepository.DefaultSource] = null;
+        var failure = await service.EvaluateAsync(session, original);
+        Assert.Null(failure.Evaluation);
+        Assert.Equal("DefinitionLoading", failure.FailedStage);
+        Assert.False(string.IsNullOrWhiteSpace(failure.Error));
+        Assert.Equal("NotAssessed", failure.Eligibility);
+        handler.Overrides.Remove(MaturitySemanticRuleRepository.DefaultSource);
+        var retry = await service.EvaluateAsync(session, failure);
+        Assert.Null(retry.Error);
+        Assert.Equal(SemanticOutcome.Candidate, retry.Evaluation!.Outcome);
+        Assert.NotEqual(original.RunId, retry.RunId);
+    }
+
+    [Fact]
+    public async Task SemanticTrace_RendersRecordedEvidenceConditionsAndEligibility()
+    {
+        var (http, _) = CreateHttp();
+        var run = await CreateRunService(http).EvaluateAsync(Session(
+            ("ProductOwner", "Value", 3), ("Squad", "Value", 1), ("Leader", "Trust", 1)));
+        var services = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var renderer = new HtmlRenderer(services, services.GetRequiredService<ILoggerFactory>());
+        var html = await renderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var parameters = ParameterView.FromDictionary(new Dictionary<string, object?> { ["Run"] = run });
+            return (await renderer.RenderComponentAsync<MaturitySemanticTrace>(parameters)).ToHtmlString();
+        });
+        Assert.Contains(run.RunId, html);
+        Assert.Contains("ProductOwner_Value_L3", html);
+        Assert.Contains("DirectionA_ProductOwnerAhead", html);
+        Assert.Contains("hasGroup", html);
+        Assert.Contains("Leader.Trust", html);
+        Assert.Contains("Supporting", html);
+        Assert.Contains("Missing", html);
+        Assert.Contains("NotAssessed", html);
+        Assert.Contains("No diagnostic finding is created", html);
+    }
+
+    [Fact]
+    public async Task DiagnosticsConsole_ShowsSemanticFailureOnlyWhenRequested()
+    {
+        var (http, handler) = CreateHttp();
+        handler.Overrides[MaturitySemanticRuleRepository.DefaultSource] = null;
+        var run = await CreateRunService(http).EvaluateAsync(Session(("ProductOwner", "Value", 3)));
+        var services = new ServiceCollection().AddLogging().AddSingleton<SignalTraceService>().BuildServiceProvider();
+        await using var renderer = new HtmlRenderer(services, services.GetRequiredService<ILoggerFactory>());
+        async Task<string> Render(bool show) => await renderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var parameters = ParameterView.FromDictionary(new Dictionary<string, object?>
+            {
+                ["ShowMaturitySemantic"] = show,
+                ["MaturitySemanticRun"] = run
+            });
+            return (await renderer.RenderComponentAsync<DiagnosticsConsole>(parameters)).ToHtmlString();
+        });
+        var maturity = await Render(true);
+        Assert.Contains("Maturity pattern detection", maturity);
+        Assert.Contains("DefinitionLoading", maturity);
+        Assert.Contains("NotAssessed", maturity);
+        Assert.DoesNotContain("Outcome: NoMatch", maturity);
+        Assert.DoesNotContain("Maturity pattern detection", await Render(false));
+    }
+
+    private static MaturitySemanticRunService CreateRunService(HttpClient http) =>
+        new(new MaturitySemanticRuleRepository(http),
+            new MaturitySemanticEvaluator(new MaturitySemanticEvidenceProjector(new MaturityEvidenceService(http))),
+            NullLogger<MaturitySemanticRunService>.Instance);
 }
